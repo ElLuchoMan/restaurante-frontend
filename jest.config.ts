@@ -6,16 +6,6 @@ module.exports = {
         '<rootDir>/dist/',
         '<rootDir>/src/test.ts'
     ],
-    globals: {
-        'ts-jest': {
-            tsconfig: 'tsconfig.spec.json',
-            stringifyContentPathRegex: '\\.html$',
-            astTransformers: [
-                "jest-preset-angular/build/InlineFilesTransformer",
-                "jest-preset-angular/build/StripStylesTransformer"
-            ]
-        }
-    },
     coverageDirectory: '<rootDir>/coverage/',
     coverageReporters: ['html', 'lcov', 'text-summary']
 };
