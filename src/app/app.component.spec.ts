@@ -1,12 +1,25 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component'; // Standalone component
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent], // Standalone components van en imports
-      schemas: [CUSTOM_ELEMENTS_SCHEMA], // Ignora elementos desconocidos
+      imports: [AppComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              data: {
+                title: 'Home',
+              },
+            },
+          },
+        },
+      ],
     }).compileComponents();
   });
 

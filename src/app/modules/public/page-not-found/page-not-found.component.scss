@@ -1,0 +1,18 @@
+.page-not-found {
+    margin-top: 50px;
+
+    h1 {
+        font-size: 8rem;
+        color: var(--primary);
+    }
+
+    p {
+        font-size: 1.5rem;
+        color: var(--secondary);
+    }
+
+    a {
+        text-decoration: none;
+        color: var(--light);
+    }
+}
