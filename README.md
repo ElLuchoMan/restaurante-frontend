@@ -64,8 +64,6 @@ src/
 ├── app/
 │   ├── core/                  # Elementos esenciales y configuración de la app
 │   │   ├── components/        # Componentes reutilizables globales
-│   │   │   ├── header/        # Header común
-│   │   │   ├── footer/        # Footer común
 │   │   ├── guards/            # Guardias para autenticación y roles
 │   │   ├── interceptors/      # Interceptores HTTP (e.g., manejo de JWT)
 │   │   ├── services/          # Servicios generales (e.g., autenticación)
@@ -73,6 +71,8 @@ src/
 │   │   └── app.config.ts      # Configuración global (e.g., constantes, URLs)
 │   ├── shared/                # Componentes y utilidades reutilizables
 │   │   ├── components/        # Botones, tarjetas, modales, etc.
+│   │   │   ├── header/        # Header común
+│   │   │   ├── footer/        # Footer común
 │   │   ├── directives/        # Directivas personalizadas
 │   │   ├── pipes/             # Pipes comunes
 │   │   └── shared.module.ts   # Módulo compartido
