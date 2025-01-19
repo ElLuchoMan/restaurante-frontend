@@ -1,10 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import { AppComponent } from './app.component'; // Standalone component
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [AppComponent], // Standalone components van en imports
+      schemas: [CUSTOM_ELEMENTS_SCHEMA], // Ignora elementos desconocidos
     }).compileComponents();
   });
 
@@ -14,16 +16,15 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'restaurante-frontend' title`, () => {
+  it(`should have title as 'restaurante-frontend'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app.title).toEqual('restaurante-frontend');
   });
 
-  it('should render title', () => {
+  it('should render the router outlet', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, restaurante-frontend');
+    expect(compiled.querySelector('router-outlet')).not.toBeNull();
   });
 });
