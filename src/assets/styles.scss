@@ -1,5 +1,6 @@
-$primary: #F195B2;
+$primary: #F27294;
 $secondary: #62C3E7;
+$tertiary: #F195B2;
 $light: #FFFFFF;
 $dark: #333333;
 
@@ -37,7 +38,6 @@ h6,
 
 .btn {
     font-weight: 500 !important;
-    padding: 10px 25px !important;
     border-radius: 100px !important;
 }
 
@@ -55,8 +55,8 @@ h6,
     height: 45px !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
-    text-align: center !important;
-    border-radius:45px !important;
+    text-align: center;
+    border-radius:45px;
 }
 
 .back-to-top {
@@ -74,7 +74,7 @@ h6,
     height: 50%;
     top: 0;
     left: 0;
-    background: $primary;
+    background: $tertiary !important;
 }
 
 .navbar-light .navbar-nav .nav-link {
