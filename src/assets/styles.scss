@@ -3,12 +3,11 @@ $secondary: #62C3E7;
 $tertiary: #F195B2;
 $light: #FFFFFF;
 $dark: #333333;
+$body-bg: #F3F6FF;
+$body-color: #555555;
+$black: #000000;
 
 $font-family-sans-serif: 'Poppins', sans-serif;
-
-$body-bg: #F3F6FF;
-
-$body-color: #555555;
 
 $headings-color: $dark;
 
@@ -236,7 +235,7 @@ h6,
     font-size: 30px;
     font-weight: normal;
     color: $light;
-    background: #000000;
+    background: $black;
     opacity: 1;
 }
 
