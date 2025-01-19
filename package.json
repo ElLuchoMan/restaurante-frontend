@@ -3,10 +3,13 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve -o",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "jest --coverage",
+    "lint": "ng lint",
+    "e2e": "ng e2e",
+    "limpieza": "npx rimraf node_modules package-lock.json",
     "serve:ssr:restaurante-frontend": "node dist/restaurante-frontend/server/server.mjs"
   },
   "private": true,
