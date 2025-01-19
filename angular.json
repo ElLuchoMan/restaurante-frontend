@@ -33,10 +33,10 @@
               }
             ],
             "styles": [
+              "src/assets/style.css",
               "src/styles.scss",
               "src/assets/styles.scss",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/owl.carousel/dist/assets/owl.carousel.min.css",
               "node_modules/owl.carousel/dist/assets/owl.theme.default.min.css",
               "node_modules/lightbox2/dist/css/lightbox.min.css"
@@ -104,10 +104,10 @@
               }
             ],
             "styles": [
+              "src/assets/style.css",
               "src/styles.scss",
               "src/assets/styles.scss",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/owl.carousel/dist/assets/owl.carousel.min.css",
               "node_modules/owl.carousel/dist/assets/owl.theme.default.min.css",
               "node_modules/lightbox2/dist/css/lightbox.min.css"
