@@ -24,9 +24,9 @@
                     </div>
                     <div class="col-sm-6 text-center text-sm-left">
                         <h5 class="font-weight-bold mb-2">Horario de Atención para hoy</h5>
-                        <p class="mb-1">Estado: {{"Abierto"}}</p>
-                        <p class="mb-1">Hora Apertura: {{"08:00"}}</p>
-                        <p class="mb-1">Hora Cierre: {{"13:00"}}</p>
+                        <p class="mb-1">Estado: {{estado}}</p>
+                        <p class="mb-1" *ngIf="estado=='Abierto'">Hora Apertura: {{horaApertura}}</p>
+                        <p class="mb-1" *ngIf="estado=='Abierto'">Hora Cierre: {{horaCierre}}</p>
                     </div>
                 </div>
             </div>
