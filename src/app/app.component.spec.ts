@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component'; // Standalone component
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { HttpClient, HttpHandler } from '@angular/common/http';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -10,15 +11,12 @@ describe('AppComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              data: {
-                title: 'Home',
-              },
-            },
-          },
+          provide:
+            ActivatedRoute,
+          useValue: { snapshot: { data: { title: 'Home' } } }
         },
+        HttpClient,
+        HttpHandler,
       ],
     }).compileComponents();
   });

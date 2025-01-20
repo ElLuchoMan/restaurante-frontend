@@ -13,7 +13,7 @@ import { HandleErrorService } from './handle-error.service';
 export class RestauranteService {
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+  constructor(private http: HttpClient, private handleError: HandleErrorService) { }
 
   getRestauranteInfo(): Observable<ApiResponse<Restaurante>> {
     return this.http.get<ApiResponse<Restaurante>>(`${this.baseUrl}restaurantes/search?id=1`).pipe(
@@ -26,6 +26,4 @@ export class RestauranteService {
       catchError(this.handleError.handleError)
     );
   }
-
-
 }

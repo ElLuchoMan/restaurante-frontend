@@ -27,14 +27,17 @@ export class FooterComponent {
       this.restaurante = response;
     });
 
-    this.estadoActual = this.horaCierre < new Date().toLocaleTimeString() ? 'Cerrado' : 'Abierto';
+    if (this.horaCierre && this.horaApertura) {
+      const horaActual = new Date().toLocaleTimeString('en-GB', { hour12: false });
+      this.estadoActual = horaActual >= this.horaApertura && horaActual <= this.horaCierre ? 'Abierto' : 'Cerrado';
+    }
 
     this.restauranteService.getCambiosHorario().subscribe({
       next: (response: ApiResponse<CambioHorario>) => {
         this.horaApertura = response.data.HORA_APERTURA;
         this.horaCierre = response.data.HORA_CIERRE;
         if (response.code !== 404) {
-          if (!response.data.ABIERTO) {
+          if (response.data.ABIERTO === false) {
             this.estado = 'Cerrado';
             this.horaApertura = 'No Aplica';
             this.horaCierre = 'No Aplica';
@@ -43,7 +46,7 @@ export class FooterComponent {
         }
         this.cambioHorario = response;
       },
-      error: (error) => {console.log(error); },
+      error: (error) => { console.log(error); },
     });
   }
 
