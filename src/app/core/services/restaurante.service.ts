@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Restaurante } from '../../shared/models/restaurante.model';
 import { CambioHorario } from '../../shared/models/cambio-horario.model';
+import { HandleErrorService } from './handle-error.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,21 +13,19 @@ import { CambioHorario } from '../../shared/models/cambio-horario.model';
 export class RestauranteService {
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
 
   getRestauranteInfo(): Observable<ApiResponse<Restaurante>> {
     return this.http.get<ApiResponse<Restaurante>>(`${this.baseUrl}restaurantes/search?id=1`).pipe(
-      catchError(this.handleError)
+      catchError(this.handleError.handleError)
     );
   }
 
   getCambiosHorario(): Observable<ApiResponse<CambioHorario>> {
     return this.http.get<ApiResponse<CambioHorario>>(`${this.baseUrl}cambios_horario/actual`).pipe(
-      catchError(this.handleError)
+      catchError(this.handleError.handleError)
     );
   }
 
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    return throwError(() => error);
-  }
+
 }

@@ -43,9 +43,7 @@ export class FooterComponent {
         }
         this.cambioHorario = response;
       },
-      error: (error) => {
-
-      },
+      error: (error) => {console.log(error); },
     });
   }
 
