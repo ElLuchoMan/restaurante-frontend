@@ -14,10 +14,10 @@ describe('RestauranteService', () => {
     code: 200,
     message: 'Restaurante obtenido correctamente',
     data: {
-      pk_id_restaurante: 1,
-      nombre_restaurante: 'Restaurante Prueba',
-      HORA_APERTURA: '09:00',
-      dias_laborales: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'],
+      restauranteId: 1,
+      nombreRestaurante: 'Restaurante Prueba',
+      horaApertura: '09:00',
+      diasLaborales: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'],
     },
   };
 
@@ -25,11 +25,11 @@ describe('RestauranteService', () => {
     code: 200,
     message: 'Cambios de horario obtenidos correctamente',
     data: {
-      PK_ID_CAMBIO_HORARIO: 1,
-      FECHA: '2025-01-20',
-      HORA_APERTURA: '00:00',
-      HORA_CIERRE: '23:59',
-      ABIERTO: false,
+      cambioHorarioId: 1,
+      fechaCambioHorario: '2025-01-20',
+      horaApertura: '00:00',
+      horaCierre: '23:59',
+      abierto: false,
     },
   };
 
@@ -68,6 +68,6 @@ describe('RestauranteService', () => {
 
     const req = httpTestingController.expectOne(`${service['baseUrl']}cambios_horario/actual`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockCambioHorarioResponse); 
+    req.flush(mockCambioHorarioResponse);
   });
 });

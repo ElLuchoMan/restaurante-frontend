@@ -1,22 +1,20 @@
-$primary: #D4A017;
-$secondary: #9E4F3F;
-$tertiary: #B47C5F;
-$quaternary:#EADABA;
-$light: #FDF3E7;
-$dark: #3B3B3B;
-$body-bg: #F3F6FF;
+$primary: #d4a017;
+$secondary: #9e4f3f;
+$tertiary: #b47c5f;
+$quaternary: #eadaba;
+$light: #fdf3e7;
+$dark: #3b3b3b;
+$body-bg: #f3f6ff;
 $body-color: #555555;
 $black: #000000;
 
-$font-family-sans-serif: 'Poppins', sans-serif;
+$font-family-sans-serif: "Poppins", sans-serif;
 
 $headings-color: $dark;
 
 $enable-responsive-font-sizes: true;
 
 $border-radius: 5px;
-
-
 
 h1,
 h2,
@@ -41,9 +39,58 @@ h6,
     border-radius: 100px !important;
 }
 
-.btn.btn-primary,
-.btn.btn-secondary {
-    color: $light !important;
+.btn-primary {
+    color: $light;
+    background-color: $primary;
+    border-color: $primary;
+}
+
+.btn-primary:hover {
+    color: $dark;
+    border-color: $quaternary;
+    border-color: $quaternary;
+}
+
+.btn-primary:focus,
+.btn-primary.focus {
+    color: $dark;
+    background-color: $quaternary;
+    border-color: $quaternary;
+    box-shadow: 0 0 0 0.2rem rgba(212, 160, 23, 0.5);
+}
+
+.btn-primary.disabled,
+.btn-primary:disabled {
+    color: $dark;
+    background-color: $primary;
+    border-color: $primary;
+}
+
+.btn-secondary {
+    color: $light;
+    background-color: $secondary;
+    border-color: $secondary;
+}
+
+.btn-secondary:hover {
+    color: $dark;
+    background-color: $tertiary;
+    border-color: $tertiary;
+}
+
+.btn-secondary:focus,
+.btn-secondary.focus {
+    color: $dark;
+    background-color: $tertiary;
+    border-color: $tertiary;
+    box-shadow: 0 0 0 0.2rem rgba(158, 79, 63, 0.5);
+}
+
+.btn-secondary.disabled,
+.btn-secondary:disabled {
+    color: $dark;
+    background-color: $secondary;
+    border-color: $secondary;
 }
 
 .form-control {
@@ -56,7 +103,7 @@ h6,
     padding-left: 0 !important;
     padding-right: 0 !important;
     text-align: center;
-    border-radius:45px;
+    border-radius: 45px;
 }
 
 .back-to-top {
@@ -91,7 +138,7 @@ h6,
 }
 
 @media (max-width: 991.98px) {
-    .navbar-light .navbar-nav .nav-link  {
+    .navbar-light .navbar-nav .nav-link {
         padding: 10px 0;
     }
 }
@@ -112,12 +159,15 @@ h6,
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, .3);
+    background: rgba(0, 0, 0, 0.3);
     z-index: 1;
 }
 
 .page-header {
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(./img/header.jpg), no-repeat center center;
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+        url(./img/header.jpg),
+        no-repeat center center;
     background-size: cover;
 }
 
@@ -298,7 +348,7 @@ h6,
 
 .product-item,
 .product-item h5 {
-    transition: .5s;
+    transition: 0.5s;
 }
 
 .product-item:hover {
@@ -336,7 +386,7 @@ h6,
     background: $light;
     text-decoration: none;
     opacity: 0;
-    transition: .5s;
+    transition: 0.5s;
     z-index: 2;
 }
 
@@ -370,7 +420,7 @@ h6,
     left: 15px;
     border: 2px solid $primary;
     border-radius: 200px;
-    transition: .5s;
+    transition: 0.5s;
     z-index: 2;
 }
 
@@ -382,7 +432,7 @@ h6,
 }
 
 .team-item .team-img img {
-    transition: .5s;
+    transition: 0.5s;
 }
 
 .team-item:hover .team-img img {
@@ -396,7 +446,7 @@ h6,
     bottom: 0;
     left: -75px;
     z-index: 1;
-    transition: .5s;
+    transition: 0.5s;
 }
 
 .team:hover .team-social {

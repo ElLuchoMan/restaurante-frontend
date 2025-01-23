@@ -34,17 +34,17 @@ svg {
 h1 {
     font-size: 8rem;
     color: var(--primary);
-  }
+}
 
-  p {
+p {
     font-size: 1.5rem;
     color: var(--gray);
-  }
+}
 
-  a {
+a {
     text-decoration: none;
     color: var(--light);
-  }
+}
 @keyframes scales {
     from {
         transform: scale(0.98);

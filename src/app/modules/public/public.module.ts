@@ -7,6 +7,6 @@ import publicRoutes from './public.routes';
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule, RouterModule.forChild(publicRoutes)  ]
+  imports: [CommonModule, RouterModule.forChild(publicRoutes)]
 })
 export class PublicModule { }

@@ -23,7 +23,7 @@ describe('PageNotFoundComponent', () => {
         },
       ],
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(PageNotFoundComponent);
     component = fixture.componentInstance;
