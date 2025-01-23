@@ -2541,8 +2541,8 @@ fieldset:disabled a.btn {
 .btn-primary.disabled,
 .btn-primary:disabled {
   color: var(--dark);
-  background-color: var(--primary);
-  border-color: var(--primary);
+  background-color: var(--quaternary);
+  border-color: var(--quaternary);
 }
 
 .btn-primary:not(:disabled):not(.disabled):active,
@@ -10234,7 +10234,7 @@ h6,
   left: 0;
   width: 100px;
   height: 1px;
-  background: var(--secondary);
+  background: var(--primary);
 }
 
 .section-title.text-center::before,
@@ -10545,3 +10545,9 @@ h6,
     border-right: none !important;
   }
 }
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] { -moz-appearance:textfield; }

@@ -1,12 +1,31 @@
+$blue: #007bff;
+$indigo: #6610f2;
+$purple: #6f42c1;
+$pink: #e83e8c;
+$red: #dc3545;
+$orange: #fd7e14;
+$yellow: #ffc107;
+$green: #28a745;
+$teal: #20c997;
+$cyan: #17a2b8;
+$white: #fff;
+$gray: #6c757d;
+$gray-dark: #343a40;
 $primary: #d4a017;
 $secondary: #9e4f3f;
 $tertiary: #b47c5f;
 $quaternary: #eadaba;
+$success: #28a745;
+$info: #17a2b8;
+$warning: #ffc107;
+$danger: #dc3545;
 $light: #fdf3e7;
 $dark: #3b3b3b;
-$body-bg: #f3f6ff;
-$body-color: #555555;
-$black: #000000;
+$breakpoint-xs: 0;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
 
 $font-family-sans-serif: "Poppins", sans-serif;
 
@@ -62,8 +81,8 @@ h6,
 .btn-primary.disabled,
 .btn-primary:disabled {
     color: $dark;
-    background-color: $primary;
-    border-color: $primary;
+    background-color: $quaternary;
+    border-color: $quaternary;
 }
 
 .btn-secondary {
@@ -188,7 +207,7 @@ h6,
     left: 0;
     width: 100px;
     height: 1px;
-    background: $secondary;
+    background: $primary;
 }
 
 .section-title.text-center::before,
@@ -286,7 +305,7 @@ h6,
     font-size: 30px;
     font-weight: normal;
     color: $light;
-    background: $black;
+    background: $dark;
     opacity: 1;
 }
 
@@ -500,3 +519,9 @@ h6,
         border-right: none !important;
     }
 }
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] { -moz-appearance:textfield; }
