@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -12,19 +13,31 @@ import { ToastrService } from 'ngx-toastr';
   imports: [FormsModule, CommonModule],
 })
 export class LoginComponent {
-  documento: any = null;
+  documento: string = '';
   password: string = '';
 
-  constructor(private router: Router, private toastr: ToastrService) { }
+  constructor(
+    private router: Router,
+    private toastr: ToastrService,
+    private userService: UserService
+  ) { }
 
   onSubmit(): void {
-    console.log('Documento:', this.documento);
-    console.log('Password:', this.password);
-
-    if (this.documento === 1234568 && this.password === 'password123') {
-      this.router.navigate(['/']);
-    } else {
-      this.toastr.error('Credenciales incorrectas', 'Error de autenticación',);
-    }
+    this.userService.login({ documento: this.documento, password: this.password }).subscribe({
+      next: (response) => {
+        this.userService.saveToken(response.data.token);
+        this.toastr.success('Inicio de sesión exitoso', `Bienvenido ${response.data.nombre}`);
+        const userRole = this.userService.getUserRole();
+        if (userRole === 'Administrador') {
+          this.router.navigate(['/admin']);
+        } else if (userRole === 'cliente') {
+          this.router.navigate(['/client']);
+        }
+      },
+      error: (err) => {
+        console.error('Error de autenticación:', err);
+        this.toastr.error(err.error.message || 'Credenciales incorrectas', 'Error de autenticación');
+      },
+    });
   }
 }

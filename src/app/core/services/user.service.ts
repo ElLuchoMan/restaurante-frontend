@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable } from 'rxjs';
-import { environment } from '../../../environments/environment.prod';
+import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Login, LoginResonse } from '../../shared/models/login.model';
 import { Cliente } from '../../shared/models/cliente.model';
@@ -45,6 +45,9 @@ export class UserService {
 
   // Obtener token
   getToken(): string | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
     return localStorage.getItem(this.tokenKey);
   }
 
