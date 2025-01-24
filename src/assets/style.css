@@ -10168,7 +10168,7 @@ h6,
   height: 50%;
   top: 0;
   left: 0;
-  background: var(--primary);
+  background: var(--tertiary);
 }
 
 .navbar-light .navbar-nav .nav-link {

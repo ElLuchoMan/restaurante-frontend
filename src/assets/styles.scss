@@ -21,6 +21,7 @@ $warning: #ffc107;
 $danger: #dc3545;
 $light: #fdf3e7;
 $dark: #3b3b3b;
+$black: #000000;
 $breakpoint-xs: 0;
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
@@ -140,7 +141,7 @@ h6,
     height: 50%;
     top: 0;
     left: 0;
-    background: $tertiary !important;
+    background: $tertiary;
 }
 
 .navbar-light .navbar-nav .nav-link {
