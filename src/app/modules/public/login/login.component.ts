@@ -35,8 +35,10 @@ export class LoginComponent {
         }
       },
       error: (err) => {
-        console.error('Error de autenticación:', err);
-        this.toastr.error(err.error.message || err.message || 'Credenciales incorrectas', 'Error de autenticación');
+        console.error('Err.message:', err.message);
+        console.error('Err:', err);
+        console.log('Error[9]:', err[0]);
+        this.toastr.error(err?.message || 'Credenciales incorrectas', 'Error de autenticación');
       },
     });
   }
