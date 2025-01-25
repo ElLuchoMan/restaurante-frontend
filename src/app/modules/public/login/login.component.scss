@@ -13,6 +13,9 @@ a.link {
   justify-content: center;
   text-decoration: underline;
   display: flex;
+  text-align: center;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 ::placeholder {
