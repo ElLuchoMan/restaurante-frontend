@@ -1,17 +1,62 @@
 import { TestBed } from '@angular/core/testing';
-import { CanActivateFn } from '@angular/router';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import { RoleGuard } from './role.guard';
+import { UserService } from '../services/user.service';
 
-import { roleGuard } from './role.guard';
-
-describe('roleGuard', () => {
-  const executeGuard: CanActivateFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => roleGuard(...guardParameters));
+describe('RoleGuard', () => {
+  let roleGuard: RoleGuard;
+  let userService: jest.Mocked<UserService>;
+  let router: jest.Mocked<Router>;
+  let toastr: jest.Mocked<ToastrService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    const userServiceMock = {
+      getUserRole: jest.fn()
+    } as unknown as jest.Mocked<UserService>;
+
+    const routerMock = {
+      navigate: jest.fn()
+    } as unknown as jest.Mocked<Router>;
+
+    const toastrMock = {
+      error: jest.fn()
+    } as unknown as jest.Mocked<ToastrService>;
+
+    TestBed.configureTestingModule({
+      providers: [
+        RoleGuard,
+        { provide: UserService, useValue: userServiceMock },
+        { provide: Router, useValue: routerMock },
+        { provide: ToastrService, useValue: toastrMock }
+      ]
+    });
+
+    roleGuard = TestBed.inject(RoleGuard);
+    userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
+    router = TestBed.inject(Router) as jest.Mocked<Router>;
+    toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
   });
 
-  it('should be created', () => {
-    expect(executeGuard).toBeTruthy();
+  it('should allow access if user has the expected role', () => {
+    const mockRoute = { data: { role: 'Administrador' } };
+    userService.getUserRole.mockReturnValue('Administrador');
+
+    const result = roleGuard.canActivate(mockRoute);
+
+    expect(result).toBe(true);
+    expect(toastr.error).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should deny access and redirect if user does not have the expected role', () => {
+    const mockRoute = { data: { role: 'Administrador' } };
+    userService.getUserRole.mockReturnValue('cliente');
+
+    const result = roleGuard.canActivate(mockRoute);
+
+    expect(result).toBe(false);
+    expect(toastr.error).toHaveBeenCalledWith('No tienes permisos para acceder a esta página', 'Acceso denegado');
+    expect(router.navigate).toHaveBeenCalledWith(['/unauthorized']);
   });
 });

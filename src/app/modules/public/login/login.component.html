@@ -15,7 +15,7 @@
                         </div>
                         <div class="form-group">
                             <label for="password">Contraseña</label>
-                            <input type="password" id="password" name="password" class="form-control"
+                            <input type="password" id="password" name="password" class="form-control" autocomplete="current-password"
                                 [(ngModel)]="password" required #passwordField="ngModel" placeholder="******" />
                             <div *ngIf="passwordField.invalid && passwordField.touched" class="text-danger">
                                 La contraseña es obligatoria y debe tener al menos 6 caracteres.

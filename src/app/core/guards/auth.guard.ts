@@ -7,7 +7,7 @@ import { ToastrService } from 'ngx-toastr';
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
-  constructor(private userService: UserService, private router: Router, private toastr: ToastrService) {}
+  constructor(private userService: UserService, private router: Router, private toastr: ToastrService) { }
 
   canActivate(): boolean {
     if (this.userService.isTokenExpired()) {

@@ -4,7 +4,7 @@ export interface Trabajador {
     apellido: string;
     fechaIngreso: Date;
     fechaNacimiento: Date;
-    fechaRetiro: Date;
+    fechaRetiro?: Date;
     horario: string;
     nuevo: boolean;
     password: string;
