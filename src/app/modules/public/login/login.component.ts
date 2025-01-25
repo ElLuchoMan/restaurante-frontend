@@ -35,9 +35,11 @@ export class LoginComponent {
         }
       },
       error: (err) => {
-        console.error('Err.message:', err.message);
-        console.error('Err:', err);
-        console.log('Error[9]:', err[0]);
+        if (err && err.message) {
+          console.error('Err.message:', err.message);
+      } else {
+          console.error('No hay propiedad "message" en el error.');
+      }
         this.toastr.error(err?.message || 'Credenciales incorrectas', 'Error de autenticación');
       },
     });
