@@ -38,7 +38,7 @@ export class LoginComponent {
         console.log('Err completo:', JSON.stringify(err, null, 2));
 
         if (err && err.message) {
-          console.error('Err.message:', err.message);
+          console.error('err.message:', err.message);
           this.toastr.error(err?.message, 'Error de autenticación');
         } else {
           console.error('No hay propiedad "message" en el error.');

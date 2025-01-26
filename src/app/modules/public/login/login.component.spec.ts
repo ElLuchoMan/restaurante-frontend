@@ -85,12 +85,21 @@ describe('LoginComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/client']);
   });
 
-  it('should handle login error and show toastr error message', () => {
-    const mockError = { error: { message: 'Credenciales incorrectas' } };
+  it('should handle login error and show toastr error message from service', () => {
+    const mockError = { message: 'Error de conexión' };
     userService.login.mockReturnValue(throwError(() => mockError));
-
+  
     component.onSubmit();
-
+  
+    expect(toastr.error).toHaveBeenCalledWith('Error de conexión', 'Error de autenticación');
+  });
+  
+  it('should handle login error and show generic toastr error message when message is missing', () => {
+    const mockError = {};
+    userService.login.mockReturnValue(throwError(() => mockError));
+  
+    component.onSubmit();
+  
     expect(toastr.error).toHaveBeenCalledWith('Credenciales incorrectas', 'Error de autenticación');
   });
 });
