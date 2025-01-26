@@ -14,8 +14,9 @@ export class RoleGuard implements CanActivate {
     const userRole = this.userService.getUserRole();
 
     if (userRole !== expectedRole) {
+      console.log('No tienes permisos para acceder a esta página', 'Acceso denegado')
       this.toastr.error('No tienes permisos para acceder a esta página', 'Acceso denegado');
-      this.router.navigate(['/unauthorized']);
+      this.router.navigate(['/not-found']);
       return false;
     }
 

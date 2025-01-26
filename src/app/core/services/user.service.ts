@@ -68,6 +68,7 @@ export class UserService {
   // Obtener rol del usuario
   getUserRole(): string | null {
     const decoded = this.decodeToken();
+    console.log('Rol:', decoded.rol);
     return decoded ? decoded.rol : null;
   }
 
