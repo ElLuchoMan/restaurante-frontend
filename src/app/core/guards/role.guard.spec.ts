@@ -57,6 +57,6 @@ describe('RoleGuard', () => {
 
     expect(result).toBe(false);
     expect(toastr.error).toHaveBeenCalledWith('No tienes permisos para acceder a esta página', 'Acceso denegado');
-    expect(router.navigate).toHaveBeenCalledWith(['/unauthorized']);
+    expect(router.navigate).toHaveBeenCalledWith(['/not-found']);
   });
 });

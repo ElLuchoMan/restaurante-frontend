@@ -15,6 +15,10 @@ export const routes: Routes = [
     loadChildren: () => import('../modules/client/client.module').then((m) => m.ClientModule),
   },
   {
+    path: 'not-found',
+    component: PageNotFoundComponent,
+  },
+  {
     path: '**',
     component: PageNotFoundComponent,
   },
