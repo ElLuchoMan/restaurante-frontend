@@ -1,0 +1,34 @@
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <h1 class="section-title text-center mt-5 mb-5">Iniciar Sesión</h1>
+                <div class="login-form p-5">
+                    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+                        <div class="form-group">
+                            <label for="documento">Documento</label>
+                            <input type="number" id="documento" name="documento" class="form-control"
+                                [(ngModel)]="documento" required #campoDocumento="ngModel" placeholder="1000000000"
+                                autocomplete="document" />
+                            <div *ngIf="campoDocumento.invalid && campoDocumento.touched" class="text-danger">
+                                El documento es obligatorio.
+                            </div>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label for="password">Contraseña</label>
+                            <input type="password" id="password" name="password" class="form-control"
+                                autocomplete="current-password" [(ngModel)]="password" required #passwordField="ngModel"
+                                placeholder="******" />
+                            <div *ngIf="passwordField.invalid && passwordField.touched" class="text-danger">
+                                La contraseña es obligatoria y debe tener al menos 6 caracteres.
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" [disabled]="loginForm.invalid">Iniciar
+                            Sesión</button>
+                        <a class="link mt-4" href="/registro">¿No tienes una cuenta? <br>Regístrate aquí </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
