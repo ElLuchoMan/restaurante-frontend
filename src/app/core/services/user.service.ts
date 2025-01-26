@@ -64,11 +64,11 @@ export class UserService {
       return null;
     }
   }
+  
 
   // Obtener rol del usuario
   getUserRole(): string | null {
     const decoded = this.decodeToken();
-    console.log('Rol:', decoded.rol);
     return decoded ? decoded.rol : null;
   }
 
