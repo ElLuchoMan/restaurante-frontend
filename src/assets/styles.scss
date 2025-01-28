@@ -36,6 +36,10 @@ $enable-responsive-font-sizes: true;
 
 $border-radius: 5px;
 
+::placeholder {
+    color: $light !important;
+}
+
 h1,
 h2,
 .font-weight-bold {
@@ -52,6 +56,15 @@ h5,
 h6,
 .font-weight-medium {
     font-weight: 500 !important;
+}
+
+.form-card-bg {
+    border-radius: 25px;
+    background-color: $white;
+    min-width: 100%;
+    min-height: 50%;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn {
@@ -520,9 +533,11 @@ h6,
         border-right: none !important;
     }
 }
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
-input[type=number] { -moz-appearance:textfield; }
+input[type="number"] {
+    -moz-appearance: textfield;
+}

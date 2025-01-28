@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../../core/services/user.service';
+import { Roles } from '../../../shared/constants';
 
 @Component({
   selector: 'app-login',
@@ -28,15 +29,13 @@ export class LoginComponent {
         this.userService.saveToken(response.data.token);
         this.toastr.success('Inicio de sesión exitoso', `Bienvenido ${response.data.nombre}`);
         const userRole = this.userService.getUserRole();
-        if (userRole === 'Administrador') {
+        if (userRole === Roles.ADMINISTRADOR) {
           this.router.navigate(['/admin']);
-        } else if (userRole === 'cliente') {
-          this.router.navigate(['/client']);
+        } else if (userRole === Roles.CLIENTE) {
+          this.router.navigate(['/home']);
         }
       },
       error: (err) => {
-        console.log('Err completo:', JSON.stringify(err, null, 2));
-
         if (err && err.message) {
           console.error('err.message:', err.message);
           this.toastr.error(err?.message, 'Error de autenticación');

@@ -16,13 +16,13 @@ export class RestauranteService {
   constructor(private http: HttpClient, private handleError: HandleErrorService) { }
 
   getRestauranteInfo(): Observable<ApiResponse<Restaurante>> {
-    return this.http.get<ApiResponse<Restaurante>>(`${this.baseUrl}restaurantes/search?id=1`).pipe(
+    return this.http.get<ApiResponse<Restaurante>>(`${this.baseUrl}/restaurantes/search?id=1`).pipe(
       catchError(this.handleError.handleError)
     );
   }
 
   getCambiosHorario(): Observable<ApiResponse<CambioHorario>> {
-    return this.http.get<ApiResponse<CambioHorario>>(`${this.baseUrl}cambios_horario/actual`).pipe(
+    return this.http.get<ApiResponse<CambioHorario>>(`${this.baseUrl}/cambios_horario/actual`).pipe(
       catchError(this.handleError.handleError)
     );
   }

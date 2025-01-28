@@ -2,8 +2,8 @@ export interface Trabajador {
     documentoTrabajador: number;
     nombre: string;
     apellido: string;
-    fechaIngreso: Date;
-    fechaNacimiento: Date;
+    fechaIngreso: string;
+    fechaNacimiento: string;
     fechaRetiro?: Date;
     horario: string;
     nuevo: boolean;

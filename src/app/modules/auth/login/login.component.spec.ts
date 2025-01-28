@@ -78,11 +78,11 @@ describe('LoginComponent', () => {
   it('should navigate to client route when user role is cliente', () => {
     const mockResponse = { code: 200, message: 'Success', data: { token: 'testToken', nombre: 'Client User' } };
     userService.login.mockReturnValue(of(mockResponse));
-    userService.getUserRole.mockReturnValue('cliente');
+    userService.getUserRole.mockReturnValue('Cliente');
 
     component.onSubmit();
 
-    expect(router.navigate).toHaveBeenCalledWith(['/client']);
+    expect(router.navigate).toHaveBeenCalledWith(['/home']);
   });
 
   it('should handle login error and show toastr error message from service', () => {

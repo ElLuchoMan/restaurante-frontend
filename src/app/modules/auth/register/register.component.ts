@@ -6,6 +6,8 @@ import { Cliente } from '../../../shared/models/cliente.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Trabajador } from '../../../shared/models/trabajador.model';
+import { Roles } from '../../../shared/constants';
+import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
 
 @Component({
   selector: 'app-register',
@@ -15,23 +17,38 @@ import { Trabajador } from '../../../shared/models/trabajador.model';
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {
-  documento: number | null = null;
+
+  documento: any;
   nombre: string = '';
   apellido: string = '';
+  direccion: string = '';
   password: string = '';
   esTrabajador: boolean = false;
   sueldo?: number;
+  telefono: string = '';
+  observaciones: string = '';
+  fechaNacimiento: Date = new Date();
+  fechaIngreso: Date = new Date();
   rol?: string;
+  roles: string[] = [];
+  nuevo: boolean = true;
+  horasEntradaDisponibles: string[] = ['08:00', '12:00', '16:00'];
+  horasSalidaDisponibles: string[] = ['17:00', '20:00', '22:00'];
+  horaEntrada: string = '';
+  horaSalida: string = '';
 
   constructor(
     private userService: UserService,
     private toastr: ToastrService,
     private router: Router
   ) {
-   }
+  }
 
   ngOnInit(): void {
     const admin = this.isAdmin();
+    Object.values(Roles).forEach((element: string) => {
+      this.roles.push(element);
+    });
   }
 
   isAdmin(): boolean {
@@ -44,47 +61,52 @@ export class RegisterComponent implements OnInit {
 
 
   onSubmit(): void {
+    const formattedFechaNacimiento = new FormatDatePipe().transform(this.fechaNacimiento);
+    const formattedFechaIngreso = new FormatDatePipe().transform(new Date())
     if (this.esTrabajador) {
       const trabajador: Trabajador = {
-        documentoTrabajador: this.documento!,
+        documentoTrabajador: this.documento,
         nombre: this.nombre,
         apellido: this.apellido,
         password: this.password,
         restauranteId: 1,
-        rol: this.rol || 'Empleado',
+        rol: this.rol || 'Mesero',
         nuevo: true,
-        horario: '9:00 AM - 6:00 PM',
+        horario: `${this.horaEntrada} - ${this.horaSalida}`,
         sueldo: this.sueldo!,
-        telefono: '',
-        fechaIngreso: new Date(),
-        fechaNacimiento: new Date(),
+        telefono: this.telefono,
+        fechaIngreso: formattedFechaIngreso,
+        fechaNacimiento: formattedFechaNacimiento,
       };
-
-      this.userService.registroTrabajador(trabajador).subscribe({
-        next: () => {
-          this.toastr.success('Trabajador registrado con éxito');
+      console.table(trabajador.documentoTrabajador);
+      this.userService.registroTrabajador(trabajador).subscribe(response => {
+        if (response?.code === 201) {
+          this.toastr.success(response?.message)
           this.router.navigate(['/']);
-        },
-        error: (err) => this.toastr.error(err.message, 'Error'),
-      });
+        } else {
+          this.toastr.error(response?.message)
+        }
+      }
+      );
     } else {
       const cliente: Cliente = {
         documentoCliente: this.documento!,
         nombre: this.nombre,
         apellido: this.apellido,
         password: this.password,
-        direccion: '',
-        telefono: '',
-        observaciones: '',
+        direccion: this.direccion,
+        telefono: this.telefono,
+        observaciones: this.observaciones,
       };
-
-      this.userService.registroCliente(cliente).subscribe({
-        next: () => {
+      this.userService.registroCliente(cliente).subscribe(response => {
+        if (response?.code === 201) {
           this.toastr.success('Cliente registrado con éxito');
           this.router.navigate(['/']);
-        },
-        error: (err) => this.toastr.error(err.message, 'Error'),
-      });
+        } else {
+          this.toastr.error(response.message, 'Error')
+        }
+      }
+      );
     }
   }
 }

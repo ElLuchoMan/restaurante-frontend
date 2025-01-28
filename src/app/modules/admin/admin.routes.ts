@@ -16,4 +16,10 @@ export const adminRoutes: Routes = [
     canActivate: [RoleGuard],
     data: { role: 'Administrador' },
   },
+  {
+    path: '',
+    component: RegisterComponent,
+    canActivate: [RoleGuard],
+    data: { role: 'Administrador' }
+  }
 ];
