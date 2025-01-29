@@ -29,12 +29,12 @@ describe('authInterceptor', () => {
     userService.getToken.mockReturnValue(token);
 
     const request = new HttpRequest('GET', '/api/test');
-    const next = jest.fn((req) => of(req)); // Simula el manejador `next`
+    const next = jest.fn((req) => of(req));
 
     interceptor(request, next);
 
-    // Verifica que next haya sido llamado con la solicitud modificada
-    const modifiedRequest = next.mock.calls[0][0]; // Obtiene la solicitud pasada a next
+
+    const modifiedRequest = next.mock.calls[0][0];
     expect(modifiedRequest.headers.get('Authorization')).toBe(token);
   });
 
@@ -43,7 +43,7 @@ describe('authInterceptor', () => {
     userService.getToken.mockReturnValue(null);
 
     const request = new HttpRequest('GET', '/api/test');
-    const next = jest.fn((req) => of(req)); // Simula el manejador `next`
+    const next = jest.fn((req) => of(req));
 
     interceptor(request, next);
 

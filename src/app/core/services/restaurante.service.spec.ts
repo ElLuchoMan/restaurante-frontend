@@ -56,7 +56,7 @@ describe('RestauranteService', () => {
       expect(response).toEqual(mockRestauranteResponse);
     });
 
-    const req = httpTestingController.expectOne(`${service['baseUrl']}restaurantes/search?id=1`);
+    const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes/search?id=1`);
     expect(req.request.method).toBe('GET');
     req.flush(mockRestauranteResponse);
   });
@@ -66,7 +66,7 @@ describe('RestauranteService', () => {
       expect(response).toEqual(mockCambioHorarioResponse);
     });
 
-    const req = httpTestingController.expectOne(`${service['baseUrl']}cambios_horario/actual`);
+    const req = httpTestingController.expectOne(`${service['baseUrl']}/cambios_horario/actual`);
     expect(req.request.method).toBe('GET');
     req.flush(mockCambioHorarioResponse);
   });

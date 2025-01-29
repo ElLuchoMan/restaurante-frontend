@@ -78,16 +78,19 @@ export class RegisterComponent implements OnInit {
         fechaIngreso: formattedFechaIngreso,
         fechaNacimiento: formattedFechaNacimiento,
       };
-      console.table(trabajador.documentoTrabajador);
-      this.userService.registroTrabajador(trabajador).subscribe(response => {
-        if (response?.code === 201) {
-          this.toastr.success(response?.message)
-          this.router.navigate(['/']);
-        } else {
-          this.toastr.error(response?.message)
+      this.userService.registroTrabajador(trabajador).subscribe({
+        next: response => {
+          if (response?.code === 201) {
+            this.toastr.success(response?.message);
+            this.router.navigate(['/']);
+          } else {
+            this.toastr.error(response?.message || 'Ocurrió un error desconocido', 'Error');
+          }
+        },
+        error: err => {
+          this.toastr.error(err.message, 'Error');
         }
-      }
-      );
+      });
     } else {
       const cliente: Cliente = {
         documentoCliente: this.documento!,
@@ -98,15 +101,19 @@ export class RegisterComponent implements OnInit {
         telefono: this.telefono,
         observaciones: this.observaciones,
       };
-      this.userService.registroCliente(cliente).subscribe(response => {
-        if (response?.code === 201) {
-          this.toastr.success('Cliente registrado con éxito');
-          this.router.navigate(['/']);
-        } else {
-          this.toastr.error(response.message, 'Error')
+      this.userService.registroCliente(cliente).subscribe({
+        next: response => {
+          if (response?.code === 201) {
+            this.toastr.success('Cliente registrado con éxito');
+            this.router.navigate(['/']);
+          } else {
+            this.toastr.error(response.message || 'Ocurrió un error', 'Error');
+          }
+        },
+        error: err => {
+          this.toastr.error(err.message, 'Error');
         }
-      }
-      );
+      });
     }
   }
 }
