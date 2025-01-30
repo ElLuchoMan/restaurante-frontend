@@ -64,12 +64,18 @@ export class UserService {
       return null;
     }
   }
-  
+
 
   // Obtener rol del usuario
   getUserRole(): string | null {
     const decoded = this.decodeToken();
     return decoded ? decoded.rol : null;
+  }
+
+  //Obtener id del usuario
+  getUserId(): string | null {
+    const decoded = this.decodeToken();
+    return decoded ? decoded.documento : null;
   }
 
   // Validar si el token ha expirado

@@ -6,6 +6,8 @@
                     <a class="text-white pr-3" routerLink="">Contacto &nbsp;</a>
                     <span class="text-white"> &nbsp;|</span>
                     <a class="text-white px-2" routerLink="">Quiénes somos</a>
+                    <span class="text-white"> &nbsp;|</span>
+                    <a class="text-white px-2" routerLink="">Ubicación</a>
                 </div>
             </div>
             <div class="col-md-6 text-center text-lg-right">
@@ -30,22 +32,22 @@
             </button>
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                 <div class="navbar-nav ml-auto py-0">
-                    <a routerLink="/home" class="nav-item nav-link">Inicio</a>
-                    <a routerLink="/menu" class="nav-item nav-link">Menú</a>
-                    <a routerLink="/location" class="nav-item nav-link">Ubicación</a>
+                    <a *ngFor="let item of menuLeft" [routerLink]="item.route" class="nav-item nav-link">{{ item.label
+                        }}</a>
                 </div>
 
-                <div class="logo-container">
+                <!-- Logo o Texto Dinámico -->
+                <div *ngIf="textoVisible" class="logo-container">
                     <h1 class="m-0 display-5 text-primary logo-text">
                         <span class="text-secondary">La cocina </span>DE MARÍA
                     </h1>
+                </div>
+                <div *ngIf="!imagenVisible" class="logo-container">
                     <img src="assets/img/logo.png" alt="Logo" class="logo-img">
                 </div>
-
                 <div class="navbar-nav mr-auto py-0">
-                    <a routerLink="/reservas" class="nav-item nav-link">Reservas</a>
-                    <a routerLink="/gallery" class="nav-item nav-link">Galería</a>
-                    <a routerLink="/login" class="nav-item nav-link">Login</a>
+                    <a *ngFor="let item of menuRight" [routerLink]="item.route" class="nav-item nav-link">{{ item.label
+                        }}</a>
                 </div>
             </div>
         </nav>
