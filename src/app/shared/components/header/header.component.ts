@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, HostListener } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { UserService } from '../../../core/services/user.service';
 import { MenuItem } from '../../models/menu-item.model';
 
@@ -12,17 +12,39 @@ import { MenuItem } from '../../models/menu-item.model';
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit {
-  textoVisible: boolean = false;
-  imagenVisible: boolean = true;
   menuLeft: MenuItem[] = [];
   menuRight: MenuItem[] = [];
   userRole: string | null = null;
+  isBrowser: boolean;
+  imagenVisible: boolean = true;
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService, @Inject(PLATFORM_ID) private platformId: any) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit(): void {
     this.userRole = this.userService.getUserRole();
     this.generateMenu();
+
+    if (this.isBrowser) {
+      this.checkScreenSize();
+    }
+  }
+
+  @HostListener('window:resize', [])
+  onResize(): void {
+    if (this.isBrowser) {
+      this.checkScreenSize();
+    }
+  }
+
+  private checkScreenSize(): void {
+    if (this.isBrowser) {
+      const screenWidth = window.innerWidth;
+      const totalItems = this.menuLeft.length + this.menuRight.length;
+
+      this.imagenVisible = screenWidth < 1201 || totalItems > 6;
+    }
   }
 
   private generateMenu(): void {
@@ -40,6 +62,9 @@ export class HeaderComponent implements OnInit {
       menuItems.push({ label: 'Logout', route: '/logout', priority: 99 });
       if (this.userRole === 'Cliente') {
         menuItems.unshift(
+          { label: 'Perfil', route: '/perfil', priority: 7 },
+          { label: 'Perfil', route: '/perfil', priority: 7 },
+          { label: 'Perfil', route: '/perfil', priority: 7 },
           { label: 'Perfil', route: '/perfil', priority: 7 }
         );
       } else if (this.userRole === 'Administrador') {
@@ -59,8 +84,6 @@ export class HeaderComponent implements OnInit {
     this.menuLeft = menuItems.slice(0, midIndex);
     this.menuRight = menuItems.slice(midIndex);
 
-    this.textoVisible = this.menuLeft.length < 3 && this.menuRight.length < 3;
-    this.imagenVisible = this.menuLeft.length > 4 || this.menuRight.length > 4;
+    this.checkScreenSize();
   }
-
 }

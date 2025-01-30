@@ -20,30 +20,22 @@
         align-items: center;
         justify-content: center;
         flex-grow: 1;
-
+      
         .logo-img {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%) rotate(-5deg);
-            width: 200px;
-            transition: transform 0.3s ease;
-            @media (min-width: 1201px) {
-                display: none;
-            }
-            @media (max-width: 991px) {
-                display: none;
-            }
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%) rotate(-5deg);
+          width: 200px;
+          transition: transform 0.3s ease;
         }
-
+      
         .logo-text {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            display: block;
-            @media (max-width: 1200px) {
-                display: none;
-            }
+          user-select: none;
+          display: block;
         }
-    }
+      }
+      
+      .d-none {
+        display: none !important;
+      }
 }
