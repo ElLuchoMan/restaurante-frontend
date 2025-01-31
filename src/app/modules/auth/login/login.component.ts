@@ -30,7 +30,7 @@ export class LoginComponent {
         this.toastr.success('Inicio de sesión exitoso', `Bienvenido ${response.data.nombre}`);
         const userRole = this.userService.getUserRole();
         if (userRole === Roles.ADMINISTRADOR) {
-          this.router.navigate(['/admin']);
+          this.router.navigate(['/home']);
         } else if (userRole === Roles.CLIENTE) {
           this.router.navigate(['/home']);
         }

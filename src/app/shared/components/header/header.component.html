@@ -6,8 +6,6 @@
                     <a class="text-white pr-3" routerLink="">Contacto &nbsp;</a>
                     <span class="text-white"> &nbsp;|</span>
                     <a class="text-white px-2" routerLink="">Quiénes somos</a>
-                    <span class="text-white"> &nbsp;|</span>
-                    <a class="text-white px-2" routerLink="">Ubicación</a>
                 </div>
             </div>
             <div class="col-md-6 text-center text-lg-right">
@@ -44,8 +42,10 @@
                     <img src="assets/img/logo.png" alt="Logo" class="logo-img" [ngClass]="{ 'd-none': !imagenVisible }">
                 </div>
                 <div class="navbar-nav mr-auto py-0">
-                    <a *ngFor="let item of menuRight" [routerLink]="item.route" class="nav-item nav-link">{{ item.label
-                        }}</a>
+                    <a *ngFor="let item of menuRight" [routerLink]="item.route" class="nav-item nav-link"
+                        (click)="item.label === 'Logout' ? logout() : null">
+                        {{ item.label }}
+                    </a>
                 </div>
             </div>
         </nav>

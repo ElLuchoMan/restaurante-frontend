@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, PLATFORM_ID, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
 import { MenuItem } from '../../models/menu-item.model';
 
@@ -18,7 +18,7 @@ export class HeaderComponent implements OnInit {
   isBrowser: boolean;
   imagenVisible: boolean = true;
 
-  constructor(private userService: UserService, @Inject(PLATFORM_ID) private platformId: any) {
+  constructor(private userService: UserService, @Inject(PLATFORM_ID) private platformId: any, private router: Router) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
@@ -51,6 +51,7 @@ export class HeaderComponent implements OnInit {
     let menuItems: MenuItem[] = [
       { label: 'Inicio', route: '/home', priority: 1 },
       { label: 'Menú', route: '/menu', priority: 2 },
+      { label: 'Ubicación', route: '/ubicacion', priority: 2 },
       { label: 'Reservas', route: '/reservas', priority: 4 },
       { label: 'Galería', route: '/gallery', priority: 5 },
     ];
@@ -81,5 +82,9 @@ export class HeaderComponent implements OnInit {
     this.menuRight = menuItems.slice(midIndex);
 
     this.checkScreenSize();
+  }
+  logout(): void {
+    console.log('logout');
+    this.userService.logout();
   }
 }
