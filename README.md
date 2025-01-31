@@ -58,8 +58,13 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
 
-##Structure
 
+## Status
+[![Netlify Status](https://api.netlify.com/api/v1/badges/08900eb5-ce5b-4278-932b-037569ffd3c4/deploy-status)](https://app.netlify.com/sites/lacocinademaria/deploys)
+
+## Structure
+
+```
 src/
 ├── app/
 │   ├── core/                  # Elementos esenciales y configuración de la app
@@ -101,4 +106,5 @@ src/
 ├── environments/              # Archivos de configuración de entorno
 │   ├── environment.ts         # Configuración para desarrollo
 │   └── environment.prod.ts    # Configuración para producción
+
 
