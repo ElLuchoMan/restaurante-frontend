@@ -51,7 +51,6 @@ export class HeaderComponent implements OnInit {
     let menuItems: MenuItem[] = [
       { label: 'Inicio', route: '/home', priority: 1 },
       { label: 'Menú', route: '/menu', priority: 2 },
-      { label: 'Ubicación', route: '/location', priority: 3 },
       { label: 'Reservas', route: '/reservas', priority: 4 },
       { label: 'Galería', route: '/gallery', priority: 5 },
     ];
@@ -63,9 +62,6 @@ export class HeaderComponent implements OnInit {
       if (this.userRole === 'Cliente') {
         menuItems.unshift(
           { label: 'Perfil', route: '/perfil', priority: 7 },
-          { label: 'Perfil', route: '/perfil', priority: 7 },
-          { label: 'Perfil', route: '/perfil', priority: 7 },
-          { label: 'Perfil', route: '/perfil', priority: 7 }
         );
       } else if (this.userRole === 'Administrador') {
         menuItems.unshift({ label: 'Dashboard', route: '/admin', priority: 6 });
