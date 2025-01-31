@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Login, LoginResonse } from '../../shared/models/login.model';
@@ -15,7 +15,20 @@ export class UserService {
   private baseUrl = environment.apiUrl;
   private tokenKey = 'auth_token';
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) { }
+  // BehaviorSubject para manejar el estado del usuario
+  private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
+
+  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+
+  // Permite a los componentes suscribirse al estado de autenticación
+  getAuthState(): Observable<boolean> {
+    return this.authState.asObservable();
+  }
+
+  // Verifica si hay un token activo
+  isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
 
   // Login
   login(credenciales: Login): Observable<ApiResponse<LoginResonse>> {
@@ -38,9 +51,10 @@ export class UserService {
     );
   }
 
-  // Guardar token
+  // Guardar token y notificar cambio de estado
   saveToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
+    this.authState.next(true); // Notifica el cambio
   }
 
   // Obtener token
@@ -65,14 +79,13 @@ export class UserService {
     }
   }
 
-
   // Obtener rol del usuario
   getUserRole(): string | null {
     const decoded = this.decodeToken();
     return decoded ? decoded.rol : null;
   }
 
-  //Obtener id del usuario
+  // Obtener id del usuario
   getUserId(): string | null {
     const decoded = this.decodeToken();
     return decoded ? decoded.documento : null;
@@ -87,8 +100,9 @@ export class UserService {
     return decoded.exp < currentTime;
   }
 
-  // Cerrar sesión
+  // Cerrar sesión y notificar cambio de estado
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    this.authState.next(false); // Notifica el cambio
   }
 }

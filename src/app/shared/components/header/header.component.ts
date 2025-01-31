@@ -23,8 +23,11 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userRole = this.userService.getUserRole();
-    this.generateMenu();
+    // Suscribirse a cambios en el estado de autenticación
+    this.userService.getAuthState().subscribe((isLoggedIn) => {
+      this.userRole = isLoggedIn ? this.userService.getUserRole() : null;
+      this.generateMenu();
+    });
 
     if (this.isBrowser) {
       this.checkScreenSize();
@@ -60,14 +63,14 @@ export class HeaderComponent implements OnInit {
       menuItems.push({ label: 'Login', route: '/login', priority: 99 });
     } else {
       menuItems.push({ label: 'Logout', route: '/logout', priority: 99 });
+
       if (this.userRole === 'Cliente') {
-        menuItems.unshift(
-          { label: 'Perfil', route: '/perfil', priority: 7 },
-        );
+        menuItems.unshift({ label: 'Perfil', route: '/perfil', priority: 7 });
       } else if (this.userRole === 'Administrador') {
-        menuItems.unshift({ label: 'Dashboard', route: '/admin', priority: 6 });
+        menuItems.unshift({ label: 'Registrar', route: 'admin/registro-admin', priority: 6 });
         menuItems = menuItems.filter(item => item.label !== 'Galería');
         menuItems = menuItems.filter(item => item.label !== 'Menú');
+        menuItems = menuItems.filter(item => item.label !== 'Ubicación');
       } else if (this.userRole === 'Mesero') {
         menuItems.push({ label: 'Pedidos', route: '/pedidos', priority: 8 });
       } else if (this.userRole === 'Domiciliario') {
@@ -83,8 +86,9 @@ export class HeaderComponent implements OnInit {
 
     this.checkScreenSize();
   }
+
   logout(): void {
-    console.log('logout');
     this.userService.logout();
+    this.router.navigate(['/home']);
   }
 }

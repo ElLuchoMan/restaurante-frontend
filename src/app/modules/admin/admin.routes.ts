@@ -11,7 +11,7 @@ export const adminRoutes: Routes = [
   //     data: { roles: ['Administrador'] },
   //   },
   {
-    path: 'registro-trabajador',
+    path: 'registro-admin',
     component: RegisterComponent,
     canActivate: [RoleGuard],
     data: { role: 'Administrador' },
