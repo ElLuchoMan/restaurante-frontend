@@ -107,10 +107,12 @@ export class UserService {
   }
 
   // Validar la validez del token y cerrar sesión si ha expirado
-  validateTokenAndLogout(): void {
+  validateTokenAndLogout(): string | null {
     const token = this.getToken();
     if (token && this.isTokenExpired()) {
       this.logout();
+      return null;
     }
+    return token;
   }
 }

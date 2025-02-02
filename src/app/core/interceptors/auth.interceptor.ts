@@ -4,12 +4,12 @@ import { UserService } from '../services/user.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const userService = inject(UserService);
-  const token = userService.getToken();
+  const validToken = userService.validateTokenAndLogout();
 
-  if (token) {
+  if (validToken) {
     const authReq = req.clone({
       setHeaders: {
-        Authorization: token,
+        Authorization: validToken,
       },
     });
     return next(authReq);
