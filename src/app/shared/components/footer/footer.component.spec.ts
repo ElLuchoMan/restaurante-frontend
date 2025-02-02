@@ -135,4 +135,23 @@ describe('FooterComponent', () => {
 
     expect(component.estadoActual).toBe('Cerrado');
   });
+  it('should set estadoActual to "Abierto" when current time is within opening hours', () => {
+    restauranteService.getRestauranteInfo.mockReturnValue(of(mockRestauranteResponse));
+    restauranteService.getCambiosHorario.mockReturnValue(of(mockCambioHorarioResponse));
+
+    component.horaApertura = '08:00';
+    component.horaCierre = '20:00';
+    const dateSpy = jest.spyOn(globalThis, 'Date').mockImplementation(() =>
+    ({
+      toLocaleTimeString: () => '12:00'
+    } as unknown as Date)
+    );
+
+    fixture.detectChanges();
+
+    expect(component.estadoActual).toBe('Abierto');
+
+    dateSpy.mockRestore();
+  });
+
 });
