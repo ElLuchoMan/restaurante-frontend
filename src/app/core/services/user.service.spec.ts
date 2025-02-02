@@ -23,10 +23,12 @@ describe('UserService', () => {
 
     service = TestBed.inject(UserService);
     httpTestingController = TestBed.inject(HttpTestingController);
+    localStorage.clear();
   });
 
   afterEach(() => {
     httpTestingController.verify();
+    localStorage.clear();
   });
 
   it('should be created', () => {
@@ -63,14 +65,12 @@ describe('UserService', () => {
   it('should save token to localStorage', () => {
     const token = 'testToken';
     service.saveToken(token);
-
     expect(localStorage.getItem('auth_token')).toBe(token);
   });
 
   it('should get token from localStorage', () => {
     const token = 'testToken';
     localStorage.setItem('auth_token', token);
-
     expect(service.getToken()).toBe(token);
   });
 
@@ -78,18 +78,14 @@ describe('UserService', () => {
     const originalWindow = globalThis.window;
     delete (globalThis as any).window;
     const token = service.getToken();
-
     expect(token).toBe(null);
-
     globalThis.window = originalWindow;
   });
 
-
-
   it('should decode token correctly', () => {
-    const token = btoa(JSON.stringify({ rol: 'Administrador', exp: Math.floor(Date.now() / 1000) + 1000 }));
+    const tokenPayload = { rol: 'Administrador', exp: Math.floor(Date.now() / 1000) + 1000 };
+    const token = btoa(JSON.stringify(tokenPayload));
     localStorage.setItem('auth_token', `header.${token}.signature`);
-
     const decoded = service.decodeToken();
     expect(decoded).toEqual({ rol: 'Administrador', exp: expect.any(Number) });
   });
@@ -98,79 +94,61 @@ describe('UserService', () => {
     const invalidToken = 'invalid.token.value';
     jest.spyOn(service, 'getToken').mockReturnValue(invalidToken);
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
     const result = service.decodeToken();
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Error al decodificar el token:',
-      expect.any(Error)
-    );
+    expect(consoleSpy).toHaveBeenCalledWith('Error al decodificar el token:', expect.any(Error));
     expect(result).toBe(null);
-
     consoleSpy.mockRestore();
   });
 
   it('should return null if no token is found', () => {
     jest.spyOn(service, 'getToken').mockReturnValue(null);
-
     const result = service.decodeToken();
-
     expect(result).toBe(null);
   });
 
   it('should return user role if token is valid', () => {
     const decodedToken = { rol: 'Administrador', exp: Math.floor(Date.now() / 1000) + 1000 };
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
-
     const result = service.getUserRole();
-
     expect(result).toBe('Administrador');
   });
 
   it('should return null if token is invalid', () => {
     jest.spyOn(service, 'decodeToken').mockReturnValue(null);
-
     const result = service.getUserRole();
-
     expect(result).toBe(null);
   });
 
-
   it('should identify expired token', () => {
-    const expiredToken = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) - 1000 }));
+    const expiredTokenPayload = { exp: Math.floor(Date.now() / 1000) - 1000 };
+    const expiredToken = btoa(JSON.stringify(expiredTokenPayload));
     localStorage.setItem('auth_token', `header.${expiredToken}.signature`);
-
     expect(service.isTokenExpired()).toBe(true);
   });
 
   it('should identify valid token', () => {
-    const validToken = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 1000 }));
+    const validTokenPayload = { exp: Math.floor(Date.now() / 1000) + 1000 };
+    const validToken = btoa(JSON.stringify(validTokenPayload));
     localStorage.setItem('auth_token', `header.${validToken}.signature`);
-
     expect(service.isTokenExpired()).toBe(false);
   });
 
   it('should return true if decodeToken returns null', () => {
     jest.spyOn(service, 'decodeToken').mockReturnValue(null);
-
     const result = service.isTokenExpired();
-
     expect(result).toBe(true);
   });
 
   it('should return true if decoded token does not have exp property', () => {
     const decodedToken = { rol: 'Usuario' };
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
-
     const result = service.isTokenExpired();
-
     expect(result).toBe(true);
   });
 
   it('should remove token on logout', () => {
     localStorage.setItem('auth_token', 'testToken');
     service.logout();
-
     expect(localStorage.getItem('auth_token')).toBeNull();
   });
 
@@ -223,5 +201,46 @@ describe('UserService', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(trabajador);
     req.flush(mockResponse);
+  });
+
+  // Tests para validateTokenAndLogout
+
+  it('should call logout if token is expired in validateTokenAndLogout', () => {
+    const expiredPayload = { rol: 'Cliente', documento: '123', exp: Math.floor(Date.now() / 1000) - 10 };
+    const expiredToken = `header.${btoa(JSON.stringify(expiredPayload))}.signature`;
+    localStorage.setItem('auth_token', expiredToken);
+    const logoutSpy = jest.spyOn(service, 'logout');
+    service.validateTokenAndLogout();
+    expect(logoutSpy).toHaveBeenCalled();
+  });
+
+  it('should not call logout if token is valid in validateTokenAndLogout', () => {
+    const validPayload = { rol: 'Cliente', documento: '123', exp: Math.floor(Date.now() / 1000) + 3600 };
+    const validToken = `header.${btoa(JSON.stringify(validPayload))}.signature`;
+    localStorage.setItem('auth_token', validToken);
+    const logoutSpy = jest.spyOn(service, 'logout');
+    service.validateTokenAndLogout();
+    expect(logoutSpy).not.toHaveBeenCalled();
+  });
+  // Tests para getAuthState()
+  it('should allow subscription to auth state and emit false when not logged in', (done) => {
+    // Inicialmente, sin token, el estado de autenticación es false.
+    service.getAuthState().subscribe(state => {
+      expect(state).toBe(false);
+      done();
+    });
+  });
+  // Tests para getUserId()
+  it('should return user id if token is valid', () => {
+    const decodedToken = { rol: 'Cliente', documento: '12345', exp: Math.floor(Date.now() / 1000) + 1000 };
+    jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
+    const result = service.getUserId();
+    expect(result).toBe('12345');
+  });
+
+  it('should return null for user id if token is invalid', () => {
+    jest.spyOn(service, 'decodeToken').mockReturnValue(null);
+    const result = service.getUserId();
+    expect(result).toBeNull();
   });
 });

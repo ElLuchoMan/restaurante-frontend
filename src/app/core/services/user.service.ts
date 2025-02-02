@@ -18,7 +18,7 @@ export class UserService {
   // BehaviorSubject para manejar el estado del usuario
   private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+  constructor(private http: HttpClient, private handleError: HandleErrorService) { }
 
   // Permite a los componentes suscribirse al estado de autenticación
   getAuthState(): Observable<boolean> {
@@ -104,5 +104,13 @@ export class UserService {
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     this.authState.next(false); // Notifica el cambio
+  }
+
+  // Validar la validez del token y cerrar sesión si ha expirado
+  validateTokenAndLogout(): void {
+    const token = this.getToken();
+    if (token && this.isTokenExpired()) {
+      this.logout();
+    }
   }
 }

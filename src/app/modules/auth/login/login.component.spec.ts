@@ -72,7 +72,7 @@ describe('LoginComponent', () => {
 
     component.onSubmit();
 
-    expect(router.navigate).toHaveBeenCalledWith(['/admin']);
+    expect(router.navigate).toHaveBeenCalledWith(['/home']);
   });
 
   it('should navigate to client route when user role is cliente', () => {

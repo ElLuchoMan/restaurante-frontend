@@ -41,7 +41,7 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  private checkScreenSize(): void {
+  checkScreenSize(): void {
     if (this.isBrowser) {
       const screenWidth = window.innerWidth;
       const totalItems = this.menuLeft.length + this.menuRight.length;
