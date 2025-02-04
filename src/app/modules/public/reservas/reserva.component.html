@@ -1,0 +1,73 @@
+<div class="container mt-5 col-md-5">
+    <h1 class="text-center mb-4">Reservar una Mesa</h1>
+    <div class="form-card-bg p-5">
+        <form (ngSubmit)="onSubmit()" #reservaForm="ngForm">
+            <div class="form-group" *ngIf="mostrarCampo">
+                <label for="nombreCompleto">Nombre Completo</label>
+                <input type="text" id="nombreCompleto" name="nombreCompleto" [(ngModel)]="nombreCompleto" required
+                    class="form-control" required #campoNombreCompleto="ngModel" placeholder="María Torres" />
+                <div *ngIf="campoNombreCompleto.invalid && campoNombreCompleto.touched" class="text-danger">
+                    El nombre es obligatorio.
+                </div>
+            </div>
+
+            <div class="form-group" *ngIf="mostrarCampo">
+                <label for="telefono">Teléfono</label>
+                <input type="text" id="telefono" name="telefono" [(ngModel)]="telefono" required class="form-control"
+                    required #campoTelefono="ngModel" placeholder="3000000000" />
+                <div *ngIf="campoTelefono.invalid && campoTelefono.touched" class="text-danger">
+                    El teléfono es obligatorio.
+                </div>
+            </div>
+
+            <div class="form-group" *ngIf="mostrarCampo">
+                <label for="documentoCliente">Documento</label>
+                <input type="number" id="documentoCliente" name="documentoCliente" class="form-control"
+                    [(ngModel)]="documentoCliente" required #campoDocumentoCliente="ngModel" placeholder="1000000000"
+                    autocomplete="document" />
+                <div *ngIf="campoDocumentoCliente.invalid && campoDocumentoCliente.touched" class="text-danger">
+                    El documento es obligatorio.
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="fechaReserva">Fecha de la Reserva</label>
+                        <input type="date" id="fechaReserva" name="fechaReserva" [(ngModel)]="fechaReserva" required
+                            class="form-control" required #campoFecha="ngModel" />
+                        <div *ngIf="campoFecha.invalid && campoFecha.touched" class="text-danger">
+                            La fecha es obligatoria.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="horaReserva">Hora de la Reserva</label>
+                        <input type="time" id="horaReserva" name="horaReserva" [(ngModel)]="horaReserva" required
+                            class="form-control" required #campoHora="ngModel" />
+                        <div *ngIf="campoHora.invalid && campoHora.touched" class="text-danger">
+                            La hora es obligatoria.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="personas">Número de Personas</label>
+                <input type="number" id="personas" name="personas" [(ngModel)]="personas" required class="form-control"
+                    min="1" />
+            </div>
+
+            <div class="form-group">
+                <label for="indicaciones">Indicaciones Especiales</label>
+                <textarea class="form-control" id="indicaciones" name="indicaciones" [(ngModel)]="indicaciones" rows="3"
+                    placeholder="Ejemplo: Mesa cerca de la ventana, decoración especial... "></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block mt-5" [disabled]="reservaForm.invalid">
+                Reservar
+            </button>
+        </form>
+    </div>
+</div>

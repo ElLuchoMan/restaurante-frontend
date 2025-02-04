@@ -91,6 +91,20 @@ export class UserService {
     return decoded ? decoded.documento : null;
   }
 
+  // Obtener trabajador por id
+  getTrabajadorId(documento: number): Observable<ApiResponse<Trabajador>> {
+    return this.http.get<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores/search?id=${documento}`).pipe(
+      catchError(this.handleError.handleError)
+    );
+  }
+
+  // Obtener cliente por id
+  getClienteId(documento: number): Observable<ApiResponse<Cliente>> {
+    return this.http.get<ApiResponse<Cliente>>(`${this.baseUrl}/clientes/search?id=${documento}`).pipe(
+      catchError(this.handleError.handleError)
+    );
+  }
+
   // Validar si el token ha expirado
   isTokenExpired(): boolean {
     const decoded = this.decodeToken();

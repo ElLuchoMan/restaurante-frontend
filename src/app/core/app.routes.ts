@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { PageNotFoundComponent } from '../modules/public/page-not-found/page-not-found.component';
+import { ReservaComponent } from '../modules/public/reservas/reserva.component';
 
 export const routes: Routes = [
   {
@@ -13,6 +14,10 @@ export const routes: Routes = [
   {
     path: 'cliente',
     loadChildren: () => import('../modules/client/client.module').then((m) => m.ClientModule),
+  },
+  {
+    path: 'reservas',
+    component: ReservaComponent,
   },
   {
     path: 'not-found',

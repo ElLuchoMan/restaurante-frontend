@@ -38,24 +38,40 @@ $border-radius: 5px;
 
 ::placeholder {
     color: $light !important;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 h1,
 h2,
 .font-weight-bold {
     font-weight: 700 !important;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 h3,
 h4,
 .font-weight-semi-bold {
     font-weight: 600 !important;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 h5,
 h6,
 .font-weight-medium {
     font-weight: 500 !important;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .form-card-bg {
@@ -65,6 +81,10 @@ h6,
     min-height: 50%;
     justify-content: center;
     align-items: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .btn {
@@ -540,4 +560,52 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 input[type="number"] {
     -moz-appearance: textfield;
+}
+
+/* 🟢 Personalizar el fondo y el texto del calendario */
+input[type="date"]::-webkit-datetime-edit {
+    color: $primary;
+    background-color: var(--white);
+    border-radius: 5px;
+}
+
+/* 🔵 Cambiar el color del texto dentro del calendario */
+input[type="date"]::-webkit-datetime-edit-text {
+    color: $primary;
+}
+
+/* 🟣 Cambiar el color de la selección dentro del calendario */
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field {
+    color: $primary;
+    font-weight: bold;
+}
+
+/* 🟠 Cambiar el color del botón del calendario */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(40%) sepia(100%) saturate(400%) hue-rotate(180deg);
+    opacity: 0.8;
+    transition: 0.3s;
+}
+
+/* 🟡 Cuando se pasa el mouse por el calendario */
+input[type="date"]:hover::-webkit-calendar-picker-indicator {
+    opacity: 1;
+}
+
+/* 🔴 Ocultar los botones de incremento/decremento de fecha en algunos navegadores */
+input[type="date"]::-webkit-inner-spin-button {
+    display: none;
+}
+/* 🔵 Oculta el ícono nativo del calendario */
+input[type="date"]::-moz-calendar-picker-indicator {
+    opacity: 0;
+}
+
+label {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
