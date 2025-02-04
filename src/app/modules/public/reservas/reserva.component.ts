@@ -26,6 +26,9 @@ export class ReservaComponent implements OnInit {
   nombreTrabajador: string = '';
   rol: string | null = '';
   mostrarCampo: boolean = true;
+  personasExtra: number = 5; // Valor por defecto para "5 o más"
+  mostrarInputPersonas: boolean = false;
+  mostrarInfoEvento: boolean = false;
 
   constructor(
     private reservaService: ReservaService,
@@ -77,7 +80,19 @@ export class ReservaComponent implements OnInit {
     }
   }
 
+  checkPersonas(): void {
+    if (this.personas === "5+") {
+      this.mostrarInputPersonas = true;
+      this.mostrarInfoEvento = true;
+    } else {
+      this.mostrarInputPersonas = false;
+      this.mostrarInfoEvento = false;
+    }
+  }
+
+
   private crearReserva(timestamp: string, userRole: string | null, userId: string | null): void {
+    const totalPersonas = this.personas === "5+" ? this.personasExtra : Number(this.personas);
     const reserva: Reserva = {
       createdAt: timestamp,
       updatedAt: timestamp,
@@ -89,7 +104,7 @@ export class ReservaComponent implements OnInit {
       horaReserva: this.horaReserva,
       indicaciones: this.indicaciones,
       nombreCompleto: this.nombreCompleto,
-      personas: Number(this.personas),
+      personas: totalPersonas,
       telefono: this.telefono,
     };
 
