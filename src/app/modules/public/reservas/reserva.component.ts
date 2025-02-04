@@ -26,9 +26,11 @@ export class ReservaComponent implements OnInit {
   nombreTrabajador: string = '';
   rol: string | null = '';
   mostrarCampo: boolean = true;
-  personasExtra: number = 5; // Valor por defecto para "5 o más"
+  personasExtra: number = 5;
   mostrarInputPersonas: boolean = false;
   mostrarInfoEvento: boolean = false;
+  mostrarFormulario: boolean = false;
+  esAdmin: boolean = false;
 
   constructor(
     private reservaService: ReservaService,
@@ -39,6 +41,8 @@ export class ReservaComponent implements OnInit {
 
   ngOnInit(): void {
     this.rol = this.userService.getUserRole() || null;
+    this.esAdmin = this.rol === 'Administrador';
+    console.log('Rol del usuario:', this.rol);
     this.rol === 'Cliente' ? this.mostrarCampo = false : this.mostrarCampo = true;
   }
 
@@ -90,6 +94,15 @@ export class ReservaComponent implements OnInit {
     }
   }
 
+  consultarReserva(): void {
+    console.log('Consultar una reserva específica');
+    // Implementar lógica para buscar una reserva específica
+  }
+
+  consultarReservasDelDia(): void {
+    console.log('Consultar reservas del día');
+    // Implementar lógica para obtener reservas del día
+  }
 
   private crearReserva(timestamp: string, userRole: string | null, userId: string | null): void {
     const totalPersonas = this.personas === "5+" ? this.personasExtra : Number(this.personas);
