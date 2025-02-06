@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
@@ -32,4 +32,21 @@ export class ReservaService {
       catchError(this.handleError.handleError)
     );
   }
+
+  getReservaByParameter(documentoCliente?: number, fecha?: string): Observable<ApiResponse<Reserva[]>> {
+    let params = new HttpParams();
+
+    if (documentoCliente !== undefined && !isNaN(documentoCliente)) {
+      params = params.set('documentoCliente', documentoCliente.toString());
+    }
+
+    if (fecha) {
+      params = params.set('fecha', fecha);
+    }
+
+    return this.http.get<ApiResponse<Reserva[]>>(`${this.baseUrl}/reservas/parameter`, { params }).pipe(
+      catchError(this.handleError.handleError)
+    );
+  }
+
 }

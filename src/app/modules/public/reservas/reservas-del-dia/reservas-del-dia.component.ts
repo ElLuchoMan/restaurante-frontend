@@ -22,24 +22,21 @@ export class ReservasDelDiaComponent implements OnInit {
   }
 
   consultarReservasDelDia(): void {
-    this.reservaService.obtenerReservas().subscribe({
+    // Obtener la fecha de hoy en formato YYYY-MM-DD para la API
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
+    const dia = hoy.getDate().toString().padStart(2, '0');
+    this.fechaHoy = `${dia}-${mes}-${anio}`; // Formato para la vista
+    const fechaISO = `${anio}-${mes}-${dia}`; // Formato para la API
+
+    this.reservaService.getReservaByParameter(undefined, fechaISO).subscribe({
       next: (response) => {
-        const reservas = response.data;
-
-        const hoy = new Date();
-        const dia = hoy.getDate().toString().padStart(2, '0');
-        const mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
-        const anio = hoy.getFullYear();
-        this.fechaHoy = `${dia}-${mes}-${anio}`;
-
-        this.reservas = reservas
-          .filter((reserva: Reserva) => reserva.fechaReserva === this.fechaHoy)
-          .sort((a: Reserva, b: Reserva) => {
-            // Convertir las horas en objetos Date para compararlas
-            const horaA = new Date(`1970-01-01T${a.horaReserva}`);
-            const horaB = new Date(`1970-01-01T${b.horaReserva}`);
-            return horaA.getTime() - horaB.getTime();
-          });
+        this.reservas = response.data.sort((a: Reserva, b: Reserva) => {
+          const horaA = new Date(`1970-01-01T${a.horaReserva}`);
+          const horaB = new Date(`1970-01-01T${b.horaReserva}`);
+          return horaA.getTime() - horaB.getTime();
+        });
 
         console.log('Reservas del día (ordenadas por hora):', this.reservas);
       },
@@ -50,18 +47,15 @@ export class ReservasDelDiaComponent implements OnInit {
   }
 
   confirmarReserva(reserva: Reserva): void {
-    reserva.estadoReserva = "CONFIRMADA";
-    this.actualizarReserva(reserva);
+    this.actualizarReserva({ ...reserva, estadoReserva: "CONFIRMADA" });
   }
 
   cancelarReserva(reserva: Reserva): void {
-    reserva.estadoReserva = "CANCELADA";
-    this.actualizarReserva(reserva);
+    this.actualizarReserva({ ...reserva, estadoReserva: "CANCELADA" });
   }
 
   cumplirReserva(reserva: Reserva): void {
-    reserva.estadoReserva = "CUMPLIDA";
-    this.actualizarReserva(reserva);
+    this.actualizarReserva({ ...reserva, estadoReserva: "CUMPLIDA" });
   }
 
   private actualizarReserva(reserva: Reserva): void {
@@ -70,12 +64,11 @@ export class ReservasDelDiaComponent implements OnInit {
       return;
     }
 
-    const reservaActualizada = { ...reserva };
-
+    // Convertir fecha de DD-MM-YYYY a YYYY-MM-DD antes de enviarla a la API
     const [dia, mes, anio] = reserva.fechaReserva.split('-');
-    reservaActualizada.fechaReserva = `${anio}-${mes}-${dia}`;
+    reserva.fechaReserva = `${anio}-${mes}-${dia}`;
 
-    this.reservaService.actualizarReserva(Number(reservaActualizada.reservaId), reservaActualizada).subscribe({
+    this.reservaService.actualizarReserva(Number(reserva.reservaId), reserva).subscribe({
       next: () => {
         this.toastr.success(`Reserva marcada como ${reserva.estadoReserva}`, 'Actualización Exitosa');
       },
