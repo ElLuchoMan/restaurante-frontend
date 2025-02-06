@@ -32,15 +32,23 @@ export class ReservasDelDiaComponent implements OnInit {
         const anio = hoy.getFullYear();
         this.fechaHoy = `${dia}-${mes}-${anio}`;
 
-        this.reservas = reservas.filter((reserva: Reserva) => reserva.fechaReserva === this.fechaHoy);
+        this.reservas = reservas
+          .filter((reserva: Reserva) => reserva.fechaReserva === this.fechaHoy)
+          .sort((a: Reserva, b: Reserva) => {
+            // Convertir las horas en objetos Date para compararlas
+            const horaA = new Date(`1970-01-01T${a.horaReserva}`);
+            const horaB = new Date(`1970-01-01T${b.horaReserva}`);
+            return horaA.getTime() - horaB.getTime();
+          });
 
-        console.log('Reservas del día:', this.reservas);
+        console.log('Reservas del día (ordenadas por hora):', this.reservas);
       },
       error: () => {
         this.toastr.error('Ocurrió un error al consultar las reservas del día', 'Error');
       }
     });
   }
+
   confirmarReserva(reserva: Reserva): void {
     reserva.estadoReserva = "CONFIRMADA";
     this.actualizarReserva(reserva);
@@ -55,13 +63,19 @@ export class ReservasDelDiaComponent implements OnInit {
     reserva.estadoReserva = "CUMPLIDA";
     this.actualizarReserva(reserva);
   }
+
   private actualizarReserva(reserva: Reserva): void {
-    if (reserva.reservaId === undefined) {
+    if (!reserva.reservaId || isNaN(reserva.reservaId)) {
       this.toastr.error('Error: ID de reserva no válido', 'Error');
       return;
     }
 
-    this.reservaService.actualizarReserva(reserva.reservaId, reserva).subscribe({
+    const reservaActualizada = { ...reserva };
+
+    const [dia, mes, anio] = reserva.fechaReserva.split('-');
+    reservaActualizada.fechaReserva = `${anio}-${mes}-${dia}`;
+
+    this.reservaService.actualizarReserva(Number(reservaActualizada.reservaId), reservaActualizada).subscribe({
       next: () => {
         this.toastr.success(`Reserva marcada como ${reserva.estadoReserva}`, 'Actualización Exitosa');
       },
@@ -71,6 +85,4 @@ export class ReservasDelDiaComponent implements OnInit {
       }
     });
   }
-
-
 }

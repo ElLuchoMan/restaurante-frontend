@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate {
   canActivate(): boolean {
     if (this.userService.isTokenExpired()) {
       this.router.navigate(['/login']);
-      this.toastr.error('La sesión ha expirado, por favor inicia sesión nuevamente', 'Sesión expirada');
+     // this.toastr.error('La sesión ha expirado, por favor inicia sesión nuevamente', 'Sesión expirada');
       return false;
     }
 

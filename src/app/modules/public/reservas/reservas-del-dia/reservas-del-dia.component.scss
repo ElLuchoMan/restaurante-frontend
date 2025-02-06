@@ -50,3 +50,24 @@
     visibility: visible;
     opacity: 1;
 }
+.form-card-bg {
+    background: white;
+    border-radius: 25px;
+    padding: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin: auto;
+    width: fit-content;
+    max-width: 925px;
+}
+
+@media (max-width: 925px) {
+    .table-container {
+        overflow-x: auto;
+        display: block;
+        width: 100%;
+    }
+    .form-card-bg {
+        display: block;
+        width: 100%;
+    }
+}
