@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { PageNotFoundComponent } from '../modules/public/page-not-found/page-not-found.component';
-import { ReservaComponent } from '../modules/public/reservas/reserva.component';
 
 export const routes: Routes = [
   {

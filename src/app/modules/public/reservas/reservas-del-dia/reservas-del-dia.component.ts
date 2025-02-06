@@ -38,7 +38,6 @@ export class ReservasDelDiaComponent implements OnInit {
           return horaA.getTime() - horaB.getTime();
         });
 
-        console.log('Reservas del día (ordenadas por hora):', this.reservas);
       },
       error: () => {
         this.toastr.error('Ocurrió un error al consultar las reservas del día', 'Error');

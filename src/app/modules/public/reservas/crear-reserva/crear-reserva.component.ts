@@ -43,7 +43,6 @@ export class CrearReservaComponent implements OnInit {
   ngOnInit(): void {
     this.rol = this.userService.getUserRole() || null;
     this.esAdmin = this.rol === 'Administrador';
-    console.log('Rol del usuario:', this.rol);
     this.rol === 'Cliente' ? this.mostrarCampo = false : this.mostrarCampo = true;
   }
 
@@ -94,12 +93,6 @@ export class CrearReservaComponent implements OnInit {
       this.mostrarInfoEvento = false;
     }
   }
-
-  consultarReserva(): void {
-    console.log('Consultar una reserva específica');
-    // Implementar lógica para buscar una reserva específica
-  }
-
   private crearReserva(timestamp: string, userRole: string | null, userId: string | null): void {
     const totalPersonas = this.personas === "5+" ? this.personasExtra : Number(this.personas);
     if (this.horaReserva.length === 5) {
@@ -133,7 +126,6 @@ export class CrearReservaComponent implements OnInit {
     };
     this.reservaService.crearReserva(reserva).subscribe({
       next: (response) => {
-        console.log('Reserva creada:', response);
         this.toastr.success('Reserva creada exitosamente', 'Éxito');
         this.router.navigate(['/reservas']);
       },

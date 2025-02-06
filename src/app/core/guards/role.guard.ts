@@ -13,9 +13,6 @@ export class RoleGuard implements CanActivate {
     const expectedRoles: string[] = route.data['roles'];
     const userRole = this.userService.getUserRole();
 
-    console.log('Expected Roles:', expectedRoles);
-    console.log('User Role:', userRole);
-
     if (!userRole || !expectedRoles.includes(userRole)) {
       this.toastr.error('No tienes permisos para acceder a esta página', 'Acceso denegado');
       this.router.navigate(['/reservas/crear']);
