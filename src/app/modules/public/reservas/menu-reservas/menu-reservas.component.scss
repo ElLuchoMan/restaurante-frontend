@@ -1,0 +1,37 @@
+@use "../../../../../assets/styles.scss" as *;
+
+.volver-container {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 8px;
+    color: $primary;
+    font-size: 18px;
+    font-weight: bold;
+    transition:
+        color 0.3s ease,
+        transform 0.2s ease;
+    padding: 5px 10px;
+    &:hover {
+        color: darken($primary, 15%);
+        transform: translateX(-3px);
+    }
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.volver-icon {
+    font-size: 22px;
+}
+
+.volver-text {
+    font-size: 18px;
+    text-decoration: none;
+    transition: text-decoration 0.3s ease;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

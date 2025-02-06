@@ -15,16 +15,6 @@ export const routes: Routes = [
     path: 'cliente',
     loadChildren: () => import('../modules/client/client.module').then((m) => m.ClientModule),
   },
-  {
-    path: 'reservas',
-    component: ReservaComponent,
-  },
-  {
-    path: 'not-found',
-    component: PageNotFoundComponent,
-  },
-  {
-    path: '**',
-    component: PageNotFoundComponent,
-  },
+  { path: 'not-found', component: PageNotFoundComponent, },
+  { path: '**', component: PageNotFoundComponent, },
 ];

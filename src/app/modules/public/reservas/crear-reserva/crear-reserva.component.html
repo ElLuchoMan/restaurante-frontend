@@ -1,16 +1,5 @@
-<div class="container mt-5 col-md-5">
-
-    <h1 class="text-center mb-4" *ngIf="!esAdmin">Reservar una Mesa</h1>
-    <h1 class="text-center mb-4" *ngIf="esAdmin">Gestión Reservas</h1>
-    <div *ngIf="esAdmin && !mostrarFormulario" class="form-card-bg p-5">
-        <div class="column d-flex flex-column">
-            <button class="btn btn-primary" (click)="consultarReserva()">Consultar Reserva</button>
-            <button class="btn btn-primary mt-4" (click)="consultarReservasDelDia()">Consultar reservas del día</button>
-            <button class="btn btn-primary mt-4" (click)="mostrarFormulario = true">Crear Reserva</button>
-        </div>
-    </div>
-
-    <div class="form-card-bg p-5" *ngIf="!esAdmin || mostrarFormulario">
+<div class="container col-md-5">
+    <div class="form-card-bg p-5">
         <form (ngSubmit)="onSubmit()" #reservaForm="ngForm">
             <div class="form-group" *ngIf="mostrarCampo">
                 <label for="nombreCompleto">Nombre Completo</label>

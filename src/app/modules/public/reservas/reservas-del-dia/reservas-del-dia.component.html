@@ -1,0 +1,55 @@
+<div class="container">
+    <div class="form-card-bg p-5">
+        <h2 class="text-center mb-4" *ngIf="reservas.length !== 0">Reservas del {{ fechaHoy }}</h2>
+
+        <div class="table-responsive" *ngIf="reservas.length !== 0">
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Teléfono</th>
+                        <th>Personas</th>
+                        <th>Hora</th>
+                        <th>Indicaciones</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let reserva of reservas; let i = index">
+                        <td>{{ reserva.nombreCompleto }}</td>
+                        <td>{{ reserva.telefono }}</td>
+                        <td>{{ reserva.personas }}</td>
+                        <td>{{ reserva.horaReserva }}</td>
+                        <td>{{ reserva.indicaciones }}</td>
+                        <td>
+                            <span class="badge" [ngClass]="{'badge-warning': reserva.estadoReserva === 'PENDIENTE',
+                                              'badge-success': reserva.estadoReserva === 'CONFIRMADA',
+                                              'badge-secondary': reserva.estadoReserva === 'CUMPLIDA',
+                                              'badge-danger': reserva.estadoReserva === 'CANCELADA'}">
+                                {{ reserva.estadoReserva }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn tooltip-btn text-info" (click)="confirmarReserva(reserva)"
+                                data-tooltip="Confirmar Reserva">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn tooltip-btn text-danger" (click)="cancelarReserva(reserva)"
+                                data-tooltip="Cancelar Reserva">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="btn tooltip-btn text-success" (click)="cumplirReserva(reserva)"
+                                data-tooltip="Marcar como Cumplida">
+                                <i class="fas fa-check-double"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div *ngIf="reservas.length === 0" class="alert alert-info text-center mt-4">
+            No hay reservas para hoy.
+        </div>
+    </div>
+</div>

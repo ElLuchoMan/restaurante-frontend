@@ -12,6 +12,7 @@ import { RegisterComponent } from '../auth/register/register.component';
     CommonModule,
     RouterModule.forChild(adminRoutes),
     RegisterComponent,
-  ]
+  ],
+  exports: [RouterModule]
 })
 export class AdminModule { }

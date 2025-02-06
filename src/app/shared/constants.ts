@@ -6,3 +6,9 @@ export enum Roles {
     COCINERO = 'Cocinero',
     GENERAL = 'General'
 }
+export enum estadoReserva {
+    pendiente = 'PENDIENTE',
+    confirmada = 'CONFIRMADA',
+    cancelada = 'CANCELADA',
+    cumplida = 'CUMPLIDA'
+}

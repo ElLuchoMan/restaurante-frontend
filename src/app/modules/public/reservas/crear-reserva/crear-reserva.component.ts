@@ -3,19 +3,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { UserService } from '../../../core/services/user.service';
-import { ReservaService } from '../../../core/services/reserva.service';
-import { Reserva } from '../../../shared/models/reserva.model';
-import { estadoReserva } from '../../../shared/constants';
+import { ReservaService } from '../../../../core/services/reserva.service';
+import { UserService } from '../../../../core/services/user.service';
+import { estadoReserva } from '../../../../shared/constants';
+import { Reserva } from '../../../../shared/models/reserva.model';
 
 @Component({
   selector: 'app-reserva',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './reserva.component.html',
-  styleUrls: ['./reserva.component.scss'],
+  templateUrl: './crear-reserva.component.html',
+  styleUrls: ['./crear-reserva.component.scss'],
 })
-export class ReservaComponent implements OnInit {
+export class CrearReservaComponent implements OnInit {
   nombreCompleto: string = '';
   telefono: string = '';
   fechaReserva: string = '';
@@ -100,28 +100,6 @@ export class ReservaComponent implements OnInit {
     // Implementar lógica para buscar una reserva específica
   }
 
-  consultarReservasDelDia(): void {
-    console.log('Consultar reservas del día');
-    this.reservaService.obtenerReservas().subscribe({
-      next: (response) => {
-        console.log('Reservas:', response);
-        const reservas = response.data;
-
-        const hoy = new Date();
-        const dia = hoy.getDate().toString().padStart(2, '0');
-        const mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
-        const anio = hoy.getFullYear();
-        const fechaHoy = `${dia}-${mes}-${anio}`;
-
-        const reservasDelDia = reservas.filter((reserva: Reserva) => reserva.fechaReserva === fechaHoy);
-
-        console.log(reservasDelDia);
-      },
-      error: () => {
-        this.toastr.error('Ocurrió un error al consultar las reservas del día', 'Error');
-      }
-    });
-  }
   private crearReserva(timestamp: string, userRole: string | null, userId: string | null): void {
     const totalPersonas = this.personas === "5+" ? this.personasExtra : Number(this.personas);
     if (this.horaReserva.length === 5) {

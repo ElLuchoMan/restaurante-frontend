@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { UserService } from '../services/user.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -9,16 +9,20 @@ import { ToastrService } from 'ngx-toastr';
 export class RoleGuard implements CanActivate {
   constructor(private userService: UserService, private router: Router, private toastr: ToastrService) { }
 
-  canActivate(route: any): boolean {
-    const expectedRole = route.data['role'];
+  canActivate(route: ActivatedRouteSnapshot): boolean {
+    const expectedRoles: string[] = route.data['roles'];
     const userRole = this.userService.getUserRole();
 
-    if (userRole !== expectedRole) {
+    console.log('Expected Roles:', expectedRoles);
+    console.log('User Role:', userRole);
+
+    if (!userRole || !expectedRoles.includes(userRole)) {
       this.toastr.error('No tienes permisos para acceder a esta página', 'Acceso denegado');
-      this.router.navigate(['/not-found']);
+      this.router.navigate(['/reservas/crear']);
       return false;
     }
 
     return true;
   }
+
 }
