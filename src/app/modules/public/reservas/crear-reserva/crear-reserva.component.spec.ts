@@ -9,6 +9,11 @@ import { CommonModule } from '@angular/common';
 import { of, throwError } from 'rxjs';
 import { estadoReserva } from '../../../../shared/constants';
 import { Reserva } from '../../../../shared/models/reserva.model';
+import { ApiResponse } from '../../../../shared/models/api-response.model';
+import { Cliente } from '../../../../shared/models/cliente.model';
+import { Trabajador } from '../../../../shared/models/trabajador.model';
+import { mockResponseTrabajador } from '../../../../shared/mocks/trabajador.mock';
+import { mockResponseCliente } from '../../../../shared/mocks/cliente.mock';
 
 describe('CrearReservaComponent', () => {
   let component: CrearReservaComponent;
@@ -85,54 +90,224 @@ describe('CrearReservaComponent', () => {
     expect(component.mostrarInfoEvento).toBe(false);
   });
 
-  it('should handle reservation creation as admin', () => {
-    userService.getUserRole.mockReturnValue('Administrador');
-    userService.getUserId.mockReturnValue('1');
-    userService.getTrabajadorId.mockReturnValue(of({ data: { nombre: 'Admin', apellido: 'User' } }));
+  describe('onSubmit', () => {
+    it('should create reservation for Administrador with successful getTrabajadorId', () => {
+      component.rol = 'Administrador';
+      userService.getUserId.mockReturnValue("1");
+      component.fechaReserva = "2025-02-06";
+      component.horaReserva = "10:00";
+      component.personas = "3";
+      component.indicaciones = "Test admin reservation";
+      component.documentoCliente = "0";
 
-    reservaService.crearReserva.mockReturnValue(of({}));
+      userService.getTrabajadorId.mockReturnValue(of(mockResponseTrabajador));
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
+      );
+
+      component.onSubmit();
+
+      expect(userService.getTrabajadorId).toHaveBeenCalledWith(1);
+      expect(component.nombreTrabajador).toBe("Bryan Luis");
+      expect(reservaService.crearReserva).toHaveBeenCalledTimes(1);
+      expect(toastr.success).toHaveBeenCalledWith('Reserva creada exitosamente', 'Éxito');
+      expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
+    });
+
+    it('should create reservation for Administrador with error from getTrabajadorId', () => {
+      component.rol = 'Administrador';
+      userService.getUserId.mockReturnValue("1");
+      component.fechaReserva = "2025-02-06";
+      component.horaReserva = "10:00";
+      component.personas = "3";
+      component.indicaciones = "Test admin reservation error";
+      component.documentoCliente = "0";
+
+      userService.getTrabajadorId.mockReturnValue(throwError(() => new Error('error')));
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
+      );
+
+      component.onSubmit();
+
+      expect(userService.getTrabajadorId).toHaveBeenCalledWith(1);
+      expect(component.nombreTrabajador).toBe("Administrador Desconocido");
+      expect(reservaService.crearReserva).toHaveBeenCalledTimes(1);
+      expect(toastr.success).toHaveBeenCalledWith('Reserva creada exitosamente', 'Éxito');
+      expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
+    });
+
+    it('should create reservation for Cliente with successful getClienteId', () => {
+      component.rol = 'Cliente';
+      userService.getUserId.mockReturnValue("2");
+      component.fechaReserva = "2025-02-06";
+      component.horaReserva = "09:30";
+      component.personas = "5+";
+      component.personasExtra = 7;
+      component.indicaciones = "Test cliente reservation";
+      component.documentoCliente = "0";
+
+      userService.getClienteId.mockReturnValue(of(mockResponseCliente));
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
+      );
+
+      component.onSubmit();
+
+      expect(userService.getClienteId).toHaveBeenCalledWith(2);
+      expect(component.nombreCompleto).toBe("Carlos Perez");
+      expect(component.telefono).toBe("3216549870");
+      expect(reservaService.crearReserva).toHaveBeenCalledTimes(2);
+      expect(toastr.success).toHaveBeenCalledWith('Reserva creada exitosamente', 'Éxito');
+      expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
+    });
+
+    it('should create reservation for Cliente with error from getClienteId', () => {
+      component.rol = 'Cliente';
+      userService.getUserId.mockReturnValue("2");
+      component.fechaReserva = "2025-02-06";
+      component.horaReserva = "09:30";
+      component.personas = "4";
+      component.indicaciones = "Test cliente reservation error";
+      component.documentoCliente = "0";
+
+      userService.getClienteId.mockReturnValue(throwError(() => new Error('error')));
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
+      );
+
+      component.onSubmit();
+
+      expect(userService.getClienteId).toHaveBeenCalledWith(2);
+      expect(component.nombreCompleto).toBe("Cliente Desconocido");
+      expect(reservaService.crearReserva).toHaveBeenCalledTimes(2);
+      expect(toastr.success).toHaveBeenCalledWith('Reserva creada exitosamente', 'Éxito');
+      expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
+    });
+
+    it('should create reservation for undefined role', () => {
+      component.rol = 'Otro';
+      userService.getUserId.mockReturnValue("3");
+      component.fechaReserva = "2025-02-06";
+      component.horaReserva = "08:15";
+      component.personas = "2";
+      component.indicaciones = "Test undefined role reservation";
+      component.documentoCliente = "123456";
+
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
+      );
+
+      component.onSubmit();
+
+      expect(reservaService.crearReserva).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
+    });
+
+    it('should format fechaReserva and horaReserva correctly', () => {
+      component.rol = 'Administrador';
+      userService.getUserId.mockReturnValue("1");
+      component.fechaReserva = "2025-2-6";
+      component.horaReserva = "07:45";
+      component.personas = "1";
+      component.indicaciones = "Formatting test";
+      component.documentoCliente = "0";
+
+      userService.getTrabajadorId.mockReturnValue(of(mockResponseTrabajador));
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
+      );
+
+      component.onSubmit();
+
+      const reservaArg = reservaService.crearReserva.mock.calls[0][0] as Reserva;
+      expect(reservaArg.fechaReserva).toBe("2025-02-06");
+      expect(reservaArg.horaReserva).toBe("07:45:00");
+    });
+
+    it('should use personasExtra when personas is "5+"', () => {
+      component.rol = 'Administrador';
+      userService.getUserId.mockReturnValue("1");
+      component.fechaReserva = "2025-02-06";
+      component.horaReserva = "11:00";
+      component.personas = "5+";
+      component.personasExtra = 8;
+      component.indicaciones = "Extra persons test";
+      component.documentoCliente = "0";
+
+      userService.getTrabajadorId.mockReturnValue(of(mockResponseTrabajador));
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
+      );
+      component.onSubmit();
+      const reservaArg = reservaService.crearReserva.mock.calls[0][0] as Reserva;
+      expect(reservaArg.personas).toBe(8);
+    });
+  });
+  it('should call toastr.error when reservation creation fails', () => {
+    component.rol = 'Administrador';
+    userService.getUserId.mockReturnValue("1");
+    component.fechaReserva = "2025-02-06";
+    component.horaReserva = "10:00";
+    component.personas = "3";
+    component.indicaciones = "Test error reservation";
+    component.documentoCliente = "0";
+
+    userService.getTrabajadorId.mockReturnValue(of(mockResponseTrabajador));
+    const errorResponse = new Error("Error creando reserva");
+    reservaService.crearReserva.mockReturnValue(throwError(() => errorResponse));
+
+    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
 
     component.onSubmit();
 
     expect(userService.getTrabajadorId).toHaveBeenCalledWith(1);
-    expect(reservaService.crearReserva).toHaveBeenCalled();
-    expect(toastr.success).toHaveBeenCalledWith('Reserva creada exitosamente', 'Éxito');
-    expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
+    expect(consoleSpy).toHaveBeenCalledWith('Error al crear la reserva', errorResponse);
+    expect(toastr.error).toHaveBeenCalledWith("Error creando reserva", 'Error');
+    expect(router.navigate).not.toHaveBeenCalled();
+
+    consoleSpy.mockRestore();
   });
+  it('should create reservation with "Anónimo" when no user role is provided', () => {
+    component.rol = null;
+    userService.getUserId.mockReturnValue("0");
+    component.fechaReserva = "2025-02-06";
+    component.horaReserva = "12:00";
+    component.personas = "2";
+    component.indicaciones = "Test anonymous reservation";
+    component.documentoCliente = "987654321";
 
-  it('should handle reservation creation as client', () => {
-    userService.getUserRole.mockReturnValue('Cliente');
-    userService.getUserId.mockReturnValue('2');
-    userService.getClienteId.mockReturnValue(of({ data: { nombre: 'John', apellido: 'Doe', telefono: '123456789' } }));
-
-    reservaService.crearReserva.mockReturnValue(of({}));
+    reservaService.crearReserva.mockReturnValue(
+      of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
+    );
 
     component.onSubmit();
 
-    expect(userService.getClienteId).toHaveBeenCalledWith(2);
-    expect(reservaService.crearReserva).toHaveBeenCalled();
-    expect(toastr.success).toHaveBeenCalledWith('Reserva creada exitosamente', 'Éxito');
+    const reservaArg = reservaService.crearReserva.mock.calls[0][0] as Reserva;
+    expect(reservaArg.createdBy).toBe("Anónimo");
+    expect(reservaArg.updatedBy).toBe("Anónimo");
+    expect(reservaArg.documentoCliente).toBe(987654321);
     expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
   });
-
-  it('should handle reservation creation as anonymous user', () => {
-    userService.getUserRole.mockReturnValue(null);
+  it('should set userId to 0 when getUserId returns null', () => {
+    component.rol = 'Otro';
     userService.getUserId.mockReturnValue(null);
+    component.fechaReserva = "2025-02-06";
+    component.horaReserva = "10:00";
+    component.personas = "3";
+    component.indicaciones = "Test anonymous role with null userId";
+    component.documentoCliente = "123456";
 
-    reservaService.crearReserva.mockReturnValue(of({}));
-
-    component.onSubmit();
-
-    expect(reservaService.crearReserva).toHaveBeenCalled();
-    expect(toastr.success).toHaveBeenCalledWith('Reserva creada exitosamente', 'Éxito');
-    expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
-  });
-
-  it('should handle error when reservation creation fails', () => {
-    reservaService.crearReserva.mockReturnValue(throwError(() => new Error('Error de API')));
+    reservaService.crearReserva.mockReturnValue(
+      of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
+    );
 
     component.onSubmit();
 
-    expect(toastr.error).toHaveBeenCalledWith('Error de API', 'Error');
+    expect(component.userId).toBe(0);
+
+    const reservaArg = reservaService.crearReserva.mock.calls[0][0] as Reserva;
+    expect(reservaArg.documentoCliente).toBe(123456);
   });
+
 });
