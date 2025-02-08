@@ -6,6 +6,8 @@ import { HandleErrorService } from './handle-error.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Cliente } from '../../shared/models/cliente.model';
 import { Trabajador } from '../../shared/models/trabajador.model';
+import { mockResponseTrabajador, mockTrabajador } from '../../shared/mocks/trabajador.mock';
+import { mockCliente, mockResponseCliente } from '../../shared/mocks/cliente.mock';
 
 describe('UserService', () => {
   let service: UserService;
@@ -157,17 +159,7 @@ describe('UserService', () => {
 
   it('should send registroCliente request and return response', () => {
     const mockResponse = { data: { id: 1, nombre: 'Cliente Prueba' } };
-    const cliente = {
-      documentoCliente: 123456,
-      nombre: 'Cliente Prueba',
-      apellido: 'Apellido Cliente',
-      direccion: 'Dirección Cliente',
-      telefono: '123456789',
-      nuevo: true,
-      password: 'password123',
-      restauranteId: 1,
-      observaciones: 'Sin observaciones'
-    };
+    const cliente = mockCliente;
 
     service.registroCliente(cliente).subscribe(response => {
       expect(response).toEqual(mockResponse);
@@ -181,20 +173,7 @@ describe('UserService', () => {
 
   it('should send registroTrabajador request and return response', () => {
     const mockResponse = { data: { id: 1, nombre: 'Trabajador Prueba' } };
-    const trabajador = {
-      documentoTrabajador: 987654,
-      nombre: 'Trabajador Prueba',
-      apellido: 'Apellido Trabajador',
-      fechaIngreso: new Date('2023-01-01').toISOString(),
-      fechaNacimiento: new Date('1990-01-01').toISOString(),
-      horario: '8:00 - 17:00',
-      nuevo: true,
-      password: 'password123',
-      restauranteId: 1,
-      rol: 'Cocinero',
-      sueldo: 2000000,
-      telefono: '987654321'
-    };
+    const trabajador = mockTrabajador;
 
     service.registroTrabajador(trabajador).subscribe(response => {
       expect(response).toEqual(mockResponse);
@@ -205,8 +184,6 @@ describe('UserService', () => {
     expect(req.request.body).toEqual(trabajador);
     req.flush(mockResponse);
   });
-
-  // Tests para validateTokenAndLogout
 
   it('should call logout if token is expired in validateTokenAndLogout', () => {
     const expiredPayload = { rol: 'Cliente', documento: '123', exp: Math.floor(Date.now() / 1000) - 10 };
@@ -225,15 +202,12 @@ describe('UserService', () => {
     service.validateTokenAndLogout();
     expect(logoutSpy).not.toHaveBeenCalled();
   });
-  // Tests para getAuthState()
   it('should allow subscription to auth state and emit false when not logged in', (done) => {
-    // Inicialmente, sin token, el estado de autenticación es false.
     service.getAuthState().subscribe(state => {
       expect(state).toBe(false);
       done();
     });
   });
-  // Tests para getUserId()
   it('should return user id if token is valid', () => {
     const decodedToken = { rol: 'Cliente', documento: '12345', exp: Math.floor(Date.now() / 1000) + 1000 };
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
@@ -247,55 +221,21 @@ describe('UserService', () => {
     expect(result).toBeNull();
   });
   it('should get trabajador by ID successfully', () => {
-    const mockResponse: ApiResponse<Trabajador> = {
-      code: 200,
-      message: 'Trabajador encontrado',
-      data: {
-        documentoTrabajador: 987654,
-        nombre: 'Trabajador Prueba',
-        apellido: 'Apellido Trabajador',
-        fechaIngreso: new Date('2023-01-01').toISOString(),
-        fechaNacimiento: new Date('1990-01-01').toISOString(),
-        horario: '8:00 - 17:00',
-        nuevo: true,
-        password: 'password123',
-        restauranteId: 1,
-        rol: 'Cocinero',
-        sueldo: 2000000,
-        telefono: '987654321'
-      }
-    };
-
     service.getTrabajadorId(987654).subscribe(response => {
-      expect(response).toEqual(mockResponse);
+      expect(response).toEqual(mockResponseTrabajador);
     });
-
     const req = httpTestingController.expectOne(`${environment.apiUrl}/trabajadores/search?id=987654`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockResponse);
+    req.flush(mockResponseTrabajador);
   });
   it('should get cliente by ID successfully', () => {
-    const mockResponse: ApiResponse<Cliente> = {
-      code: 200,
-      message: 'Cliente encontrado',
-      data: {
-        documentoCliente: 123456,
-        nombre: 'Cliente Prueba',
-        apellido: 'Apellido Cliente',
-        direccion: 'Dirección Cliente',
-        telefono: '123456789',
-        password: 'password123',
-        observaciones: 'Sin observaciones'
-      }
-    };
-
     service.getClienteId(123456).subscribe(response => {
-      expect(response).toEqual(mockResponse);
+      expect(response).toEqual(mockResponseCliente);
     });
 
     const req = httpTestingController.expectOne(`${environment.apiUrl}/clientes/search?id=123456`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockResponse);
+    req.flush(mockResponseCliente);
   });
   it('should handle error when fetching trabajador by ID', () => {
     service.getTrabajadorId(987654).subscribe({

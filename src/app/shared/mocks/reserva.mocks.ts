@@ -57,3 +57,18 @@ export const mockResponseReservasDelDia: ApiResponse<Reserva[]> = {
     ]
 };
 
+export const mockReserva: Reserva = {
+    reservaId: 1,
+    documentoCliente: 1015466494,
+    telefono: '3042449339',
+    fechaReserva: '2025-02-06',
+    horaReserva: '10:00:00',
+    personas: 3,
+    estadoReserva: estadoReserva.pendiente,
+    createdAt: '2025-02-06T12:00:00.000Z',
+    createdBy: 'Administrador - Bryan Luis',
+    indicaciones: 'Reserva de prueba',
+    nombreCompleto: 'Bryan Luis',
+    updatedAt: '2025-02-06T12:00:00.000Z',
+    updatedBy: 'Administrador - Bryan Luis'
+};

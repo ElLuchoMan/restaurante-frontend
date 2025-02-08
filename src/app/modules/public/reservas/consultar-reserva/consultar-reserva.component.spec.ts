@@ -251,12 +251,11 @@ describe('ConsultarReservaComponent', () => {
 
     expect(reservaService.getReservaByParameter).toHaveBeenCalledWith(123456, undefined);
 
-    // Comparar solo fechas y horas en lugar de toda la estructura
     expect(component.reservas.map(r => ({ fecha: r.fechaReserva, hora: r.horaReserva })))
       .toEqual([
-        { fecha: '02-01-2025', hora: '16:00' }, // Más reciente
-        { fecha: '01-01-2025', hora: '18:00' }, // Mismo día, hora más tarde
-        { fecha: '01-01-2025', hora: '14:00' }  // Mismo día, hora más temprano
+        { fecha: '02-01-2025', hora: '16:00' },
+        { fecha: '01-01-2025', hora: '18:00' },
+        { fecha: '01-01-2025', hora: '14:00' }
       ]);
   });
   it('should return the same date if it has three parts', () => {

@@ -10,7 +10,6 @@ describe('authInterceptor', () => {
 
   beforeEach(() => {
     const userServiceMock = {
-      // Se mockea el método que se usa en el interceptor
       validateTokenAndLogout: jest.fn()
     } as unknown as jest.Mocked<UserService>;
 
@@ -34,7 +33,6 @@ describe('authInterceptor', () => {
 
     interceptor(request, next);
 
-    // Se espera que la petición clonada tenga la cabecera Authorization con el token
     const modifiedRequest = next.mock.calls[0][0];
     expect(modifiedRequest.headers.get('Authorization')).toBe(token);
   });
@@ -47,7 +45,6 @@ describe('authInterceptor', () => {
 
     interceptor(request, next);
 
-    // Se espera que se invoque next() con la petición original
     expect(next).toHaveBeenCalledWith(request);
   });
 });

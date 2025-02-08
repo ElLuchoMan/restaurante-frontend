@@ -1,3 +1,4 @@
+import { mockResponseLogin } from './../../../shared/mocks/login.mock';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -6,6 +7,7 @@ import { LoginComponent } from './login.component';
 import { of, throwError } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { mockLogin } from '../../../shared/mocks/login.mock';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -53,21 +55,19 @@ describe('LoginComponent', () => {
   });
 
   it('should call login service with correct credentials', () => {
-    const mockResponse = { code: 200, message: 'Success', data: { token: 'testToken', nombre: 'Test User' } };
-    userService.login.mockReturnValue(of(mockResponse));
+    userService.login.mockReturnValue(of(mockResponseLogin));
 
-    component.documento = '12345';
-    component.password = 'password';
+    component.documento = mockLogin.documento;
+    component.password = mockLogin.password;
     component.onSubmit();
 
-    expect(userService.login).toHaveBeenCalledWith({ documento: '12345', password: 'password' });
+    expect(userService.login).toHaveBeenCalledWith(mockLogin);
     expect(userService.saveToken).toHaveBeenCalledWith('testToken');
     expect(toastr.success).toHaveBeenCalledWith('Inicio de sesión exitoso', 'Bienvenido Test User');
   });
 
   it('should navigate to admin route when user role is Administrador', () => {
-    const mockResponse = { code: 200, message: 'Success', data: { token: 'testToken', nombre: 'Admin User' } };
-    userService.login.mockReturnValue(of(mockResponse));
+    userService.login.mockReturnValue(of(mockResponseLogin));
     userService.getUserRole.mockReturnValue('Administrador');
 
     component.onSubmit();
@@ -76,8 +76,7 @@ describe('LoginComponent', () => {
   });
 
   it('should navigate to client route when user role is cliente', () => {
-    const mockResponse = { code: 200, message: 'Success', data: { token: 'testToken', nombre: 'Client User' } };
-    userService.login.mockReturnValue(of(mockResponse));
+    userService.login.mockReturnValue(of(mockResponseLogin));
     userService.getUserRole.mockReturnValue('Cliente');
 
     component.onSubmit();
@@ -88,18 +87,18 @@ describe('LoginComponent', () => {
   it('should handle login error and show toastr error message from service', () => {
     const mockError = { message: 'Error de conexión' };
     userService.login.mockReturnValue(throwError(() => mockError));
-  
+
     component.onSubmit();
-  
+
     expect(toastr.error).toHaveBeenCalledWith('Error de conexión', 'Error de autenticación');
   });
-  
+
   it('should handle login error and show generic toastr error message when message is missing', () => {
     const mockError = {};
     userService.login.mockReturnValue(throwError(() => mockError));
-  
+
     component.onSubmit();
-  
+
     expect(toastr.error).toHaveBeenCalledWith('Credenciales incorrectas', 'Error de autenticación');
   });
 });

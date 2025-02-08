@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpErrorResponse } from '@angular/common/http';
-
 import { HandleErrorService } from './handle-error.service';
+import { mockHttpError500, mockHttpError400 } from '../../shared/mocks/error.mock';
 
 describe('HandleErrorService', () => {
   let service: HandleErrorService;
@@ -16,15 +15,7 @@ describe('HandleErrorService', () => {
   });
 
   it('should format and throw an error', (done) => {
-    const mockError = new HttpErrorResponse({
-      status: 500,
-      error: {
-        message: 'Internal Server Error',
-        cause: 'Database connection failed',
-      },
-    });
-
-    service.handleError(mockError).subscribe({
+    service.handleError(mockHttpError500).subscribe({
       next: () => {
         fail('Expected handleError to throw an error');
       },
@@ -40,12 +31,7 @@ describe('HandleErrorService', () => {
   });
 
   it('should handle an error without a specific message or cause', (done) => {
-    const mockError = new HttpErrorResponse({
-      status: 400,
-      error: {},
-    });
-
-    service.handleError(mockError).subscribe({
+    service.handleError(mockHttpError400).subscribe({
       next: () => {
         fail('Expected handleError to throw an error');
       },

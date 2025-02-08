@@ -5,33 +5,11 @@ import { RestauranteService } from './restaurante.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Restaurante } from '../../shared/models/restaurante.model';
 import { CambioHorario } from '../../shared/models/cambio-horario.model';
+import { mockCambioHorarioResponse, mockRestaurante } from '../../shared/mocks/restaurante.mock';
 
 describe('RestauranteService', () => {
   let service: RestauranteService;
   let httpTestingController: HttpTestingController;
-
-  const mockRestauranteResponse: ApiResponse<Restaurante> = {
-    code: 200,
-    message: 'Restaurante obtenido correctamente',
-    data: {
-      restauranteId: 1,
-      nombreRestaurante: 'Restaurante Prueba',
-      horaApertura: '09:00',
-      diasLaborales: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'],
-    },
-  };
-
-  const mockCambioHorarioResponse: ApiResponse<CambioHorario> = {
-    code: 200,
-    message: 'Cambios de horario obtenidos correctamente',
-    data: {
-      cambioHorarioId: 1,
-      fechaCambioHorario: '2025-01-20',
-      horaApertura: '00:00',
-      horaCierre: '23:59',
-      abierto: false,
-    },
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -52,17 +30,17 @@ describe('RestauranteService', () => {
   });
 
   it('should return restaurante data from getRestauranteInfo', () => {
-    service.getRestauranteInfo().subscribe((response) => {
-      expect(response).toEqual(mockRestauranteResponse);
+    service.getRestauranteInfo().subscribe((response: ApiResponse<Restaurante>) => {
+      expect(response).toEqual(mockRestaurante);
     });
 
     const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes/search?id=1`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockRestauranteResponse);
+    req.flush(mockRestaurante);
   });
 
   it('should return cambios horario data from getCambiosHorario', () => {
-    service.getCambiosHorario().subscribe((response) => {
+    service.getCambiosHorario().subscribe((response: ApiResponse<CambioHorario>) => {
       expect(response).toEqual(mockCambioHorarioResponse);
     });
 

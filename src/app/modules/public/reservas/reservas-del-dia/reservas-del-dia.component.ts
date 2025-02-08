@@ -22,13 +22,12 @@ export class ReservasDelDiaComponent implements OnInit {
   }
 
   consultarReservasDelDia(): void {
-    // Obtener la fecha de hoy en formato YYYY-MM-DD para la API
     const hoy = new Date();
     const anio = hoy.getFullYear();
     const mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
     const dia = hoy.getDate().toString().padStart(2, '0');
-    this.fechaHoy = `${dia}-${mes}-${anio}`; // Formato para la vista
-    const fechaISO = `${anio}-${mes}-${dia}`; // Formato para la API
+    this.fechaHoy = `${dia}-${mes}-${anio}`;
+    const fechaISO = `${anio}-${mes}-${dia}`;
 
     this.reservaService.getReservaByParameter(undefined, fechaISO).subscribe({
       next: (response) => {
@@ -63,7 +62,6 @@ export class ReservasDelDiaComponent implements OnInit {
       return;
     }
 
-    // Convertir fecha de DD-MM-YYYY a YYYY-MM-DD antes de enviarla a la API
     const [dia, mes, anio] = reserva.fechaReserva.split('-');
     reserva.fechaReserva = `${anio}-${mes}-${dia}`;
 

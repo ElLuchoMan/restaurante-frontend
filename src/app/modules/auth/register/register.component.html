@@ -6,7 +6,6 @@
                 <h1 class="text-center mb-4">Registro</h1>
                 <div class="form-card-bg p-5">
                     <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
-                        <!-- Checkbox solo visible para administradores -->
                         <div class="form-group form-check" *ngIf="isAdmin()">
                             <input type="checkbox" class="form-check-input" id="esTrabajador" [(ngModel)]="esTrabajador"
                                 name="esTrabajador" />

@@ -34,7 +34,7 @@
 .tooltip-btn::before {
     content: attr(data-tooltip);
     position: absolute;
-    bottom: 150%; 
+    bottom: 150%;
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(0, 0, 0, 0.75);
@@ -51,7 +51,6 @@
 .tooltip-btn:hover::before {
     visibility: visible;
     opacity: 1;
-    
 }
 .form-card-bg {
     background: white;

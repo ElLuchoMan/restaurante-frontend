@@ -32,7 +32,6 @@ describe('HeaderComponent', () => {
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
 
-    // Asigna un mock a la función navigate para poder espiarla
     router.navigate = jest.fn();
   });
 
@@ -71,7 +70,6 @@ describe('HeaderComponent', () => {
     const allMenu = [...component.menuLeft, ...component.menuRight];
     expect(allMenu.some(item => item.label === 'Registrar')).toBe(true);
     expect(allMenu.some(item => item.label === 'Logout')).toBe(true);
-    // Para Administrador se eliminan ciertos ítems:
     expect(allMenu.some(item => item.label === 'Galería')).toBe(false);
     expect(allMenu.some(item => item.label === 'Menú')).toBe(false);
     expect(allMenu.some(item => item.label === 'Ubicación')).toBe(false);
@@ -100,19 +98,16 @@ describe('HeaderComponent', () => {
   });
 
   it('should update imagenVisible based on screen width and total menu items', () => {
-    // Caso 1: Pantalla ancha (1300px) y pocos elementos => imagenVisible debe ser false
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
     component.menuLeft = [{ label: 'Item1', route: '/item1', priority: 1 }];
     component.menuRight = [{ label: 'Item2', route: '/item2', priority: 2 }];
     component.checkScreenSize();
     expect(component.imagenVisible).toBe(false);
 
-    // Caso 2: Pantalla angosta (1000px) => imagenVisible debe ser true
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1000 });
     component.checkScreenSize();
     expect(component.imagenVisible).toBe(true);
 
-    // Caso 3: Pantalla ancha pero con muchos elementos (>6) => imagenVisible debe ser true
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
     component.menuLeft = new Array(4).fill({ label: 'Item', route: '/item', priority: 1 });
     component.menuRight = new Array(3).fill({ label: 'Item', route: '/item', priority: 1 });
@@ -128,7 +123,6 @@ describe('HeaderComponent', () => {
   });
 
   it('should execute logout and navigate to "/home"', () => {
-    // Agrega el mock para getAuthState para evitar el error en ngOnInit.
     userService.getAuthState.mockReturnValue(of(false));
     fixture.detectChanges();
     component.logout();

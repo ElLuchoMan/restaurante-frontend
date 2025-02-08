@@ -15,49 +15,41 @@ export class UserService {
   private baseUrl = environment.apiUrl;
   private tokenKey = 'auth_token';
 
-  // BehaviorSubject para manejar el estado del usuario
   private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
 
   constructor(private http: HttpClient, private handleError: HandleErrorService) { }
 
-  // Permite a los componentes suscribirse al estado de autenticación
   getAuthState(): Observable<boolean> {
     return this.authState.asObservable();
   }
 
-  // Verifica si hay un token activo
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
 
-  // Login
   login(credenciales: Login): Observable<ApiResponse<LoginResonse>> {
     return this.http.post<ApiResponse<LoginResonse>>(`${this.baseUrl}/login`, credenciales).pipe(
       catchError(this.handleError.handleError)
     );
   }
 
-  // Registro de clientes
   registroCliente(cliente: Cliente): Observable<ApiResponse<Cliente>> {
     return this.http.post<ApiResponse<Cliente>>(`${this.baseUrl}/clientes`, cliente).pipe(
       catchError(this.handleError.handleError)
     );
   }
 
-  // Registro de trabajadores
   registroTrabajador(trabajador: Trabajador): Observable<ApiResponse<Trabajador>> {
     return this.http.post<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores`, trabajador).pipe(
       catchError(this.handleError.handleError)
     );
   }
 
-  // Guardar token y notificar cambio de estado
   saveToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
-    this.authState.next(true); // Notifica el cambio
+    this.authState.next(true);
   }
 
-  // Obtener token
   getToken(): string | null {
     if (typeof window === 'undefined') {
       return null;
@@ -65,7 +57,6 @@ export class UserService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  // Decodificar token
   decodeToken(): any {
     const token = this.getToken();
     if (!token) return null;
@@ -79,33 +70,28 @@ export class UserService {
     }
   }
 
-  // Obtener rol del usuario
   getUserRole(): string | null {
     const decoded = this.decodeToken();
     return decoded ? decoded.rol : null;
   }
 
-  // Obtener id del usuario
   getUserId(): string | null {
     const decoded = this.decodeToken();
     return decoded ? decoded.documento : null;
   }
 
-  // Obtener trabajador por id
   getTrabajadorId(documento: number): Observable<ApiResponse<Trabajador>> {
     return this.http.get<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores/search?id=${documento}`).pipe(
       catchError(this.handleError.handleError)
     );
   }
 
-  // Obtener cliente por id
   getClienteId(documento: number): Observable<ApiResponse<Cliente>> {
     return this.http.get<ApiResponse<Cliente>>(`${this.baseUrl}/clientes/search?id=${documento}`).pipe(
       catchError(this.handleError.handleError)
     );
   }
 
-  // Validar si el token ha expirado
   isTokenExpired(): boolean {
     const decoded = this.decodeToken();
     if (!decoded || !decoded.exp) return true;
@@ -114,13 +100,11 @@ export class UserService {
     return decoded.exp < currentTime;
   }
 
-  // Cerrar sesión y notificar cambio de estado
   logout(): void {
     localStorage.removeItem(this.tokenKey);
-    this.authState.next(false); // Notifica el cambio
+    this.authState.next(false);
   }
 
-  // Validar la validez del token y cerrar sesión si ha expirado
   validateTokenAndLogout(): string | null {
     const token = this.getToken();
     if (token && this.isTokenExpired()) {

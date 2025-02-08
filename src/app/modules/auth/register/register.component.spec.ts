@@ -8,6 +8,9 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Trabajador } from '../../../shared/models/trabajador.model';
 import { Cliente } from '../../../shared/models/cliente.model';
+import { mockCliente, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
+import { mockTrabajador, mockTrabajadorRegisterResponse } from '../../../shared/mocks/trabajador.mock';
+import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
@@ -65,92 +68,54 @@ describe('RegisterComponent', () => {
   });
 
   it('should register a client successfully', fakeAsync(() => {
-    const mockResponse = {
-      code: 201,
-      message: 'Cliente registrado con éxito',
-      data: {
-        documentoCliente: 12345,
-        nombre: 'Cliente',
-        apellido: 'Prueba',
-        password: 'password',
-        direccion: '',
-        telefono: '',
-        observaciones: ''
-      }
-    };
-    userService.registroCliente.mockReturnValue(of(mockResponse));
+    userService.registroCliente.mockReturnValue(of(mockClienteRegisterResponse));
 
-    component.documento = 12345;
-    component.nombre = 'Cliente';
-    component.apellido = 'Prueba';
-    component.password = 'password';
+    component.documento = mockCliente.documentoCliente;
+    component.nombre = mockCliente.nombre;
+    component.apellido = mockCliente.apellido;
+    component.password = mockCliente.password;
+    component.direccion = mockCliente.direccion;
+    component.telefono = mockCliente.telefono;
+    component.observaciones = mockCliente.observaciones;
 
     component.onSubmit();
     tick();
 
-    expect(userService.registroCliente).toHaveBeenCalledWith({
-      documentoCliente: 12345,
-      nombre: 'Cliente',
-      apellido: 'Prueba',
-      password: 'password',
-      direccion: '',
-      telefono: '',
-      observaciones: ''
-    });
+    expect(userService.registroCliente).toHaveBeenCalledWith(mockCliente);
     expect(toastr.success).toHaveBeenCalledWith('Cliente registrado con éxito');
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   }));
 
   it('should register a worker successfully', fakeAsync(() => {
-    const fechaActual = new Date().toISOString().split('T')[0];
+    const formatDatePipe = new FormatDatePipe();
 
-    const mockResponse = {
-      code: 201,
-      message: 'Trabajador registrado con éxito',
-      data: {
-        documentoTrabajador: 54321,
-        nombre: 'Trabajador',
-        apellido: 'Prueba',
-        password: 'password',
-        restauranteId: 1,
-        rol: 'Mesero',
-        nuevo: true,
-        horario: '9:00 AM - 6:00 PM',
-        sueldo: 1000000,
-        telefono: '',
-        fechaIngreso: fechaActual,
-        fechaNacimiento: fechaActual
-      }
-    };
-    userService.registroTrabajador.mockReturnValue(of(mockResponse));
+    const formattedFechaIngreso = formatDatePipe.transform(component.fechaIngreso);
+    const formattedFechaNacimiento = formatDatePipe.transform(component.fechaNacimiento);
+
+    userService.registroTrabajador.mockReturnValue(of(mockTrabajadorRegisterResponse));
 
     component.esTrabajador = true;
-    component.documento = 54321;
-    component.nombre = 'Trabajador';
-    component.apellido = 'Prueba';
-    component.password = 'password';
-    component.sueldo = 1000000;
-    component.horaEntrada = '9:00 AM';
-    component.horaSalida = '6:00 PM';
+    component.documento = mockTrabajador.documentoTrabajador;
+    component.nombre = mockTrabajador.nombre;
+    component.apellido = mockTrabajador.apellido;
+    component.password = mockTrabajador.password;
+    component.sueldo = mockTrabajador.sueldo;
+    component.telefono = mockTrabajador.telefono;
+    component.rol = mockTrabajador.rol;
+    component.horaEntrada = '08:00';
+    component.horaSalida = '20:00';
 
     component.onSubmit();
     tick();
 
     expect(userService.registroTrabajador).toHaveBeenCalledWith({
-      documentoTrabajador: 54321,
-      nombre: 'Trabajador',
-      apellido: 'Prueba',
-      password: 'password',
-      restauranteId: 1,
-      rol: 'Mesero',
-      nuevo: true,
-      horario: '9:00 AM - 6:00 PM',
-      sueldo: 1000000,
-      telefono: '',
-      fechaIngreso: fechaActual,
-      fechaNacimiento: fechaActual
+      ...mockTrabajador,
+      horario: `${component.horaEntrada} - ${component.horaSalida}`,
+      fechaIngreso: formattedFechaIngreso,
+      fechaNacimiento: formattedFechaNacimiento,
     });
-    expect(toastr.success).toHaveBeenCalledWith('Trabajador registrado con éxito');
+
+    expect(toastr.success).toHaveBeenCalledWith(mockTrabajadorRegisterResponse.message);
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   }));
 
@@ -208,7 +173,7 @@ describe('RegisterComponent', () => {
 
     expect(toastr.error).toHaveBeenCalledWith('failed to fetch', 'Error');
   }));
-  
+
   it('should show API error message when registering a client fails', fakeAsync(() => {
     const mockErrorResponse = {
       code: 400,
@@ -234,19 +199,19 @@ describe('RegisterComponent', () => {
       message: '',
       data: {} as Trabajador
     };
-  
+
     userService.registroTrabajador.mockReturnValue(of(mockErrorResponse));
-  
+
     component.esTrabajador = true;
     component.documento = 54321;
     component.nombre = 'Trabajador';
     component.apellido = 'Prueba';
     component.password = 'password';
     component.sueldo = 1000000;
-  
+
     component.onSubmit();
     tick();
-  
+
     expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error desconocido', 'Error');
   }));
   it('should show default error message "Ocurrió un error" when response.message is empty for client', fakeAsync(() => {
@@ -255,17 +220,17 @@ describe('RegisterComponent', () => {
       message: '',
       data: {} as Cliente
     };
-  
+
     userService.registroCliente.mockReturnValue(of(mockErrorResponse));
-  
+
     component.documento = 12345;
     component.nombre = 'Cliente';
     component.apellido = 'Prueba';
     component.password = 'password';
-  
+
     component.onSubmit();
     tick();
-  
+
     expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error', 'Error');
   }));
 });

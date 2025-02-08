@@ -3,6 +3,7 @@ import { FooterComponent } from './footer.component';
 import { HttpClient, HttpHandler } from '@angular/common/http';
 import { RestauranteService } from '../../../core/services/restaurante.service';
 import { of, throwError } from 'rxjs';
+import { mockCambioHorarioResponse, mockCambioHorarioAbiertoResponse, mockRestauranteResponse } from '../../mocks/restaurante.mock';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -16,41 +17,6 @@ describe('FooterComponent', () => {
   let component: FooterComponent;
   let fixture: ComponentFixture<FooterComponent>;
   let restauranteService: jest.Mocked<RestauranteService>;
-
-  const mockRestauranteResponse = {
-    code: 200,
-    message: 'Restaurante obtenido correctamente',
-    data: {
-      restauranteId: 1,
-      nombreRestaurante: 'Restaurante Prueba',
-      horaApertura: '09:00',
-      diasLaborales: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
-    },
-  };
-
-  const mockCambioHorarioResponse = {
-    code: 200,
-    message: 'Cambios de horario obtenidos correctamente',
-    data: {
-      cambioHorarioId: 1,
-      fechaCambioHorario: '2025-01-20',
-      horaApertura: '00:00',
-      horaCierre: '23:59',
-      abierto: false
-    }
-  };
-
-  const mockCambioHorarioAbiertoResponse = {
-    code: 200,
-    message: 'Cambios de horario obtenidos correctamente',
-    data: {
-      cambioHorarioId: 2,
-      fechaCambioHorario: '2021-08-01',
-      horaApertura: '09:00',
-      horaCierre: '18:00',
-      abierto: true
-    }
-  };
 
   const mockError = new Error('Test error');
 

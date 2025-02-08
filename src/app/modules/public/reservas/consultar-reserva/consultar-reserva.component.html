@@ -1,8 +1,6 @@
 <div class="container mt-5 col-md-6">
     <h1 class="text-center mb-4">Buscar Reservas</h1>
-    <!-- Tarjeta de búsqueda -->
     <div class="form-card-bg">
-        <!-- Contenedor de filtros -->
         <div class="filtro-container">
             <label><strong>Buscar por:</strong></label>
             <div class="form-check mx-2">
@@ -18,7 +16,6 @@
         </div>
 
 
-        <!-- Fila de inputs y botón de búsqueda -->
         <div class="d-flex align-items-center mt-3">
             <div class="form-group flex-grow-1 mr-2" *ngIf="buscarPorDocumento">
                 <input type="number" id="documentoCliente" name="documentoCliente" class="form-control"
@@ -37,7 +34,6 @@
         </div>
     </div>
 
-    <!-- Tarjeta para mostrar los resultados -->
     <div class="form-card-bg p-4 mt-4" *ngIf="reservas.length > 0">
         <h2 class="text-center mb-4">Resultados</h2>
         <div class="table-container">
@@ -85,7 +81,6 @@
         </div>
     </div>
 
-    <!-- Mensaje si no hay resultados -->
     <div class="alert alert-info text-center mt-4" *ngIf="mostrarMensaje && reservas.length === 0">
         No se han encontrado reservas con los criterios seleccionados.
     </div>

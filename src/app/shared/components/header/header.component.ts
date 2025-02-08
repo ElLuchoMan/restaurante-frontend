@@ -23,7 +23,6 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Suscribirse a cambios en el estado de autenticación
     this.userService.getAuthState().subscribe((isLoggedIn) => {
       this.userRole = isLoggedIn ? this.userService.getUserRole() : null;
       this.generateMenu();

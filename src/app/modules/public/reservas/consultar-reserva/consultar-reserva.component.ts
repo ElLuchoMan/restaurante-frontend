@@ -66,7 +66,6 @@ export class ConsultarReservaComponent {
       next: (response) => {
         this.reservas = response.data
           .sort((a: Reserva, b: Reserva) => {
-            // Ordenar primero por fecha (de más reciente a más antigua)
             const fechaA = new Date(a.fechaReserva.split('-').reverse().join('-'));
             const fechaB = new Date(b.fechaReserva.split('-').reverse().join('-'));
 
@@ -74,7 +73,6 @@ export class ConsultarReservaComponent {
               return fechaB.getTime() - fechaA.getTime();
             }
 
-            // Si la fecha es la misma, ordenar por hora
             const horaA = new Date(`1970-01-01T${a.horaReserva}`);
             const horaB = new Date(`1970-01-01T${b.horaReserva}`);
 
@@ -112,11 +110,9 @@ export class ConsultarReservaComponent {
       return;
     }
 
-    // Convertir fecha de DD-MM-YYYY a YYYY-MM-DD antes de enviarla a la API
     const [dia, mes, anio] = reserva.fechaReserva.split('-');
     reserva.fechaReserva = `${anio}-${mes}-${dia}`;
 
-    // Actualizar el estado directamente en la reserva del array
     reserva.estadoReserva = nuevoEstado;
 
     this.reservaService.actualizarReserva(reserva.reservaId, reserva).subscribe({

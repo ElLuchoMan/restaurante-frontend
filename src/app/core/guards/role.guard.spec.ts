@@ -39,7 +39,7 @@ describe('RoleGuard', () => {
   });
 
   const mockRoute = {
-    data: { roles: ['Administrador'] } // Corregido a un array
+    data: { roles: ['Administrador'] }
   } as unknown as ActivatedRouteSnapshot;
 
   it('should allow access if user has the expected role', () => {
@@ -59,16 +59,16 @@ describe('RoleGuard', () => {
 
     expect(result).toBe(false);
     expect(toastr.error).toHaveBeenCalledWith('No tienes permisos para acceder a esta página', 'Acceso denegado');
-    expect(router.navigate).toHaveBeenCalledWith(['/reservas/crear']); // Corregido a la ruta esperada
+    expect(router.navigate).toHaveBeenCalledWith(['/reservas/crear']);
   });
 
   it('should deny access and redirect if user has no role', () => {
-    userService.getUserRole.mockReturnValue(null); // Simula que el usuario no tiene rol
+    userService.getUserRole.mockReturnValue(null);
 
     const result = roleGuard.canActivate(mockRoute);
 
     expect(result).toBe(false);
     expect(toastr.error).toHaveBeenCalledWith('No tienes permisos para acceder a esta página', 'Acceso denegado');
-    expect(router.navigate).toHaveBeenCalledWith(['/reservas/crear']); // Corregido a la ruta esperada
+    expect(router.navigate).toHaveBeenCalledWith(['/reservas/crear']);
   });
 });
