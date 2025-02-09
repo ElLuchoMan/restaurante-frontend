@@ -5,5 +5,5 @@ import { RegisterComponent } from '../auth/register/register.component';
 import { RutaDomicilioComponent } from './ruta-domicilio/ruta-domicilio.component';
 
 export const trabajadoresRoutes: Routes = [
-  { path: 'domicilios', component: RutaDomicilioComponent },
+  { path: 'ruta-domicilio', component: RutaDomicilioComponent },
 ];
