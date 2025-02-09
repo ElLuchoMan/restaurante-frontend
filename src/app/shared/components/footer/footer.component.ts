@@ -4,6 +4,7 @@ import { CambioHorario } from '../../models/cambio-horario.model';
 import { ApiResponse } from '../../models/api-response.model';
 import { RestauranteService } from '../../../core/services/restaurante.service';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-footer',
@@ -20,9 +21,9 @@ export class FooterComponent {
   estado: string = 'Abierto';
   estadoActual: string = 'Abierto';
 
-  constructor(private restauranteService: RestauranteService) { }
-  ngOnInit(): void {
+  constructor(private restauranteService: RestauranteService, private router: Router) { }
 
+  ngOnInit(): void {
     this.restauranteService.getRestauranteInfo().subscribe((response: ApiResponse<Restaurante>) => {
       this.restaurante = response;
     });
@@ -42,7 +43,6 @@ export class FooterComponent {
             this.horaApertura = 'No Aplica';
             this.horaCierre = 'No Aplica';
           }
-
         }
         this.cambioHorario = response;
       },
@@ -50,5 +50,7 @@ export class FooterComponent {
     });
   }
 
+  esPaginaUbicacion(): boolean {
+    return this.router.url.includes('/ubicacion');
+  }
 }
-

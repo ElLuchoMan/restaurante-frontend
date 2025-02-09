@@ -8,6 +8,7 @@ import { MenuReservasComponent } from './reservas/menu-reservas/menu-reservas.co
 import { ReservasDelDiaComponent } from './reservas/reservas-del-dia/reservas-del-dia.component';
 import { RoleGuard } from '../../core/guards/role.guard';
 import { AuthGuard } from '../../core/guards/auth.guard';
+import { UbicacionRestauranteComponent } from './ubicacion-restaurante/ubicacion-restaurante.component';
 
 const publicRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -30,9 +31,11 @@ const publicRoutes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['Administrador'] }
       },
+
       { path: 'crear', component: CrearReservaComponent },
     ]
-  }
+  },
+  { path: 'ubicacion', component: UbicacionRestauranteComponent },
 ];
 
 export default publicRoutes;
