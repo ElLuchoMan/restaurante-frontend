@@ -38,7 +38,8 @@
                     <h1 class="m-0 display-5 text-primary logo-text" [ngClass]="{ 'd-none': imagenVisible }">
                         <span class="text-secondary">La cocina </span>DE MARÍA
                     </h1>
-                    <img src="assets/img/logo.png" alt="Logo" class="logo-img" [ngClass]="{ 'd-none': !imagenVisible }">
+                    <img src="assets/img/logo-200.png" alt="Logo" class="logo-img"
+                        [ngClass]="{ 'd-none': !imagenVisible }" loading="lazy">
                 </div>
                 <div class="navbar-nav mr-auto py-0">
                     <a *ngFor="let item of menuRight" [routerLink]="item.route" class="nav-item nav-link"
