@@ -3,7 +3,7 @@
         <h2 class="text-center mb-4" *ngIf="reservas.length !== 0">Reservas del {{ fechaHoy }}</h2>
 
         <div class="table-container">
-            <table class="table table-bordered text-center">
+            <table class="table table-bordered text-center" *ngIf="reservas.length !== 0">
                 <thead>
                     <tr>
                         <th>Cliente</th>
@@ -32,15 +32,15 @@
                             </span>
                         </td>
                         <td class="text-center">
-                            <button class="btn tooltip-btn text-info" (click)="confirmarReserva(reserva)"
+                            <button class="btn-no-bg tooltip-btn text-info" (click)="confirmarReserva(reserva)"
                                 data-tooltip="Confirmar Reserva">
                                 <i class="fas fa-check"></i>
                             </button>
-                            <button class="btn tooltip-btn text-danger mx-1" (click)="cancelarReserva(reserva)"
+                            <button class="btn-no-bg tooltip-btn text-danger mx-1" (click)="cancelarReserva(reserva)"
                                 data-tooltip="Cancelar Reserva">
                                 <i class="fas fa-times"></i>
                             </button>
-                            <button class="btn tooltip-btn text-success" (click)="cumplirReserva(reserva)"
+                            <button class="btn-no-bg tooltip-btn text-success" (click)="cumplirReserva(reserva)"
                                 data-tooltip="Marcar como Cumplida">
                                 <i class="fas fa-check-double"></i>
                             </button>

@@ -16,13 +16,13 @@ export class RutaDomicilioComponent implements OnInit {
   direccionCliente: string = '';
   googleMapsUrl: string = '';
 
-  private restauranteDireccion = 'Calle 78a # 62 - 48, Bogotá, Colombia'; // Dirección del restaurante
+  private restauranteDireccion = 'Calle 78a # 62 - 48, Bogotá, Colombia';
 
   constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.direccionCliente = params['direccion'] || 'Calle 100 # 13 - 55, Bogotá, Colombia'; // Dirección por defecto
+      this.direccionCliente = params['direccion'] || 'Calle 100 # 13 - 55, Bogotá, Colombia';
 
       if (this.direccionCliente) {
         this.generarRuta();
@@ -36,14 +36,12 @@ export class RutaDomicilioComponent implements OnInit {
     const origen = encodeURIComponent(this.restauranteDireccion);
     const destino = encodeURIComponent(this.direccionCliente);
 
-    // Generamos la URL con Google Maps Directions
-    const url = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${origen}&destination=${destino}&mode=driving`;
+    const url = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${origen}&destination=${destino}&mode=driving&avoid=tolls|highways`;
 
     this.ubicacionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   private generarUrlGoogleMaps(): void {
-    // Creamos la URL de Google Maps para abrir en una pestaña nueva
     const origen = encodeURIComponent(this.restauranteDireccion);
     const destino = encodeURIComponent(this.direccionCliente);
     this.googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origen}&destination=${destino}`;

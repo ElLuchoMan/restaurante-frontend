@@ -1,6 +1,6 @@
-<div class="container mt-5 col-md-6">
+<div class="container">
     <h1 class="text-center mb-4">Buscar Reservas</h1>
-    <div class="form-card-bg">
+    <div class="form-card-bg p-4">
         <div class="filtro-container">
             <label><strong>Buscar por:</strong></label>
             <div class="custom-control custom-checkbox mx-2">
@@ -25,7 +25,7 @@
                     [(ngModel)]="fechaReserva" />
             </div>
 
-            <button class="btn tooltip-btn search" *ngIf="buscarPorDocumento || buscarPorFecha"
+            <button class="btn-no-bg tooltip-btn search" *ngIf="buscarPorDocumento || buscarPorFecha"
                 (click)="buscarReserva()" data-tooltip="Buscar Reservas">
                 <i class="fas fa-search"></i>
             </button>
@@ -64,11 +64,11 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn tooltip-btn text-info" (click)="confirmarReserva(reserva)"
+                            <button class="btn-no-bg tooltip-btn text-info" (click)="confirmarReserva(reserva)"
                                 data-tooltip="Confirmar Reserva">
                                 <i class="fas fa-check"></i>
                             </button>
-                            <button class="btn tooltip-btn text-danger" (click)="cancelarReserva(reserva)"
+                            <button class="btn-no-bg tooltip-btn text-danger" (click)="cancelarReserva(reserva)"
                                 data-tooltip="Cancelar Reserva">
                                 <i class="fas fa-times"></i>
                             </button>

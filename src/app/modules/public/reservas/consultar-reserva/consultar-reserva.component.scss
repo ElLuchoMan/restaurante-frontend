@@ -1,12 +1,4 @@
 @use "../../../../../assets/styles.scss" as *;
-.form-card-bg {
-  background: white;
-  border-radius: 25px;
-  padding: 20px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  margin: auto;
-  max-width: 925px;
-}
 .filtro-container {
   display: flex;
   align-items: center;
@@ -21,40 +13,6 @@
 
 .btn-group .btn {
   transition: all 0.3s;
-}
-
-.table-container {
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.badge-warning {
-  background-color: #ffc107;
-  color: black;
-}
-
-.badge-success {
-  background-color: #28a745;
-  color: white;
-}
-
-.badge-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.badge-danger {
-  background-color: #dc3545;
-}
-
-.tooltip-btn {
-  border: none;
-  background: none;
-  padding: 5px;
-  cursor: pointer;
-  font-size: 1.5rem;
-  outline: none;
-  box-shadow: none;
 }
 
 .search {
