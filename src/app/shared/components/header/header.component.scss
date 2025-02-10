@@ -1,13 +1,7 @@
+@use "../../../../assets/styles.scss" as *;
 .navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-
   .navbar-nav {
-    display: flex;
     gap: 15px;
-    padding: 0px 15px 0px 15px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -19,7 +13,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-grow: 1;
+    flex-grow: 0;
 
     .logo-img {
       position: absolute;
@@ -37,5 +31,16 @@
 
   .d-none {
     display: none !important;
+  }
+}
+@media (max-width: 991px) {
+  .logo-container {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .logo-container {
+    flex-grow: 0.75 !important;
   }
 }
