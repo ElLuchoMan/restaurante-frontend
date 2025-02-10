@@ -5019,7 +5019,12 @@ input {
     padding-left: 0;
     margin-bottom: 0;
     list-style: none;
-
+    gap: 15px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
     .nav-link {
         padding-right: 0;
         padding-left: 0;

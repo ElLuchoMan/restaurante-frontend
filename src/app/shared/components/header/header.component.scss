@@ -1,13 +1,5 @@
 @use "../../../../assets/styles.scss" as *;
 .navbar {
-  .navbar-nav {
-    gap: 15px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
   .logo-container {
     position: relative;
     display: flex;
