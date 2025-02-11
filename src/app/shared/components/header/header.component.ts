@@ -88,6 +88,16 @@ export class HeaderComponent implements OnInit {
 
   logout(): void {
     this.userService.logout();
+    this.cerrarMenu();
     this.router.navigate(['/home']);
   }
+  cerrarMenu(): void {
+    if (this.isBrowser) {
+      const navbar = document.getElementById('navbarCollapse');
+      if (navbar?.classList.contains('show')) {
+        navbar.classList.remove('show');
+      }
+    }
+  }
+
 }

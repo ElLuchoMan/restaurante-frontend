@@ -30,8 +30,10 @@
             </button>
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                 <div class="navbar-nav ml-auto py-0">
-                    <a *ngFor="let item of menuLeft" [routerLink]="item.route" class="nav-item nav-link">{{ item.label
-                        }}</a>
+                    <a *ngFor="let item of menuLeft" [routerLink]="item.route" class="nav-item nav-link"
+                        (click)="cerrarMenu()">
+                        {{ item.label }}
+                    </a>
                 </div>
 
                 <div class="logo-container">
@@ -43,7 +45,7 @@
                 </div>
                 <div class="navbar-nav mr-auto py-0">
                     <a *ngFor="let item of menuRight" [routerLink]="item.route" class="nav-item nav-link"
-                        (click)="item.label === 'Logout' ? logout() : null">
+                        (click)="item.label === 'Logout' ? logout() : cerrarMenu()">
                         {{ item.label }}
                     </a>
                 </div>
