@@ -1,23 +1,24 @@
 @use "../../../../assets/styles.scss" as *;
+
 .navbar {
   .logo-container {
-    position: relative;
-    display: flex;
     align-items: center;
-    justify-content: center;
+    display: flex;
     flex-grow: 0;
+    justify-content: center;
+    position: relative;
 
     .logo-img {
-      position: absolute;
       left: 50%;
+      position: absolute;
       transform: translateX(-50%) rotate(-5deg);
-      width: 200px;
       transition: transform 0.3s ease;
+      width: 200px;
     }
 
     .logo-text {
-      user-select: none;
       display: block;
+      user-select: none;
     }
   }
 
@@ -25,13 +26,14 @@
     display: none !important;
   }
 }
-@media (max-width: 991px) {
+
+@media (width <= 991px) {
   .logo-container {
     display: none !important;
   }
 }
 
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .logo-container {
     flex-grow: 0.75 !important;
   }

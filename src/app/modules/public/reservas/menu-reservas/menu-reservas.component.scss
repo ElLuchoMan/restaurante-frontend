@@ -2,37 +2,35 @@
 @use "sass:color";
 
 .volver-container {
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    gap: 8px;
-    color: $primary;
-    font-size: 18px;
-    font-weight: bold;
-    transition:
-        color 0.3s ease,
-        transform 0.2s ease;
-    padding: 5px 10px;
-    &:hover {
-        color: color.adjust($primary, $lightness: -15%);
-        transform: translateX(-3px);
-    }
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+  align-items: center;
+  color: $primary;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 18px;
+  font-weight: bold;
+  gap: 8px;
+  padding: 5px 10px;
+  transition:
+    color 0.3s ease,
+    transform 0.2s ease;
+  user-select: none;
+
+  &:hover {
+    color: color.adjust($primary, $lightness: -15%);
+    transform: translateX(-3px);
+  }
 }
 
 .volver-icon {
-    font-size: 22px;
+  font-size: 22px;
 }
 
 .volver-text {
-    font-size: 18px;
-    text-decoration: none;
-    transition: text-decoration 0.3s ease;
+  font-size: 18px;
+  text-decoration: none;
+  transition: text-decoration 0.3s ease;
 
-    &:hover {
-        text-decoration: underline;
-    }
+  &:hover {
+    text-decoration: underline;
+  }
 }
