@@ -12,7 +12,7 @@ import { Reserva } from '../../../../shared/models/reserva.model';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
 import { Cliente } from '../../../../shared/models/cliente.model';
 import { Trabajador } from '../../../../shared/models/trabajador.model';
-import { mockResponseTrabajador } from '../../../../shared/mocks/trabajador.mock';
+import { mockTrabajadorResponse } from '../../../../shared/mocks/trabajador.mock';
 import { mockResponseCliente } from '../../../../shared/mocks/cliente.mock';
 
 describe('CrearReservaComponent', () => {
@@ -100,7 +100,7 @@ describe('CrearReservaComponent', () => {
       component.indicaciones = "Test admin reservation";
       component.documentoCliente = "0";
 
-      userService.getTrabajadorId.mockReturnValue(of(mockResponseTrabajador));
+      userService.getTrabajadorId.mockReturnValue(of(mockTrabajadorResponse));
       reservaService.crearReserva.mockReturnValue(
         of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
       );
@@ -213,7 +213,7 @@ describe('CrearReservaComponent', () => {
       component.indicaciones = "Formatting test";
       component.documentoCliente = "0";
 
-      userService.getTrabajadorId.mockReturnValue(of(mockResponseTrabajador));
+      userService.getTrabajadorId.mockReturnValue(of(mockTrabajadorResponse));
       reservaService.crearReserva.mockReturnValue(
         of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
       );
@@ -235,7 +235,7 @@ describe('CrearReservaComponent', () => {
       component.indicaciones = "Extra persons test";
       component.documentoCliente = "0";
 
-      userService.getTrabajadorId.mockReturnValue(of(mockResponseTrabajador));
+      userService.getTrabajadorId.mockReturnValue(of(mockTrabajadorResponse));
       reservaService.crearReserva.mockReturnValue(
         of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva })
       );
@@ -253,7 +253,7 @@ describe('CrearReservaComponent', () => {
     component.indicaciones = "Test error reservation";
     component.documentoCliente = "0";
 
-    userService.getTrabajadorId.mockReturnValue(of(mockResponseTrabajador));
+    userService.getTrabajadorId.mockReturnValue(of(mockTrabajadorResponse));
     const errorResponse = new Error("Error creando reserva");
     reservaService.crearReserva.mockReturnValue(throwError(() => errorResponse));
 

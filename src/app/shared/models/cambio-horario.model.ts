@@ -3,5 +3,5 @@ export interface CambioHorario {
   fechaCambioHorario: string;
   horaApertura: string;
   horaCierre: string;
-  cambioHorarioId: number;
+  cambioHorarioId?: number;
 }

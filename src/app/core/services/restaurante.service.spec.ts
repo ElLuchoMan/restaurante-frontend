@@ -5,7 +5,7 @@ import { RestauranteService } from './restaurante.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Restaurante } from '../../shared/models/restaurante.model';
 import { CambioHorario } from '../../shared/models/cambio-horario.model';
-import { mockCambioHorarioResponse, mockRestaurante } from '../../shared/mocks/restaurante.mock';
+import { mockCambioHorarioResponse, mockRestaurantesResponse } from '../../shared/mocks/restaurante.mock';
 
 describe('RestauranteService', () => {
   let service: RestauranteService;
@@ -31,12 +31,12 @@ describe('RestauranteService', () => {
 
   it('should return restaurante data from getRestauranteInfo', () => {
     service.getRestauranteInfo().subscribe((response: ApiResponse<Restaurante>) => {
-      expect(response).toEqual(mockRestaurante);
+      expect(response).toEqual(mockRestaurantesResponse);
     });
 
     const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes/search?id=1`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockRestaurante);
+    req.flush(mockRestaurantesResponse);
   });
 
   it('should return cambios horario data from getCambiosHorario', () => {

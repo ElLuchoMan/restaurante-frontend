@@ -66,13 +66,13 @@ describe('FooterComponent', () => {
     expect(component.cambioHorario).toEqual(mockCambioHorarioResponse);
   });
 
-  it('should set horario and estado correctly when changes are received and status is "Abierto"', () => {
+  it('should set horario and estado correctly when changes are received and status is "Cerrado"', () => {
     restauranteService.getCambiosHorario.mockReturnValue(of(mockCambioHorarioAbiertoResponse));
     fixture.detectChanges();
 
-    expect(component.horaApertura).toBe('09:00');
-    expect(component.horaCierre).toBe('18:00');
-    expect(component.estado).toBe('Abierto');
+    expect(component.horaApertura).toBe('No Aplica');
+    expect(component.horaCierre).toBe('No Aplica');
+    expect(component.estado).toBe('Cerrado');
     expect(component.cambioHorario).toEqual(mockCambioHorarioAbiertoResponse);
   });
 

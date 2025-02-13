@@ -116,7 +116,7 @@ export class CrearReservaComponent implements OnInit {
         : userRole === 'Cliente'
           ? Number(userId)
           : Number(this.documentoCliente),
-      estadoReserva: estadoReserva.pendiente,
+      estadoReserva: estadoReserva.PENDIENTE,
       fechaReserva: fechaReservaFormateada,
       horaReserva: this.horaReserva,
       indicaciones: this.indicaciones,

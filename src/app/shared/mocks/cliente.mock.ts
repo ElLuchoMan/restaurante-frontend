@@ -15,7 +15,7 @@ export const mockResponseCliente: ApiResponse<Cliente> = {
     }
 };
 
-export const mockCliente: Cliente = {
+export const mockClienteBody: Cliente = {
     documentoCliente: 1015466495,
     nombre: "Carlos",
     apellido: "Perez",

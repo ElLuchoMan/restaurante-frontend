@@ -6,8 +6,8 @@ import { HandleErrorService } from './handle-error.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Cliente } from '../../shared/models/cliente.model';
 import { Trabajador } from '../../shared/models/trabajador.model';
-import { mockResponseTrabajador, mockTrabajador } from '../../shared/mocks/trabajador.mock';
-import { mockCliente, mockResponseCliente } from '../../shared/mocks/cliente.mock';
+import { mockTrabajadorResponse, mockTrabajadorBody } from '../../shared/mocks/trabajador.mock';
+import { mockClienteBody, mockResponseCliente } from '../../shared/mocks/cliente.mock';
 
 describe('UserService', () => {
   let service: UserService;
@@ -159,7 +159,7 @@ describe('UserService', () => {
 
   it('should send registroCliente request and return response', () => {
     const mockResponse = { data: { id: 1, nombre: 'Cliente Prueba' } };
-    const cliente = mockCliente;
+    const cliente = mockClienteBody;
 
     service.registroCliente(cliente).subscribe(response => {
       expect(response).toEqual(mockResponse);
@@ -173,7 +173,7 @@ describe('UserService', () => {
 
   it('should send registroTrabajador request and return response', () => {
     const mockResponse = { data: { id: 1, nombre: 'Trabajador Prueba' } };
-    const trabajador = mockTrabajador;
+    const trabajador = mockTrabajadorBody;
 
     service.registroTrabajador(trabajador).subscribe(response => {
       expect(response).toEqual(mockResponse);
@@ -222,11 +222,11 @@ describe('UserService', () => {
   });
   it('should get trabajador by ID successfully', () => {
     service.getTrabajadorId(987654).subscribe(response => {
-      expect(response).toEqual(mockResponseTrabajador);
+      expect(response).toEqual(mockTrabajadorResponse);
     });
     const req = httpTestingController.expectOne(`${environment.apiUrl}/trabajadores/search?id=987654`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockResponseTrabajador);
+    req.flush(mockTrabajadorResponse);
   });
   it('should get cliente by ID successfully', () => {
     service.getClienteId(123456).subscribe(response => {

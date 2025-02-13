@@ -1,4 +1,4 @@
-import { mockResponseLogin } from './../../../shared/mocks/login.mock';
+import { mockLoginResponse } from './../../../shared/mocks/login.mock';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -55,7 +55,7 @@ describe('LoginComponent', () => {
   });
 
   it('should call login service with correct credentials', () => {
-    userService.login.mockReturnValue(of(mockResponseLogin));
+    userService.login.mockReturnValue(of(mockLoginResponse));
 
     component.documento = mockLogin.documento;
     component.password = mockLogin.password;
@@ -67,7 +67,7 @@ describe('LoginComponent', () => {
   });
 
   it('should navigate to admin route when user role is Administrador', () => {
-    userService.login.mockReturnValue(of(mockResponseLogin));
+    userService.login.mockReturnValue(of(mockLoginResponse));
     userService.getUserRole.mockReturnValue('Administrador');
 
     component.onSubmit();
@@ -76,7 +76,7 @@ describe('LoginComponent', () => {
   });
 
   it('should navigate to client route when user role is cliente', () => {
-    userService.login.mockReturnValue(of(mockResponseLogin));
+    userService.login.mockReturnValue(of(mockLoginResponse));
     userService.getUserRole.mockReturnValue('Cliente');
 
     component.onSubmit();

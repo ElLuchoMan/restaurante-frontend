@@ -7,8 +7,22 @@ export enum Roles {
     GENERAL = 'General'
 }
 export enum estadoReserva {
-    pendiente = 'PENDIENTE',
-    confirmada = 'CONFIRMADA',
-    cancelada = 'CANCELADA',
-    cumplida = 'CUMPLIDA'
+    PENDIENTE = 'PENDIENTE',
+    CONFIRMADA = 'CONFIRMADA',
+    CANCELADA = 'CANCELADA',
+    CUMPLIDA = 'CUMPLIDA'
+}
+
+export enum estadoNomina {
+    PAGO = 'PAGO',
+    NO_PAGO = 'NO PAGO',
+}
+export enum estadoPago {
+    PAGADO = 'PAGADO',
+    PENDIENTE = 'PENDIENTE',
+    NO_PAGADO = 'NO PAGO',
+}
+export enum estadoProducto {
+    DISPONIBLE = 'DISPONIBLE',
+    NO_DISPONIBLE = 'NO DISPONIBLE',
 }

@@ -1,8 +1,10 @@
+import { estadoReserva } from "../constants";
+
 export interface Reserva {
   createdAt: string;
   createdBy: string;
   documentoCliente?: number | null;
-  estadoReserva: string;
+  estadoReserva: estadoReserva;
   fechaReserva: string;
   horaReserva: string;
   indicaciones: string;

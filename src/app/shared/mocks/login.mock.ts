@@ -6,7 +6,7 @@ export const mockLogin: Login = {
     password: 'password',
 };
 
-export const mockResponseLogin: ApiResponse<LoginResonse> = {
+export const mockLoginResponse: ApiResponse<LoginResonse> = {
     code: 200,
     message: 'Inicio de sesión exitoso',
     data: {

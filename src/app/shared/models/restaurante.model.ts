@@ -1,5 +1,5 @@
 export interface Restaurante {
-  restauranteId: number;
+  restauranteId?: number;
   nombreRestaurante: string;
   horaApertura: string;
   diasLaborales: string[];

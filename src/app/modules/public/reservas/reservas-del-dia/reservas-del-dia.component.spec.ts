@@ -5,7 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { of, throwError } from 'rxjs';
 import { Reserva } from '../../../../shared/models/reserva.model';
-import { mockResponseReserva, mockResponseReservasDelDia } from '../../../../shared/mocks/reserva.mocks';
+import { mockReservaResponse, mockReservasDelDiaResponse } from '../../../../shared/mocks/reserva.mocks';
 
 describe('ReservasDelDiaComponent', () => {
   let component: ReservasDelDiaComponent;
@@ -45,16 +45,16 @@ describe('ReservasDelDiaComponent', () => {
   describe('consultarReservasDelDia', () => {
     it('should call consultarReservasDelDia in ngOnInit', () => {
       const spy = jest.spyOn(component, 'consultarReservasDelDia');
-      reservaService.getReservaByParameter.mockReturnValue(of(mockResponseReservasDelDia));
+      reservaService.getReservaByParameter.mockReturnValue(of(mockReservasDelDiaResponse));
       component.ngOnInit();
       expect(spy).toHaveBeenCalled();
     });
 
     it('should fetch reservas, sort them by horaReserva, and set fechaHoy in DD-MM-YYYY format', () => {
-      reservaService.getReservaByParameter.mockReturnValue(of(mockResponseReservasDelDia));
+      reservaService.getReservaByParameter.mockReturnValue(of(mockReservasDelDiaResponse));
       component.consultarReservasDelDia();
 
-      expect(component.reservas.length).toBe(mockResponseReservasDelDia.data.length);
+      expect(component.reservas.length).toBe(mockReservasDelDiaResponse.data.length);
       expect(component.fechaHoy).toMatch(/^\d{2}-\d{2}-\d{4}$/);
       if (component.reservas.length > 1) {
         const primeraHora = new Date(`1970-01-01T${component.reservas[0].horaReserva}`);
@@ -73,7 +73,7 @@ describe('ReservasDelDiaComponent', () => {
   describe('actualizarReserva and state update methods', () => {
     let reserva: Reserva;
     beforeEach(() => {
-      reserva = { ...mockResponseReserva.data, reservaId: 1 };
+      reserva = { ...mockReservaResponse.data, reservaId: 1 };
       reserva.fechaReserva = "06-02-2025";
     });
 

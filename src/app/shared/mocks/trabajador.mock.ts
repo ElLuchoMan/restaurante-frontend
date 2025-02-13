@@ -5,7 +5,7 @@ import { FormatDatePipe } from '../pipes/format-date.pipe';
 const formatDatePipe = new FormatDatePipe();
 const fechaActual = formatDatePipe.transform(new Date());
 
-export const mockResponseTrabajador: ApiResponse<Trabajador> = {
+export const mockTrabajadorResponse: ApiResponse<Trabajador> = {
     code: 200,
     message: 'Trabajador encontrado',
     data: {
@@ -24,8 +24,8 @@ export const mockResponseTrabajador: ApiResponse<Trabajador> = {
     }
 };
 
-export const mockTrabajador: Trabajador = {
-    fechaNacimiento: '01-01-1990',
+export const mockTrabajadorBody: Trabajador = {
+    fechaNacimiento: '1990-01-01',
     fechaIngreso: fechaActual,
     documentoTrabajador: 1015466494,
     nombre: 'Bryan',

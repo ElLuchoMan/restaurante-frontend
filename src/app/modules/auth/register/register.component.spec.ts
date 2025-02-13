@@ -8,8 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Trabajador } from '../../../shared/models/trabajador.model';
 import { Cliente } from '../../../shared/models/cliente.model';
-import { mockCliente, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
-import { mockTrabajador, mockTrabajadorRegisterResponse } from '../../../shared/mocks/trabajador.mock';
+import { mockClienteBody, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
+import { mockTrabajadorBody, mockTrabajadorRegisterResponse } from '../../../shared/mocks/trabajador.mock';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
 
 describe('RegisterComponent', () => {
@@ -70,18 +70,18 @@ describe('RegisterComponent', () => {
   it('should register a client successfully', fakeAsync(() => {
     userService.registroCliente.mockReturnValue(of(mockClienteRegisterResponse));
 
-    component.documento = mockCliente.documentoCliente;
-    component.nombre = mockCliente.nombre;
-    component.apellido = mockCliente.apellido;
-    component.password = mockCliente.password;
-    component.direccion = mockCliente.direccion;
-    component.telefono = mockCliente.telefono;
-    component.observaciones = mockCliente.observaciones;
+    component.documento = mockClienteBody.documentoCliente;
+    component.nombre = mockClienteBody.nombre;
+    component.apellido = mockClienteBody.apellido;
+    component.password = mockClienteBody.password;
+    component.direccion = mockClienteBody.direccion;
+    component.telefono = mockClienteBody.telefono;
+    component.observaciones = mockClienteBody.observaciones;
 
     component.onSubmit();
     tick();
 
-    expect(userService.registroCliente).toHaveBeenCalledWith(mockCliente);
+    expect(userService.registroCliente).toHaveBeenCalledWith(mockClienteBody);
     expect(toastr.success).toHaveBeenCalledWith('Cliente registrado con éxito');
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   }));
@@ -95,13 +95,13 @@ describe('RegisterComponent', () => {
     userService.registroTrabajador.mockReturnValue(of(mockTrabajadorRegisterResponse));
 
     component.esTrabajador = true;
-    component.documento = mockTrabajador.documentoTrabajador;
-    component.nombre = mockTrabajador.nombre;
-    component.apellido = mockTrabajador.apellido;
-    component.password = mockTrabajador.password;
-    component.sueldo = mockTrabajador.sueldo;
-    component.telefono = mockTrabajador.telefono;
-    component.rol = mockTrabajador.rol;
+    component.documento = mockTrabajadorBody.documentoTrabajador;
+    component.nombre = mockTrabajadorBody.nombre;
+    component.apellido = mockTrabajadorBody.apellido;
+    component.password = mockTrabajadorBody.password;
+    component.sueldo = mockTrabajadorBody.sueldo;
+    component.telefono = mockTrabajadorBody.telefono;
+    component.rol = mockTrabajadorBody.rol;
     component.horaEntrada = '08:00';
     component.horaSalida = '20:00';
 
@@ -109,7 +109,7 @@ describe('RegisterComponent', () => {
     tick();
 
     expect(userService.registroTrabajador).toHaveBeenCalledWith({
-      ...mockTrabajador,
+      ...mockTrabajadorBody,
       horario: `${component.horaEntrada} - ${component.horaSalida}`,
       fechaIngreso: formattedFechaIngreso,
       fechaNacimiento: formattedFechaNacimiento,
