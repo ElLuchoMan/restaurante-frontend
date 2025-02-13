@@ -7,28 +7,13 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
 import { Reserva } from '../../../../shared/models/reserva.model';
-
+import { estadoReserva } from '../../../../shared/constants';
+import { mockReserva, mockReservaResponse, mockReservasDelDiaResponse, mockReservaUpdateResponse, mockReservasUnordered } from '../../../../shared/mocks/reserva.mocks';
 describe('ConsultarReservaComponent', () => {
   let component: ConsultarReservaComponent;
   let fixture: ComponentFixture<ConsultarReservaComponent>;
   let reservaService: jest.Mocked<ReservaService>;
   let toastr: jest.Mocked<ToastrService>;
-
-  const mockReserva = {
-    reservaId: 1,
-    documentoCliente: 123456,
-    telefono: '123456789',
-    fechaReserva: '01-01-2025',
-    horaReserva: '18:00',
-    personas: 4,
-    estadoReserva: 'PENDIENTE',
-    createdAt: new Date().toISOString(),
-    createdBy: 'testUser',
-    indicaciones: 'Ninguna',
-    nombreCompleto: 'John Doe',
-    updatedAt: new Date().toISOString(),
-    updatedBy: 'testUser'
-  };
 
   beforeEach(async () => {
     const reservaServiceMock = {
@@ -97,13 +82,7 @@ describe('ConsultarReservaComponent', () => {
   });
 
   it('should call reservaService.getReservaByParameter with correct params', () => {
-    const mockResponse: ApiResponse<Reserva[]> = {
-      code: 200,
-      message: 'Reservas obtenidas con éxito',
-      data: [mockReserva]
-    };
-
-    reservaService.getReservaByParameter.mockReturnValue(of(mockResponse));
+    reservaService.getReservaByParameter.mockReturnValue(of({ code: 200, message: 'Reservas obtenidas con éxito', data: [mockReserva] }));
 
     component.buscarPorDocumento = true;
     component.documentoCliente = '123456';
@@ -128,18 +107,11 @@ describe('ConsultarReservaComponent', () => {
   });
 
   it('should confirm a reservation and update its status', () => {
-    const mockUpdateResponse: ApiResponse<Reserva> = {
-      code: 200,
-      message: 'Reserva actualizada con éxito',
-      data: mockReserva
-    };
-
-    reservaService.actualizarReserva.mockReturnValue(of(mockUpdateResponse));
-
+    reservaService.actualizarReserva.mockReturnValue(of(mockReservaUpdateResponse));
 
     component.confirmarReserva(mockReserva);
 
-    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expect.objectContaining({ estadoReserva: 'CONFIRMADA' }));
+    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expect.objectContaining({ estadoReserva: estadoReserva.CONFIRMADA }));
     expect(toastr.success).toHaveBeenCalledWith('Reserva marcada como CONFIRMADA', 'Actualización Exitosa');
   });
 
@@ -189,61 +161,7 @@ describe('ConsultarReservaComponent', () => {
     expect(toastr.error).toHaveBeenCalledWith('Error: ID de reserva no válido', 'Error');
   });
   it('should sort reservations by date (desc) and time (desc)', () => {
-    const unorderedReservas: Reserva[] = [
-      {
-        reservaId: 1,
-        documentoCliente: 123456,
-        telefono: '123456789',
-        fechaReserva: '01-01-2025',
-        horaReserva: '14:00',
-        personas: 4,
-        estadoReserva: 'PENDIENTE',
-        createdAt: new Date().toISOString(),
-        createdBy: 'testUser',
-        indicaciones: 'Ninguna',
-        nombreCompleto: 'John Doe',
-        updatedAt: new Date().toISOString(),
-        updatedBy: 'testUser'
-      },
-      {
-        reservaId: 2,
-        documentoCliente: 123456,
-        telefono: '123456789',
-        fechaReserva: '02-01-2025',
-        horaReserva: '16:00',
-        personas: 2,
-        estadoReserva: 'CONFIRMADA',
-        createdAt: new Date().toISOString(),
-        createdBy: 'testUser',
-        indicaciones: 'Ninguna',
-        nombreCompleto: 'John Doe',
-        updatedAt: new Date().toISOString(),
-        updatedBy: 'testUser'
-      },
-      {
-        reservaId: 3,
-        documentoCliente: 123456,
-        telefono: '123456789',
-        fechaReserva: '01-01-2025',
-        horaReserva: '18:00',
-        personas: 3,
-        estadoReserva: 'CANCELADA',
-        createdAt: new Date().toISOString(),
-        createdBy: 'testUser',
-        indicaciones: 'Ninguna',
-        nombreCompleto: 'John Doe',
-        updatedAt: new Date().toISOString(),
-        updatedBy: 'testUser'
-      }
-    ];
-
-    const mockResponse: ApiResponse<Reserva[]> = {
-      code: 200,
-      message: 'Reservas obtenidas',
-      data: unorderedReservas
-    };
-
-    reservaService.getReservaByParameter.mockReturnValue(of(mockResponse));
+    reservaService.getReservaByParameter.mockReturnValue(of({ code: 200, message: 'Reservas obtenidas', data: mockReservasUnordered }));
 
     component.buscarPorDocumento = true;
     component.documentoCliente = '123456';

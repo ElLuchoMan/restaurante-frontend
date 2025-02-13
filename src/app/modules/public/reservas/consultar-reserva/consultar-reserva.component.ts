@@ -4,6 +4,7 @@ import { Reserva } from '../../../../shared/models/reserva.model';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { estadoReserva } from '../../../../shared/constants';
 
 @Component({
   selector: 'app-consultar-reserva',
@@ -93,18 +94,18 @@ export class ConsultarReservaComponent {
   }
 
   confirmarReserva(reserva: Reserva): void {
-    this.actualizarReserva(reserva, "CONFIRMADA");
+    this.actualizarReserva(reserva, estadoReserva.CONFIRMADA);
   }
 
   cancelarReserva(reserva: Reserva): void {
-    this.actualizarReserva(reserva, "CANCELADA");
+    this.actualizarReserva(reserva, estadoReserva.CANCELADA);
   }
 
   cumplirReserva(reserva: Reserva): void {
-    this.actualizarReserva(reserva, "CUMPLIDA");
+    this.actualizarReserva(reserva, estadoReserva.CUMPLIDA);
   }
 
-  private actualizarReserva(reserva: Reserva, nuevoEstado: string): void {
+  private actualizarReserva(reserva: Reserva, nuevoEstado: estadoReserva): void {
     if (!reserva.reservaId || isNaN(reserva.reservaId)) {
       this.toastr.error('Error: ID de reserva no válido', 'Error');
       return;

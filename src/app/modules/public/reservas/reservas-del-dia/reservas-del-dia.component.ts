@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReservaService } from '../../../../core/services/reserva.service';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { ToastrService } from 'ngx-toastr';
+import { estadoReserva } from '../../../../shared/constants';
 
 @Component({
   selector: 'app-reservas-del-dia',
@@ -45,15 +46,15 @@ export class ReservasDelDiaComponent implements OnInit {
   }
 
   confirmarReserva(reserva: Reserva): void {
-    this.actualizarReserva({ ...reserva, estadoReserva: "CONFIRMADA" });
+    this.actualizarReserva({ ...reserva, estadoReserva: estadoReserva.CONFIRMADA });
   }
 
   cancelarReserva(reserva: Reserva): void {
-    this.actualizarReserva({ ...reserva, estadoReserva: "CANCELADA" });
+    this.actualizarReserva({ ...reserva, estadoReserva: estadoReserva.CANCELADA });
   }
 
   cumplirReserva(reserva: Reserva): void {
-    this.actualizarReserva({ ...reserva, estadoReserva: "CUMPLIDA" });
+    this.actualizarReserva({ ...reserva, estadoReserva: estadoReserva.CUMPLIDA });
   }
 
   private actualizarReserva(reserva: Reserva): void {
