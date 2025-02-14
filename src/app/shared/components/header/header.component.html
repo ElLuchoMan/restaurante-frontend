@@ -29,7 +29,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                <div class="navbar-nav ml-auto py-0">
+                <div class="navbar-nav ml-auto py-0 menu-left">
                     <a *ngFor="let item of menuLeft" [routerLink]="item.route" class="nav-item nav-link"
                         (click)="cerrarMenu()">
                         {{ item.label }}
@@ -43,7 +43,7 @@
                     <img src="assets/img/logo-200.png" alt="Logo" class="logo-img"
                         [ngClass]="{ 'd-none': !imagenVisible }" loading="lazy">
                 </div>
-                <div class="navbar-nav mr-auto py-0">
+                <div class="navbar-nav mr-auto py-0 menu-right">
                     <a *ngFor="let item of menuRight" [routerLink]="item.route" class="nav-item nav-link"
                         (click)="item.label === 'Logout' ? logout() : cerrarMenu()">
                         {{ item.label }}

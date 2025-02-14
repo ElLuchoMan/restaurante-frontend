@@ -1,0 +1,19 @@
+<div class="container mt-5 col-md-5">
+    <h1 class="text-center mb-4" *ngIf="mostrarMenu">Gestión de Domicilios</h1>
+
+    <div *ngIf="mostrarMenu" class="form-card-bg p-5">
+        <div class="column d-flex flex-row">
+            <button class="btn btn-primary" (click)="irA('consultar')">Consultar Domicilios</button>
+            <button class="btn btn-success mt-4" (click)="irA('tomar')">Tomar Domicilio</button>
+        </div>
+    </div>
+
+    <div *ngIf="!mostrarMenu && esDomiciliario" class="volver-container" (click)="volver()">
+        <i class="fas fa-arrow-left volver-icon"></i>
+        <span class="volver-text">Volver</span>
+    </div>
+</div>
+
+<div [ngClass]="{'container mt-5 col-md-5': mostrarMenu, 'container-fluid': !mostrarMenu}">
+    <router-outlet></router-outlet>
+</div>

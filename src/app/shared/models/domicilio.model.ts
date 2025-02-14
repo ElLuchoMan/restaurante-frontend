@@ -12,4 +12,5 @@ export interface Domicilio {
     observaciones: string;
     createdBy: string;
     updatedBy?: string;
+    trabajadorAsignado?: number;
 }

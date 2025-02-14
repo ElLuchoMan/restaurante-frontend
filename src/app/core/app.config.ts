@@ -1,3 +1,4 @@
+import { MockInterceptor } from './interceptors/mock.interceptor';
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
@@ -14,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([MockInterceptor, authInterceptor])),
     provideAnimations(),
     BrowserAnimationsModule,
     provideToastr(),
@@ -27,8 +28,8 @@ export const appConfig: ApplicationConfig = {
       progressBar: true,
       enableHtml: true,
     })), provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          }),
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
   ]
 };

@@ -1,0 +1,36 @@
+@use "../../../../../assets/styles.scss" as *;
+@use "sass:color";
+
+.volver-container {
+  align-items: center;
+  color: $primary;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 18px;
+  font-weight: bold;
+  gap: 8px;
+  padding: 5px 10px;
+  transition:
+    color 0.3s ease,
+    transform 0.2s ease;
+  user-select: none;
+
+  &:hover {
+    color: color.adjust($primary, $lightness: -15%);
+    transform: translateX(-3px);
+  }
+}
+
+.volver-icon {
+  font-size: 22px;
+}
+
+.volver-text {
+  font-size: 18px;
+  text-decoration: none;
+  transition: text-decoration 0.3s ease;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

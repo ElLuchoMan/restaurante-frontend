@@ -1,0 +1,43 @@
+@use "../../../../../assets/styles.scss" as *;
+
+.filtro-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    text-align: center;
+}
+
+.filtro-container label {
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+.search {
+    color: $primary;
+    font-size: 1.5rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+        transform: scale(1.2);
+    }
+}
+
+@media (max-width: 768px) {
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .search {
+        margin-top: 5px;
+    }
+    input{
+        margin-top: 5px;
+    }
+}
