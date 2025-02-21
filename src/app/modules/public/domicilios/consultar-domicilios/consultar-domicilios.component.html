@@ -78,7 +78,8 @@
                         </td>
                         <td>{{ domicilio.trabajadorNombre || 'No asignado' }}</td>
                         <td>
-                            <button class="btn-no-bg tooltip-btn text-info" *ngIf="!domicilio.entregado"
+                            <button class="btn-no-bg tooltip-btn text-info"
+                                *ngIf="!domicilio.entregado && !domicilio.trabajadorAsignado"
                                 (click)="asignarDomicilio(domicilio)" data-tooltip="Asignar Domicilio">
                                 <i class="fas fa-user-plus"></i>
                             </button>

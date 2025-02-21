@@ -11,6 +11,7 @@ export class ModalService {
   isOpen$ = this.isOpen.asObservable();
 
   openModal(data: any) {
+    console.log('Entra');
     this.modalData.next(data);
     this.isOpen.next(true);
   }
@@ -18,4 +19,9 @@ export class ModalService {
   closeModal() {
     this.isOpen.next(false);
   }
+  getModalData(): any {
+    console.log('getModalData')
+    return this.modalData.value;
+  }
+  
 }

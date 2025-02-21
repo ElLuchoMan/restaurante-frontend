@@ -17,6 +17,7 @@ export class ModalComponent implements OnInit {
   constructor(private modalService: ModalService) { }
 
   ngOnInit() {
+    console.log('OnInit _Modal')
     this.modalService.modalData$.subscribe((data) => {
       if (data) {
         this.modalData = data;

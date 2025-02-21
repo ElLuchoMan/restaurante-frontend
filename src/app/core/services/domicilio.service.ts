@@ -11,10 +11,12 @@ import { environment } from '../../../environments/environment';
 export class DomicilioService {
   private baseUrl = `${environment.apiUrl}/domicilios`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
-   * Obtiene todos los domicilios con filtros opcionales.
+   * Obtiene todos los domicilios según filtros
+   * @param params 
+   * @returns 
    */
   getDomicilios(params?: any): Observable<ApiResponse<Domicilio[]>> {
     return this.http.get<ApiResponse<Domicilio[]>>(this.baseUrl, { params });
@@ -51,5 +53,16 @@ export class DomicilioService {
    */
   deleteDomicilio(id: number): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.baseUrl}?id=${id}`);
+  }
+  /**
+   * Asigna un domiciliario a un domicilio
+   * @param domicilioId 
+   * @param trabajadorId 
+   */
+  asignarDomiciliario(domicilioId: number, trabajadorId: number): Observable<ApiResponse<Domicilio>> {
+    const params = new URLSearchParams();
+    params.append('domicilio_id', domicilioId.toString());
+    params.append('trabajador_id', trabajadorId.toString());
+    return this.http.post<ApiResponse<Domicilio>>(`${this.baseUrl}/asignar?${params.toString()}`, {});
   }
 }

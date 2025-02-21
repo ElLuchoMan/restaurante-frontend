@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { HandleErrorService } from './handle-error.service';
-import { Observable, catchError } from 'rxjs';
+import { Observable, catchError, map } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Trabajador } from '../../shared/models/trabajador.model';
 
@@ -25,9 +25,10 @@ export class TrabajadorService {
     )
   }
 
-  getTrabajadores(): Observable<ApiResponse<Trabajador>> {
-    return this.http.get<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores`).pipe(
+  getTrabajadores(): Observable<Trabajador[]> {
+    return this.http.get<ApiResponse<Trabajador[]>>(`${this.baseUrl}/trabajadores`).pipe(
+      map((response: { data: any; }) => response.data || []),
       catchError(this.handleError.handleError)
-    )
+    );
   }
 }

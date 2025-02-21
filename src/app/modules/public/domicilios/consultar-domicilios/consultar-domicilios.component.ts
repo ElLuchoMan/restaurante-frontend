@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { Domicilio } from '../../../../shared/models/domicilio.model';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../../core/services/user.service';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
+import { ModalService } from '../../../../core/services/modal.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-consultar-domicilio',
@@ -14,6 +15,7 @@ import { TrabajadorService } from '../../../../core/services/trabajador.service'
 })
 export class ConsultarDomicilioComponent implements OnInit {
   domicilios: Domicilio[] = [];
+  trabajadores: any[] = [];
   buscarPorDireccion: boolean = false;
   buscarPorTelefono: boolean = false;
   buscarPorFecha: boolean = false;
@@ -23,16 +25,15 @@ export class ConsultarDomicilioComponent implements OnInit {
   mostrarMensaje: boolean = false;
   mensaje: string = '';
 
-
-  constructor(private domicilioService: DomicilioService, private userService: UserService, private trabajadorService: TrabajadorService) { }
+  constructor(
+    private domicilioService: DomicilioService,
+    private userService: UserService,
+    private trabajadorService: TrabajadorService,
+    private modalService: ModalService
+  ) { }
 
   ngOnInit(): void {
     this.userService.getUserId();
-    this.trabajadorService.searchTrabajador(this.userService.getUserId()!).subscribe(
-      response => {
-        console.log(response)
-      }
-    )
   }
 
   actualizarTipoBusqueda(): void {
@@ -44,15 +45,9 @@ export class ConsultarDomicilioComponent implements OnInit {
   buscarDomicilios(): void {
     const params: any = {};
 
-    if (this.buscarPorDireccion && this.direccion) {
-      params.direccion = this.direccion;
-    }
-    if (this.buscarPorTelefono && this.telefono) {
-      params.telefono = this.telefono;
-    }
-    if (this.buscarPorFecha && this.fechaDomicilio) {
-      params.fecha = this.fechaDomicilio;
-    }
+    if (this.buscarPorDireccion && this.direccion) params.direccion = this.direccion;
+    if (this.buscarPorTelefono && this.telefono) params.telefono = this.telefono;
+    if (this.buscarPorFecha && this.fechaDomicilio) params.fecha = this.fechaDomicilio;
 
     this.domicilioService.getDomicilios(params).subscribe(response => {
       if (response.code === 200) {
@@ -61,39 +56,63 @@ export class ConsultarDomicilioComponent implements OnInit {
         this.domicilios.forEach(domicilio => {
           if (domicilio.trabajadorAsignado) {
             this.trabajadorService.searchTrabajador(domicilio.trabajadorAsignado).subscribe(trabajador => {
-              if (trabajador) {
-                domicilio.trabajadorNombre = `${trabajador.data.nombre} ${trabajador.data.apellido}`;
-              } else {
-                domicilio.trabajadorNombre = 'No asignado';
-              }
+              domicilio.trabajadorNombre = trabajador ? `${trabajador.data.nombre} ${trabajador.data.apellido}` : 'No asignado';
             });
           }
         });
 
-      } else if (response.data !== null) {
+      } else {
         this.mostrarMensaje = true;
         this.mensaje = response.message;
       }
     });
   }
 
-
   asignarDomicilio(domicilio: Domicilio): void {
-    const userId = 1035467890;
+    this.trabajadorService.getTrabajadores().subscribe(trabajadores => {
+      const trabajadoresOptions = trabajadores.map(t => ({
+        label: `${t.nombre} ${t.apellido}`,
+        value: t.documentoTrabajador
+      }));
 
-    this.domicilioService.updateDomicilio(domicilio.domicilioId!, { trabajadorAsignado: userId })
-      .subscribe(response => {
-        if (response.code === 200) {
-          domicilio.trabajadorAsignado = userId;
-        }
+      this.modalService.openModal({
+        title: 'Asignar Trabajador',
+        select: {
+          label: 'Seleccione un trabajador',
+          options: trabajadoresOptions,
+          selected: null
+        },
+        buttons: [
+          {
+            label: 'Aceptar',
+            class: 'btn btn-success',
+            action: () => {
+              const modalData = this.modalService.getModalData();
+              if (modalData.select?.selected) {
+                this.confirmarAsignacion(domicilio, modalData.select.selected);
+                this.modalService.closeModal();
+              }
+            }
+          },
+          {
+            label: 'Cancelar',
+            class: 'btn btn-danger',
+            action: () => this.modalService.closeModal()
+          }
+        ]
       });
+    });
   }
 
-  marcarEntregado(domicilio: Domicilio): void {
-    this.domicilioService.updateDomicilio(domicilio.domicilioId!, { entregado: true })
+  confirmarAsignacion(domicilio: Domicilio, trabajadorId: number): void {
+    this.domicilioService.asignarDomiciliario(domicilio.domicilioId!, trabajadorId)
       .subscribe(response => {
         if (response.code === 200) {
-          domicilio.entregado = true;
+          domicilio.trabajadorAsignado = trabajadorId;
+
+          this.trabajadorService.searchTrabajador(trabajadorId).subscribe(trabajador => {
+            domicilio.trabajadorNombre = `${trabajador.data.nombre} ${trabajador.data.apellido}`;
+          });
         }
       });
   }
@@ -109,5 +128,11 @@ export class ConsultarDomicilioComponent implements OnInit {
   tresFiltros(): boolean {
     return [this.buscarPorDireccion, this.buscarPorTelefono, this.buscarPorFecha].filter(Boolean).length === 3;
   }
-
+  marcarEntregado(domicilio: Domicilio): void {
+    this.domicilioService.updateDomicilio(domicilio.domicilioId!, { entregado: true }).subscribe(response => {
+      if (response.code === 200) {
+        domicilio.entregado = true;
+      }
+    });
+  }
 }
