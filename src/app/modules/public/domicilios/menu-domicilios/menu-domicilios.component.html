@@ -2,13 +2,13 @@
     <h1 class="text-center mb-4" *ngIf="mostrarMenu">Gestión de Domicilios</h1>
 
     <div *ngIf="mostrarMenu" class="form-card-bg p-5">
-        <div class="column d-flex flex-row">
+        <div class="column d-flex flex-column">
             <button class="btn btn-primary" (click)="irA('consultar')">Consultar Domicilios</button>
-            <button class="btn btn-success mt-4" (click)="irA('tomar')">Tomar Domicilio</button>
+            <button class="btn btn-primary mt-4" (click)="irA('tomar')">Tomar Domicilio</button>
         </div>
     </div>
 
-    <div *ngIf="!mostrarMenu && esDomiciliario" class="volver-container" (click)="volver()">
+    <div *ngIf="!mostrarMenu" class="volver-container" (click)="volver()">
         <i class="fas fa-arrow-left volver-icon"></i>
         <span class="volver-text">Volver</span>
     </div>

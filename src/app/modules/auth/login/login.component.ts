@@ -33,6 +33,8 @@ export class LoginComponent {
           this.router.navigate(['/home']);
         } else if (userRole === Roles.CLIENTE) {
           this.router.navigate(['/home']);
+        } else {
+          this.router.navigate(['/home']);
         }
       },
       error: (err) => {

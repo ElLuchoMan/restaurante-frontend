@@ -39,12 +39,6 @@ export class UserService {
     );
   }
 
-  registroTrabajador(trabajador: Trabajador): Observable<ApiResponse<Trabajador>> {
-    return this.http.post<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores`, trabajador).pipe(
-      catchError(this.handleError.handleError)
-    );
-  }
-
   saveToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
     this.authState.next(true);
@@ -75,9 +69,9 @@ export class UserService {
     return decoded ? decoded.rol : null;
   }
 
-  getUserId(): string | null {
+  getUserId(): number {
     const decoded = this.decodeToken();
-    return decoded ? decoded.documento : null;
+    return decoded ? decoded.documento : 0;
   }
 
   getTrabajadorId(documento: number): Observable<ApiResponse<Trabajador>> {

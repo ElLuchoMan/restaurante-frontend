@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { Trabajador } from '../../../shared/models/trabajador.model';
 import { Roles } from '../../../shared/constants';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
+import { TrabajadorService } from '../../../core/services/trabajador.service';
 
 @Component({
   selector: 'app-register',
@@ -39,6 +40,7 @@ export class RegisterComponent implements OnInit {
 
   constructor(
     private userService: UserService,
+    private trabajadorService: TrabajadorService,
     private toastr: ToastrService,
     private router: Router
   ) {
@@ -78,7 +80,7 @@ export class RegisterComponent implements OnInit {
         fechaIngreso: formattedFechaIngreso,
         fechaNacimiento: formattedFechaNacimiento,
       };
-      this.userService.registroTrabajador(trabajador).subscribe({
+      this.trabajadorService.registroTrabajador(trabajador).subscribe({
         next: response => {
           if (response?.code === 201) {
             this.toastr.success(response?.message);

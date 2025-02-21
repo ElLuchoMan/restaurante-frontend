@@ -12,4 +12,5 @@ export interface Trabajador {
     rol: string;
     sueldo: number;
     telefono: string;
+    trabajadorNombre?: string;
 }

@@ -13,4 +13,5 @@ export interface Domicilio {
     createdBy: string;
     updatedBy?: string;
     trabajadorAsignado?: number;
+    trabajadorNombre?: string;
 }

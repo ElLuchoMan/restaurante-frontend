@@ -76,7 +76,7 @@
                                 {{ domicilio.entregado ? 'Entregado' : 'Pendiente' }}
                             </span>
                         </td>
-                        <td>{{ domicilio.trabajadorAsignado || 'No asignado' }}</td>
+                        <td>{{ domicilio.trabajadorNombre || 'No asignado' }}</td>
                         <td>
                             <button class="btn-no-bg tooltip-btn text-info" *ngIf="!domicilio.entregado"
                                 (click)="asignarDomicilio(domicilio)" data-tooltip="Asignar Domicilio">
@@ -92,8 +92,7 @@
             </table>
         </div>
     </div>
-
-    <div class="alert alert-info text-center mt-4" *ngIf="mostrarMensaje && domicilios.length === 0">
-        No se han encontrado domicilios con los criterios seleccionados.
+    <div class="alert alert-info text-center mt-4" *ngIf="mostrarMensaje">
+        {{mensaje}}
     </div>
 </div>

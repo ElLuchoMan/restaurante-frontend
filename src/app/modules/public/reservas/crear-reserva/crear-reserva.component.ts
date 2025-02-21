@@ -93,7 +93,7 @@ export class CrearReservaComponent implements OnInit {
       this.mostrarInfoEvento = false;
     }
   }
-  private crearReserva(timestamp: string, userRole: string | null, userId: string | null): void {
+  private crearReserva(timestamp: string, userRole: string | null, userId: number | null): void {
     const totalPersonas = this.personas === "5+" ? this.personasExtra : Number(this.personas);
     if (this.horaReserva.length === 5) {
       this.horaReserva = `${this.horaReserva}:00`;

@@ -1,0 +1,47 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="close()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2 *ngIf="modalData.title">{{ modalData.title }}</h2>
+            <button class="close-btn" (click)="close()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <!-- Mensaje de alerta -->
+            <p *ngIf="modalData.message">{{ modalData.message }}</p>
+
+            <!-- Imagen o Promoción -->
+            <img *ngIf="modalData.image" [src]="modalData.image" alt="Imagen modal" />
+
+            <!-- Select de trabajadores -->
+            <div *ngIf="modalData.select">
+                <label>{{ modalData.select.label }}</label>
+                <select class="form-control" [(ngModel)]="modalData.select.selected">
+                    <option *ngFor="let item of modalData.select.options" [value]="item.value">
+                        {{ item.label }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Tabla -->
+            <table class="table" *ngIf="modalData.table">
+                <thead>
+                    <tr>
+                        <th *ngFor="let column of modalData.table.columns">{{ column }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let row of modalData.table.rows">
+                        <td *ngFor="let column of modalData.table.columns">{{ row[column] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Botones -->
+            <div class="modal-buttons" *ngIf="modalData.buttons">
+                <button *ngFor="let btn of modalData.buttons" (click)="btn.action()" [class]="btn.class">
+                    {{ btn.label }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

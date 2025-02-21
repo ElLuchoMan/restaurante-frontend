@@ -1,3 +1,4 @@
+import { TrabajadorService } from './../../../core/services/trabajador.service';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { RegisterComponent } from './register.component';
 import { UserService } from '../../../core/services/user.service';
@@ -16,6 +17,7 @@ describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
   let userService: jest.Mocked<UserService>;
+  let trabajadorService: jest.Mocked<TrabajadorService>;
   let toastr: jest.Mocked<ToastrService>;
   let router: jest.Mocked<Router>;
 
@@ -23,8 +25,11 @@ describe('RegisterComponent', () => {
     const userServiceMock = {
       getUserRole: jest.fn(),
       registroCliente: jest.fn(),
-      registroTrabajador: jest.fn()
     } as unknown as jest.Mocked<UserService>;
+
+    const trabajadorServiceMock = {
+      registroTrabajador: jest.fn()
+    } as unknown as jest.Mocked<TrabajadorService>;
 
     const toastrMock = {
       success: jest.fn(),
@@ -39,6 +44,7 @@ describe('RegisterComponent', () => {
       imports: [RegisterComponent, FormsModule, CommonModule],
       providers: [
         { provide: UserService, useValue: userServiceMock },
+        { provide: TrabajadorService, useValue: trabajadorServiceMock },
         { provide: ToastrService, useValue: toastrMock },
         { provide: Router, useValue: routerMock }
       ]
@@ -47,6 +53,7 @@ describe('RegisterComponent', () => {
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
+    trabajadorService = TestBed.inject(TrabajadorService) as jest.Mocked<TrabajadorService>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
 
@@ -92,7 +99,7 @@ describe('RegisterComponent', () => {
     const formattedFechaIngreso = formatDatePipe.transform(component.fechaIngreso);
     const formattedFechaNacimiento = formatDatePipe.transform(component.fechaNacimiento);
 
-    userService.registroTrabajador.mockReturnValue(of(mockTrabajadorRegisterResponse));
+    trabajadorService.registroTrabajador.mockReturnValue(of(mockTrabajadorRegisterResponse));
 
     component.esTrabajador = true;
     component.documento = mockTrabajadorBody.documentoTrabajador;
@@ -108,7 +115,7 @@ describe('RegisterComponent', () => {
     component.onSubmit();
     tick();
 
-    expect(userService.registroTrabajador).toHaveBeenCalledWith({
+    expect(trabajadorService.registroTrabajador).toHaveBeenCalledWith({
       ...mockTrabajadorBody,
       horario: `${component.horaEntrada} - ${component.horaSalida}`,
       fechaIngreso: formattedFechaIngreso,
@@ -136,7 +143,7 @@ describe('RegisterComponent', () => {
   }));
 
   it('should handle error when registering a worker fails', fakeAsync(() => {
-    userService.registroTrabajador.mockReturnValue(throwError(() => ({
+    trabajadorService.registroTrabajador.mockReturnValue(throwError(() => ({
       message: 'Error al registrar trabajador'
     })));
 
@@ -159,7 +166,7 @@ describe('RegisterComponent', () => {
       data: {} as Trabajador
     };
 
-    userService.registroTrabajador.mockReturnValue(of(mockErrorResponse));
+    trabajadorService.registroTrabajador.mockReturnValue(of(mockErrorResponse));
 
     component.esTrabajador = true;
     component.documento = 54321;
@@ -200,7 +207,7 @@ describe('RegisterComponent', () => {
       data: {} as Trabajador
     };
 
-    userService.registroTrabajador.mockReturnValue(of(mockErrorResponse));
+    trabajadorService.registroTrabajador.mockReturnValue(of(mockErrorResponse));
 
     component.esTrabajador = true;
     component.documento = 54321;
