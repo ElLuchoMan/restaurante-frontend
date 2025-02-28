@@ -11,7 +11,6 @@ import { AuthGuard } from '../../core/guards/auth.guard';
 import { UbicacionRestauranteComponent } from './ubicacion-restaurante/ubicacion-restaurante.component';
 import { MenuDomiciliosComponent } from './domicilios/menu-domicilios/menu-domicilios.component';
 import { ConsultarDomicilioComponent } from './domicilios/consultar-domicilios/consultar-domicilios.component';
-import { TomarDomicilioComponent } from './domicilios/tomar-domicilio/tomar-domicilio.component';
 
 const publicRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -48,12 +47,6 @@ const publicRoutes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['Administrador', 'Domiciliario'] }
       },
-      {
-        path: 'tomar',
-        component: TomarDomicilioComponent,
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['Domiciliario'] }
-      }
     ]
   },
   { path: 'ubicacion', component: UbicacionRestauranteComponent },

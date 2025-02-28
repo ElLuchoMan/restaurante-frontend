@@ -3,7 +3,20 @@ import { AuthGuard } from '../../core/guards/auth.guard';
 import { RoleGuard } from '../../core/guards/role.guard';
 import { RegisterComponent } from '../auth/register/register.component';
 import { RutaDomicilioComponent } from './ruta-domicilio/ruta-domicilio.component';
+import { TomarDomicilioComponent } from './domicilios/tomar-domicilio/tomar-domicilio.component';
 
 export const trabajadoresRoutes: Routes = [
-  { path: 'ruta-domicilio', component: RutaDomicilioComponent },
+ 
+  {
+      path: 'domicilios',
+      children: [
+        {
+          path: 'tomar',
+          component: TomarDomicilioComponent,
+          canActivate: [AuthGuard, RoleGuard],
+          data: { roles: ['Domiciliario'] }
+        },
+        { path: 'ruta-domicilio', component: RutaDomicilioComponent },
+      ]
+    },
 ];
