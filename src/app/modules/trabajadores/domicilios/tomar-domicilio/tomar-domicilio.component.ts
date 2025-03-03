@@ -50,7 +50,24 @@ export class TomarDomicilioComponent implements OnInit {
     });
   }
 
-  irARuta(direccion: string): void {
-    this.router.navigate(['trabajador/domicilios/ruta-domicilio'], { queryParams: { direccion } });
+  tomarDomicilio(domicilio: Domicilio): void {
+    if (!this.trabajadorId) return;
+
+    this.domicilioService.asignarDomiciliario(domicilio.domicilioId!, this.trabajadorId)
+      .subscribe(response => {
+        if (response.code === 200 && this.trabajadorId !== null) {
+          domicilio.trabajadorAsignado = this.trabajadorId;
+        }
+      });
+  }
+
+  irARuta(domicilio: Domicilio): void {
+    this.router.navigate(['trabajador/domicilios/ruta-domicilio'], {
+      queryParams: {
+        direccion: domicilio.direccion,
+        telefono: domicilio.telefono,
+        observaciones: domicilio.observaciones || 'Sin observaciones'
+      }
+    });
   }
 }

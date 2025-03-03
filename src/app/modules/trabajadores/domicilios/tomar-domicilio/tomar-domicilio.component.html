@@ -18,7 +18,13 @@
                         <td>{{ domicilio.telefono }}</td>
                         <td>{{ domicilio.observaciones || 'Sin observaciones' }}</td>
                         <td>
-                            <button class="btn btn-primary" (click)="irARuta(domicilio.direccion)">
+                            <button class="btn btn-success" *ngIf="!domicilio.trabajadorAsignado" 
+                                (click)="tomarDomicilio(domicilio)">
+                                Tomar <i class="fas fa-hand-paper"></i>
+                            </button>
+
+                            <button class="btn btn-primary" *ngIf="domicilio.trabajadorAsignado === trabajadorId"
+                                (click)="irARuta(domicilio)">
                                 Ir a <i class="fas fa-map-marker-alt"></i>
                             </button>
                         </td>

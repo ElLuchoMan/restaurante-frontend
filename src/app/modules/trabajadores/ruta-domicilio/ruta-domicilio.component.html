@@ -8,9 +8,21 @@
     <div class="info-card">
         <h2>🏠 Dirección del Cliente</h2>
         <p><i class="fas fa-map-marker-alt"></i> {{ direccionCliente }}</p>
+        <p><i class="fas fa-phone"></i> {{ telefonoCliente }}</p>
+        <p><i class="fas fa-sticky-note"></i> {{ observaciones }}</p>
     </div>
 
-    <a class="btn btn-primary mt-3" [href]="googleMapsUrl" target="_blank">
-        📍 Abrir en Google Maps
-    </a>
+    <div class="text-center mt-3">
+        <button (click)="marcarFinalizado()" class="btn btn-success">
+            Marcar finalizado
+        </button>
+        <button (click)="marcarPago()" class="btn btn-warning ml-2">
+            Marcar pago
+        </button>
+    </div>
+    <div class="volver-container mt-3" (click)="volver()">
+        <i class="fas fa-arrow-left volver-icon"></i>
+        <span class="volver-text">Volver</span>
+      </div>
+      
 </div>
