@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from '../../core/guards/auth.guard';
 import { RoleGuard } from '../../core/guards/role.guard';
 import { RegisterComponent } from '../auth/register/register.component';
-import { RutaDomicilioComponent } from './ruta-domicilio/ruta-domicilio.component';
+import { RutaDomicilioComponent } from './domicilios/ruta-domicilio/ruta-domicilio.component';
 import { TomarDomicilioComponent } from './domicilios/tomar-domicilio/tomar-domicilio.component';
 
 export const trabajadoresRoutes: Routes = [

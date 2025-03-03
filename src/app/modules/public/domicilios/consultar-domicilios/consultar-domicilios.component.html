@@ -38,10 +38,9 @@
                 <input type="date" id="fechaDomicilio" class="form-control" [(ngModel)]="fechaDomicilio" />
             </div>
 
-            <!-- Botón Search alineado correctamente -->
             <div class="col-12 d-flex justify-content-center justify-content-md-center align-items-center mt-2">
                 <button class="btn-no-bg tooltip-btn search"
-                    *ngIf="buscarPorDireccion || buscarPorTelefono || buscarPorFecha" (click)="buscarDomicilios()"
+                     (click)="buscarDomicilios()"
                     data-tooltip="Buscar Domicilios">
                     <i class="fas fa-search"></i>
                 </button>

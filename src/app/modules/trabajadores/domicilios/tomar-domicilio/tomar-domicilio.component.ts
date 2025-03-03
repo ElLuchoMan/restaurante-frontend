@@ -38,7 +38,6 @@ export class TomarDomicilioComponent implements OnInit {
 
     this.domicilioService.getDomicilios(params).subscribe(response => {
       if (response.code === 200) {
-        // Filtrar domicilios no entregados
         this.domicilios = response.data.filter(domicilio =>
           !domicilio.entregado &&
           (!domicilio.trabajadorAsignado || domicilio.trabajadorAsignado === this.trabajadorId)
