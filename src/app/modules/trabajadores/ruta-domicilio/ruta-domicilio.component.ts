@@ -5,6 +5,7 @@ import { environment } from '../../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { DomicilioService } from '../../../core/services/domicilio.service';
 import { estadoPago } from '../../../shared/constants';
+import { ModalService } from '../../../core/services/modal.service';
 
 @Component({
   selector: 'app-ruta-domicilio',
@@ -19,7 +20,7 @@ export class RutaDomicilioComponent implements OnInit {
   telefonoCliente: string = '';
   observaciones: string = '';
   googleMapsUrl: string = '';
-  domicilioId: number = 0; // Asumimos que el ID se pasa por queryParams
+  domicilioId: number = 0;
 
   private restauranteDireccion = 'Calle 78a # 62 - 48, Bogotá, Colombia';
 
@@ -27,7 +28,8 @@ export class RutaDomicilioComponent implements OnInit {
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
     private domicilioService: DomicilioService,
-    private router: Router
+    private router: Router,
+    private modalService: ModalService
   ) { }
 
   ngOnInit(): void {
@@ -64,7 +66,6 @@ export class RutaDomicilioComponent implements OnInit {
         .subscribe(
           response => {
             console.log('Domicilio marcado como finalizado', response);
-            // Aquí podrías agregar lógica para notificar al usuario o actualizar la UI
           },
           error => {
             console.error('Error al marcar finalizado', error);
@@ -77,22 +78,53 @@ export class RutaDomicilioComponent implements OnInit {
 
   marcarPago(): void {
     if (this.domicilioId) {
-      this.domicilioService.updateDomicilio(this.domicilioId, { estadoPago: estadoPago.PAGADO })
-        .subscribe(
-          response => {
-            console.log('Domicilio marcado como pagado', response);
-            // Aquí podrías agregar lógica para notificar al usuario o actualizar la UI
+      this.modalService.openModal({
+        title: 'Seleccionar Método de Pago',
+        select: {
+          label: 'Seleccione el método de pago',
+          options: [
+            { label: 'Nequi', value: 'NEQUI' },
+            { label: 'Daviplata', value: 'DAVIPLATA' },
+            { label: 'Efectivo', value: 'EFECTIVO' }
+          ],
+          selected: null
+        },
+        buttons: [
+          {
+            label: 'Aceptar',
+            class: 'btn btn-success',
+            action: () => {
+              const modalData = this.modalService.getModalData();
+              if (modalData.select?.selected) {
+                const metodoPagoSeleccionado = modalData.select.selected;
+                console.log('Método de pago seleccionado:', metodoPagoSeleccionado);
+                this.domicilioService.updateDomicilio(this.domicilioId, {
+                  estadoPago: estadoPago.PAGADO
+                }).subscribe(
+                  response => console.log('Domicilio marcado como pagado', response),
+                  error => console.error('Error al marcar pago', error)
+                );
+                this.modalService.closeModal();
+              } else {
+                console.error("No se ha seleccionado un método de pago.");
+              }
+            }
           },
-          error => {
-            console.error('Error al marcar pago', error);
+          {
+            label: 'Cancelar',
+            class: 'btn btn-danger',
+            action: () => this.modalService.closeModal()
           }
-        );
+        ]
+      });
     } else {
       console.error('No se encontró el ID del domicilio.');
     }
   }
+
+
   volver(): void {
     this.router.navigate(['/trabajador/domicilios/tomar']);
   }
-  
+
 }

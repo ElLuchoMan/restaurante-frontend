@@ -66,7 +66,8 @@ export class TomarDomicilioComponent implements OnInit {
       queryParams: {
         direccion: domicilio.direccion,
         telefono: domicilio.telefono,
-        observaciones: domicilio.observaciones || 'Sin observaciones'
+        observaciones: domicilio.observaciones || null,
+        id: domicilio.domicilioId
       }
     });
   }
