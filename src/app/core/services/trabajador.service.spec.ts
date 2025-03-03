@@ -1,16 +1,81 @@
 import { TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TrabajadorService } from './trabajador.service';
+import { HandleErrorService } from './handle-error.service';
+import { environment } from '../../../environments/environment';
+import { mockTrabajadorResponse, mockTrabajadorBody, mockTrabajadorRegisterResponse } from '../../shared/mocks/trabajador.mock';
 
 describe('TrabajadorService', () => {
   let service: TrabajadorService;
+  let httpMock: HttpTestingController;
+  const baseUrl = environment.apiUrl;
+
+  // Fake para el HandleErrorService: simplemente lanza el error.
+  const fakeHandleErrorService = {
+    handleError: (error: any) => { throw error; }
+  };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+        TrabajadorService,
+        { provide: HandleErrorService, useValue: fakeHandleErrorService }
+      ]
+    });
     service = TestBed.inject(TrabajadorService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  describe('registroTrabajador', () => {
+    it('should register a trabajador', () => {
+      service.registroTrabajador(mockTrabajadorBody).subscribe(response => {
+        expect(response).toEqual(mockTrabajadorRegisterResponse);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/trabajadores`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(mockTrabajadorBody);
+      req.flush(mockTrabajadorRegisterResponse);
+    });
+  });
+
+  describe('searchTrabajador', () => {
+    it('should search and return a trabajador', () => {
+      const documento = mockTrabajadorResponse.data.documentoTrabajador;
+      service.searchTrabajador(documento).subscribe(response => {
+        expect(response).toEqual(mockTrabajadorResponse);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/trabajadores/search?id=${documento}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockTrabajadorResponse);
+    });
+  });
+
+  describe('getTrabajadores', () => {
+    it('should get an array of trabajadores', () => {
+      const mockResponse = {
+        code: 200,
+        message: 'Success',
+        data: [mockTrabajadorResponse.data]
+      };
+
+      service.getTrabajadores().subscribe(trabajadores => {
+        expect(trabajadores).toEqual([mockTrabajadorResponse.data]);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/trabajadores`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockResponse);
+    });
   });
 });
