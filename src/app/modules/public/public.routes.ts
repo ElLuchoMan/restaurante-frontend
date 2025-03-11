@@ -9,7 +9,6 @@ import { ReservasDelDiaComponent } from './reservas/reservas-del-dia/reservas-de
 import { RoleGuard } from '../../core/guards/role.guard';
 import { AuthGuard } from '../../core/guards/auth.guard';
 import { UbicacionRestauranteComponent } from './ubicacion-restaurante/ubicacion-restaurante.component';
-import { MenuDomiciliosComponent } from './domicilios/menu-domicilios/menu-domicilios.component';
 import { ConsultarDomicilioComponent } from './domicilios/consultar-domicilios/consultar-domicilios.component';
 
 const publicRoutes: Routes = [
@@ -39,7 +38,6 @@ const publicRoutes: Routes = [
   },
   {
     path: 'domicilios',
-    component: MenuDomiciliosComponent,
     children: [
       {
         path: 'consultar',

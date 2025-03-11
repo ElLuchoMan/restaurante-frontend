@@ -1,4 +1,3 @@
-import { MockInterceptor } from './interceptors/mock.interceptor';
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
@@ -15,7 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withFetch(), withInterceptors([MockInterceptor, authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideAnimations(),
     BrowserAnimationsModule,
     provideToastr(),

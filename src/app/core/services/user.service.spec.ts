@@ -4,17 +4,14 @@ import { UserService } from './user.service';
 import { environment } from '../../../environments/environment';
 import { HandleErrorService } from './handle-error.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Cliente } from '../../shared/models/cliente.model';
-import { Trabajador } from '../../shared/models/trabajador.model';
-import { mockTrabajadorResponse, mockTrabajadorBody } from '../../shared/mocks/trabajador.mock';
-import { mockClienteBody, mockResponseCliente } from '../../shared/mocks/cliente.mock';
+import { mockLogin, mockLoginResponse } from '../../shared/mocks/login.mock';
 
 describe('UserService', () => {
   let service: UserService;
   let httpTestingController: HttpTestingController;
 
   const mockHandleErrorService = {
-    handleError: jest.fn()
+    handleError: jest.fn((error: any) => { throw error; })
   };
 
   beforeEach(() => {
@@ -41,21 +38,21 @@ describe('UserService', () => {
   });
 
   it('should send login request and return response', () => {
-    const mockResponse = { data: { token: 'testToken' } };
     const credentials = { documento: '123', password: 'password' };
 
-    service.login(credentials).subscribe(response => {
-      expect(response).toEqual(mockResponse);
+    service.login(credentials).subscribe((response: ApiResponse<any>) => {
+      expect(response).toEqual(mockLoginResponse);
     });
 
     const req = httpTestingController.expectOne(`${environment.apiUrl}/login`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(credentials);
-    req.flush(mockResponse);
+    req.flush(mockLoginResponse);
   });
 
   it('should handle error on login request', () => {
     const credentials = { documento: '123', password: 'password' };
+
     service.login(credentials).subscribe({
       error: (error) => {
         expect(error).toBeTruthy();
@@ -67,10 +64,15 @@ describe('UserService', () => {
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });
 
-  it('should save token to localStorage', () => {
-    const token = 'testToken';
-    service.saveToken(token);
-    expect(localStorage.getItem('auth_token')).toBe(token);
+  it('should save token to localStorage and emit true on auth state', (done) => {
+    service.getAuthState().subscribe((state: boolean) => {
+      if (state) {
+        expect(state).toBe(true);
+        done();
+      }
+    });
+    service.saveToken('testToken');
+    expect(localStorage.getItem('auth_token')).toBe('testToken');
   });
 
   it('should get token from localStorage', () => {
@@ -87,10 +89,20 @@ describe('UserService', () => {
     globalThis.window = originalWindow;
   });
 
+  it('should return true for isLoggedIn if token exists', () => {
+    localStorage.setItem('auth_token', 'testToken');
+    expect(service.isLoggedIn()).toBe(true);
+  });
+
+  it('should return false for isLoggedIn if token does not exist', () => {
+    localStorage.removeItem('auth_token');
+    expect(service.isLoggedIn()).toBe(false);
+  });
+
   it('should decode token correctly', () => {
     const tokenPayload = { rol: 'Administrador', exp: Math.floor(Date.now() / 1000) + 1000 };
-    const token = btoa(JSON.stringify(tokenPayload));
-    localStorage.setItem('auth_token', `header.${token}.signature`);
+    const encodedPayload = btoa(JSON.stringify(tokenPayload));
+    localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     const decoded = service.decodeToken();
     expect(decoded).toEqual({ rol: 'Administrador', exp: expect.any(Number) });
   });
@@ -98,7 +110,7 @@ describe('UserService', () => {
   it('should log an error and return null if token decoding fails', () => {
     const invalidToken = 'invalid.token.value';
     jest.spyOn(service, 'getToken').mockReturnValue(invalidToken);
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const result = service.decodeToken();
     expect(consoleSpy).toHaveBeenCalledWith('Error al decodificar el token:', expect.any(Error));
     expect(result).toBe(null);
@@ -118,7 +130,7 @@ describe('UserService', () => {
     expect(result).toBe('Administrador');
   });
 
-  it('should return null if token is invalid', () => {
+  it('should return null if token is invalid for user role', () => {
     jest.spyOn(service, 'decodeToken').mockReturnValue(null);
     const result = service.getUserRole();
     expect(result).toBe(null);
@@ -126,19 +138,19 @@ describe('UserService', () => {
 
   it('should identify expired token', () => {
     const expiredTokenPayload = { exp: Math.floor(Date.now() / 1000) - 1000 };
-    const expiredToken = btoa(JSON.stringify(expiredTokenPayload));
-    localStorage.setItem('auth_token', `header.${expiredToken}.signature`);
+    const encodedPayload = btoa(JSON.stringify(expiredTokenPayload));
+    localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     expect(service.isTokenExpired()).toBe(true);
   });
 
   it('should identify valid token', () => {
     const validTokenPayload = { exp: Math.floor(Date.now() / 1000) + 1000 };
-    const validToken = btoa(JSON.stringify(validTokenPayload));
-    localStorage.setItem('auth_token', `header.${validToken}.signature`);
+    const encodedPayload = btoa(JSON.stringify(validTokenPayload));
+    localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     expect(service.isTokenExpired()).toBe(false);
   });
 
-  it('should return true if decodeToken returns null', () => {
+  it('should return true if decodeToken returns null for token expiry', () => {
     jest.spyOn(service, 'decodeToken').mockReturnValue(null);
     const result = service.isTokenExpired();
     expect(result).toBe(true);
@@ -157,108 +169,41 @@ describe('UserService', () => {
     expect(localStorage.getItem('auth_token')).toBeNull();
   });
 
-  it('should send registroCliente request and return response', () => {
-    const mockResponse = { data: { id: 1, nombre: 'Cliente Prueba' } };
-    const cliente = mockClienteBody;
-
-    service.registroCliente(cliente).subscribe(response => {
-      expect(response).toEqual(mockResponse);
-    });
-
-    const req = httpTestingController.expectOne(`${environment.apiUrl}/clientes`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(cliente);
-    req.flush(mockResponse);
-  });
-
-  it('should send registroTrabajador request and return response', () => {
-    const mockResponse = { data: { id: 1, nombre: 'Trabajador Prueba' } };
-    const trabajador = mockTrabajadorBody;
-
-    service.registroTrabajador(trabajador).subscribe(response => {
-      expect(response).toEqual(mockResponse);
-    });
-
-    const req = httpTestingController.expectOne(`${environment.apiUrl}/trabajadores`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(trabajador);
-    req.flush(mockResponse);
-  });
-
   it('should call logout if token is expired in validateTokenAndLogout', () => {
-    const expiredPayload = { rol: 'Cliente', documento: '123', exp: Math.floor(Date.now() / 1000) - 10 };
-    const expiredToken = `header.${btoa(JSON.stringify(expiredPayload))}.signature`;
-    localStorage.setItem('auth_token', expiredToken);
+    const expiredPayload = { rol: 'Cliente', documento: 123, exp: Math.floor(Date.now() / 1000) - 10 };
+    const encodedPayload = btoa(JSON.stringify(expiredPayload));
+    localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     const logoutSpy = jest.spyOn(service, 'logout');
     service.validateTokenAndLogout();
     expect(logoutSpy).toHaveBeenCalled();
   });
 
   it('should not call logout if token is valid in validateTokenAndLogout', () => {
-    const validPayload = { rol: 'Cliente', documento: '123', exp: Math.floor(Date.now() / 1000) + 3600 };
-    const validToken = `header.${btoa(JSON.stringify(validPayload))}.signature`;
-    localStorage.setItem('auth_token', validToken);
+    const validPayload = { rol: 'Cliente', documento: 123, exp: Math.floor(Date.now() / 1000) + 3600 };
+    const encodedPayload = btoa(JSON.stringify(validPayload));
+    localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     const logoutSpy = jest.spyOn(service, 'logout');
     service.validateTokenAndLogout();
     expect(logoutSpy).not.toHaveBeenCalled();
   });
+
   it('should allow subscription to auth state and emit false when not logged in', (done) => {
-    service.getAuthState().subscribe(state => {
+    service.getAuthState().subscribe((state: boolean) => {
       expect(state).toBe(false);
       done();
     });
   });
+
   it('should return user id if token is valid', () => {
-    const decodedToken = { rol: 'Cliente', documento: '12345', exp: Math.floor(Date.now() / 1000) + 1000 };
+    const decodedToken = { rol: 'Cliente', documento: 12345, exp: Math.floor(Date.now() / 1000) + 1000 };
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
     const result = service.getUserId();
-    expect(result).toBe('12345');
+    expect(result).toBe(12345);
   });
 
-  it('should return null for user id if token is invalid', () => {
+  it('should return 0 for user id if token is invalid', () => {
     jest.spyOn(service, 'decodeToken').mockReturnValue(null);
     const result = service.getUserId();
-    expect(result).toBeNull();
+    expect(result).toBe(0);
   });
-  it('should get trabajador by ID successfully', () => {
-    service.getTrabajadorId(987654).subscribe(response => {
-      expect(response).toEqual(mockTrabajadorResponse);
-    });
-    const req = httpTestingController.expectOne(`${environment.apiUrl}/trabajadores/search?id=987654`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockTrabajadorResponse);
-  });
-  it('should get cliente by ID successfully', () => {
-    service.getClienteId(123456).subscribe(response => {
-      expect(response).toEqual(mockResponseCliente);
-    });
-
-    const req = httpTestingController.expectOne(`${environment.apiUrl}/clientes/search?id=123456`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockResponseCliente);
-  });
-  it('should handle error when fetching trabajador by ID', () => {
-    service.getTrabajadorId(987654).subscribe({
-      error: (error) => {
-        expect(error).toBeTruthy();
-      }
-    });
-
-    const req = httpTestingController.expectOne(`${environment.apiUrl}/trabajadores/search?id=987654`);
-    req.error(new ErrorEvent('API error'));
-    expect(mockHandleErrorService.handleError).toHaveBeenCalled();
-  });
-
-  it('should handle error when fetching cliente by ID', () => {
-    service.getClienteId(123456).subscribe({
-      error: (error) => {
-        expect(error).toBeTruthy();
-      }
-    });
-
-    const req = httpTestingController.expectOne(`${environment.apiUrl}/clientes/search?id=123456`);
-    req.error(new ErrorEvent('API error'));
-    expect(mockHandleErrorService.handleError).toHaveBeenCalled();
-  });
-
 });

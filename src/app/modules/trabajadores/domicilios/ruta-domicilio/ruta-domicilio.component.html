@@ -2,7 +2,7 @@
     <h1 class="text-center mb-4">Ruta del Domicilio</h1>
 
     <div class="map-container">
-        <iframe *ngIf="ubicacionUrl" [src]="ubicacionUrl" loading="lazy"></iframe>
+        <iframe *ngIf="ubicacionUrl" [src]="ubicacionUrl | safe:'resourceUrl'" loading="lazy"></iframe>
     </div>
 
     <div class="info-card">

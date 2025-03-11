@@ -33,12 +33,6 @@ export class UserService {
     );
   }
 
-  registroCliente(cliente: Cliente): Observable<ApiResponse<Cliente>> {
-    return this.http.post<ApiResponse<Cliente>>(`${this.baseUrl}/clientes`, cliente).pipe(
-      catchError(this.handleError.handleError)
-    );
-  }
-
   saveToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
     this.authState.next(true);
@@ -72,18 +66,6 @@ export class UserService {
   getUserId(): number {
     const decoded = this.decodeToken();
     return decoded ? decoded.documento : 0;
-  }
-
-  getTrabajadorId(documento: number): Observable<ApiResponse<Trabajador>> {
-    return this.http.get<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores/search?id=${documento}`).pipe(
-      catchError(this.handleError.handleError)
-    );
-  }
-
-  getClienteId(documento: number): Observable<ApiResponse<Cliente>> {
-    return this.http.get<ApiResponse<Cliente>>(`${this.baseUrl}/clientes/search?id=${documento}`).pipe(
-      catchError(this.handleError.handleError)
-    );
   }
 
   isTokenExpired(): boolean {

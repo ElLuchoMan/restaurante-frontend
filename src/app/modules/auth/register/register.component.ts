@@ -1,3 +1,4 @@
+import { ClienteService } from './../../../core/services/cliente.service';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -41,6 +42,7 @@ export class RegisterComponent implements OnInit {
   constructor(
     private userService: UserService,
     private trabajadorService: TrabajadorService,
+    private clienteService: ClienteService,
     private toastr: ToastrService,
     private router: Router
   ) {
@@ -103,7 +105,7 @@ export class RegisterComponent implements OnInit {
         telefono: this.telefono,
         observaciones: this.observaciones,
       };
-      this.userService.registroCliente(cliente).subscribe({
+      this.clienteService.registroCliente(cliente).subscribe({
         next: response => {
           if (response?.code === 201) {
             this.toastr.success('Cliente registrado con éxito');

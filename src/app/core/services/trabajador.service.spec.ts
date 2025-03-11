@@ -10,7 +10,6 @@ describe('TrabajadorService', () => {
   let httpMock: HttpTestingController;
   const baseUrl = environment.apiUrl;
 
-  // Fake para el HandleErrorService: simplemente lanza el error.
   const fakeHandleErrorService = {
     handleError: (error: any) => { throw error; }
   };
@@ -76,6 +75,19 @@ describe('TrabajadorService', () => {
       const req = httpMock.expectOne(`${baseUrl}/trabajadores`);
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);
+    });
+  });
+
+  describe('getTrabajadorId', () => {
+    it('should get a trabajador by ID', () => {
+      const documento = mockTrabajadorResponse.data.documentoTrabajador;
+      service.getTrabajadorId(documento).subscribe(response => {
+        expect(response).toEqual(mockTrabajadorResponse);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/trabajadores/search?id=${documento}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockTrabajadorResponse);
     });
   });
 });

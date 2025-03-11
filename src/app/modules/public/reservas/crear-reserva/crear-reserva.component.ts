@@ -1,3 +1,4 @@
+import { ClienteService } from './../../../../core/services/cliente.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,6 +8,7 @@ import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { Reserva } from '../../../../shared/models/reserva.model';
+import { TrabajadorService } from '../../../../core/services/trabajador.service';
 
 @Component({
   selector: 'app-reserva',
@@ -36,6 +38,8 @@ export class CrearReservaComponent implements OnInit {
   constructor(
     private reservaService: ReservaService,
     private userService: UserService,
+    private trabajadorService: TrabajadorService,
+    private clienteService: ClienteService,
     private toastr: ToastrService,
     private router: Router
   ) { }
@@ -53,7 +57,7 @@ export class CrearReservaComponent implements OnInit {
     this.userId = userId !== null ? Number(userId) : 0;
 
     if (userRole === 'Administrador') {
-      this.userService.getTrabajadorId(this.userId).subscribe({
+      this.trabajadorService.getTrabajadorId(this.userId).subscribe({
         next: (response) => {
           this.nombreTrabajador = response.data.nombre + ' ' + response.data.apellido;
 
@@ -65,7 +69,7 @@ export class CrearReservaComponent implements OnInit {
         }
       });
     } else if (userRole === 'Cliente') {
-      this.userService.getClienteId(this.userId).subscribe({
+      this.clienteService.getClienteId(this.userId).subscribe({
         next: (response) => {
           this.nombreCompleto = response.data.nombre + ' ' + response.data.apellido;
           this.telefono = response.data.telefono;

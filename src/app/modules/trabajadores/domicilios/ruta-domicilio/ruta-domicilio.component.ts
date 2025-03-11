@@ -7,13 +7,14 @@ import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { estadoPago } from '../../../../shared/constants';
 import { ModalService } from '../../../../core/services/modal.service';
 import { ToastrService } from 'ngx-toastr';
+import { SafePipe } from "../../../../shared/pipes/safe.pipe";
 
 @Component({
   selector: 'app-ruta-domicilio',
   standalone: true,
   templateUrl: './ruta-domicilio.component.html',
   styleUrls: ['./ruta-domicilio.component.scss'],
-  imports: [CommonModule]
+  imports: [CommonModule, SafePipe]
 })
 export class RutaDomicilioComponent implements OnInit {
   ubicacionUrl: SafeResourceUrl | undefined;
@@ -23,15 +24,15 @@ export class RutaDomicilioComponent implements OnInit {
   googleMapsUrl: string = '';
   domicilioId: number = 0;
 
-  private restauranteDireccion = 'Calle 78a # 62 - 48, Bogotá, Colombia';
+  public restauranteDireccion = 'Calle 78a # 62 - 48, Bogotá, Colombia';
 
   constructor(
-    private route: ActivatedRoute,
-    private sanitizer: DomSanitizer,
-    private domicilioService: DomicilioService,
-    private router: Router,
-    private modalService: ModalService,
-    private toastrService: ToastrService
+    public route: ActivatedRoute,
+    public sanitizer: DomSanitizer,
+    public domicilioService: DomicilioService,
+    public router: Router,
+    public modalService: ModalService,
+    public toastrService: ToastrService
   ) { }
 
   ngOnInit(): void {
@@ -48,7 +49,7 @@ export class RutaDomicilioComponent implements OnInit {
     });
   }
 
-  private generarRuta(): void {
+  public generarRuta(): void {
     const apiKey = environment.googleMapsApiKey;
     const origen = encodeURIComponent(this.restauranteDireccion);
     const destino = encodeURIComponent(this.direccionCliente);
@@ -56,7 +57,7 @@ export class RutaDomicilioComponent implements OnInit {
     this.ubicacionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
-  private generarUrlGoogleMaps(): void {
+  public generarUrlGoogleMaps(): void {
     const origen = encodeURIComponent(this.restauranteDireccion);
     const destino = encodeURIComponent(this.direccionCliente);
     this.googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origen}&destination=${destino}`;

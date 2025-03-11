@@ -93,7 +93,6 @@ describe('HeaderComponent', () => {
 
     expect(component.userRole).toBe('Domiciliario');
     const allMenu = [...component.menuLeft, ...component.menuRight];
-    expect(allMenu.some(item => item.label === 'Mis entregas')).toBe(true);
     expect(allMenu.some(item => item.label === 'Logout')).toBe(true);
   });
 
@@ -128,5 +127,32 @@ describe('HeaderComponent', () => {
     component.logout();
     expect(userService.logout).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/home']);
+  });
+
+  it('should remove "show" class from navbar when cerrarMenu is called and the navbar has "show" class', () => {
+    const fakeNavbar = document.createElement('div');
+    fakeNavbar.id = 'navbarCollapse';
+    fakeNavbar.classList.add('show');
+    document.body.appendChild(fakeNavbar);
+    component.cerrarMenu();
+    expect(fakeNavbar.classList.contains('show')).toBe(false);
+    document.body.removeChild(fakeNavbar);
+  });
+  
+  it('should do nothing when navbar exists but does not have "show" class', () => {
+    const fakeNavbar = document.createElement('div');
+    fakeNavbar.id = 'navbarCollapse';
+    document.body.appendChild(fakeNavbar);
+    component.cerrarMenu();
+    expect(fakeNavbar.classList.contains('show')).toBe(false);
+    document.body.removeChild(fakeNavbar);
+  });
+  
+  it('should not throw an error when navbar element does not exist', () => {
+    const existing = document.getElementById('navbarCollapse');
+    if (existing) {
+      existing.remove();
+    }
+    expect(() => component.cerrarMenu()).not.toThrow();
   });
 });

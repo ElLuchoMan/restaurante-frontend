@@ -27,7 +27,13 @@ export class TrabajadorService {
 
   getTrabajadores(): Observable<Trabajador[]> {
     return this.http.get<ApiResponse<Trabajador[]>>(`${this.baseUrl}/trabajadores`).pipe(
-      map((response: { data: any; }) => response.data || []),
+      map((response: { data: any; }) => response.data),
+      catchError(this.handleError.handleError)
+    );
+  }
+
+  getTrabajadorId(documento: number): Observable<ApiResponse<Trabajador>> {
+    return this.http.get<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores/search?id=${documento}`).pipe(
       catchError(this.handleError.handleError)
     );
   }

@@ -1,3 +1,4 @@
+import { ClienteService } from './../../../core/services/cliente.service';
 import { TrabajadorService } from './../../../core/services/trabajador.service';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { RegisterComponent } from './register.component';
@@ -7,6 +8,7 @@ import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Trabajador } from '../../../shared/models/trabajador.model';
 import { Cliente } from '../../../shared/models/cliente.model';
 import { mockClienteBody, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
@@ -18,6 +20,7 @@ describe('RegisterComponent', () => {
   let fixture: ComponentFixture<RegisterComponent>;
   let userService: jest.Mocked<UserService>;
   let trabajadorService: jest.Mocked<TrabajadorService>;
+  let clienteService: jest.Mocked<ClienteService>;
   let toastr: jest.Mocked<ToastrService>;
   let router: jest.Mocked<Router>;
 
@@ -31,6 +34,10 @@ describe('RegisterComponent', () => {
       registroTrabajador: jest.fn()
     } as unknown as jest.Mocked<TrabajadorService>;
 
+    const clienteServiceMock = {
+      registroCliente: jest.fn().mockImplementation(() => of({}))
+    } as unknown as jest.Mocked<ClienteService>;
+    
     const toastrMock = {
       success: jest.fn(),
       error: jest.fn()
@@ -39,12 +46,12 @@ describe('RegisterComponent', () => {
     const routerMock = {
       navigate: jest.fn()
     } as unknown as jest.Mocked<Router>;
-
     await TestBed.configureTestingModule({
-      imports: [RegisterComponent, FormsModule, CommonModule],
+      imports: [RegisterComponent, FormsModule, CommonModule, HttpClientTestingModule],
       providers: [
         { provide: UserService, useValue: userServiceMock },
         { provide: TrabajadorService, useValue: trabajadorServiceMock },
+        { provide: ClienteService, useValue: clienteServiceMock },
         { provide: ToastrService, useValue: toastrMock },
         { provide: Router, useValue: routerMock }
       ]
@@ -54,6 +61,7 @@ describe('RegisterComponent', () => {
     component = fixture.componentInstance;
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
     trabajadorService = TestBed.inject(TrabajadorService) as jest.Mocked<TrabajadorService>;
+    clienteService = TestBed.inject(ClienteService) as jest.Mocked<ClienteService>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
 
@@ -75,7 +83,7 @@ describe('RegisterComponent', () => {
   });
 
   it('should register a client successfully', fakeAsync(() => {
-    userService.registroCliente.mockReturnValue(of(mockClienteRegisterResponse));
+    clienteService.registroCliente.mockReturnValue(of(mockClienteRegisterResponse));
 
     component.documento = mockClienteBody.documentoCliente;
     component.nombre = mockClienteBody.nombre;
@@ -88,7 +96,7 @@ describe('RegisterComponent', () => {
     component.onSubmit();
     tick();
 
-    expect(userService.registroCliente).toHaveBeenCalledWith(mockClienteBody);
+    expect(clienteService.registroCliente).toHaveBeenCalledWith(mockClienteBody);
     expect(toastr.success).toHaveBeenCalledWith('Cliente registrado con éxito');
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   }));
@@ -127,7 +135,7 @@ describe('RegisterComponent', () => {
   }));
 
   it('should handle error when registering a client fails', fakeAsync(() => {
-    userService.registroCliente.mockReturnValue(throwError(() => ({
+    clienteService.registroCliente.mockReturnValue(throwError(() => ({
       message: 'Error al registrar'
     })));
 
@@ -188,7 +196,7 @@ describe('RegisterComponent', () => {
       data: {} as Cliente
     };
 
-    userService.registroCliente.mockReturnValue(of(mockErrorResponse));
+    clienteService.registroCliente.mockReturnValue(of(mockErrorResponse));
 
     component.documento = 12345;
     component.nombre = 'Cliente';
@@ -228,7 +236,7 @@ describe('RegisterComponent', () => {
       data: {} as Cliente
     };
 
-    userService.registroCliente.mockReturnValue(of(mockErrorResponse));
+    clienteService.registroCliente.mockReturnValue(of(mockErrorResponse));
 
     component.documento = 12345;
     component.nombre = 'Cliente';
