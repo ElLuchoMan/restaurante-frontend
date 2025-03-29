@@ -1,0 +1,59 @@
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Crear Producto</h1>
+
+    <div class="form-card-bg p-4">
+        <div class="form-group">
+            <label>Nombre:</label>
+            <input type="text" class="form-control" [(ngModel)]="producto.nombre" required>
+        </div>
+
+        <div class="form-group">
+            <label>Descripción:</label>
+            <textarea class="form-control" [(ngModel)]="producto.descripcion"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Calorías:</label>
+            <input type="number" class="form-control" [(ngModel)]="producto.calorias">
+        </div>
+
+        <div class="form-group">
+            <label>Precio:</label>
+            <input type="number" class="form-control" [(ngModel)]="producto.precio" required>
+        </div>
+
+        <div class="form-group">
+            <label>Cantidad:</label>
+            <input type="number" class="form-control" [(ngModel)]="producto.cantidad">
+        </div>
+
+        <div class="form-group">
+            <label>Estado del Producto:</label>
+            <select class="form-control" [(ngModel)]="producto.estadoProducto">
+                <option [value]="estadoProducto.DISPONIBLE">Disponible</option>
+                <option [value]="estadoProducto.NO_DISPONIBLE">No Disponible</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Categoría:</label>
+            <input type="text" class="form-control" [(ngModel)]="producto.categoria">
+        </div>
+
+        <div class="form-group">
+            <label>Subcategoría:</label>
+            <input type="text" class="form-control" [(ngModel)]="producto.subcategoria">
+        </div>
+
+        <div class="form-group">
+            <label>Imagen:</label>
+            <input type="file" class="form-control" (change)="seleccionarImagen($event)">
+        </div>
+
+        <button class="btn btn-success mt-3" (click)="crearProducto()">Crear Producto</button>
+    </div>
+
+    <div class="alert alert-info text-center mt-4" *ngIf="mensaje">
+        {{ mensaje }}
+    </div>
+</div>

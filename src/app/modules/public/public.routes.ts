@@ -10,12 +10,18 @@ import { RoleGuard } from '../../core/guards/role.guard';
 import { AuthGuard } from '../../core/guards/auth.guard';
 import { UbicacionRestauranteComponent } from './ubicacion-restaurante/ubicacion-restaurante.component';
 import { ConsultarDomicilioComponent } from './domicilios/consultar-domicilios/consultar-domicilios.component';
+import { VerProductosComponent } from './ver-productos/ver-productos.component';
+
 
 const publicRoutes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'registro-cliente', component: RegisterComponent },
+  {
+    path: 'menu',
+    component: VerProductosComponent
+  },
   {
     path: 'reservas',
     component: MenuReservasComponent,
@@ -32,7 +38,6 @@ const publicRoutes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['Administrador'] }
       },
-
       { path: 'crear', component: CrearReservaComponent },
     ]
   },

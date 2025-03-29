@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import publicRoutes from './public.routes';
 import { RegisterComponent } from '../auth/register/register.component';
+import { VerProductosComponent } from './ver-productos/ver-productos.component';
 
 
 
@@ -11,6 +12,7 @@ import { RegisterComponent } from '../auth/register/register.component';
   imports: [CommonModule,
     RouterModule.forChild(publicRoutes),
     RegisterComponent,
+    VerProductosComponent,
   ],
 })
 export class PublicModule { }

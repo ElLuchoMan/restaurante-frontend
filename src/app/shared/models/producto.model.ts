@@ -7,7 +7,7 @@ export interface Producto {
     descripcion?: string;
     precio: number;
     estadoProducto?: estadoProducto;
-    imagen?: string;
+    imagen?: File | string;
     cantidad: number;
     categoria?: string;
     subcategoria?: string;

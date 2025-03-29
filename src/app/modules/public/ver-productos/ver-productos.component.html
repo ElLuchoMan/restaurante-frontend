@@ -1,0 +1,26 @@
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Menú</h1>
+
+    <div class="row">
+        <div class="col-md-3 mb-3" *ngFor="let producto of productos">
+            <div class="card producto-card">
+                <div class="producto-img">
+                    <img [src]="producto.imagen || '../../../../assets/img/logo2.png'" class="card-img-top">
+                  </div>
+                <div class="producto-info">
+                    <h5 class="producto-nombre">{{ producto.nombre }}</h5>
+                    <p class="producto-precio">${{ producto.precio }}</p>
+                </div>
+
+                <div class="producto-hover">
+                    <p><strong>Calorías:</strong> {{ producto.calorias || 'N/A' }}</p>
+                    <p> {{ producto.descripcion || 'Sin descripción' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info text-center mt-4" *ngIf="mensaje">
+        {{ mensaje }}
+    </div>
+</div>

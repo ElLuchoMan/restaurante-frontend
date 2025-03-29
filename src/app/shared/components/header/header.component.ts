@@ -67,10 +67,12 @@ export class HeaderComponent implements OnInit {
         menuItems.unshift({ label: 'Perfil', route: '/perfil', priority: 7 });
       } else if (this.userRole === 'Administrador') {
         menuItems.unshift({ label: 'Registrar', route: 'admin/registro-admin', priority: 6 });
+        menuItems = menuItems.filter(item => item.label !== 'Inicio');
         menuItems = menuItems.filter(item => item.label !== 'Galería');
         menuItems = menuItems.filter(item => item.label !== 'Menú');
         menuItems = menuItems.filter(item => item.label !== 'Ubicación');
         menuItems.unshift({ label: 'Domicilios', route: '/domicilios/consultar', priority: 3 });
+        menuItems.unshift({ label: 'Productos', route: '/admin/productos/crear', priority: 3 });
       } else if (this.userRole === 'Mesero') {
         menuItems.push({ label: 'Pedidos', route: '/pedidos', priority: 8 });
       } else if (this.userRole === 'Domiciliario') {

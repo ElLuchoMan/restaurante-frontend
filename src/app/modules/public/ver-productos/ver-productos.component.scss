@@ -1,0 +1,83 @@
+@use "../../../../assets/styles.scss" as *;
+.producto-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+        transform: translateY(-5px);
+    }
+
+    .producto-img {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .producto-info {
+        padding: 10px;
+        text-align: center;
+        background: white;
+
+        .producto-nombre {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .producto-precio {
+            font-size: 1rem;
+            color: #28a745;
+            font-weight: bold;
+        }
+    }
+
+    // Información oculta en desktop, visible en hover
+    .producto-hover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+
+        p {
+            margin: 5px 0;
+        }
+    }
+
+    &:hover .producto-hover {
+        opacity: 1;
+    }
+}
+
+// Adaptación para dispositivos móviles
+@media (max-width: 768px) {
+    .producto-card {
+        .producto-hover {
+            position: relative;
+            opacity: 1;
+            background: white;
+            color: black;
+            padding: 15px;
+        }
+    }
+}
