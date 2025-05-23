@@ -21,7 +21,7 @@ export class VerProductosComponent implements OnInit {
 
   obtenerProductos(): void {
     this.productoService.getProductos({ onlyActive: true, includeImage: true }).subscribe(response => {
-      if (response.code === 200) {
+      if (response.data) {
         this.productos = response.data;
       } else {
         this.mensaje = response.message;
