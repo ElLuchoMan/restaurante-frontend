@@ -6,9 +6,9 @@
         </div>
 
         <div class="modal-body">
-            <p *ngIf="modalData.message">{{ modalData.message }}</p>
-
             <img *ngIf="modalData.image" [src]="modalData.image" alt="Imagen modal" />
+
+            <div *ngIf="modalData.message" [innerHTML]="modalData.message"></div>
 
             <div *ngIf="modalData.select">
                 <label>{{ modalData.select.label }}</label>

@@ -4,6 +4,7 @@ import { ProductoService } from '../../../core/services/producto.service';
 import { Producto } from '../../../shared/models/producto.model';
 import { FormsModule } from '@angular/forms';
 import { ProductoFiltroPipe } from "../../../shared/pipes/producto-filtro.pipe";
+import { ModalService } from '../../../core/services/modal.service';
 
 @Component({
   selector: 'app-ver-productos',
@@ -25,7 +26,7 @@ export class VerProductosComponent implements OnInit {
   maxCalorias?: number;
 
 
-  constructor(private productoService: ProductoService) { }
+  constructor(private productoService: ProductoService, private modalService: ModalService) { }
 
   ngOnInit(): void {
     this.obtenerProductos();
@@ -102,6 +103,20 @@ export class VerProductosComponent implements OnInit {
 
   get totalPaginas(): number {
     return Math.ceil(this.productosFiltrados.length / this.productosPorPagina);
+  }
+
+  abrirDetalle(producto: Producto): void {
+    this.modalService.openModal({
+      title: producto.nombre,
+      message: `
+      <strong>Precio:</strong> $${producto.precio}<br>
+      <strong>Calorías:</strong> ${producto.calorias || 'N/A'}<br>
+      <strong>Categoría:</strong> ${producto.categoria}<br>
+      <strong>Subcategoría:</strong> ${producto.subcategoria}<br>
+      <strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}<br>
+    `,
+      image: producto.imagen || '../../../../assets/img/logo2.png'
+    });
   }
 
 }
