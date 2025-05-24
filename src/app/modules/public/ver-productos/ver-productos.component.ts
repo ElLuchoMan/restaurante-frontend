@@ -5,6 +5,8 @@ import { Producto } from '../../../shared/models/producto.model';
 import { FormsModule } from '@angular/forms';
 import { ProductoFiltroPipe } from "../../../shared/pipes/producto-filtro.pipe";
 import { ModalService } from '../../../core/services/modal.service';
+import { UserService } from '../../../core/services/user.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-ver-productos',
@@ -24,13 +26,19 @@ export class VerProductosComponent implements OnInit {
   filtroSubcategoria = '';
   minCalorias?: number;
   maxCalorias?: number;
+  userRole: string | null = null;
+  carrito: Producto[] = [];
 
-
-  constructor(private productoService: ProductoService, private modalService: ModalService) { }
+  constructor(private productoService: ProductoService, private modalService: ModalService, private userService: UserService, private router: Router) { }
 
   ngOnInit(): void {
     this.obtenerProductos();
+
+    this.userService.getAuthState().subscribe(isLogged => {
+      this.userRole = isLogged ? this.userService.getUserRole() : null;
+    });
   }
+
 
   obtenerProductos(): void {
     this.productoService.getProductos({ onlyActive: true, includeImage: true }).subscribe(response => {
@@ -106,17 +114,52 @@ export class VerProductosComponent implements OnInit {
   }
 
   abrirDetalle(producto: Producto): void {
+    const botones = [];
+
+    if (this.userRole === 'Cliente') {
+      botones.push({
+        label: '🛒 Agregar al carrito',
+        class: 'btn btn-primary',
+        action: () => {
+          this.agregarAlCarrito(producto);
+          this.modalService.closeModal();
+        }
+      });
+    }
+
+    if (this.userRole === 'Administrador') {
+      botones.push({
+        label: '✏️ Editar',
+        class: 'btn btn-warning',
+        action: () => {
+          this.router.navigate(['/admin/productos/editar', producto.productoId]);
+          this.modalService.closeModal();
+        }
+      });
+    }
+
     this.modalService.openModal({
       title: producto.nombre,
+      image: producto.imagen || '../../../../assets/img/logo2.png',
       message: `
       <strong>Precio:</strong> $${producto.precio}<br>
       <strong>Calorías:</strong> ${producto.calorias || 'N/A'}<br>
       <strong>Categoría:</strong> ${producto.categoria}<br>
       <strong>Subcategoría:</strong> ${producto.subcategoria}<br>
-      <strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}<br>
+      <strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}
     `,
-      image: producto.imagen || '../../../../assets/img/logo2.png'
+      buttons: botones
     });
+  }
+
+
+  agregarAlCarrito(producto: Producto): void {
+    const carritoGuardado = localStorage.getItem('carrito');
+    this.carrito = carritoGuardado ? JSON.parse(carritoGuardado) : [];
+
+    this.carrito.push(producto);
+
+    localStorage.setItem('carrito', JSON.stringify(this.carrito));
   }
 
 }

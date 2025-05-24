@@ -30,4 +30,23 @@ export class ProductoService {
   createProducto(formData: FormData): Observable<ApiResponse<Producto>> {
     return this.http.post<ApiResponse<Producto>>(`${this.baseUrl}`, formData);
   }
+
+  /**
+ * Obtiene un producto por ID
+ */
+  getProductoById(id: number): Observable<ApiResponse<Producto>> {
+    return this.http.get<ApiResponse<Producto>>(`${this.baseUrl}/search`, {
+      params: { id: id.toString() }
+    });
+  }
+
+  /**
+   * Actualiza un producto por ID
+   */
+  updateProducto(id: number, formData: FormData): Observable<ApiResponse<Producto>> {
+    return this.http.put<ApiResponse<Producto>>(`${this.baseUrl}`, formData, {
+      params: { id: id.toString() }
+    });
+  }
+
 }

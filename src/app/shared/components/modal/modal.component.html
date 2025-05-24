@@ -8,8 +8,7 @@
         <div class="modal-body">
             <img *ngIf="modalData.image" [src]="modalData.image" alt="Imagen modal" />
 
-            <div *ngIf="modalData.message" [innerHTML]="modalData.message"></div>
-
+            <div class="mt-3" *ngIf="modalData.message" [innerHTML]="modalData.message"></div>
             <div *ngIf="modalData.select">
                 <label>{{ modalData.select.label }}</label>
                 <select class="form-control" [(ngModel)]="modalData.select.selected">

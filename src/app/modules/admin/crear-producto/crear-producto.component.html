@@ -50,7 +50,10 @@
             <input type="file" class="form-control" (change)="seleccionarImagen($event)">
         </div>
 
-        <button class="btn btn-success mt-3" (click)="crearProducto()">Crear Producto</button>
+        <button class="btn btn-primary mt-3" (click)="esEdicion ? actualizarProducto() : crearProducto()">
+            {{ esEdicion ? 'Actualizar Producto' : 'Crear Producto' }}
+        </button>
+
     </div>
 
     <div class="alert alert-info text-center mt-4" *ngIf="mensaje">

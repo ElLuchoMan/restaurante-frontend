@@ -31,4 +31,5 @@ export class ModalComponent implements OnInit {
   close() {
     this.modalService.closeModal();
   }
+  
 }

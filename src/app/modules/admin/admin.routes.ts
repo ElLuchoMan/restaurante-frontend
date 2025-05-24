@@ -23,4 +23,10 @@ export const adminRoutes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Administrador'] }
   },
+  {
+    path: 'productos/editar/:id',
+    component: CrearProductoComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Administrador'] }
+  },
 ];
