@@ -1,0 +1,40 @@
+@use '../../../../assets/styles.scss' as *;
+
+// Card más compacta
+.carrito-card {
+    max-width: 220px; // reduce el ancho máximo
+    margin: 0 auto; // centra en su columna
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-3px);
+    }
+}
+
+// Botones “+” y “−” icon-only
+.btn-icon {
+    border: none;
+    background: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--primary);
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+        color: var(--secondary);
+    }
+}
+
+// Resumen (subtotal y calorías)
+.resumen h4 {
+    font-weight: bold;
+
+    small {
+        font-size: 0.8rem;
+        color: var(--gray-dark);
+    }
+}

@@ -7,6 +7,7 @@ import { ProductoFiltroPipe } from "../../../shared/pipes/producto-filtro.pipe";
 import { ModalService } from '../../../core/services/modal.service';
 import { UserService } from '../../../core/services/user.service';
 import { Router } from '@angular/router';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-ver-productos',
@@ -29,7 +30,7 @@ export class VerProductosComponent implements OnInit {
   userRole: string | null = null;
   carrito: Producto[] = [];
 
-  constructor(private productoService: ProductoService, private modalService: ModalService, private userService: UserService, private router: Router) { }
+  constructor(private productoService: ProductoService, private modalService: ModalService, private userService: UserService, private router: Router, private cartService: CartService) { }
 
   ngOnInit(): void {
     this.obtenerProductos();
@@ -121,7 +122,7 @@ export class VerProductosComponent implements OnInit {
         label: '🛒 Agregar al carrito',
         class: 'btn btn-primary',
         action: () => {
-          this.agregarAlCarrito(producto);
+          this.cartService.addToCart(producto);
           this.modalService.closeModal();
         }
       });
@@ -151,15 +152,4 @@ export class VerProductosComponent implements OnInit {
       buttons: botones
     });
   }
-
-
-  agregarAlCarrito(producto: Producto): void {
-    const carritoGuardado = localStorage.getItem('carrito');
-    this.carrito = carritoGuardado ? JSON.parse(carritoGuardado) : [];
-
-    this.carrito.push(producto);
-
-    localStorage.setItem('carrito', JSON.stringify(this.carrito));
-  }
-
 }

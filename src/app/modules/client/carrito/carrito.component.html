@@ -1,0 +1,38 @@
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Carrito</h1>
+
+    <ng-container *ngIf="carrito.length; else vacio">
+        <div class="row">
+            <div class="col-sm-6 col-md-4 col-lg-3 mb-3" *ngFor="let p of carrito">
+                <div class="card carrito-card h-100">
+                    <img [src]="p.imagen || 'assets/img/logo2.png'" class="card-img-top" alt="{{p.nombre}}">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ p.nombre }}</h5>
+                        <p class="card-text mb-2">Precio: ${{ p.precio }}</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <!-- Botones icono-only -->
+                            <button class="btn-icon" (click)="restar(p)">−</button>
+                            <span class="mx-2">{{ p.cantidad }}</span>
+                            <button class="btn-icon" (click)="sumar(p)">+</button>
+                        </div>
+                        <button class="btn btn-sm btn-danger mt-auto" (click)="eliminar(p)">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4 resumen">
+            <h4>
+                Subtotal: ${{ subtotal }}
+                <small class="ms-4">Calorías totales: {{ totalCalorias }}</small>
+            </h4>
+            <button class="btn btn-success" (click)="crearOrden()">Crear Orden</button>
+        </div>
+    </ng-container>
+
+    <ng-template #vacio>
+        <div class="alert alert-info text-center">No hay productos en el carrito.</div>
+    </ng-template>
+</div>

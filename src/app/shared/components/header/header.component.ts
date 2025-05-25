@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
 import { MenuItem } from '../../models/menu-item.model';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-header',
@@ -17,8 +18,9 @@ export class HeaderComponent implements OnInit {
   userRole: string | null = null;
   isBrowser: boolean;
   imagenVisible: boolean = true;
+  cartCount = 0;
 
-  constructor(private userService: UserService, @Inject(PLATFORM_ID) private platformId: any, private router: Router) {
+  constructor(private userService: UserService, @Inject(PLATFORM_ID) private platformId: any, private router: Router, private cartService: CartService) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
@@ -28,6 +30,9 @@ export class HeaderComponent implements OnInit {
       this.generateMenu();
     });
 
+    this.cartService.count$.subscribe(count => {
+      this.cartCount = count;
+    });
     if (this.isBrowser) {
       this.checkScreenSize();
     }
@@ -65,7 +70,7 @@ export class HeaderComponent implements OnInit {
 
       if (this.userRole === 'Cliente') {
         menuItems.unshift({ label: 'Perfil', route: '/perfil', priority: 7 });
-        menuItems.unshift({ label: '🛒', route: '/carrito-cliente', priority: 8 });
+        menuItems.unshift({ label: '🛒', route: 'cliente/carrito-cliente', priority: 8 });
         menuItems = menuItems.filter(item => item.label !== 'Inicio');
         menuItems = menuItems.filter(item => item.label !== 'Ubicación');
         menuItems = menuItems.filter(item => item.label !== 'Galería');

@@ -40,15 +40,28 @@
                     <h1 class="m-0 display-5 text-primary logo-text" [ngClass]="{ 'd-none': imagenVisible }">
                         <span class="text-secondary">La cocina </span>DE MARÍA
                     </h1>
-                    <img src="assets/img/logo2.png" alt="Logo" class="logo-img"
-                        [ngClass]="{ 'd-none': !imagenVisible }" loading="lazy">
+                    <img src="assets/img/logo2.png" alt="Logo" class="logo-img" [ngClass]="{ 'd-none': !imagenVisible }"
+                        loading="lazy">
                 </div>
+                <!-- header.component.html -->
                 <div class="navbar-nav mr-auto py-0 menu-right">
-                    <a *ngFor="let item of menuRight" [routerLink]="item.route" class="nav-item nav-link"
-                        (click)="item.label === 'Logout' ? logout() : cerrarMenu()">
-                        {{ item.label }}
+                    <a *ngFor="let item of menuRight" [routerLink]="item.route"
+                        class="nav-item nav-link position-relative"
+                        (click)="item.label==='Logout'? logout() : cerrarMenu()">
+
+                        <!-- Carrito: icono + badge -->
+                        <ng-container *ngIf="item.label==='🛒'; else normalLink">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge cart-badge">{{ cartCount }}</span>
+                        </ng-container>
+
+                        <!-- Los demás enlaces -->
+                        <ng-template #normalLink>
+                            {{ item.label }}
+                        </ng-template>
                     </a>
                 </div>
+
             </div>
         </nav>
     </div>
