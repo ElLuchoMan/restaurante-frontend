@@ -1,10 +1,10 @@
-import { estadoProducto } from './../../../shared/constants';
+import { estadoProducto } from '../../../../shared/constants';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ProductoService } from '../../../core/services/producto.service';
-import { Producto } from '../../../shared/models/producto.model';
+import { ProductoService } from '../../../../core/services/producto.service';
+import { Producto } from '../../../../shared/models/producto.model';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({

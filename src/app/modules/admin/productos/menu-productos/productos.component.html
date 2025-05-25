@@ -1,0 +1,21 @@
+<!-- productos.component.html -->
+<div class="container mt-5 col-md-5">
+  <h1 class="text-center mb-4">Gestión Productos</h1>
+
+  <div *ngIf="mostrarMenu" class="form-card-bg p-5">
+    <div class="d-flex flex-column">
+      <button class="btn btn-primary" (click)="irA('ver')">Ver Productos</button>
+      <button class="btn btn-primary mt-4" (click)="irA('crear')">Crear Producto</button>
+    </div>
+  </div>
+
+  <div *ngIf="!mostrarMenu" class="volver-container" (click)="volver()">
+    <i class="fas fa-arrow-left volver-icon"></i>
+    <span class="volver-text">Volver</span>
+  </div>
+</div>
+
+<!-- Acá carga el componente hijo (crear / editar) -->
+<div [ngClass]="{ 'container-fluid': !mostrarMenu, 'container mt-5 col-md-5': mostrarMenu }">
+  <router-outlet></router-outlet>
+</div>
