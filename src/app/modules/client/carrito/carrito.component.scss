@@ -2,15 +2,20 @@
 
 // Card más compacta
 .carrito-card {
-    max-width: 220px; // reduce el ancho máximo
-    margin: 0 auto; // centra en su columna
-    border-radius: 8px;
+    max-width: 500px; // reduce el ancho máximo
+    border-radius: 20px;
+    max-height: 500px;
     overflow: hidden;
     transition: transform 0.2s ease;
 
     &:hover {
         transform: translateY(-3px);
     }
+}
+
+.card-img-top {
+    height: 150px;
+    object-fit: cover;
 }
 
 // Botones “+” y “−” icon-only
@@ -20,9 +25,14 @@
     padding: 0.25rem 0.5rem;
     font-size: 1.25rem;
     line-height: 1;
-    color: var(--primary);
+    color: var(--qaternary);
     cursor: pointer;
     transition: color 0.2s ease;
+
+    &_plus {
+        @extend .btn-icon;
+        color: var(--primary);
+    }
 
     &:hover {
         color: var(--secondary);

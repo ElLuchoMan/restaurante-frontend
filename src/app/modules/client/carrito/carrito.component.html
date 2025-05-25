@@ -13,7 +13,7 @@
                             <!-- Botones icono-only -->
                             <button class="btn-icon" (click)="restar(p)">−</button>
                             <span class="mx-2">{{ p.cantidad }}</span>
-                            <button class="btn-icon" (click)="sumar(p)">+</button>
+                            <button class="btn-icon_plus" (click)="sumar(p)">+</button>
                         </div>
                         <button class="btn btn-sm btn-danger mt-auto" (click)="eliminar(p)">
                             Eliminar
@@ -28,7 +28,7 @@
                 Subtotal: ${{ subtotal }}
                 <small class="ms-4">Calorías totales: {{ totalCalorias }}</small>
             </h4>
-            <button class="btn btn-success" (click)="crearOrden()">Crear Orden</button>
+            <button class="btn btn-primary" (click)="crearOrden()">Crear Orden</button>
         </div>
     </ng-container>
 
