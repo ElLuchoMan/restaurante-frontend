@@ -1,0 +1,39 @@
+<div class="container mt-4">
+    <h2>Mis pedidos</h2>
+
+    <div *ngIf="loading" class="text-center">
+        Cargando pedidos…
+    </div>
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+    <table *ngIf="!loading && pedidos.length" class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Estado</th>
+                <th>Pago</th>
+                <th>Delivery</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let p of pedidos">
+                <td>{{ p.pedidoId }}</td>
+                <td>{{ p.fechaPedido | formatDate: 'date' }}</td>
+                <td>{{ p.horaPedido | formatDate: 'time' }}</td>
+                <td>{{ p.estadoPedido }}</td>
+                <td>{{ p.pagoId }}</td>
+                <td>{{ p.domicilioId ? 'Sí' : 'No' }}</td>
+                <td>
+                    <a [routerLink]="['/cliente/pedido', p.pedidoId]">Ver detalle</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div *ngIf="!loading && !pedidos.length" class="alert alert-info">
+        Aún no tienes pedidos.
+    </div>
+</div>

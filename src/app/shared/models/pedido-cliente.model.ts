@@ -1,5 +1,5 @@
 export interface PedidoCliente {
-    pedidoClienteId: number;
+    pedidoClienteId?: number;
     documentoCliente: number;
     pedidoId: number;
 }
