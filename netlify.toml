@@ -3,7 +3,7 @@
   publish = "dist/restaurante-frontend/browser"
 
 [build.environment]
-  NODE_VERSION = "20.15.1"
+  NODE_VERSION = "22.16.0"
   NPM_FLAGS = "--legacy-peer-deps"
 
 [[redirects]]
