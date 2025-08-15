@@ -21,19 +21,22 @@
         </div>
 
         <div class="row mt-3 align-items-center">
-            <div [ngClass]="{'col-12': soloUnFiltro(), 'col-md-6': dosFiltros(), 'col-md-4': tresFiltros()}"
+            <div
+                [ngClass]="{'col-12': countFiltros() === 1, 'col-md-6': countFiltros() === 2, 'col-md-4': countFiltros() === 3}"
                 *ngIf="buscarPorDireccion">
                 <input type="text" id="direccion" class="form-control" [(ngModel)]="direccion"
                     placeholder="Ej: Calle 50 #20-30" />
             </div>
 
-            <div [ngClass]="{'col-12': soloUnFiltro(), 'col-md-6': dosFiltros(), 'col-md-4': tresFiltros()}"
+            <div
+                [ngClass]="{'col-12': countFiltros() === 1, 'col-md-6': countFiltros() === 2, 'col-md-4': countFiltros() === 3}"
                 *ngIf="buscarPorTelefono">
                 <input type="text" id="telefono" class="form-control" [(ngModel)]="telefono"
                     placeholder="Ej: 3042449339" />
             </div>
 
-            <div [ngClass]="{'col-12': soloUnFiltro(), 'col-md-6': dosFiltros(), 'col-md-4': tresFiltros()}"
+            <div
+                [ngClass]="{'col-12': countFiltros() === 1, 'col-md-6': countFiltros() === 2, 'col-md-4': countFiltros() === 3}"
                 *ngIf="buscarPorFecha">
                 <input type="date" id="fechaDomicilio" class="form-control" [(ngModel)]="fechaDomicilio" />
             </div>
