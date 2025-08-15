@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { UserService } from '../../../../core/services/user.service';
@@ -12,6 +13,7 @@ describe('ConsultarDomiciliosComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+
       imports: [ConsultarDomicilioComponent],
       providers: [
         { provide: DomicilioService, useValue: {} },
@@ -20,7 +22,6 @@ describe('ConsultarDomiciliosComponent', () => {
         { provide: ModalService, useValue: {} }
       ]
     }).compileComponents();
-
     fixture = TestBed.createComponent(ConsultarDomicilioComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

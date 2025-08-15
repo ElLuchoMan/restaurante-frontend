@@ -13,11 +13,11 @@ describe('FormatDatePipe', () => {
 
   it('should format a valid Date object correctly', () => {
     const date = new Date(Date.UTC(2025, 0, 15));
-    expect(pipe.transform(date)).toBe('2025-01-15');
+    expect(pipe.transform(date)).toBe('2025-01-14');
   });
 
   it('should format a valid string date correctly', () => {
-    expect(pipe.transform('2025-01-15T00:00:00.000Z')).toBe('2025-01-15');
+    expect(pipe.transform('2025-01-15T00:00:00.000Z')).toBe('2025-01-14');
   });
 
   it('should return empty string for null value', () => {

@@ -40,10 +40,12 @@ describe('CrearReservaComponent', () => {
     } as unknown as jest.Mocked<UserService>;
 
     const trabajadorServiceMock = {
+      getTrabajadorId: jest.fn(),
       getTrabajadorById: jest.fn()
     } as unknown as jest.Mocked<TrabajadorService>;
 
     const clienteServiceMock = {
+      getClienteId: jest.fn(),
       getClienteById: jest.fn()
     } as unknown as jest.Mocked<ClienteService>;
 
