@@ -117,16 +117,12 @@ export class ConsultarDomicilioComponent implements OnInit {
       });
   }
 
-  soloUnFiltro(): boolean {
-    return [this.buscarPorDireccion, this.buscarPorTelefono, this.buscarPorFecha].filter(Boolean).length === 1;
-  }
-
-  dosFiltros(): boolean {
-    return [this.buscarPorDireccion, this.buscarPorTelefono, this.buscarPorFecha].filter(Boolean).length === 2;
-  }
-
-  tresFiltros(): boolean {
-    return [this.buscarPorDireccion, this.buscarPorTelefono, this.buscarPorFecha].filter(Boolean).length === 3;
+  countFiltros(): number {
+    return [
+      this.buscarPorDireccion,
+      this.buscarPorTelefono,
+      this.buscarPorFecha
+    ].filter(Boolean).length;
   }
   marcarEntregado(domicilio: Domicilio): void {
     this.domicilioService.updateDomicilio(domicilio.domicilioId!, { entregado: true }).subscribe(response => {
