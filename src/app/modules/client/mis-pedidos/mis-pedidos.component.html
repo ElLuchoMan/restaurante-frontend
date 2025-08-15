@@ -16,23 +16,22 @@
 
     @if (!loading && pedidos.length) {
       <div class="cards">
-        @for (p of pedidos; track p.pedidoId) {
-          <article class="pedido-card">
+        @for (p of pedidos; track p.pedidoId; let i = $index) {
+          <article class="pedido-card pedido-card--compact">
             <header class="pedido-card__header">
               <div class="pedido-card__icon" [attr.aria-label]="p.delivery ? 'Domicilio' : 'En sitio'">
                 {{ p.delivery ? '🚚' : '🍽️' }}
               </div>
 
               <div class="pedido-card__title">
-                <h3 class="pedido-card__id">Pedido #{{ p.pedidoId }}</h3>
+                <h3 class="pedido-card__id">Pedido #{{ i + 1 }}</h3>
 
                 <div class="pedido-card__tags">
-                  <span class="tag"
-                        [ngClass]="{
-                          'tag--ok': p.estadoPedido === 'TERMINADO',
-                          'tag--warn': p.estadoPedido === 'INICIADO',
-                          'tag--danger': p.estadoPedido === 'CANCELADO'
-                        }">
+                  <span class="tag" [ngClass]="{
+                    'tag--ok': p.estadoPedido === 'TERMINADO',
+                    'tag--warn': p.estadoPedido === 'INICIADO',
+                    'tag--danger': p.estadoPedido === 'CANCELADO'
+                  }">
                     {{ p.estadoPedido }}
                   </span>
 
@@ -59,7 +58,22 @@
               <div class="meta__item">
                 <span class="meta__label">Pago</span>
                 <span class="meta__value">
-                  @if (p.pagoId) { Sí } @else { Sin pago }
+                  {{ p.pagoId ? 'Sí' : 'Sin pago' }}
+                  @if (p.estadoPago) { <small class="muted">({{ p.estadoPago }})</small> }
+                </span>
+              </div>
+
+              @if (p.metodoPago) {
+                <div class="meta__item">
+                  <span class="meta__label">Método</span>
+                  <span class="meta__value">{{ p.metodoPago }}</span>
+                </div>
+              }
+
+              <div class="meta__item">
+                <span class="meta__label">Total</span>
+                <span class="meta__value">
+                  @if (p.total !== undefined) { $ {{ p.total | number:'1.0-0' }} } @else { … }
                 </span>
               </div>
 
@@ -69,14 +83,32 @@
                   @if (p.items !== undefined) { {{ p.items }} } @else { … }
                 </span>
               </div>
-
-              <div class="meta__item">
-                <span class="meta__label">Total</span>
-                <span class="meta__value">
-                  @if (p.total !== undefined) { $ {{ p.total | number:'1.0-0' }} } @else { … }
-                </span>
-              </div>
             </div>
+
+            @if (p.delivery && (p.direccion || p.telefono)) {
+              <div class="pedido-card__domi">
+                <div><strong>Dirección:</strong> {{ p.direccion || '—' }}</div>
+                <div><strong>Teléfono:</strong> {{ p.telefono || '—' }}</div>
+              </div>
+            }
+
+            @if (p.productos?.length) {
+              <div class="pedido-card__productos">
+                @for (prod of p.productos; track $index) {
+                  <div class="prod">
+                    <div class="prod__linea">
+                      <span class="prod__cant">×{{ prod.CANTIDAD ?? prod.cantidad ?? 1 }}</span>
+                      <span class="prod__nombre">{{ prod.NOMBRE ?? prod.nombre ?? 'Producto' }}</span>
+                    </div>
+                    @if (prod.SUBTOTAL ?? prod.subtotal ?? prod.PRECIO_UNITARIO ?? prod.precio) {
+                      <div class="prod__precio">
+                        $ {{ (prod.SUBTOTAL ?? prod.subtotal ?? prod.PRECIO_UNITARIO ?? prod.precio) | number:'1.0-0' }}
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
 
             <footer class="pedido-card__footer">
               <a class="btn-link" [routerLink]="['/cliente/pedido', p.pedidoId]">Ver detalle</a>

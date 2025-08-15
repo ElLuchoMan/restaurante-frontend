@@ -41,4 +41,9 @@ export class PedidoService {
     return this.http.get<ApiResponse<Pedido[]>>(this.baseUrl, { params });
   }
 
+  getPedidoDetalles(pedidoId: number): Observable<any> {
+    const params = new HttpParams().set('pedido_id', String(pedidoId));
+    return this.http.get<any>(`${this.baseUrl}/detalles`, { params });
+  }
+
 }

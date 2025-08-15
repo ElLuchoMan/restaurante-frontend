@@ -1,10 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+
 import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
 import { Pedido } from '../../../shared/models/pedido.model';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
+
+type DetallesAPI = {
+  PK_ID_PEDIDO?: number;
+  FECHA?: string;
+  HORA?: string;
+  DELIVERY?: boolean;
+  ESTADO_PEDIDO?: string;
+  METODO_PAGO?: string;
+  PRODUCTOS?: string; // viene como string JSON
+};
+
+type PedidoCard = Pedido & {
+  total?: number;
+  items?: number;
+  estadoPago?: string;
+  metodoPago?: string;
+  direccion?: string;
+  telefono?: string;
+  productos?: any[];
+};
 
 @Component({
   selector: 'app-mis-pedidos',
@@ -14,7 +37,7 @@ import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
   imports: [CommonModule, RouterModule, FormatDatePipe]
 })
 export class MisPedidosComponent implements OnInit {
-  pedidos: Array<Pedido & { total?: number; items?: number }> = [];
+  pedidos: PedidoCard[] = [];
   loading = true;
   error = '';
 
@@ -26,25 +49,92 @@ export class MisPedidosComponent implements OnInit {
   ngOnInit(): void {
     const userId = this.userService.getUserId();
 
-    this.pedidoService.getMisPedidos(userId).subscribe({
-      next: (res) => {
-        // La API devuelve en res.data un array de pedidos con:
-        // { pedidoId, fechaPedido, horaPedido, estadoPedido, pagoId, domicilioId, delivery, ... }
+    this.pedidoService.getMisPedidos(userId).pipe(
+      // 1) ordena por fecha (DD-MM-YYYY) + hora (0000-01-01 HH:mm:ss …)
+      map(res => {
         const base: Pedido[] = res?.data || [];
-
-        // Mantenemos compatibilidad: si no vienen 'total' e 'items', los dejamos undefined
-        // (el template ya muestra "…" como carga/valor no disponible).
-        this.pedidos = base.map(p => ({
-          ...p,
-          // total: p.total,  // si en algún momento backend lo agrega, se mostrará
-          // items: p.items   // idem
-        }));
-        this.loading = false;
-      },
-      error: () => {
+        return [...base].sort((a, b) => {
+          const da = this.toComparableDate(a.fechaPedido, a.horaPedido);
+          const db = this.toComparableDate(b.fechaPedido, b.horaPedido);
+          return db.getTime() - da.getTime();
+        });
+      }),
+      // 2) enriquece cada pedido con /pedidos/detalles (si falla, simplemente deja los campos como undefined)
+      switchMap(sorted =>
+        forkJoin(
+          sorted.map(p =>
+            p.pedidoId !== undefined
+              ? this.pedidoService.getPedidoDetalles(p.pedidoId).pipe(
+                  map(resp => this.mergeDetalles(p, resp?.data as DetallesAPI)),
+                  catchError(() => of(p as PedidoCard))
+                )
+              : of(p as PedidoCard)
+          )
+        )
+      ),
+      catchError(() => {
         this.error = 'No se pudieron cargar tus pedidos';
-        this.loading = false;
-      }
+        return of([] as PedidoCard[]);
+      })
+    )
+    .subscribe(peds => {
+      this.pedidos = peds;
+      this.loading = false;
     });
+  }
+
+  private mergeDetalles(p: Pedido, det?: DetallesAPI): PedidoCard {
+    if (!det) return { ...p };
+
+    // Parse de PRODUCTOS (viene como string JSON)
+    let productos: any[] | undefined;
+    try {
+      const parsed = det.PRODUCTOS ? JSON.parse(det.PRODUCTOS) : [];
+      productos = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      productos = undefined;
+    }
+
+    // total: preferir SUBTOTAL; si no, PRECIO_UNITARIO * CANTIDAD
+    const total = productos?.reduce((acc, it) => {
+      const sub = Number(it.SUBTOTAL ?? it.subtotal);
+      if (!isNaN(sub)) return acc + sub;
+      const u = Number(it.PRECIO_UNITARIO ?? it.precio ?? 0);
+      const q = Number(it.CANTIDAD ?? it.cantidad ?? 1);
+      return acc + (isNaN(u) || isNaN(q) ? 0 : u * q);
+    }, 0);
+
+    // items = cantidad de renglones
+    const items = productos?.length ?? undefined;
+
+    return {
+      ...p,
+      metodoPago: det.METODO_PAGO || undefined,
+      productos,
+      total: total !== undefined ? total : undefined,
+      items
+    };
+  }
+
+  // fecha: 'DD-MM-YYYY'; hora: '0000-01-01 HH:mm:ss +0000 UTC'
+  private toComparableDate(fecha?: string, hora?: string): Date {
+    const { y, m, d } = this.parseFechaDDMMYYYY(fecha);
+    const { hh, mm, ss } = this.parseHora(hora);
+    // Usamos UTC para evitar desfases con el sufijo " +0000 UTC" del backend
+    return new Date(Date.UTC(y, m - 1, d, hh, mm, ss));
+  }
+
+  private parseFechaDDMMYYYY(fecha?: string): { d: number; m: number; y: number } {
+    const f = (fecha || '').trim();
+    const m = f.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (m) return { d: +m[1], m: +m[2], y: +m[3] };
+    return { d: 1, m: 1, y: 1970 };
+  }
+
+  private parseHora(hora?: string): { hh: number; mm: number; ss: number } {
+    const h = (hora || '').trim();
+    const m = h.match(/(\d{2}):(\d{2}):(\d{2})/);
+    if (m) return { hh: +m[1], mm: +m[2], ss: +m[3] };
+    return { hh: 0, mm: 0, ss: 0 };
   }
 }

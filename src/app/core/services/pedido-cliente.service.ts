@@ -16,4 +16,8 @@ export class PedidoClienteService {
   create(rel: PedidoCliente): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(this.baseUrl, rel);
   }
+  /** Obtiene los pedidos de un cliente */
+  getPedidoCliente(pedidoId: number, clienteId: number): Observable<ApiResponse<PedidoCliente>> {
+    return this.http.get<ApiResponse<PedidoCliente>>(`${this.baseUrl}/${pedidoId}/${clienteId}`);
+  }
 }
