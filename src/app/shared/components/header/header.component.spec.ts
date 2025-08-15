@@ -134,8 +134,11 @@ describe('HeaderComponent', () => {
     fakeNavbar.id = 'navbarCollapse';
     fakeNavbar.classList.add('show');
     document.body.appendChild(fakeNavbar);
+    component.isBrowser = true;
+    const getElementSpy = jest.spyOn(document, 'getElementById').mockReturnValue(fakeNavbar);
     component.cerrarMenu();
     expect(fakeNavbar.classList.contains('show')).toBe(false);
+    getElementSpy.mockRestore();
     document.body.removeChild(fakeNavbar);
   });
   
