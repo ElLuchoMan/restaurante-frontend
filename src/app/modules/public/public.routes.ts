@@ -20,7 +20,8 @@ const publicRoutes: Routes = [
   { path: 'registro-cliente', component: RegisterComponent },
   {
     path: 'menu',
-    component: VerProductosComponent
+    component: VerProductosComponent,
+    title: 'Ver Productos',
   },
   {
     path: 'reservas',
@@ -30,13 +31,15 @@ const publicRoutes: Routes = [
         path: 'consultar',
         component: ConsultarReservaComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['Administrador'] }
+        data: { roles: ['Administrador', 'Cliente'] },
+        title: 'Consultar Reservas'
       },
       {
         path: 'hoy',
         component: ReservasDelDiaComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['Administrador'] }
+        data: { roles: ['Administrador'] },
+        title: 'Reservas del Día'
       },
       { path: 'crear', component: CrearReservaComponent },
     ]
@@ -48,7 +51,8 @@ const publicRoutes: Routes = [
         path: 'consultar',
         component: ConsultarDomicilioComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['Administrador', 'Domiciliario'] }
+        data: { roles: ['Administrador', 'Domiciliario'] },
+        title: 'Consultar Domicilios'
       },
     ]
   },

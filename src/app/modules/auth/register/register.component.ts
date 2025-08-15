@@ -24,6 +24,7 @@ export class RegisterComponent implements OnInit {
   nombre: string = '';
   apellido: string = '';
   direccion: string = '';
+  correo: string = '';
   password: string = '';
   esTrabajador: boolean = false;
   sueldo?: number;
@@ -102,6 +103,7 @@ export class RegisterComponent implements OnInit {
         apellido: this.apellido,
         password: this.password,
         direccion: this.direccion,
+        correo: this.correo,
         telefono: this.telefono,
         observaciones: this.observaciones,
       };

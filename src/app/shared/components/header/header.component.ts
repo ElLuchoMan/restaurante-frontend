@@ -69,7 +69,7 @@ export class HeaderComponent implements OnInit {
       menuItems.push({ label: 'Logout', route: '/logout', priority: 99 });
 
       if (this.userRole === 'Cliente') {
-        menuItems.unshift({ label: 'Perfil', route: '/perfil', priority: 7 });
+        menuItems.unshift({ label: 'Perfil', route: 'cliente/perfil', priority: 7 });
         menuItems.unshift({ label: '🛒', route: 'cliente/carrito-cliente', priority: 8 });
         menuItems = menuItems.filter(item => item.label !== 'Inicio');
         menuItems = menuItems.filter(item => item.label !== 'Ubicación');

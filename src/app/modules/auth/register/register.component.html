@@ -55,6 +55,15 @@
                             <div *ngIf="campoDireccion.invalid && campoDireccion.touched" class="text-danger">
                                 El dirección es obligatoria.
                             </div>
+                                                        <div class="form-group">
+                                <label for="correo">Correo</label>
+                                <input type="text" id="correo" name="correo" required #campoCorreo="ngModel"
+                                    [(ngModel)]="correo" required class="form-control"
+                                    placeholder="ejemplo@correo.com" />
+                            </div>
+                            <div *ngIf="campoCorreo.invalid && campoCorreo.touched" class="text-danger">
+                                El correo es obligatorio.
+                            </div>
                         </div>
                         <div *ngIf="esTrabajador">
                             <div class="form-group">

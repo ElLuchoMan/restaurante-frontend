@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-menu-reservas',
+  standalone: true,
   templateUrl: './menu-reservas.component.html',
   styleUrls: ['./menu-reservas.component.scss'],
   imports: [RouterOutlet, CommonModule]
@@ -17,14 +18,22 @@ export class MenuReservasComponent implements OnInit {
   constructor(private router: Router, private userService: UserService) {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        this.mostrarMenu = event.urlAfterRedirects === '/reservas';
+        const url = event.urlAfterRedirects.split('?')[0];
+        this.mostrarMenu = url === '/reservas' || url === '/reservas/';
       }
     });
   }
+
   ngOnInit(): void {
     this.rol = this.userService.getUserRole() || null;
     this.esAdmin = this.rol === 'Administrador';
-    !this.esAdmin ? this.irA('crear') : null;
+
+    const currentUrl = this.router.url.split('?')[0];
+    this.mostrarMenu = currentUrl === '/reservas' || currentUrl === '/reservas/';
+
+    if (!this.esAdmin && this.mostrarMenu) {
+      this.irA('crear');
+    }
   }
 
   irA(ruta: string) {

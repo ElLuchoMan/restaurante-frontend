@@ -6,4 +6,5 @@ export interface Cliente {
     telefono: string;
     observaciones: string;
     password: string;
+    correo: string;
 }

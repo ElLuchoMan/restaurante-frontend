@@ -1,85 +1,128 @@
-<div class="container">
-    <h1 class="text-center mb-4">Buscar Reservas</h1>
-    <div class="form-card-bg p-4">
-        <div class="filtro-container">
-            <label><strong>Buscar por:</strong></label>
-            <div class="custom-control custom-checkbox mx-2">
-                <input class="custom-control-input" type="checkbox" id="busquedaDocumento"
-                    [(ngModel)]="buscarPorDocumento" (change)="actualizarTipoBusqueda()">
-                <label class="custom-control-label" for="busquedaDocumento">Documento</label>
-            </div>
-            <div class="custom-control custom-checkbox mx-2">
-                <input class="custom-control-input" type="checkbox" id="busquedaFecha" [(ngModel)]="buscarPorFecha"
-                    (change)="actualizarTipoBusqueda()">
-                <label class="custom-control-label" for="busquedaFecha">Fecha</label>
-            </div>
-        </div>
-        <div class="d-flex align-items-center mt-3">
-            <div class="form-group flex-grow-1 mr-2" *ngIf="buscarPorDocumento">
-                <input type="number" id="documentoCliente" name="documentoCliente" class="form-control"
-                    [(ngModel)]="documentoCliente" placeholder="1000000000" />
-            </div>
+<div class="container mt-4">
+  <h1 class="text-center mb-4">
+    {{ esAdmin ? 'Buscar Reservas' : 'Mis reservas' }}
+  </h1>
 
-            <div class="form-group flex-grow-1 mr-2" *ngIf="buscarPorFecha">
-                <input type="date" id="fechaReserva" name="fechaReserva" class="form-control"
-                    [(ngModel)]="fechaReserva" />
-            </div>
+  <div class="form-card-bg p-4" *ngIf="mostrarFiltros">
+    <div class="filtro-container">
+      <label><strong>Buscar por:</strong></label>
 
-            <button class="btn-no-bg tooltip-btn search" *ngIf="buscarPorDocumento || buscarPorFecha"
-                (click)="buscarReserva()" data-tooltip="Buscar Reservas">
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
+      <div class="custom-control custom-checkbox mx-2">
+        <input
+          class="custom-control-input"
+          type="checkbox"
+          id="busquedaDocumento"
+          [(ngModel)]="buscarPorDocumento"
+          (change)="actualizarTipoBusqueda()"
+        />
+        <label class="custom-control-label" for="busquedaDocumento">Documento</label>
+      </div>
+
+      <div class="custom-control custom-checkbox mx-2">
+        <input
+          class="custom-control-input"
+          type="checkbox"
+          id="busquedaFecha"
+          [(ngModel)]="buscarPorFecha"
+          (change)="actualizarTipoBusqueda()"
+        />
+        <label class="custom-control-label" for="busquedaFecha">Fecha</label>
+      </div>
     </div>
 
-    <div class="form-card-bg p-4 mt-4" *ngIf="reservas.length > 0">
-        <h2 class="text-center mb-4">Resultados</h2>
-        <div class="table-container">
-            <table class="table table-bordered text-center">
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Teléfono</th>
-                        <th>Personas</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let reserva of reservas">
-                        <td>{{ reserva.nombreCompleto }}</td>
-                        <td>{{ reserva.telefono }}</td>
-                        <td>{{ reserva.personas }}</td>
-                        <td>{{ reserva.fechaReserva }}</td>
-                        <td>{{ reserva.horaReserva }}</td>
-                        <td>
-                            <span class="badge" [ngClass]="{
-                                'badge-warning': reserva.estadoReserva === 'PENDIENTE',
-                                'badge-success': reserva.estadoReserva === 'CONFIRMADA',
-                                'badge-secondary': reserva.estadoReserva === 'CUMPLIDA',
-                                'badge-danger': reserva.estadoReserva === 'CANCELADA'}">
-                                {{ reserva.estadoReserva }}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn-no-bg tooltip-btn text-info" (click)="confirmarReserva(reserva)"
-                                data-tooltip="Confirmar Reserva">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button class="btn-no-bg tooltip-btn text-danger" (click)="cancelarReserva(reserva)"
-                                data-tooltip="Cancelar Reserva">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <div class="d-flex align-items-center mt-3">
+      <div class="form-group flex-grow-1 mr-2" *ngIf="buscarPorDocumento">
+        <input
+          type="number"
+          id="documentoCliente"
+          name="documentoCliente"
+          class="form-control"
+          [(ngModel)]="documentoCliente"
+          placeholder="1000000000"
+        />
+      </div>
 
-    <div class="alert alert-info text-center mt-4" *ngIf="mostrarMensaje && reservas.length === 0">
-        No se han encontrado reservas con los criterios seleccionados.
+      <div class="form-group flex-grow-1 mr-2" *ngIf="buscarPorFecha">
+        <input
+          type="date"
+          id="fechaReserva"
+          name="fechaReserva"
+          class="form-control"
+          [(ngModel)]="fechaReserva"
+        />
+      </div>
+
+      <button
+        class="btn-no-bg tooltip-btn search"
+        *ngIf="buscarPorDocumento || buscarPorFecha"
+        (click)="buscarReserva()"
+        data-tooltip="Buscar Reservas"
+      >
+        <i class="fas fa-search"></i>
+      </button>
     </div>
+  </div>
+
+  <div class="form-card-bg p-4 mt-4" *ngIf="reservas.length > 0">
+    <h2 class="text-center mb-4">Resultados</h2>
+
+    <div class="table-container">
+      <table class="table table-bordered text-center">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Teléfono</th>
+            <th>Personas</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th *ngIf="esAdmin">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let reserva of reservas">
+            <td>{{ reserva.nombreCompleto }}</td>
+            <td>{{ reserva.telefono }}</td>
+            <td>{{ reserva.personas }}</td>
+            <td>{{ reserva.fechaReserva }}</td>
+            <td>{{ reserva.horaReserva }}</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'badge-warning': reserva.estadoReserva === 'PENDIENTE',
+                  'badge-success': reserva.estadoReserva === 'CONFIRMADA',
+                  'badge-secondary': reserva.estadoReserva === 'CUMPLIDA',
+                  'badge-danger': reserva.estadoReserva === 'CANCELADA'
+                }"
+              >
+                {{ reserva.estadoReserva }}
+              </span>
+            </td>
+
+            <td *ngIf="esAdmin">
+              <button
+                class="btn-no-bg tooltip-btn text-info"
+                (click)="confirmarReserva(reserva)"
+                data-tooltip="Confirmar Reserva"
+              >
+                <i class="fas fa-check"></i>
+              </button>
+              <button
+                class="btn-no-bg tooltip-btn text-danger"
+                (click)="cancelarReserva(reserva)"
+                data-tooltip="Cancelar Reserva"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="alert alert-info text-center mt-4" *ngIf="mostrarMensaje && reservas.length === 0">
+    No se han encontrado reservas con los criterios seleccionados.
+  </div>
 </div>

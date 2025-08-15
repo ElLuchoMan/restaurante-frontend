@@ -1,0 +1,75 @@
+<div class="container-fluid mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <h1 class="text-center mb-4">Mi Perfil</h1>
+      <div class="form-card-bg">
+        <section class="perfil">
+          <div class="perfil__container">
+            <header class="perfil__header">
+              <div class="perfil__avatar" aria-hidden="true">👤</div>
+
+              <div class="perfil__titles">
+                <h1 class="perfil__title">
+                  {{ nombre }}
+                  <span class="badge badge--ok" *ngIf="observaciones">
+                    {{ observaciones }}
+                  </span>
+                </h1>
+                <p class="perfil__subtitle">Esta es tu información personal que tenemos registrada</p>
+              </div>
+            </header>
+
+            <div class="perfil__panel">
+              <div class="perfil__row">
+                <div class="chip">
+                  <span class="chip__label">Documento</span>
+                  <span class="chip__value">{{ documento || '—' }}</span>
+                </div>
+
+                <div class="chip">
+                  <span class="chip__label">Teléfono</span>
+                  <span class="chip__value">{{ telefono || 'No registrado' }}</span>
+                </div>
+
+                <div class="chip">
+                  <span class="chip__label">Dirección</span>
+                  <span class="chip__value">{{ direccion || 'No registrada' }}</span>
+                </div>
+                <div class="chip">
+                  <span class="chip__label">Correo</span>
+                  <span class="chip__value">{{ correo || 'No registrada' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="perfil__grid">
+              <a class="card" routerLink="/cliente/mis-pedidos" aria-label="Ir a mis pedidos">
+                <div class="card__icon">🧾</div>
+                <div class="card__title">Mis pedidos</div>
+                <p class="card__text">Consulta tu historial y el estado de tus órdenes.</p>
+                <span class="card__cta">Ver pedidos</span>
+              </a>
+              <a class="card" routerLink="/reservas/consultar" aria-label="Ir a mis reservas">
+                <div class="card__icon">📅</div>
+                <div class="card__title">Mis reservas</div>
+                <p class="card__text">Ver y gestionar tus reservas.</p>
+                <span class="card__cta">Ver reservas</span>
+              </a>
+              <div class="card card--disabled" title="Próximamente" aria-disabled="true">
+                <div class="card__icon">👤</div>
+                <div class="card__title">Datos personales</div>
+                <p class="card__text">Próximamente podrás editar tus datos.</p>
+                <span class="card__cta">Próximamente</span>
+              </div>
+            </div>
+            <div class="state" *ngIf="cargando || errorCargando">
+              <div class="state__box" *ngIf="cargando">Cargando tu perfil…</div>
+              <div class="state__box" *ngIf="!cargando && errorCargando">
+                No pudimos cargar tus datos. Se mostrarán valores por defecto.
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
