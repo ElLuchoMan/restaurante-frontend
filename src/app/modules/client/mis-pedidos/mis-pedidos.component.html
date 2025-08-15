@@ -1,39 +1,89 @@
-<div class="container mt-4">
-    <h2>Mis pedidos</h2>
+<div class="container-fluid mt-4">
+  <div class="container">
+    <h1 class="text-center mb-4">Mis pedidos</h1>
 
-    <div *ngIf="loading" class="text-center">
-        Cargando pedidos…
-    </div>
-    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+    @if (loading) {
+      <div class="text-center text-muted">Cargando pedidos…</div>
+    }
 
-    <table *ngIf="!loading && pedidos.length" class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Estado</th>
-                <th>Pago</th>
-                <th>Delivery</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let p of pedidos">
-                <td>{{ p.pedidoId }}</td>
-                <td>{{ p.fechaPedido | formatDate: 'date' }}</td>
-                <td>{{ p.horaPedido | formatDate: 'time' }}</td>
-                <td>{{ p.estadoPedido }}</td>
-                <td>{{ p.pagoId }}</td>
-                <td>{{ p.domicilioId ? 'Sí' : 'No' }}</td>
-                <td>
-                    <a [routerLink]="['/cliente/pedido', p.pedidoId]">Ver detalle</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    @if (error) {
+      <div class="alert alert-danger">{{ error }}</div>
+    }
 
-    <div *ngIf="!loading && !pedidos.length" class="alert alert-info">
-        Aún no tienes pedidos.
-    </div>
+    @if (!loading && !error && (!pedidos || pedidos.length === 0)) {
+      <div class="alert alert-info">Aún no tienes pedidos.</div>
+    }
+
+    @if (!loading && pedidos.length) {
+      <div class="cards">
+        @for (p of pedidos; track p.pedidoId) {
+          <article class="pedido-card">
+            <header class="pedido-card__header">
+              <div class="pedido-card__icon" [attr.aria-label]="p.delivery ? 'Domicilio' : 'En sitio'">
+                {{ p.delivery ? '🚚' : '🍽️' }}
+              </div>
+
+              <div class="pedido-card__title">
+                <h3 class="pedido-card__id">Pedido #{{ p.pedidoId }}</h3>
+
+                <div class="pedido-card__tags">
+                  <span class="tag"
+                        [ngClass]="{
+                          'tag--ok': p.estadoPedido === 'TERMINADO',
+                          'tag--warn': p.estadoPedido === 'INICIADO',
+                          'tag--danger': p.estadoPedido === 'CANCELADO'
+                        }">
+                    {{ p.estadoPedido }}
+                  </span>
+
+                  @if (p.delivery) {
+                    <span class="tag">Domicilio</span>
+                  } @else {
+                    <span class="tag tag--muted">En restaurante</span>
+                  }
+                </div>
+              </div>
+            </header>
+
+            <div class="pedido-card__meta">
+              <div class="meta__item">
+                <span class="meta__label">Fecha</span>
+                <span class="meta__value">{{ p.fechaPedido | formatDate:'date' }}</span>
+              </div>
+
+              <div class="meta__item">
+                <span class="meta__label">Hora</span>
+                <span class="meta__value">{{ p.horaPedido | formatDate:'time' }}</span>
+              </div>
+
+              <div class="meta__item">
+                <span class="meta__label">Pago</span>
+                <span class="meta__value">
+                  @if (p.pagoId) { Sí } @else { Sin pago }
+                </span>
+              </div>
+
+              <div class="meta__item">
+                <span class="meta__label">Productos</span>
+                <span class="meta__value">
+                  @if (p.items !== undefined) { {{ p.items }} } @else { … }
+                </span>
+              </div>
+
+              <div class="meta__item">
+                <span class="meta__label">Total</span>
+                <span class="meta__value">
+                  @if (p.total !== undefined) { $ {{ p.total | number:'1.0-0' }} } @else { … }
+                </span>
+              </div>
+            </div>
+
+            <footer class="pedido-card__footer">
+              <a class="btn-link" [routerLink]="['/cliente/pedido', p.pedidoId]">Ver detalle</a>
+            </footer>
+          </article>
+        }
+      </div>
+    }
+  </div>
 </div>
