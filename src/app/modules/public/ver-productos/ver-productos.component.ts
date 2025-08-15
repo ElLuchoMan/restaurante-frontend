@@ -42,32 +42,27 @@ export class VerProductosComponent implements OnInit {
 
 
   obtenerProductos(): void {
-    this.productoService.getProductos({ onlyActive: true, includeImage: true }).subscribe(response => {
-      if (response.data) {
-        this.productos = response.data;
-      } else {
-        this.mensaje = response.message;
-      }
-    });
-    this.productoService.getProductos({ onlyActive: true, includeImage: true }).subscribe(response => {
-      if (response.data) {
-        this.productos = response.data;
+    this.productoService
+      .getProductos({ onlyActive: true, includeImage: true })
+      .subscribe(response => {
+        if (response.data) {
+          this.productos = response.data;
 
-        // Extraer categorías únicas
-        const categoriasSet = new Set<string>();
-        const subcategoriasSet = new Set<string>();
+          // Extraer categorías y subcategorías únicas
+          const categoriasSet = new Set<string>();
+          const subcategoriasSet = new Set<string>();
 
-        this.productos.forEach(p => {
-          if (p.categoria) categoriasSet.add(p.categoria);
-          if (p.subcategoria) subcategoriasSet.add(p.subcategoria);
-        });
+          this.productos.forEach(p => {
+            if (p.categoria) categoriasSet.add(p.categoria);
+            if (p.subcategoria) subcategoriasSet.add(p.subcategoria);
+          });
 
-        this.categorias = Array.from(categoriasSet);
-        this.subcategorias = Array.from(subcategoriasSet);
-      } else {
-        this.mensaje = response.message;
-      }
-    });
+          this.categorias = Array.from(categoriasSet);
+          this.subcategorias = Array.from(subcategoriasSet);
+        } else {
+          this.mensaje = response.message;
+        }
+      });
   }
   actualizarSubcategorias(): void {
     const set = new Set<string>();
