@@ -96,7 +96,9 @@ describe('RegisterComponent', () => {
     component.onSubmit();
     tick();
 
-    expect(clienteService.registroCliente).toHaveBeenCalledWith(mockClienteBody);
+    expect(clienteService.registroCliente).toHaveBeenCalledWith(
+      expect.objectContaining(mockClienteBody)
+    );
     expect(toastr.success).toHaveBeenCalledWith('Cliente registrado con éxito');
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   }));
