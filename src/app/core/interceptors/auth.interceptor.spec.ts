@@ -34,7 +34,7 @@ describe('authInterceptor', () => {
     interceptor(request, next);
 
     const modifiedRequest = next.mock.calls[0][0];
-    expect(modifiedRequest.headers.get('Authorization')).toBe(token);
+    expect(modifiedRequest.headers.get('Authorization')).toBe(`Bearer ${token}`);
   });
 
   it('should not modify request if validToken is not present', () => {
