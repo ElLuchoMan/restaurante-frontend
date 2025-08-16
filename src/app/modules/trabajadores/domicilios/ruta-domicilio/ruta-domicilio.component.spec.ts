@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RutaDomicilioComponent } from './ruta-domicilio.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -8,14 +8,12 @@ import { ModalService } from '../../../../core/services/modal.service';
 import { ToastrService } from 'ngx-toastr';
 import { estadoPago } from '../../../../shared/constants';
 import { mockDomicilioRespone } from './../../../../shared/mocks/domicilio.mock';
-import { FakeDomSanitizer } from '../../../../shared/mocks/fakeDomSanitizer';
 
 describe('RutaDomicilioComponent', () => {
   let component: RutaDomicilioComponent;
   let fixture: ComponentFixture<RutaDomicilioComponent>;
   let activatedRoute: ActivatedRoute;
   let router: jest.Mocked<Router>;
-  let sanitizer: DomSanitizer;
   let domicilioService: jest.Mocked<DomicilioService>;
   let modalService: jest.Mocked<ModalService>;
   let toastrService: jest.Mocked<ToastrService>;
@@ -69,7 +67,7 @@ describe('RutaDomicilioComponent', () => {
       imports: [RutaDomicilioComponent],
       providers: [
         { provide: ActivatedRoute, useValue: activatedRouteMock },
-        { provide: DomSanitizer, useValue: FakeDomSanitizer },
+        { provide: DomSanitizer, useValue: sanitizerMock },
         { provide: DomicilioService, useValue: domicilioServiceMock },
         { provide: ModalService, useValue: modalServiceMock },
         { provide: ToastrService, useValue: toastrServiceMock },
@@ -80,13 +78,17 @@ describe('RutaDomicilioComponent', () => {
     fixture = TestBed.createComponent(RutaDomicilioComponent);
     component = fixture.componentInstance;
     activatedRoute = TestBed.inject(ActivatedRoute);
-    sanitizer = TestBed.inject(DomSanitizer);
     domicilioService = TestBed.inject(DomicilioService) as jest.Mocked<DomicilioService>;
     modalService = TestBed.inject(ModalService) as jest.Mocked<ModalService>;
     toastrService = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
 
-    fixture.detectChanges();
+    component.ngOnInit();
+  });
+
+  it('should generate map urls on init', () => {
+    expect(component.ubicacionUrl).toBeDefined();
+    expect(component.googleMapsUrl).toContain('https://www.google.com/maps/dir/');
   });
 
   it('should mark domicilio as finalizado when marcarFinalizado is called', () => {
@@ -102,6 +104,13 @@ describe('RutaDomicilioComponent', () => {
     console.error = jest.fn();
     component.marcarFinalizado();
     expect(console.error).toHaveBeenCalledWith('Error al marcar finalizado', errorResponse);
+  });
+
+  it('should log error when domicilioId is missing in marcarFinalizado', () => {
+    component.domicilioId = 0;
+    console.error = jest.fn();
+    component.marcarFinalizado();
+    expect(console.error).toHaveBeenCalledWith('No se encontró el ID del domicilio.');
   });
 
   describe('marcarPago', () => {
@@ -145,10 +154,77 @@ describe('RutaDomicilioComponent', () => {
       config.buttons[0].action();
       expect(toastrService.error).toHaveBeenCalledWith('Error al marcar como pagado');
     });
+
+    it('should close modal when cancel button is clicked', () => {
+      modalService.getModalData.mockReturnValue({
+        select: { selected: 'NEQUI' }
+      });
+      component.marcarPago();
+      const config = modalService.openModal.mock.calls[0][0];
+      config.buttons[1].action();
+      expect(modalService.closeModal).toHaveBeenCalled();
+    });
+  });
+
+  it('should log error when domicilioId is missing in marcarPago', () => {
+    component.domicilioId = 0;
+    console.error = jest.fn();
+    component.marcarPago();
+    expect(console.error).toHaveBeenCalledWith('No se encontró el ID del domicilio.');
   });
 
   it('should navigate to "/trabajador/domicilios/tomar" when volver is called', () => {
     component.volver();
     expect(router.navigate).toHaveBeenCalledWith(['/trabajador/domicilios/tomar']);
+  });
+});
+
+describe('RutaDomicilioComponent with default params', () => {
+  let component: RutaDomicilioComponent;
+  let fixture: ComponentFixture<RutaDomicilioComponent>;
+
+  beforeEach(async () => {
+    const activatedRouteMock = {
+      queryParams: of({})
+    };
+
+    const sanitizerMock = {
+      bypassSecurityTrustResourceUrl: jest.fn((url: string) => {
+        return {
+          toString: () => url,
+          changingThisBreaksApplicationSecurity: url
+        } as unknown as SafeResourceUrl;
+      }),
+      sanitize: jest.fn((context: any, value: SafeResourceUrl) => {
+        return (value as any).toString();
+      })
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [RutaDomicilioComponent],
+      providers: [
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
+        { provide: DomSanitizer, useValue: sanitizerMock },
+        { provide: DomicilioService, useValue: { updateDomicilio: jest.fn() } },
+        { provide: ModalService, useValue: { openModal: jest.fn(), getModalData: jest.fn(), closeModal: jest.fn() } },
+        { provide: ToastrService, useValue: { success: jest.fn(), error: jest.fn() } },
+        { provide: Router, useValue: { navigate: jest.fn() } }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(RutaDomicilioComponent);
+    component = fixture.componentInstance;
+    const spyRuta = jest.spyOn(component, 'generarRuta');
+    const spyUrl = jest.spyOn(component, 'generarUrlGoogleMaps');
+    component.ngOnInit();
+    expect(spyRuta).toHaveBeenCalled();
+    expect(spyUrl).toHaveBeenCalled();
+  });
+
+  it('should use default values when query params are missing', () => {
+    expect(component.direccionCliente).toBe('Calle 100 # 13 - 55, Bogotá, Colombia');
+    expect(component.telefonoCliente).toBe('No disponible');
+    expect(component.observaciones).toBe('Sin observaciones');
+    expect(component.domicilioId).toBe(0);
   });
 });
