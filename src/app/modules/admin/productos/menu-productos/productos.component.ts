@@ -5,6 +5,7 @@ import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-productos',
+  standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './productos.component.html',
   styleUrl: './productos.component.scss'

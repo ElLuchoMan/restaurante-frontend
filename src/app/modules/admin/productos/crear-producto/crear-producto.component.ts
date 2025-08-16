@@ -9,6 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-crear-producto',
+  standalone: true,
   templateUrl: './crear-producto.component.html',
   styleUrls: ['./crear-producto.component.scss'],
   imports: [CommonModule, FormsModule]

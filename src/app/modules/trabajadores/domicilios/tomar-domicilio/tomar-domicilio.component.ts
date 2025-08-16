@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-tomar-domicilio',
+  standalone: true,
   templateUrl: './tomar-domicilio.component.html',
   styleUrls: ['./tomar-domicilio.component.scss'],
   imports: [CommonModule, FormsModule]
