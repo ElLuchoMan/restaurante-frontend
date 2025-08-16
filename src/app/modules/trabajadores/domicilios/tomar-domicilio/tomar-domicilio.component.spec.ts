@@ -182,7 +182,7 @@ describe('TomarDomicilioComponent', () => {
 
     component.irARuta(domicilio);
     expect(navigateSpy).toHaveBeenCalledWith(
-      ['trabajador/domicilios/ruta-domicilio'],
+      ['/trabajador', 'domicilios', 'ruta-domicilio'],
       {
         queryParams: {
           direccion: 'Street',
@@ -208,7 +208,7 @@ describe('TomarDomicilioComponent', () => {
 
     component.irARuta(sinObs);
     expect(navigateSpy).toHaveBeenCalledWith(
-      ['trabajador/domicilios/ruta-domicilio'],
+      ['/trabajador', 'domicilios', 'ruta-domicilio'],
       {
         queryParams: {
           direccion: 'A',
