@@ -1,7 +1,7 @@
 import { clientRoutes } from './client.routes';
 import { CarritoComponent } from './carrito/carrito.component';
 import { MisPedidosComponent } from './mis-pedidos/mis-pedidos.component';
-import { PerfilComponent } from './perfil/perfil';
+import { PerfilComponent } from './perfil/perfil.component';
 import { AuthGuard } from '../../core/guards/auth.guard';
 import { RoleGuard } from '../../core/guards/role.guard';
 

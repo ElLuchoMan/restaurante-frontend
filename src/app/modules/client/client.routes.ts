@@ -3,7 +3,7 @@ import { AuthGuard } from '../../core/guards/auth.guard';
 import { RoleGuard } from '../../core/guards/role.guard';
 import { CarritoComponent } from './carrito/carrito.component';
 import { MisPedidosComponent } from './mis-pedidos/mis-pedidos.component';
-import { PerfilComponent } from './perfil/perfil';
+import { PerfilComponent } from './perfil/perfil.component';
 
 export const clientRoutes: Routes = [
     {
