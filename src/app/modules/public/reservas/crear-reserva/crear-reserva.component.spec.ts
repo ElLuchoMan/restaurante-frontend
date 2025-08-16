@@ -309,7 +309,7 @@ describe('CrearReservaComponent', () => {
   });
   it('should set userId to 0 when getUserId returns null', () => {
     component.rol = 'Otro';
-    userService.getUserId.mockReturnValue(0);
+    userService.getUserId.mockReturnValue(null);
     component.fechaReserva = "2025-02-06";
     component.horaReserva = "10:00";
     component.personas = "3";
