@@ -1,6 +1,8 @@
 @use '../../../../assets/styles.scss' as *;
 
-.container { max-width: 960px; }
+.container {
+  max-width: 960px;
+}
 
 .cards {
   display: grid;
@@ -19,7 +21,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
   }
 }
 
@@ -41,10 +43,22 @@
   background: $white;
 }
 
-.pedido-card__title { display: grid; gap: 4px; }
-.pedido-card__id { margin: 0; font-weight: 700; color: $secondary; }
+.pedido-card__title {
+  display: grid;
+  gap: 4px;
+}
 
-.pedido-card__tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.pedido-card__id {
+  margin: 0;
+  font-weight: 700;
+  color: $secondary;
+}
+
+.pedido-card__tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
 .tag {
   display: inline-block;
@@ -56,11 +70,31 @@
   color: $dark;
 }
 
-.tag--ok { color: $success; border-color: $success; background: rgba(17, 228, 10, 0.06); }
-.tag--warn { color: $warning; border-color: $warning; background: rgba(255, 193, 7, .1); }
-.tag--danger { color: $danger; border-color: $danger; background: rgba(220, 53, 69, .08); }
-.tag--muted { color: $primary; border-color: $primary; background: rgba(0,0,0,.03); }
+.tag--ok {
+  color: $success;
+  border-color: $success;
+  background: rgba(17, 228, 10, 0.06);
+}
 
+.tag--warn {
+  color: $warning;
+  border-color: $warning;
+  background: rgba(255, 193, 7, .1);
+}
+
+.tag--danger {
+  color: $danger;
+  border-color: $danger;
+  background: rgba(220, 53, 69, .08);
+}
+
+.tag--muted {
+  color: $primary;
+  border-color: $primary;
+  background: rgba(0, 0, 0, .03);
+}
+
+/* Meta base */
 .pedido-card__meta {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -69,15 +103,25 @@
 
 .meta__item {
   display: grid;
-  gap: 2px;
+  gap: 1px;
   padding: 8px 10px;
-  border: 1px solid $quaternary;
-  border-radius: 12px;
-  background: rgba(0,0,0,.02);
+  background: rgba(0, 0, 0, .02);
 }
 
-.meta__label { font-size: .85rem; opacity: .7; }
-.meta__value { font-weight: 600; }
+.meta__label {
+  font-size: .75rem;
+  opacity: .7;
+}
+
+.meta__value {
+  font-weight: 600;
+}
+
+/* Ajuste “simple”: menos densidad visual */
+.meta--simple .meta__item {
+  padding: 6px 8px;
+  border-radius: 10px;
+}
 
 .pedido-card__footer {
   display: flex;

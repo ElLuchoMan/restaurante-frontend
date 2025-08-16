@@ -44,7 +44,7 @@ export class MisPedidosComponent implements OnInit {
   constructor(
     private pedidoService: PedidoService,
     private userService: UserService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const userId = this.userService.getUserId();
@@ -65,9 +65,9 @@ export class MisPedidosComponent implements OnInit {
           sorted.map(p =>
             p.pedidoId !== undefined
               ? this.pedidoService.getPedidoDetalles(p.pedidoId).pipe(
-                  map(resp => this.mergeDetalles(p, resp?.data as DetallesAPI)),
-                  catchError(() => of(p as PedidoCard))
-                )
+                map(resp => this.mergeDetalles(p, resp?.data as DetallesAPI)),
+                catchError(() => of(p as PedidoCard))
+              )
               : of(p as PedidoCard)
           )
         )
@@ -77,10 +77,10 @@ export class MisPedidosComponent implements OnInit {
         return of([] as PedidoCard[]);
       })
     )
-    .subscribe(peds => {
-      this.pedidos = peds;
-      this.loading = false;
-    });
+      .subscribe(peds => {
+        this.pedidos = peds;
+        this.loading = false;
+      });
   }
 
   private mergeDetalles(p: Pedido, det?: DetallesAPI): PedidoCard {
