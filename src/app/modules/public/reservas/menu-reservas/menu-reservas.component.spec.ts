@@ -16,7 +16,8 @@ describe('MenuReservasComponent', () => {
     eventsSubject = new Subject<any>();
     const routerMock = {
       navigate: jest.fn(),
-      events: eventsSubject.asObservable()
+      events: eventsSubject.asObservable(),
+      url: '/reservas',
     } as unknown as jest.Mocked<Router>;
 
     const userServiceMock = {

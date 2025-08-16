@@ -8,12 +8,20 @@ import { CommonModule } from '@angular/common';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { estadoReserva } from '../../../../shared/constants';
-import { mockReserva, mockReservaResponse, mockReservasDelDiaResponse, mockReservaUpdateResponse, mockReservasUnordered } from '../../../../shared/mocks/reserva.mocks';
+import {
+  mockReserva,
+  mockReservaResponse,
+  mockReservasDelDiaResponse,
+  mockReservaUpdateResponse,
+  mockReservasUnordered,
+} from '../../../../shared/mocks/reserva.mocks';
+import { UserService } from '../../../../core/services/user.service';
 describe('ConsultarReservaComponent', () => {
   let component: ConsultarReservaComponent;
   let fixture: ComponentFixture<ConsultarReservaComponent>;
   let reservaService: jest.Mocked<ReservaService>;
   let toastr: jest.Mocked<ToastrService>;
+  let userService: jest.Mocked<UserService>;
 
   beforeEach(async () => {
     const reservaServiceMock = {
@@ -27,18 +35,25 @@ describe('ConsultarReservaComponent', () => {
       error: jest.fn()
     } as unknown as jest.Mocked<ToastrService>;
 
+    const userServiceMock = {
+      getUserRole: jest.fn().mockReturnValue('Administrador'),
+      getUserId: jest.fn().mockReturnValue(123456),
+    } as unknown as jest.Mocked<UserService>;
+
     await TestBed.configureTestingModule({
       imports: [ConsultarReservaComponent, FormsModule, CommonModule],
       providers: [
         { provide: ReservaService, useValue: reservaServiceMock },
-        { provide: ToastrService, useValue: toastrMock }
-      ]
+        { provide: ToastrService, useValue: toastrMock },
+        { provide: UserService, useValue: userServiceMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ConsultarReservaComponent);
     component = fixture.componentInstance;
     reservaService = TestBed.inject(ReservaService) as jest.Mocked<ReservaService>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
+    userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
 
     fixture.detectChanges();
   });
