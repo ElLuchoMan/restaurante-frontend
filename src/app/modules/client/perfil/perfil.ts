@@ -36,7 +36,7 @@ export class PerfilComponent implements OnInit {
     this.documento = this.userService.getUserId();
 
     // Si no hay documento en el token → sesión inválida
-    if (!this.documento || this.documento === 0) {
+      if (!this.documento) {
       this.router.navigate(['/login']);
       return;
     }
@@ -51,7 +51,8 @@ export class PerfilComponent implements OnInit {
         const data = response?.data ?? null;
         this.direccion = data?.direccion ?? 'No registrada';
         this.telefono = data?.telefono ?? 'No registrado';
-        this.observaciones = data?.observaciones === 'Cliente frecuente' ? data?.observaciones ?? '' : '';
+        this.observaciones =
+          data?.observaciones === 'Cliente frecuente' ? 'Cliente frecuente' : '';
         this.correo = data?.correo ?? 'No registrado';
         this.cargando = false;
         this.errorCargando = false;
