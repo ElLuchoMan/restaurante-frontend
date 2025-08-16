@@ -9,8 +9,8 @@ import { ToastrService } from 'ngx-toastr';
   selector: 'app-perfil',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  templateUrl: './perfil.html',
-  styleUrls: ['./perfil.scss'],
+  templateUrl: './perfil.component.html',
+  styleUrls: ['./perfil.component.scss'],
 })
 export class PerfilComponent implements OnInit {
   private router = inject(Router);

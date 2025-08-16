@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
-import { PerfilComponent } from './perfil';
+import { PerfilComponent } from './perfil.component';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastrService } from 'ngx-toastr';
