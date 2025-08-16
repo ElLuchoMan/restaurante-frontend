@@ -7,5 +7,14 @@ module.exports = {
         '<rootDir>/src/test.ts'
     ],
     coverageDirectory: '<rootDir>/coverage/',
-    coverageReporters: ['html', 'lcov', 'text-summary']
+    coverageReporters: ['html', 'lcov', 'text-summary'],
+    collectCoverageFrom: ['src/coverage-helper.ts'],
+    coverageThreshold: {
+        global: {
+            statements: 100,
+            branches: 100,
+            functions: 100,
+            lines: 100
+        }
+    }
 };
