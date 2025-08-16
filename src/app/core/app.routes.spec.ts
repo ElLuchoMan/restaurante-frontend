@@ -2,28 +2,36 @@ import { routes } from './app.routes';
 import { PageNotFoundComponent } from '../modules/public/page-not-found/page-not-found.component';
 
 describe('App Routes', () => {
-  it('should contain root route', () => {
-    expect(routes).toContainEqual(
-      expect.objectContaining({ path: '', loadChildren: expect.any(Function) })
-    );
+  it('should load the public module for root route', async () => {
+    const route = routes.find((r) => r.path === '');
+    expect(route).toBeDefined();
+
+    const module = await (route!.loadChildren as () => Promise<any>)();
+    expect(module.name).toBe('PublicModule');
   });
 
-  it('should contain admin module route', () => {
-    expect(routes).toContainEqual(
-      expect.objectContaining({ path: 'admin', loadChildren: expect.any(Function) })
-    );
+  it('should load the admin module', async () => {
+    const route = routes.find((r) => r.path === 'admin');
+    expect(route).toBeDefined();
+
+    const module = await (route!.loadChildren as () => Promise<any>)();
+    expect(module.name).toBe('AdminModule');
   });
 
-  it('should contain trabajador module route', () => {
-    expect(routes).toContainEqual(
-      expect.objectContaining({ path: 'trabajador', loadChildren: expect.any(Function) })
-    );
+  it('should load the trabajadores module', async () => {
+    const route = routes.find((r) => r.path === 'trabajador');
+    expect(route).toBeDefined();
+
+    const module = await (route!.loadChildren as () => Promise<any>)();
+    expect(module.name).toBe('TrabajadoresModule');
   });
 
-  it('should contain client module route', () => {
-    expect(routes).toContainEqual(
-      expect.objectContaining({ path: 'cliente', loadChildren: expect.any(Function) })
-    );
+  it('should load the client module', async () => {
+    const route = routes.find((r) => r.path === 'cliente');
+    expect(route).toBeDefined();
+
+    const module = await (route!.loadChildren as () => Promise<any>)();
+    expect(module.name).toBe('ClientModule');
   });
 
   it('should contain not-found route', () => {
