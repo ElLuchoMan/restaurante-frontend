@@ -59,7 +59,7 @@ describe('RoleGuard', () => {
 
     expect(result).toBe(false);
     expect(toastr.error).toHaveBeenCalledWith('No tienes permisos para acceder a esta página', 'Acceso denegado');
-    expect(router.navigate).toHaveBeenCalledWith(['/reservas/crear']);
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
 
   it('should deny access and redirect if user has no role', () => {
@@ -69,6 +69,19 @@ describe('RoleGuard', () => {
 
     expect(result).toBe(false);
     expect(toastr.error).toHaveBeenCalledWith('No tienes permisos para acceder a esta página', 'Acceso denegado');
-    expect(router.navigate).toHaveBeenCalledWith(['/reservas/crear']);
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('should use custom fallback route when provided', () => {
+    const customRoute = {
+      data: { roles: ['Administrador'], fallbackRoute: '/not-found' }
+    } as unknown as ActivatedRouteSnapshot;
+
+    userService.getUserRole.mockReturnValue('cliente');
+
+    const result = roleGuard.canActivate(customRoute);
+
+    expect(result).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/not-found']);
   });
 });

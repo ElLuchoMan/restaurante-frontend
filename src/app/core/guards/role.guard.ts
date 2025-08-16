@@ -15,7 +15,8 @@ export class RoleGuard implements CanActivate {
 
     if (!userRole || !expectedRoles.includes(userRole)) {
       this.toastr.error('No tienes permisos para acceder a esta página', 'Acceso denegado');
-      this.router.navigate(['/reservas/crear']);
+      const fallbackRoute = route.data['fallbackRoute'] || '/login';
+      this.router.navigate([fallbackRoute]);
       return false;
     }
 
