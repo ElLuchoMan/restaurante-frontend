@@ -1,6 +1,8 @@
-import { Component, OnInit, Inject, PLATFORM_ID, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { UserService } from '../../../core/services/user.service';
 import { MenuItem } from '../../models/menu-item.model';
 import { CartService } from '../../../core/services/cart.service';
@@ -12,27 +14,32 @@ import { CartService } from '../../../core/services/cart.service';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   menuLeft: MenuItem[] = [];
   menuRight: MenuItem[] = [];
   userRole: string | null = null;
   isBrowser: boolean;
   imagenVisible: boolean = true;
   cartCount = 0;
+  private destroy$ = new Subject<void>();
 
   constructor(private userService: UserService, @Inject(PLATFORM_ID) private platformId: any, private router: Router, private cartService: CartService) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
   ngOnInit(): void {
-    this.userService.getAuthState().subscribe((isLoggedIn) => {
-      this.userRole = isLoggedIn ? this.userService.getUserRole() : null;
-      this.generateMenu();
-    });
+    this.userService.getAuthState()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isLoggedIn) => {
+        this.userRole = isLoggedIn ? this.userService.getUserRole() : null;
+        this.generateMenu();
+      });
 
-    this.cartService.count$.subscribe(count => {
-      this.cartCount = count;
-    });
+    this.cartService.count$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(count => {
+        this.cartCount = count;
+      });
     if (this.isBrowser) {
       this.checkScreenSize();
     }
@@ -113,6 +120,11 @@ export class HeaderComponent implements OnInit {
         navbar.classList.remove('show');
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }
