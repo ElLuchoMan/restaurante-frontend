@@ -61,7 +61,7 @@ export class TomarDomicilioComponent implements OnInit {
   }
 
   irARuta(domicilio: Domicilio): void {
-    this.router.navigate(['trabajador/domicilios/ruta-domicilio'], {
+    this.router.navigate(['/trabajador', 'domicilios', 'ruta-domicilio'], {
       queryParams: {
         direccion: domicilio.direccion,
         telefono: domicilio.telefono,

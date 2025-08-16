@@ -35,7 +35,7 @@ export class ProductosComponent implements OnInit {
       this.router.navigate(['/menu']);
     } else {
       // Carga dentro del router-outlet hijo
-      this.router.navigate(['admin/productos/crear']);
+      this.router.navigate(['/admin', 'productos', 'crear']);
     }
   }
 

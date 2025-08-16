@@ -62,7 +62,7 @@ describe('ProductosComponent', () => {
   it('irA crear should navigate to admin/productos/crear', () => {
     const navigateSpy = jest.spyOn(router, 'navigate');
     component.irA('crear');
-    expect(navigateSpy).toHaveBeenCalledWith(['admin/productos/crear']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/admin', 'productos', 'crear']);
   });
 
   it('volver should navigate to /admin/productos', () => {
