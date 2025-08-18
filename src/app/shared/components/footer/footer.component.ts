@@ -3,6 +3,7 @@ import { Restaurante } from '../../models/restaurante.model';
 import { CambioHorario } from '../../models/cambio-horario.model';
 import { ApiResponse } from '../../models/api-response.model';
 import { RestauranteService } from '../../../core/services/restaurante.service';
+import { LoggingService } from '../../../core/services/logging.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -21,7 +22,7 @@ export class FooterComponent {
   estado: string = 'Abierto';
   estadoActual: string = 'Abierto';
 
-  constructor(private restauranteService: RestauranteService, private router: Router) { }
+  constructor(private restauranteService: RestauranteService, private router: Router, private logger: LoggingService) { }
 
   ngOnInit(): void {
     this.restauranteService.getRestauranteInfo().subscribe((response: ApiResponse<Restaurante>) => {
@@ -46,7 +47,7 @@ export class FooterComponent {
         }
         this.cambioHorario = response;
       },
-      error: (error) => { console.log(error); },
+      error: (error) => { this.logger.error(error); },
     });
   }
 

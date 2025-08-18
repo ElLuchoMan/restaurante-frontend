@@ -9,6 +9,7 @@ import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
+import { LoggingService } from '../../../../core/services/logging.service';
 
 @Component({
   selector: 'app-reserva',
@@ -41,7 +42,8 @@ export class CrearReservaComponent implements OnInit {
     private trabajadorService: TrabajadorService,
     private clienteService: ClienteService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private logger: LoggingService
   ) { }
 
   ngOnInit(): void {
@@ -134,7 +136,7 @@ export class CrearReservaComponent implements OnInit {
         this.router.navigate(['/reservas']);
       },
       error: (error) => {
-        console.log('Error al crear la reserva', error);
+        this.logger.error('Error al crear la reserva', error);
         this.toastr.error(error.message, 'Error');
       }
     });
