@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Domicilio } from '../../shared/models/domicilio.model';
@@ -60,9 +60,9 @@ export class DomicilioService {
    * @param trabajadorId 
    */
   asignarDomiciliario(domicilioId: number, trabajadorId: number): Observable<ApiResponse<Domicilio>> {
-    const params = new URLSearchParams();
-    params.append('domicilio_id', domicilioId.toString());
-    params.append('trabajador_id', trabajadorId.toString());
-    return this.http.post<ApiResponse<Domicilio>>(`${this.baseUrl}/asignar?${params.toString()}`, {});
+    const params = new HttpParams()
+      .set('domicilio_id', domicilioId.toString())
+      .set('trabajador_id', trabajadorId.toString());
+    return this.http.post<ApiResponse<Domicilio>>(`${this.baseUrl}/asignar`, {}, { params });
   }
 }
