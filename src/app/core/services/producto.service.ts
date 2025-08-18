@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Producto } from '../../shared/models/producto.model';
 import { environment } from '../../../environments/environment';
+import { HandleErrorService } from './handle-error.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ import { environment } from '../../../environments/environment';
 export class ProductoService {
   private baseUrl = `${environment.apiUrl}/productos`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private handleError: HandleErrorService) { }
 
   /**
    * Obtiene productos del backend y los mapea con nombres en minúsculas
@@ -19,7 +20,9 @@ export class ProductoService {
    * @returns 
    */
   getProductos(params?: any): Observable<ApiResponse<Producto[]>> {
-    return this.http.get<ApiResponse<Producto[]>>(`${this.baseUrl}`, { params });
+    return this.http.get<ApiResponse<Producto[]>>(`${this.baseUrl}`, { params }).pipe(
+      catchError(this.handleError.handleError)
+    );
   }
 
   /**
@@ -28,7 +31,9 @@ export class ProductoService {
    * @returns 
    */
   createProducto(formData: FormData): Observable<ApiResponse<Producto>> {
-    return this.http.post<ApiResponse<Producto>>(`${this.baseUrl}`, formData);
+    return this.http.post<ApiResponse<Producto>>(`${this.baseUrl}`, formData).pipe(
+      catchError(this.handleError.handleError)
+    );
   }
 
   /**
@@ -37,7 +42,9 @@ export class ProductoService {
   getProductoById(id: number): Observable<ApiResponse<Producto>> {
     return this.http.get<ApiResponse<Producto>>(`${this.baseUrl}/search`, {
       params: { id: id.toString() }
-    });
+    }).pipe(
+      catchError(this.handleError.handleError)
+    );
   }
 
   /**
@@ -46,7 +53,9 @@ export class ProductoService {
   updateProducto(id: number, formData: FormData): Observable<ApiResponse<Producto>> {
     return this.http.put<ApiResponse<Producto>>(`${this.baseUrl}`, formData, {
       params: { id: id.toString() }
-    });
+    }).pipe(
+      catchError(this.handleError.handleError)
+    );
   }
 
 }
