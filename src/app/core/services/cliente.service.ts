@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map } from 'rxjs';
+import { Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Cliente } from '../../shared/models/cliente.model';
@@ -11,7 +11,6 @@ import { HandleErrorService } from './handle-error.service';
 })
 export class ClienteService {
   private baseUrl = environment.apiUrl;
-  private tokenKey = 'auth_token';
 
   constructor(private http: HttpClient, private handleError: HandleErrorService) { }
 

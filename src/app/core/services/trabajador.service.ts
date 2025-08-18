@@ -11,7 +11,6 @@ import { Trabajador } from '../../shared/models/trabajador.model';
 })
 export class TrabajadorService {
   private baseUrl = environment.apiUrl;
-  private tokenKey = 'auth_token';
   constructor(private http: HttpClient, private handleError: HandleErrorService) { }
 
   registroTrabajador(trabajador: Trabajador): Observable<ApiResponse<Trabajador>> {
@@ -22,12 +21,12 @@ export class TrabajadorService {
   searchTrabajador(documento_trabajador: number): Observable<ApiResponse<Trabajador>> {
     return this.http.get<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores/search?id=${documento_trabajador}`).pipe(
       catchError(this.handleError.handleError)
-    )
+    );
   }
 
   getTrabajadores(): Observable<Trabajador[]> {
     return this.http.get<ApiResponse<Trabajador[]>>(`${this.baseUrl}/trabajadores`).pipe(
-      map((response: { data: any; }) => response.data),
+      map((res: ApiResponse<Trabajador[]>) => res.data),
       catchError(this.handleError.handleError)
     );
   }
