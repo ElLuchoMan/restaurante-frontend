@@ -77,19 +77,22 @@ export class ConsultarDomicilioComponent implements OnInit {
 
       this.modalService.openModal({
         title: 'Asignar Trabajador',
-        select: {
-          label: 'Seleccione un trabajador',
-          options: trabajadoresOptions,
-          selected: null
-        },
+        selects: [
+          {
+            label: 'Seleccione un trabajador',
+            options: trabajadoresOptions,
+            selected: null
+          }
+        ],
         buttons: [
           {
             label: 'Aceptar',
             class: 'btn btn-success',
             action: () => {
               const modalData = this.modalService.getModalData();
-              if (modalData.select?.selected) {
-                this.confirmarAsignacion(domicilio, modalData.select.selected);
+              const selected = modalData?.selects?.[0].selected;
+              if (selected) {
+                this.confirmarAsignacion(domicilio, selected);
                 this.modalService.closeModal();
               }
             }

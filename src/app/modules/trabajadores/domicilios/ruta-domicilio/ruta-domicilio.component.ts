@@ -86,23 +86,26 @@ export class RutaDomicilioComponent implements OnInit {
     if (this.domicilioId) {
       this.modalService.openModal({
         title: 'Seleccionar Método de Pago',
-        select: {
-          label: 'Seleccione el método de pago',
-          options: [
-            { label: 'Nequi', value: 'NEQUI' },
-            { label: 'Daviplata', value: 'DAVIPLATA' },
-            { label: 'Efectivo', value: 'EFECTIVO' }
-          ],
-          selected: null
-        },
+        selects: [
+          {
+            label: 'Seleccione el método de pago',
+            options: [
+              { label: 'Nequi', value: 'NEQUI' },
+              { label: 'Daviplata', value: 'DAVIPLATA' },
+              { label: 'Efectivo', value: 'EFECTIVO' }
+            ],
+            selected: null
+          }
+        ],
         buttons: [
           {
             label: 'Aceptar',
             class: 'btn btn-success',
             action: () => {
               const modalData = this.modalService.getModalData();
-              if (modalData.select?.selected) {
-                const metodoPagoSeleccionado = modalData.select.selected;
+              const selected = modalData?.selects?.[0].selected;
+              if (selected) {
+                const metodoPagoSeleccionado = selected;
                 this.logger.log('Método de pago seleccionado:', metodoPagoSeleccionado);
                 this.domicilioService.updateDomicilio(this.domicilioId, {
                   estadoPago: estadoPago.PAGADO

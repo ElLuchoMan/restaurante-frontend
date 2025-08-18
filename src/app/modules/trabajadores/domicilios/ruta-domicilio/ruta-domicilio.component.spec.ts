@@ -125,7 +125,9 @@ describe('RutaDomicilioComponent', () => {
   describe('marcarPago', () => {
     it('should open modal and process payment when a method is selected', () => {
       modalService.getModalData.mockReturnValue({
-        select: { selected: 'NEQUI' }
+        title: '',
+        selects: [{ label: '', options: [], selected: 'NEQUI' }],
+        buttons: []
       });
       domicilioService.updateDomicilio.mockReturnValue(of(mockDomicilioRespone));
 
@@ -143,7 +145,9 @@ describe('RutaDomicilioComponent', () => {
 
     it('should log error when no payment method is selected', () => {
       modalService.getModalData.mockReturnValue({
-        select: { selected: null }
+        title: '',
+        selects: [{ label: '', options: [], selected: null }],
+        buttons: []
       });
       console.error = jest.fn();
       component.marcarPago();
@@ -154,7 +158,9 @@ describe('RutaDomicilioComponent', () => {
 
     it('should handle error when updating domicilio payment fails', () => {
       modalService.getModalData.mockReturnValue({
-        select: { selected: 'DAVIPLATA' }
+        title: '',
+        selects: [{ label: '', options: [], selected: 'DAVIPLATA' }],
+        buttons: []
       });
       const errorResponse = new Error('Error');
       domicilioService.updateDomicilio.mockReturnValue(throwError(() => errorResponse));
@@ -166,7 +172,9 @@ describe('RutaDomicilioComponent', () => {
 
     it('should close modal when cancel button is clicked', () => {
       modalService.getModalData.mockReturnValue({
-        select: { selected: 'NEQUI' }
+        title: '',
+        selects: [{ label: '', options: [], selected: 'NEQUI' }],
+        buttons: []
       });
       component.marcarPago();
       const config = modalService.openModal.mock.calls[0][0];
