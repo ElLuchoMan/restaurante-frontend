@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ModalService } from '../../../core/services/modal.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ModalData } from '../../models/modal-data.model';
 
 @Component({
   selector: 'app-modal',
@@ -12,15 +13,13 @@ import { FormsModule } from '@angular/forms';
 })
 export class ModalComponent implements OnInit {
   isOpen = false;
-  modalData: any = {};
+  modalData: ModalData | null = null;
 
   constructor(private modalService: ModalService) { }
 
   ngOnInit() {
     this.modalService.modalData$.subscribe((data) => {
-      if (data) {
-        this.modalData = data;
-      }
+      this.modalData = data;
     });
 
     this.modalService.isOpen$.subscribe((state) => {
