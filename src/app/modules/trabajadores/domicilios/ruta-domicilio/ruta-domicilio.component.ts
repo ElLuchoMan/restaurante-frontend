@@ -101,7 +101,7 @@ export class RutaDomicilioComponent implements OnInit {
             class: 'btn btn-success',
             action: () => {
               const modalData = this.modalService.getModalData();
-              if (modalData?.select?.selected) {
+              if (modalData.select?.selected) {
                 const metodoPagoSeleccionado = modalData.select.selected;
                 this.logger.log(LogLevel.INFO, 'Método de pago seleccionado:', metodoPagoSeleccionado);
                 this.domicilioService.updateDomicilio(this.domicilioId, {

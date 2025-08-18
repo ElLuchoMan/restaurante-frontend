@@ -14,7 +14,6 @@ import { ClienteService } from '../../../core/services/cliente.service';
 import { Router } from '@angular/router';
 
 import { Producto } from '../../../shared/models/producto.model';
-import { ToastrService } from 'ngx-toastr';
 
 describe('CarritoComponent', () => {
   let component: CarritoComponent;
@@ -30,7 +29,6 @@ describe('CarritoComponent', () => {
   let userServiceMock: any;
   let clienteServiceMock: any;
   let routerMock: any;
-  let toastrServiceMock: any;
 
   async function setup({
     items = [],
@@ -61,7 +59,6 @@ describe('CarritoComponent', () => {
     userServiceMock = { getUserId: jest.fn() };
     clienteServiceMock = { getClienteId: jest.fn() };
     routerMock = { navigate: jest.fn() };
-    toastrServiceMock = { success: jest.fn(), error: jest.fn() };
 
     await TestBed.configureTestingModule({
       imports: [CarritoComponent],
@@ -76,7 +73,6 @@ describe('CarritoComponent', () => {
         { provide: UserService, useValue: userServiceMock },
         { provide: ClienteService, useValue: clienteServiceMock },
         { provide: Router, useValue: routerMock },
-        { provide: ToastrService, useValue: toastrServiceMock },
       ],
     }).compileComponents();
 
@@ -114,11 +110,9 @@ describe('CarritoComponent', () => {
 
   it('should unsubscribe on destroy', async () => {
     await setup();
-    const nextSpy = jest.spyOn((component as any).destroy$, 'next');
-    const completeSpy = jest.spyOn((component as any).destroy$, 'complete');
+    const spy = jest.spyOn((component as any).sub, 'unsubscribe');
     component.ngOnDestroy();
-    expect(nextSpy).toHaveBeenCalled();
-    expect(completeSpy).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalled();
   });
 
   it('should interact with cart service for item operations', async () => {
@@ -161,7 +155,7 @@ describe('CarritoComponent', () => {
     clienteServiceMock.getClienteId.mockReturnValue(of({ data: { direccion: 'dir', telefono: 'tel', observaciones: '' } }));
     domicilioServiceMock.createDomicilio.mockReturnValue(of({ data: { domicilioId: 9 } }));
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
-    await (component as any).onCheckoutConfirm();
+    (component as any).onCheckoutConfirm();
     expect(clienteServiceMock.getClienteId).toHaveBeenCalledWith(77);
     expect(domicilioServiceMock.createDomicilio).toHaveBeenCalled();
     expect(finalizeSpy).toHaveBeenCalledWith(3, 9);
@@ -174,9 +168,9 @@ describe('CarritoComponent', () => {
     clienteServiceMock.getClienteId.mockReturnValue(throwError(() => new Error('fail')));
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
-    await (component as any).onCheckoutConfirm().catch(() => {});
+    (component as any).onCheckoutConfirm();
     expect(finalizeSpy).not.toHaveBeenCalled();
-    expect(errorSpy).toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledTimes(2);
     errorSpy.mockRestore();
   });
 
@@ -188,9 +182,9 @@ describe('CarritoComponent', () => {
     domicilioServiceMock.createDomicilio.mockReturnValue(throwError(() => new Error('dom fail')));
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
-    await (component as any).onCheckoutConfirm().catch(() => {});
+    (component as any).onCheckoutConfirm();
     expect(finalizeSpy).not.toHaveBeenCalled();
-    expect(errorSpy).toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledTimes(2);
     errorSpy.mockRestore();
   });
 
@@ -203,7 +197,7 @@ describe('CarritoComponent', () => {
     pedidoClienteServiceMock.create.mockReturnValue(of({}));
     pedidoServiceMock.assignPago.mockReturnValue(of({}));
     pedidoServiceMock.assignDomicilio.mockReturnValue(of({}));
-    await (component as any).finalizeOrder(1, null);
+    (component as any).finalizeOrder(1, null);
     expect(pedidoServiceMock.assignDomicilio).not.toHaveBeenCalled();
     expect(cartServiceMock.clearCart).toHaveBeenCalled();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/cliente/mis-pedidos']);
@@ -218,7 +212,7 @@ describe('CarritoComponent', () => {
     pedidoClienteServiceMock.create.mockReturnValue(of({}));
     pedidoServiceMock.assignPago.mockReturnValue(of({}));
     pedidoServiceMock.assignDomicilio.mockReturnValue(of({}));
-    await (component as any).finalizeOrder(2, 7);
+    (component as any).finalizeOrder(2, 7);
     expect(pedidoServiceMock.assignDomicilio).toHaveBeenCalledWith(50, 7);
   });
 
@@ -227,7 +221,7 @@ describe('CarritoComponent', () => {
     component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
     pedidoServiceMock.createPedido.mockReturnValue(throwError(() => new Error('fail')));
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
-    await (component as any).finalizeOrder(3, null).catch(() => {});
+    (component as any).finalizeOrder(3, null);
     expect(errorSpy).toHaveBeenCalled();
     expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
     errorSpy.mockRestore();

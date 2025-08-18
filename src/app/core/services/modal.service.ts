@@ -2,28 +2,19 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { LoggingService, LogLevel } from './logging.service';
 
-export interface ModalData {
-  title?: string;
-  message?: string;
-  image?: string;
-  buttons?: any[];
-  select?: any;
-  selects?: any;
-}
-
 @Injectable({
   providedIn: 'root',
 })
 export class ModalService {
-  private modalData = new BehaviorSubject<ModalData | null>(null);
+  private modalData = new BehaviorSubject<any>(null);
   modalData$ = this.modalData.asObservable();
   private isOpen = new BehaviorSubject<boolean>(false);
   isOpen$ = this.isOpen.asObservable();
 
   constructor(private logger: LoggingService) {}
 
-  openModal(data: ModalData) {
-    this.logger.log(LogLevel.INFO, 'Opening modal');
+  openModal(data: any) {
+    this.logger.log(LogLevel.INFO, 'Entra');
     this.modalData.next(data);
     this.isOpen.next(true);
   }
@@ -32,7 +23,7 @@ export class ModalService {
     this.isOpen.next(false);
   }
 
-  getModalData(): ModalData | null {
+  getModalData(): any {
     this.logger.log(LogLevel.INFO, 'getModalData');
     return this.modalData.value;
   }
