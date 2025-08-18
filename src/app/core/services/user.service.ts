@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Login, LoginResponse } from '../../shared/models/login.model';
 import { HandleErrorService } from './handle-error.service';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 export interface DecodedToken {
   rol: string;
