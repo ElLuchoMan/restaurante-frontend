@@ -4,7 +4,7 @@ import { HttpClient, HttpHandler } from '@angular/common/http';
 import { RestauranteService } from '../../../core/services/restaurante.service';
 import { of, throwError } from 'rxjs';
 import { mockCambioHorarioResponse, mockCambioHorarioAbiertoResponse, mockRestauranteResponse } from '../../mocks/restaurante.mock';
-import { LoggingService } from '../../../core/services/logging.service';
+import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -29,8 +29,7 @@ describe('FooterComponent', () => {
     };
 
     const loggingServiceMock = {
-      log: jest.fn(),
-      error: jest.fn()
+      log: jest.fn()
     } as unknown as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
@@ -89,7 +88,7 @@ describe('FooterComponent', () => {
     restauranteService.getCambiosHorario.mockReturnValue(throwError(() => mockError));
     fixture.detectChanges();
 
-    expect(loggingService.error).toHaveBeenCalledWith(mockError);
+    expect(loggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, mockError);
   });
   it('should set estadoActual to "Cerrado" when current time is outside of opening hours', () => {
     restauranteService.getRestauranteInfo.mockReturnValue(of(mockRestauranteResponse));

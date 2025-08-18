@@ -9,7 +9,7 @@ import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
-import { LoggingService } from '../../../../core/services/logging.service';
+import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 
 @Component({
   selector: 'app-reserva',
@@ -136,7 +136,7 @@ export class CrearReservaComponent implements OnInit {
         this.router.navigate(['/reservas']);
       },
       error: (error) => {
-        this.logger.error('Error al crear la reserva', error);
+        this.logger.log(LogLevel.ERROR, 'Error al crear la reserva', error);
         this.toastr.error(error.message, 'Error');
       }
     });

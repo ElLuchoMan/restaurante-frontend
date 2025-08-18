@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { LoggingService } from '../../../../core/services/logging.service';
+import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 
 import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
@@ -151,7 +151,7 @@ export class ConsultarReservaComponent implements OnInit {
         this.toastr.success(`Reserva marcada como ${nuevoEstado}`, 'Actualización Exitosa');
       },
       error: (error) => {
-        this.logger.error('Error:', error);
+        this.logger.log(LogLevel.ERROR, 'Error:', error);
         this.toastr.error('Ocurrió un error al actualizar la reserva', 'Error');
       }
     });

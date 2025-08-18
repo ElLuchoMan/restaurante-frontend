@@ -3,7 +3,7 @@ import { Restaurante } from '../../models/restaurante.model';
 import { CambioHorario } from '../../models/cambio-horario.model';
 import { ApiResponse } from '../../models/api-response.model';
 import { RestauranteService } from '../../../core/services/restaurante.service';
-import { LoggingService } from '../../../core/services/logging.service';
+import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -47,7 +47,7 @@ export class FooterComponent {
         }
         this.cambioHorario = response;
       },
-      error: (error) => { this.logger.error(error); },
+      error: (error) => { this.logger.log(LogLevel.ERROR, error); },
     });
   }
 

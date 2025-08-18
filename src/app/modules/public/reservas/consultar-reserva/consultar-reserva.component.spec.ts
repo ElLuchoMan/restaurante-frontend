@@ -44,8 +44,7 @@ describe('ConsultarReservaComponent', () => {
     } as unknown as jest.Mocked<UserService>;
 
     const loggingServiceMock = {
-      log: jest.fn(),
-      error: jest.fn()
+      log: jest.fn()
     } as unknown as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
