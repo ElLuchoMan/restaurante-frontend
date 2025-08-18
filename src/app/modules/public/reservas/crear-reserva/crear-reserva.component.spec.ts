@@ -16,6 +16,7 @@ import { Trabajador } from '../../../../shared/models/trabajador.model';
 import { mockTrabajadorResponse } from '../../../../shared/mocks/trabajador.mock';
 import { mockResponseCliente } from '../../../../shared/mocks/cliente.mock';
 import { ClienteService } from '../../../../core/services/cliente.service';
+import { LoggingService } from '../../../../core/services/logging.service';
 
 describe('CrearReservaComponent', () => {
   let component: CrearReservaComponent;
@@ -26,6 +27,7 @@ describe('CrearReservaComponent', () => {
   let clienteService: jest.Mocked<ClienteService>;
   let toastr: jest.Mocked<ToastrService>;
   let router: jest.Mocked<Router>;
+  let loggingService: jest.Mocked<LoggingService>;
 
   beforeEach(async () => {
     const reservaServiceMock = {
@@ -58,6 +60,11 @@ describe('CrearReservaComponent', () => {
       navigate: jest.fn()
     } as unknown as jest.Mocked<Router>;
 
+    const loggingServiceMock = {
+      log: jest.fn(),
+      error: jest.fn()
+    } as unknown as jest.Mocked<LoggingService>;
+
     await TestBed.configureTestingModule({
       imports: [CrearReservaComponent, FormsModule, CommonModule],
       providers: [
@@ -66,7 +73,8 @@ describe('CrearReservaComponent', () => {
         { provide: TrabajadorService, useValue: trabajadorServiceMock },
         { provide: ClienteService, useValue: clienteServiceMock },
         { provide: ToastrService, useValue: toastrMock },
-        { provide: Router, useValue: routerMock }
+        { provide: Router, useValue: routerMock },
+        { provide: LoggingService, useValue: loggingServiceMock }
       ]
     }).compileComponents();
 
@@ -78,6 +86,7 @@ describe('CrearReservaComponent', () => {
     clienteService = TestBed.inject(ClienteService) as jest.Mocked<ClienteService>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
+    loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
 
     fixture.detectChanges();
   });
@@ -275,16 +284,12 @@ describe('CrearReservaComponent', () => {
     const errorResponse = new Error("Error creando reserva");
     reservaService.crearReserva.mockReturnValue(throwError(() => errorResponse));
 
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => { });
-
     component.onSubmit();
 
     expect(trabajadorService.getTrabajadorId).toHaveBeenCalledWith(1);
-    expect(consoleSpy).toHaveBeenCalledWith('Error al crear la reserva', errorResponse);
+    expect(loggingService.error).toHaveBeenCalledWith('Error al crear la reserva', errorResponse);
     expect(toastr.error).toHaveBeenCalledWith("Error creando reserva", 'Error');
     expect(router.navigate).not.toHaveBeenCalled();
-
-    consoleSpy.mockRestore();
   });
   it('should create reservation with "Anónimo" when no user role is provided', () => {
     component.rol = null;

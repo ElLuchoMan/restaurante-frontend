@@ -6,12 +6,14 @@ import { CommonModule } from '@angular/common';
 import { of, throwError } from 'rxjs';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { mockReservaResponse, mockReservasDelDiaResponse } from '../../../../shared/mocks/reserva.mocks';
+import { LoggingService } from '../../../../core/services/logging.service';
 
 describe('ReservasDelDiaComponent', () => {
   let component: ReservasDelDiaComponent;
   let fixture: ComponentFixture<ReservasDelDiaComponent>;
   let reservaService: jest.Mocked<ReservaService>;
   let toastr: jest.Mocked<ToastrService>;
+  let loggingService: jest.Mocked<LoggingService>;
 
   beforeEach(async () => {
     const reservaServiceMock = {
@@ -24,11 +26,17 @@ describe('ReservasDelDiaComponent', () => {
       error: jest.fn()
     } as unknown as jest.Mocked<ToastrService>;
 
+    const loggingServiceMock = {
+      log: jest.fn(),
+      error: jest.fn()
+    } as unknown as jest.Mocked<LoggingService>;
+
     await TestBed.configureTestingModule({
       imports: [ReservasDelDiaComponent, CommonModule],
       providers: [
         { provide: ReservaService, useValue: reservaServiceMock },
-        { provide: ToastrService, useValue: toastrMock }
+        { provide: ToastrService, useValue: toastrMock },
+        { provide: LoggingService, useValue: loggingServiceMock }
       ]
     }).compileComponents();
 
@@ -36,6 +44,7 @@ describe('ReservasDelDiaComponent', () => {
     component = fixture.componentInstance;
     reservaService = TestBed.inject(ReservaService) as jest.Mocked<ReservaService>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
+    loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
   });
 
   it('should create', () => {
@@ -119,14 +128,10 @@ describe('ReservasDelDiaComponent', () => {
     it('should show error when actualizarReserva fails', () => {
       const errorResponse = new Error('Update failed');
       reservaService.actualizarReserva.mockReturnValue(throwError(() => errorResponse));
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
-
       component['actualizarReserva'](reserva);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Error:', errorResponse);
+      expect(loggingService.error).toHaveBeenCalledWith('Error:', errorResponse);
       expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error al actualizar la reserva', 'Error');
-
-      consoleSpy.mockRestore();
     });
   });
 

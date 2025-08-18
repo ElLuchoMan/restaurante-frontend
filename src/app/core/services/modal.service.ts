@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { LoggingService } from './logging.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,8 +11,10 @@ export class ModalService {
   private isOpen = new BehaviorSubject<boolean>(false);
   isOpen$ = this.isOpen.asObservable();
 
+  constructor(private logger: LoggingService) {}
+
   openModal(data: any) {
-    console.log('Entra');
+    this.logger.log('Entra');
     this.modalData.next(data);
     this.isOpen.next(true);
   }
@@ -19,9 +22,9 @@ export class ModalService {
   closeModal() {
     this.isOpen.next(false);
   }
+
   getModalData(): any {
-    console.log('getModalData')
+    this.logger.log('getModalData');
     return this.modalData.value;
   }
-  
 }

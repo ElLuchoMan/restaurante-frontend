@@ -16,6 +16,7 @@ import {
   mockReservasUnordered,
 } from '../../../../shared/mocks/reserva.mocks';
 import { UserService } from '../../../../core/services/user.service';
+import { LoggingService } from '../../../../core/services/logging.service';
 
 describe('ConsultarReservaComponent', () => {
   let component: ConsultarReservaComponent;
@@ -23,6 +24,7 @@ describe('ConsultarReservaComponent', () => {
   let reservaService: jest.Mocked<ReservaService>;
   let toastr: jest.Mocked<ToastrService>;
   let userService: jest.Mocked<UserService>;
+  let loggingService: jest.Mocked<LoggingService>;
 
   beforeEach(async () => {
     const reservaServiceMock = {
@@ -41,12 +43,18 @@ describe('ConsultarReservaComponent', () => {
       getUserId: jest.fn().mockReturnValue(123456),
     } as unknown as jest.Mocked<UserService>;
 
+    const loggingServiceMock = {
+      log: jest.fn(),
+      error: jest.fn()
+    } as unknown as jest.Mocked<LoggingService>;
+
     await TestBed.configureTestingModule({
       imports: [ConsultarReservaComponent, FormsModule, CommonModule],
       providers: [
         { provide: ReservaService, useValue: reservaServiceMock },
         { provide: ToastrService, useValue: toastrMock },
         { provide: UserService, useValue: userServiceMock },
+        { provide: LoggingService, useValue: loggingServiceMock },
       ],
     }).compileComponents();
 
@@ -55,6 +63,7 @@ describe('ConsultarReservaComponent', () => {
     reservaService = TestBed.inject(ReservaService) as jest.Mocked<ReservaService>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
+    loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
 
     fixture.detectChanges();
   });

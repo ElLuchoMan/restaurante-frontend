@@ -4,6 +4,7 @@ import { ReservaService } from '../../../../core/services/reserva.service';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { ToastrService } from 'ngx-toastr';
 import { estadoReserva } from '../../../../shared/constants';
+import { LoggingService } from '../../../../core/services/logging.service';
 
 @Component({
   selector: 'app-reservas-del-dia',
@@ -16,7 +17,7 @@ export class ReservasDelDiaComponent implements OnInit {
   reservas: Reserva[] = [];
   fechaHoy: string = '';
 
-  constructor(private reservaService: ReservaService, private toastr: ToastrService) { }
+  constructor(private reservaService: ReservaService, private toastr: ToastrService, private logger: LoggingService) { }
 
   ngOnInit(): void {
     this.consultarReservasDelDia();
@@ -71,7 +72,7 @@ export class ReservasDelDiaComponent implements OnInit {
         this.toastr.success(`Reserva marcada como ${reserva.estadoReserva}`, 'Actualización Exitosa');
       },
       error: (error) => {
-        console.log('Error:', error);
+        this.logger.error('Error:', error);
         this.toastr.error('Ocurrió un error al actualizar la reserva', 'Error');
       }
     });
