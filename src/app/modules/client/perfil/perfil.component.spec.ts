@@ -31,7 +31,7 @@ describe('PerfilComponent', () => {
   it('should load client data successfully', async () => {
     const userServiceMock = {
       getUserId: jest.fn().mockReturnValue(1),
-      decodeToken: jest.fn().mockReturnValue({ nombre: 'Cliente' }),
+      decodeToken: jest.fn().mockReturnValue({ nombre: 'Cliente', rol: 'Cliente', documento: 1, exp: Math.floor(Date.now() / 1000) + 1000 }),
     } as Partial<UserService>;
     const clienteData = {
       direccion: 'Calle 1',
@@ -82,7 +82,7 @@ describe('PerfilComponent', () => {
   it('should handle error when service fails', async () => {
     const userServiceMock = {
       getUserId: jest.fn().mockReturnValue(1),
-      decodeToken: jest.fn().mockReturnValue({ nombre: 'Cliente' }),
+      decodeToken: jest.fn().mockReturnValue({ nombre: 'Cliente', rol: 'Cliente', documento: 1, exp: Math.floor(Date.now() / 1000) + 1000 }),
     } as Partial<UserService>;
     const clienteServiceMock = {
       getClienteId: jest
@@ -112,7 +112,7 @@ describe('PerfilComponent', () => {
   it('should leave observaciones empty when not frequent client', async () => {
     const userServiceMock = {
       getUserId: jest.fn().mockReturnValue(1),
-      decodeToken: jest.fn().mockReturnValue({ nombre: 'Cliente' }),
+      decodeToken: jest.fn().mockReturnValue({ nombre: 'Cliente', rol: 'Cliente', documento: 1, exp: Math.floor(Date.now() / 1000) + 1000 }),
     } as Partial<UserService>;
     const clienteData = {
       direccion: 'Calle 2',
@@ -138,7 +138,7 @@ describe('PerfilComponent', () => {
   it('should use default values when response has no data and token lacks name', async () => {
     const userServiceMock = {
       getUserId: jest.fn().mockReturnValue(1),
-      decodeToken: jest.fn().mockReturnValue(undefined),
+      decodeToken: jest.fn().mockReturnValue(null),
     } as Partial<UserService>;
     const clienteServiceMock = {
       getClienteId: jest.fn().mockReturnValue(of({})),
