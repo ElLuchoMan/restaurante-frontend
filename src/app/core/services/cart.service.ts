@@ -2,6 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 import { Producto } from '../../shared/models/producto.model';
+import { LoggingService } from './logging.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,10 @@ export class CartService {
   public count$ = new BehaviorSubject<number>(0);
   public items$ = new BehaviorSubject<Producto[]>([]);
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private logger: LoggingService
+  ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
       this.clearIfNeeded();
@@ -37,7 +41,15 @@ export class CartService {
   private loadCart(): void {
     if (!this.isBrowser) return;
     const raw = localStorage.getItem(this.storageKey);
-    const arr: Producto[] = raw ? JSON.parse(raw) : [];
+    let arr: Producto[] = [];
+    if (raw) {
+      try {
+        arr = JSON.parse(raw);
+      } catch (error) {
+        localStorage.removeItem(this.storageKey);
+        this.logger.error('Error parsing cart data', error);
+      }
+    }
     this.items$.next(arr);
     this.count$.next(arr.reduce((sum, p) => sum + (p.cantidad || 1), 0));
   }

@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { CartService } from './cart.service';
 import { Producto } from '../../shared/models/producto.model';
+import { LoggingService } from './logging.service';
 
 const STORAGE_KEY = 'carrito';
 const LAST_KEY = `${STORAGE_KEY}-lastClear`;
@@ -24,10 +25,16 @@ describe('CartService', () => {
     Object.defineProperty(window, 'localStorage', { value: mockLS, writable: true });
   });
 
-  function init(platform: 'browser' | 'server' = 'browser'): CartService {
+  function init(
+    platform: 'browser' | 'server' = 'browser',
+    logger?: Partial<LoggingService>
+  ): CartService {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [{ provide: PLATFORM_ID, useValue: platform }]
+      providers: [
+        { provide: PLATFORM_ID, useValue: platform },
+        { provide: LoggingService, useValue: (logger || new LoggingService()) as LoggingService }
+      ]
     });
     return TestBed.inject(CartService);
   }
@@ -123,5 +130,17 @@ describe('CartService', () => {
     store = {};
     (service as any).loadCart();
     expect(service.count$.value).toBe(0);
+  });
+
+  it('logs and clears when storage has invalid JSON', () => {
+    store[STORAGE_KEY] = '{invalid}';
+    const today = new Date().toISOString().split('T')[0];
+    store[LAST_KEY] = today;
+    const loggerSpy = { error: jest.fn() };
+    const service = init('browser', loggerSpy);
+    expect(loggerSpy.error).toHaveBeenCalled();
+    expect(service.count$.value).toBe(0);
+    expect(service.getItems().length).toBe(0);
+    expect(store[STORAGE_KEY]).toBeUndefined();
   });
 });
