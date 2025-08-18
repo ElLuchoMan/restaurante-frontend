@@ -8,6 +8,7 @@ import { of, throwError } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { mockLogin } from '../../../shared/mocks/login.mock';
+import { LoggingService } from '../../../core/services/logging.service';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -15,6 +16,7 @@ describe('LoginComponent', () => {
   let userService: jest.Mocked<UserService>;
   let router: jest.Mocked<Router>;
   let toastr: jest.Mocked<ToastrService>;
+  let loggingService: jest.Mocked<LoggingService>;
 
   beforeEach(async () => {
     const userServiceMock = {
@@ -32,12 +34,18 @@ describe('LoginComponent', () => {
       error: jest.fn()
     } as unknown as jest.Mocked<ToastrService>;
 
+    const loggingServiceMock = {
+      error: jest.fn(),
+      log: jest.fn()
+    } as unknown as jest.Mocked<LoggingService>;
+
     await TestBed.configureTestingModule({
       imports: [LoginComponent, FormsModule, CommonModule],
       providers: [
         { provide: UserService, useValue: userServiceMock },
         { provide: Router, useValue: routerMock },
-        { provide: ToastrService, useValue: toastrMock }
+        { provide: ToastrService, useValue: toastrMock },
+        { provide: LoggingService, useValue: loggingServiceMock }
       ]
     }).compileComponents();
 
@@ -46,6 +54,7 @@ describe('LoginComponent', () => {
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
+    loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
 
     fixture.detectChanges();
   });
@@ -91,6 +100,7 @@ describe('LoginComponent', () => {
     component.onSubmit();
 
     expect(toastr.error).toHaveBeenCalledWith('Error de conexión', 'Error de autenticación');
+    expect(loggingService.error).toHaveBeenCalledWith('err.message:', 'Error de conexión');
   });
 
   it('should handle login error and show generic toastr error message when message is missing', () => {
@@ -100,5 +110,6 @@ describe('LoginComponent', () => {
     component.onSubmit();
 
     expect(toastr.error).toHaveBeenCalledWith('Credenciales incorrectas', 'Error de autenticación');
+    expect(loggingService.error).toHaveBeenCalledWith('No hay propiedad "message" en el error.');
   });
 });
