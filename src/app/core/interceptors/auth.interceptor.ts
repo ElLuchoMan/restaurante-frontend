@@ -1,20 +1,19 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { UserService } from '../services/user.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const token =
-    typeof document !== 'undefined'
-      ? document.cookie
-          .split('; ')
-          .find((row) => row.startsWith('auth_token='))
-          ?.split('=')[1] || null
-      : null;
+  const userService = inject(UserService);
+  const validToken = userService.validateTokenAndLogout();
 
-  const authReq = token
-    ? req.clone({
-        withCredentials: true,
-        setHeaders: { Authorization: `Bearer ${token}` },
-      })
-    : req.clone({ withCredentials: true });
+  if (validToken) {
+    const authReq = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${validToken}`,
+      },
+    });
+    return next(authReq);
+  }
 
-  return next(authReq);
+  return next(req);
 };

@@ -40,10 +40,6 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
-## Autenticación
-
-La aplicación ahora almacena el token de sesión en cookies `HttpOnly` gestionadas por el backend. El cliente ya no utiliza `localStorage`; las cookies se envían automáticamente en cada petición mediante `withCredentials`.
-
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
