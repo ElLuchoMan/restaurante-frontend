@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { take } from 'rxjs';
-import { LoggingService } from '../../../core/services/logging.service';
+import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 import { UserService } from '../../../core/services/user.service';
 import { environment } from '../../../../environments/environment';
 
@@ -42,9 +42,9 @@ export class LoginComponent {
         error: (err) => {
           if (!environment.production) {
             if (err && err.message) {
-              this.logger.error('err.message:', err.message);
+              this.logger.log(LogLevel.ERROR, 'Error de inicio de sesión', err);
             } else {
-              this.logger.error('No hay propiedad "message" en el error.');
+              this.logger.log(LogLevel.ERROR,'No hay propiedad "message" en el error.');
             }
           }
           if (err && err.message) {
