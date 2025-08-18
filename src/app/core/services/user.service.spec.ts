@@ -104,7 +104,7 @@ describe('UserService', () => {
     const encodedPayload = btoa(JSON.stringify(tokenPayload));
     localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     const decoded = service.decodeToken();
-    expect(decoded).toEqual({ rol: 'Administrador', documento: expect.any(Number), exp: expect.any(Number) });
+    expect(decoded).toEqual(tokenPayload);
   });
 
   it('should log an error and return null if token decoding fails', () => {
@@ -148,6 +148,13 @@ describe('UserService', () => {
     const encodedPayload = btoa(JSON.stringify(validTokenPayload));
     localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     expect(service.isTokenExpired()).toBe(false);
+  });
+
+  it('should treat malformed token as expired', () => {
+    localStorage.setItem('auth_token', 'invalid.token.value');
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    expect(service.isTokenExpired()).toBe(true);
+    consoleSpy.mockRestore();
   });
 
   it('should return true if decodeToken returns null for token expiry', () => {
