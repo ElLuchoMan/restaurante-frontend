@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
 import { MisPedidosComponent } from './mis-pedidos.component';
 import { PedidoService } from '../../../core/services/pedido.service';
@@ -35,6 +35,18 @@ describe('MisPedidosComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should unsubscribe on destroy', () => {
+    userService.getUserId.mockReturnValue(1);
+    const unsub = jest.fn();
+    const observable = new Observable(() => {
+      return unsub;
+    });
+    pedidoService.getMisPedidos.mockReturnValue(observable);
+    component.ngOnInit();
+    component.ngOnDestroy();
+    expect(unsub).toHaveBeenCalled();
   });
 
   it('ngOnInit should sort and enrich pedidos', () => {

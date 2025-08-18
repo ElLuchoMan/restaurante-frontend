@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -6,8 +6,8 @@ import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
 import { Pedido } from '../../../shared/models/pedido.model';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
-import { forkJoin, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { forkJoin, of, Subject } from 'rxjs';
+import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 
 type DetallesAPI = {
   PK_ID_PEDIDO?: number;
@@ -36,10 +36,11 @@ type PedidoCard = Pedido & {
   styleUrls: ['./mis-pedidos.component.scss'],
   imports: [CommonModule, RouterModule, FormatDatePipe]
 })
-export class MisPedidosComponent implements OnInit {
+export class MisPedidosComponent implements OnInit, OnDestroy {
   pedidos: PedidoCard[] = [];
   loading = true;
   error = '';
+  private destroy$ = new Subject<void>();
 
   constructor(
     private pedidoService: PedidoService,
@@ -75,12 +76,18 @@ export class MisPedidosComponent implements OnInit {
       catchError(() => {
         this.error = 'No se pudieron cargar tus pedidos';
         return of([] as PedidoCard[]);
-      })
+      }),
+      takeUntil(this.destroy$)
     )
       .subscribe(peds => {
         this.pedidos = peds;
         this.loading = false;
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private mergeDetalles(p: Pedido, det?: DetallesAPI): PedidoCard {
