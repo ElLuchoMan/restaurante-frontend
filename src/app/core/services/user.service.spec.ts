@@ -100,11 +100,11 @@ describe('UserService', () => {
   });
 
   it('should decode token correctly', () => {
-    const tokenPayload = { rol: 'Administrador', exp: Math.floor(Date.now() / 1000) + 1000 };
+    const tokenPayload = { rol: 'Administrador', documento: 1, exp: Math.floor(Date.now() / 1000) + 1000 };
     const encodedPayload = btoa(JSON.stringify(tokenPayload));
     localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     const decoded = service.decodeToken();
-    expect(decoded).toEqual({ rol: 'Administrador', exp: expect.any(Number) });
+    expect(decoded).toEqual({ rol: 'Administrador', documento: expect.any(Number), exp: expect.any(Number) });
   });
 
   it('should log an error and return null if token decoding fails', () => {
@@ -124,7 +124,7 @@ describe('UserService', () => {
   });
 
   it('should return user role if token is valid', () => {
-    const decodedToken = { rol: 'Administrador', exp: Math.floor(Date.now() / 1000) + 1000 };
+    const decodedToken = { rol: 'Administrador', documento: 1, exp: Math.floor(Date.now() / 1000) + 1000 };
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
     const result = service.getUserRole();
     expect(result).toBe('Administrador');
@@ -157,7 +157,7 @@ describe('UserService', () => {
   });
 
   it('should return true if decoded token does not have exp property', () => {
-    const decodedToken = { rol: 'Usuario' };
+    const decodedToken: any = { rol: 'Usuario', documento: 1 };
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
     const result = service.isTokenExpired();
     expect(result).toBe(true);
