@@ -16,7 +16,7 @@ import { Trabajador } from '../../../../shared/models/trabajador.model';
 import { mockTrabajadorResponse } from '../../../../shared/mocks/trabajador.mock';
 import { mockResponseCliente } from '../../../../shared/mocks/cliente.mock';
 import { ClienteService } from '../../../../core/services/cliente.service';
-import { LoggingService } from '../../../../core/services/logging.service';
+import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 
 describe('CrearReservaComponent', () => {
   let component: CrearReservaComponent;
@@ -61,8 +61,7 @@ describe('CrearReservaComponent', () => {
     } as unknown as jest.Mocked<Router>;
 
     const loggingServiceMock = {
-      log: jest.fn(),
-      error: jest.fn()
+      log: jest.fn()
     } as unknown as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
@@ -287,7 +286,7 @@ describe('CrearReservaComponent', () => {
     component.onSubmit();
 
     expect(trabajadorService.getTrabajadorId).toHaveBeenCalledWith(1);
-    expect(loggingService.error).toHaveBeenCalledWith('Error al crear la reserva', errorResponse);
+    expect(loggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error al crear la reserva', errorResponse);
     expect(toastr.error).toHaveBeenCalledWith("Error creando reserva", 'Error');
     expect(router.navigate).not.toHaveBeenCalled();
   });

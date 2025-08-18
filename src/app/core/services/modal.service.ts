@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { LoggingService } from './logging.service';
+import { LoggingService, LogLevel } from './logging.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +14,7 @@ export class ModalService {
   constructor(private logger: LoggingService) {}
 
   openModal(data: any) {
-    this.logger.log('Entra');
+    this.logger.log(LogLevel.INFO, 'Entra');
     this.modalData.next(data);
     this.isOpen.next(true);
   }
@@ -24,7 +24,7 @@ export class ModalService {
   }
 
   getModalData(): any {
-    this.logger.log('getModalData');
+    this.logger.log(LogLevel.INFO, 'getModalData');
     return this.modalData.value;
   }
 }

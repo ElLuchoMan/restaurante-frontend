@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { of, throwError } from 'rxjs';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { mockReservaResponse, mockReservasDelDiaResponse } from '../../../../shared/mocks/reserva.mocks';
-import { LoggingService } from '../../../../core/services/logging.service';
+import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 
 describe('ReservasDelDiaComponent', () => {
   let component: ReservasDelDiaComponent;
@@ -27,8 +27,7 @@ describe('ReservasDelDiaComponent', () => {
     } as unknown as jest.Mocked<ToastrService>;
 
     const loggingServiceMock = {
-      log: jest.fn(),
-      error: jest.fn()
+      log: jest.fn()
     } as unknown as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
@@ -130,7 +129,7 @@ describe('ReservasDelDiaComponent', () => {
       reservaService.actualizarReserva.mockReturnValue(throwError(() => errorResponse));
       component['actualizarReserva'](reserva);
 
-      expect(loggingService.error).toHaveBeenCalledWith('Error:', errorResponse);
+      expect(loggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error:', errorResponse);
       expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error al actualizar la reserva', 'Error');
     });
   });
