@@ -3,8 +3,10 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { take } from 'rxjs';
+import { LoggingService } from '../../../core/services/logging.service';
 import { UserService } from '../../../core/services/user.service';
-import { Roles } from '../../../shared/constants';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -20,32 +22,40 @@ export class LoginComponent {
   constructor(
     private router: Router,
     private toastr: ToastrService,
-    private userService: UserService
+    private userService: UserService,
+    private logger: LoggingService
   ) { }
 
   onSubmit(): void {
-    this.userService.login({ documento: this.documento, password: this.password }).subscribe({
-      next: (response) => {
-        this.userService.saveToken(response.data.token);
-        this.toastr.success('Inicio de sesión exitoso', `Bienvenido ${response.data.nombre}`);
-        const userRole = this.userService.getUserRole();
-        if (userRole === Roles.ADMINISTRADOR) {
+    this.userService
+      .login({ documento: this.documento, password: this.password })
+      .pipe(take(1))
+      .subscribe({
+        next: (response) => {
+          this.userService.saveToken(response.data.token);
+          this.toastr.success(
+            'Inicio de sesión exitoso',
+            `Bienvenido ${response.data.nombre}`
+          );
           this.router.navigate(['/home']);
-        } else if (userRole === Roles.CLIENTE) {
-          this.router.navigate(['/home']);
-        } else {
-          this.router.navigate(['/home']);
-        }
-      },
-      error: (err) => {
-        if (err && err.message) {
-          console.error('err.message:', err.message);
-          this.toastr.error(err?.message, 'Error de autenticación');
-        } else {
-          console.error('No hay propiedad "message" en el error.');
-          this.toastr.error('Credenciales incorrectas', 'Error de autenticación');
-        }
-      },
-    });
+        },
+        error: (err) => {
+          if (!environment.production) {
+            if (err && err.message) {
+              this.logger.error('err.message:', err.message);
+            } else {
+              this.logger.error('No hay propiedad "message" en el error.');
+            }
+          }
+          if (err && err.message) {
+            this.toastr.error(err?.message, 'Error de autenticación');
+          } else {
+            this.toastr.error(
+              'Credenciales incorrectas',
+              'Error de autenticación'
+            );
+          }
+        },
+      });
   }
 }
