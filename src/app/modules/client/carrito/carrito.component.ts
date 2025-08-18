@@ -2,9 +2,8 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subject, firstValueFrom } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { ToastrService } from 'ngx-toastr';
+import { Subscription, Subject, of } from 'rxjs';
+import { switchMap, catchError, takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 import { CartService } from '../../../core/services/cart.service';
@@ -36,6 +35,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
   totalCalorias = 0;
   paymentMethods: MetodosPago[] = [];
 
+  private sub!: Subscription;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -48,12 +48,11 @@ export class CarritoComponent implements OnInit, OnDestroy {
     private pedidoClienteService: PedidoClienteService,
     private userService: UserService,
     private clienteService: ClienteService, // Ya existe en tu proyecto
-    private router: Router,
-    private toastr: ToastrService
+    private router: Router
   ) { }
 
   ngOnInit(): void {
-    this.cart.items$
+    this.sub = this.cart.items$
       .pipe(takeUntil(this.destroy$))
       .subscribe(items => {
       this.carrito = items;
@@ -69,6 +68,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.sub.unsubscribe();
   }
 
   sumar(p: Producto)   { this.cart.changeQty(p.productoId!, +1); }
@@ -102,125 +102,125 @@ export class CarritoComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async onCheckoutConfirm() {
+  private onCheckoutConfirm() {
     const { selects } = this.modalService.getModalData();
     const [methodSelect, deliverySelect] = selects;
-    const methodId = methodSelect.selected as number;
+    const methodId      = methodSelect.selected as number;
     const needsDelivery = deliverySelect.selected as boolean;
 
     this.modalService.closeModal();
 
-    try {
-      let domicilioId: number | null = null;
-
-      if (needsDelivery) {
-        const clienteId = this.userService.getUserId();
-        const cliente = await this.fetchCliente(clienteId);
-        domicilioId = await this.crearDomicilio(cliente, clienteId);
-      }
-
-      await this.finalizeOrder(methodId, domicilioId);
-    } catch (err) {
-      this.handleError(err, 'No se pudo completar el checkout');
+    // 1) Si NO requiere domicilio → finalizamos sin crear domicilio
+    if (!needsDelivery) {
+      return this.finalizeOrder(methodId, null);
     }
-  }
 
-  private async fetchCliente(clienteId: number): Promise<Cliente> {
-    try {
-      const res = await firstValueFrom(
-        this.clienteService.getClienteId(clienteId).pipe(takeUntil(this.destroy$))
-      );
-      if (!res?.data) {
-        throw new Error('No se pudo obtener la información del cliente');
-      }
-      return res.data;
-    } catch (err) {
-      this.handleError(err, 'Error al obtener datos del cliente');
-      throw err;
-    }
-  }
+    // 2) Si requiere domicilio:
+    //    2.1) Obtenemos el ID del cliente (documento) desde el token
+    const clienteId = this.userService.getUserId();
 
-  private async crearDomicilio(cliente: Cliente, clienteId: number): Promise<number> {
-    const hoy = new Date();
-    const yyyy = hoy.getFullYear();
-    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dd = String(hoy.getDate()).padStart(2, '0');
-    const fechaHoy = `${yyyy}-${mm}-${dd}`;
+    //    2.2) Llamamos a ClienteService.getClienteId(...) para traer su registro completo
+    this.clienteService.getClienteId(clienteId).pipe(
+      catchError(err => {
+        console.error('Error al obtener datos del cliente:', err);
+        // En caso de error, retornamos null para interrumpir el flujo
+        return of(null as any);
+      }),
+      switchMap((resCliente) => {
+        if (!resCliente || !resCliente.data) {
+          throw new Error('No se pudo obtener la información del cliente');
+        }
+        const cliente: Cliente = resCliente.data;
 
-    const nuevoDomicilio: Domicilio = {
-      direccion: cliente.direccion,
-      telefono: cliente.telefono,
-      estadoPago: estadoPago.PENDIENTE,
-      entregado: false,
-      fechaDomicilio: fechaHoy,
-      observaciones: cliente.observaciones || '',
-      createdBy: `Usuario ${clienteId}`,
-    };
+        // 2.3) Creamos el objeto Domicilio con la dirección/telefono que trae el cliente
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm   = String(hoy.getMonth() + 1).padStart(2, '0');
+        const dd   = String(hoy.getDate()).padStart(2, '0');
+        const fechaHoy = `${yyyy}-${mm}-${dd}`; // formato "YYYY-MM-DD"
 
-    try {
-      const resp = await firstValueFrom(
-        this.domicilioService.createDomicilio(nuevoDomicilio).pipe(takeUntil(this.destroy$))
-      );
-      return (resp.data as Domicilio).domicilioId!;
-    } catch (err) {
-      this.handleError(err, 'Error al crear domicilio');
-      throw err;
-    }
-  }
+        const nuevoDomicilio: Domicilio = {
+          direccion:      cliente.direccion,
+          telefono:       cliente.telefono,
+          estadoPago:     estadoPago.PENDIENTE,   // Asignamos 'PENDIENTE' por defecto
+          entregado:      false,         // Recién creado
+          fechaDomicilio: fechaHoy,
+          observaciones:  cliente.observaciones || '',
+          createdBy:      `Usuario ${clienteId}`, // Asignamos el ID del cliente como creador
+          // createdAt/updatedAt los maneja el backend; trabajadorAsignado=null
+        };
 
-  private async finalizeOrder(methodId: number, domicilioId: number | null): Promise<void> {
-    try {
-      const pedidoRes = await firstValueFrom(
-        this.pedidoService
-          .createPedido({ delivery: domicilioId !== null })
-          .pipe(takeUntil(this.destroy$))
-      );
-      const pedidoId = pedidoRes.data.pedidoId!;
-
-      const detalles = this.carrito.map(p => ({
-        PK_ID_PRODUCTO: p.productoId!,
-        NOMBRE: p.nombre,
-        CANTIDAD: p.cantidad!,
-        PRECIO_UNITARIO: p.precio,
-        SUBTOTAL: p.precio * p.cantidad!,
-      }));
-
-      await firstValueFrom(
-        this.productoPedidoService
-          .create({ PK_ID_PEDIDO: pedidoId, DETALLES_PRODUCTOS: detalles })
-          .pipe(takeUntil(this.destroy$))
-      );
-
-      await firstValueFrom(
-        this.pedidoClienteService
-          .create({ pedidoId, documentoCliente: this.userService.getUserId() })
-          .pipe(takeUntil(this.destroy$))
-      );
-
-      await firstValueFrom(
-        this.pedidoService
-          .assignPago(pedidoId, methodId)
-          .pipe(takeUntil(this.destroy$))
-      );
-
-      if (domicilioId !== null) {
-        await firstValueFrom(
-          this.pedidoService
-            .assignDomicilio(pedidoId, domicilioId)
-            .pipe(takeUntil(this.destroy$))
+        // 2.4) Llamamos a createDomicilio para insertarlo en la BD
+        return this.domicilioService.createDomicilio(nuevoDomicilio).pipe(
+          catchError(err2 => {
+            console.error('Error al crear domicilio:', err2);
+            throw err2;
+          })
         );
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (respDomicilio) => {
+        // 2.5) Ya tenemos el domicilio recién creado → extraemos domicilioId
+        const domicilioId = (respDomicilio.data as Domicilio).domicilioId!;
+        // 2.6) Continuamos el flujo normal con finalizeOrder
+        this.finalizeOrder(methodId, domicilioId);
+      },
+      error: (err) => {
+        // Si algo falla al obtener cliente o crear domicilio → mostramos un error
+        console.error('No se pudo completar la creación de domicilio, el checkout se canceló.', err);
+        // Aquí podrías mostrar un toast o mensaje en pantalla para avisar al usuario
       }
-
-      this.cart.clearCart();
-      this.router.navigate(['/cliente/mis-pedidos']);
-    } catch (err) {
-      this.handleError(err, 'Error en el flujo de finalización del pedido');
-      throw err;
-    }
+    });
   }
 
-  private handleError(error: any, message: string): void {
-    console.error(message, error);
-    this.toastr.error(message, 'Error');
+  private finalizeOrder(methodId: number, domicilioId: number | null) {
+    // 3.1) Crear el pedido (POST /pedidos) → devolvemos el ID
+    this.pedidoService.createPedido({ delivery: domicilioId !== null }).pipe(
+      switchMap(res => {
+        const pedidoId = res.data.pedidoId!;
+
+        // 3.2) Crear ProductoPedido (POST /producto_pedido)
+        const detalles = this.carrito.map(p => ({
+          PK_ID_PRODUCTO:   p.productoId!,
+          NOMBRE:           p.nombre,
+          CANTIDAD:         p.cantidad!,
+          PRECIO_UNITARIO:  p.precio,
+          SUBTOTAL:         p.precio * p.cantidad!
+        }));
+        return this.productoPedidoService.create({
+          PK_ID_PEDIDO:       pedidoId,
+          DETALLES_PRODUCTOS: detalles
+        }).pipe(switchMap(() => of(pedidoId)));
+      }),
+      // 3.3) Crear PedidoCliente (POST /pedido_clientes)
+      switchMap(pedidoId =>
+        this.pedidoClienteService.create({
+          pedidoId:         pedidoId,
+          documentoCliente: this.userService.getUserId()
+        }).pipe(switchMap(() => of(pedidoId)))
+      ),
+      // 3.4) Asignar pago (POST /pedidos/asignar-pago?pedido_id=X&pago_id=Y)
+      switchMap(pedidoId =>
+        this.pedidoService.assignPago(pedidoId, methodId).pipe(switchMap(() => of(pedidoId)))
+      ),
+      // 3.5) Si existe domicilioId, asignarlo (POST /pedidos/asignar-domicilio?pedido_id=X&domicilio_id=Y)
+      switchMap(pedidoId => {
+        return domicilioId !== null
+          ? this.pedidoService.assignDomicilio(pedidoId, domicilioId)
+          : of(null);
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+        // 3.6) Al terminar, limpio carrito y redirijo a “Mis pedidos”
+        this.cart.clearCart();
+        this.router.navigate(['/cliente/mis-pedidos']);
+      },
+      error: err => {
+        console.error('Error en el flujo de finalizeOrder:', err);
+        // Aquí podrías mostrar un toast de error
+      }
+    });
   }
 }
