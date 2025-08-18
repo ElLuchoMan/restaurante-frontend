@@ -41,8 +41,9 @@ export class CrearProductoComponent {
       this.cargarProducto(this.productoId!);
     }
   }
-  seleccionarImagen(event: any): void {
-    this.imagenSeleccionada = event.target.files[0];
+  seleccionarImagen(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.imagenSeleccionada = input.files?.[0] || null;
   }
 
   crearProducto(): void {
@@ -51,21 +52,7 @@ export class CrearProductoComponent {
       return;
     }
 
-    const formData = new FormData();
-
-    // Convertimos los nombres de las propiedades a mayúsculas para el backend
-    formData.append('NOMBRE', this.producto.nombre);
-    formData.append('CALORIAS', this.producto.calorias?.toString() || '');
-    formData.append('DESCRIPCION', this.producto.descripcion || '');
-    formData.append('PRECIO', this.producto.precio.toString());
-    formData.append('ESTADO_PRODUCTO', this.producto.estadoProducto || 'DISPONIBLE');
-    formData.append('CANTIDAD', this.producto.cantidad.toString());
-    formData.append('CATEGORIA', this.producto.categoria || '');
-    formData.append('SUBCATEGORIA', this.producto.subcategoria || '');
-
-    if (this.imagenSeleccionada) {
-      formData.append('IMAGEN', this.imagenSeleccionada);
-    }
+    const formData = this.crearFormData(this.producto);
 
     this.productoService.createProducto(formData).subscribe(response => {
       if (response.code === 201) {
@@ -84,20 +71,7 @@ export class CrearProductoComponent {
   actualizarProducto(): void {
     if (!this.productoId) return;
 
-    const formData = new FormData();
-
-    formData.append('NOMBRE', this.producto.nombre);
-    formData.append('CALORIAS', this.producto.calorias?.toString() || '');
-    formData.append('DESCRIPCION', this.producto.descripcion || '');
-    formData.append('PRECIO', this.producto.precio.toString());
-    formData.append('ESTADO_PRODUCTO', this.producto.estadoProducto || 'DISPONIBLE');
-    formData.append('CANTIDAD', this.producto.cantidad.toString());
-    formData.append('CATEGORIA', this.producto.categoria || '');
-    formData.append('SUBCATEGORIA', this.producto.subcategoria || '');
-
-    if (this.imagenSeleccionada) {
-      formData.append('IMAGEN', this.imagenSeleccionada);
-    }
+    const formData = this.crearFormData(this.producto);
 
     this.productoService.updateProducto(Number(this.productoId), formData).subscribe(response => {
       if (response.code === 200) {
@@ -105,6 +79,26 @@ export class CrearProductoComponent {
         setTimeout(() => this.router.navigate(['/admin/productos']), 2000);
       }
     });
+  }
+
+  private crearFormData(producto: Producto): FormData {
+    const formData = new FormData();
+
+    // Convertimos los nombres de las propiedades a mayúsculas para el backend
+    formData.append('NOMBRE', producto.nombre);
+    formData.append('CALORIAS', producto.calorias?.toString() || '');
+    formData.append('DESCRIPCION', producto.descripcion || '');
+    formData.append('PRECIO', producto.precio.toString());
+    formData.append('ESTADO_PRODUCTO', producto.estadoProducto || 'DISPONIBLE');
+    formData.append('CANTIDAD', producto.cantidad.toString());
+    formData.append('CATEGORIA', producto.categoria || '');
+    formData.append('SUBCATEGORIA', producto.subcategoria || '');
+
+    if (this.imagenSeleccionada) {
+      formData.append('IMAGEN', this.imagenSeleccionada);
+    }
+
+    return formData;
   }
 
 
