@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalService } from '../../../core/services/modal.service';
+import { ModalService, ModalData } from '../../../core/services/modal.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class ModalComponent implements OnInit {
   isOpen = false;
-  modalData: any = {};
+  modalData: ModalData | null = null;
 
   constructor(private modalService: ModalService) { }
 

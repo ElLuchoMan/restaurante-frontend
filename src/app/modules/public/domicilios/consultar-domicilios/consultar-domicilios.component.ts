@@ -88,7 +88,7 @@ export class ConsultarDomicilioComponent implements OnInit {
             class: 'btn btn-success',
             action: () => {
               const modalData = this.modalService.getModalData();
-              if (modalData.select?.selected) {
+              if (modalData?.select?.selected) {
                 this.confirmarAsignacion(domicilio, modalData.select.selected);
                 this.modalService.closeModal();
               }
