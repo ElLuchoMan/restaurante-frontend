@@ -58,7 +58,11 @@ describe('HeaderComponent', () => {
     expect(component.userRole).toBe('Cliente');
     const allMenu = [...component.menuLeft, ...component.menuRight];
     expect(allMenu.some(item => item.label === 'Perfil')).toBe(true);
+    expect(allMenu.some(item => item.label === '🛒')).toBe(true);
     expect(allMenu.some(item => item.label === 'Logout')).toBe(true);
+    expect(allMenu.some(item => item.label === 'Inicio')).toBe(false);
+    expect(allMenu.some(item => item.label === 'Ubicación')).toBe(false);
+    expect(allMenu.some(item => item.label === 'Galería')).toBe(false);
   });
 
   it('should generate menu for user "Administrador"', () => {
@@ -69,10 +73,13 @@ describe('HeaderComponent', () => {
     expect(component.userRole).toBe('Administrador');
     const allMenu = [...component.menuLeft, ...component.menuRight];
     expect(allMenu.some(item => item.label === 'Registrar')).toBe(true);
+    expect(allMenu.some(item => item.label === 'Domicilios')).toBe(true);
+    expect(allMenu.some(item => item.label === 'Productos')).toBe(true);
     expect(allMenu.some(item => item.label === 'Logout')).toBe(true);
     expect(allMenu.some(item => item.label === 'Galería')).toBe(false);
     expect(allMenu.some(item => item.label === 'Menú')).toBe(false);
     expect(allMenu.some(item => item.label === 'Ubicación')).toBe(false);
+    expect(allMenu.some(item => item.label === 'Inicio')).toBe(false);
   });
 
   it('should generate menu for user "Mesero"', () => {
@@ -84,6 +91,7 @@ describe('HeaderComponent', () => {
     const allMenu = [...component.menuLeft, ...component.menuRight];
     expect(allMenu.some(item => item.label === 'Pedidos')).toBe(true);
     expect(allMenu.some(item => item.label === 'Logout')).toBe(true);
+    expect(allMenu.some(item => item.label === 'Galería')).toBe(true);
   });
 
   it('should generate menu for user "Domiciliario"', () => {
@@ -93,7 +101,11 @@ describe('HeaderComponent', () => {
 
     expect(component.userRole).toBe('Domiciliario');
     const allMenu = [...component.menuLeft, ...component.menuRight];
+    expect(allMenu.some(item => item.label === 'Domicilios')).toBe(true);
     expect(allMenu.some(item => item.label === 'Logout')).toBe(true);
+    expect(allMenu.some(item => item.label === 'Galería')).toBe(false);
+    expect(allMenu.some(item => item.label === 'Menú')).toBe(false);
+    expect(allMenu.some(item => item.label === 'Reservas')).toBe(false);
   });
 
   it('should update imagenVisible based on screen width and total menu items', () => {
