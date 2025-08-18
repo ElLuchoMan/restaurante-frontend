@@ -1,16 +1,16 @@
 <div class="modal-overlay" *ngIf="isOpen" (click)="close()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h2 *ngIf="modalData?.title">{{ modalData?.title }}</h2>
+            <h2 *ngIf="modalData.title">{{ modalData.title }}</h2>
             <button class="close-btn" (click)="close()">&times;</button>
         </div>
 
         <div class="modal-body">
-            <img *ngIf="modalData?.image" [src]="modalData?.image" alt="Imagen modal" />
+            <img *ngIf="modalData.image" [src]="modalData.image" alt="Imagen modal" />
 
-            <div class="mt-3" *ngIf="modalData?.message" [innerHTML]="modalData?.message"></div>
+            <div class="mt-3" *ngIf="modalData.message" [innerHTML]="modalData.message"></div>
 
-            <ng-container *ngIf="modalData?.selects">
+            <ng-container *ngIf="modalData.selects">
                 <div *ngFor="let sel of modalData.selects" class="form-group mt-3">
                     <label>{{ sel.label }}</label>
                     <select class="form-control" [(ngModel)]="sel.selected">
@@ -20,9 +20,18 @@
                     </select>
                 </div>
             </ng-container>
+
+            <div *ngIf="modalData.select">
+                <label>{{ modalData.select.label }}</label>
+                <select class="form-control" [(ngModel)]="modalData.select.selected">
+                    <option *ngFor="let item of modalData.select.options" [value]="item.value">
+                        {{ item.label }}
+                    </option>
+                </select>
+            </div>
         </div>
 
-        <div class="modal-buttons" *ngIf="modalData?.buttons">
+        <div class="modal-buttons" *ngIf="modalData.buttons">
             <button *ngFor="let btn of modalData.buttons" (click)="btn.action()" [class]="btn.class">
                 {{ btn.label }}
             </button>

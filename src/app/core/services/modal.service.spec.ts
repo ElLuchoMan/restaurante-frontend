@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { ModalService } from './modal.service';
-import { ModalData } from '../../shared/models/modal-data.model';
 import { LoggingService } from './logging.service';
 
 describe('ModalService', () => {
@@ -28,7 +27,7 @@ describe('ModalService', () => {
   });
 
   it('should update modalData and set isOpen to true when openModal is called', () => {
-    const data: ModalData = { title: 'Test Modal', message: 'Contenido de prueba' };
+    const data = { title: 'Test Modal', content: 'Contenido de prueba' };
     service.openModal(data);
 
     expect(service.getModalData()).toEqual(data);

@@ -187,11 +187,7 @@ describe('ConsultarDomicilioComponent', () => {
       ]));
       let modalConfig: any;
       modalService.openModal.mockImplementation(config => (modalConfig = config));
-      modalService.getModalData.mockReturnValue({
-        title: '',
-        selects: [{ label: '', options: [], selected: 1 }],
-        buttons: []
-      });
+      modalService.getModalData.mockReturnValue({ select: { selected: 1 } });
       jest.spyOn(component, 'confirmarAsignacion');
       domicilioService.asignarDomiciliario.mockReturnValue(of({ code: 200 }));
       trabajadorService.searchTrabajador.mockReturnValue(of({ data: { nombre: 'A', apellido: 'B' } }));
@@ -212,11 +208,7 @@ describe('ConsultarDomicilioComponent', () => {
       ]));
       let modalConfig: any;
       modalService.openModal.mockImplementation(config => (modalConfig = config));
-      modalService.getModalData.mockReturnValue({
-        title: '',
-        selects: [{ label: '', options: [], selected: null }],
-        buttons: []
-      });
+      modalService.getModalData.mockReturnValue({ select: { selected: null } });
       jest.spyOn(component, 'confirmarAsignacion');
 
       component.asignarDomicilio(domicilioBase);
