@@ -6,16 +6,25 @@ import { environment } from '../../../environments/environment';
 import { Domicilio } from '../../shared/models/domicilio.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { estadoPago } from '../../shared/constants';
+import { HandleErrorService } from './handle-error.service';
 
 describe('DomicilioService', () => {
   let service: DomicilioService;
   let httpMock: HttpTestingController;
   const baseUrl = `${environment.apiUrl}/domicilios`;
 
+  const mockHandleErrorService = {
+    handleError: jest.fn((error: any) => { throw error; })
+  };
+
   beforeEach(() => {
+    mockHandleErrorService.handleError.mockReset();
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [DomicilioService]
+      providers: [
+        DomicilioService,
+        { provide: HandleErrorService, useValue: mockHandleErrorService }
+      ]
     });
     service = TestBed.inject(DomicilioService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -44,6 +53,18 @@ describe('DomicilioService', () => {
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);
     });
+
+    it('should handle error when GET domicilios', () => {
+      const params = { filter: 'test' };
+      service.getDomicilios(params).subscribe({
+        error: (error) => {
+          expect(error).toBeTruthy();
+        }
+      });
+      const req = httpMock.expectOne(r => r.url === baseUrl && r.params.get('filter') === 'test');
+      req.error(new ErrorEvent('API error'));
+      expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+    });
   });
 
   describe('getDomicilioById', () => {
@@ -58,6 +79,18 @@ describe('DomicilioService', () => {
       const req = httpMock.expectOne(`${baseUrl}/search?id=${id}`);
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);
+    });
+
+    it('should handle error when GET domicilio by id', () => {
+      const id = 1;
+      service.getDomicilioById(id).subscribe({
+        error: (error) => {
+          expect(error).toBeTruthy();
+        }
+      });
+      const req = httpMock.expectOne(`${baseUrl}/search?id=${id}`);
+      req.error(new ErrorEvent('API error'));
+      expect(mockHandleErrorService.handleError).toHaveBeenCalled();
     });
   });
 
@@ -75,6 +108,17 @@ describe('DomicilioService', () => {
       expect(req.request.body).toEqual(newDomicilio);
       req.flush(mockResponse);
     });
+
+    it('should handle error when POST domicilio', () => {
+      service.createDomicilio(mockDomicilioBody).subscribe({
+        error: (error) => {
+          expect(error).toBeTruthy();
+        }
+      });
+      const req = httpMock.expectOne(baseUrl);
+      req.error(new ErrorEvent('API error'));
+      expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+    });
   });
 
   describe('updateDomicilio', () => {
@@ -91,6 +135,19 @@ describe('DomicilioService', () => {
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual(updatedData);
       req.flush(mockResponse);
+    });
+
+    it('should handle error when PUT domicilio', () => {
+      const id = 1;
+      const updatedData: Partial<Domicilio> = { entregado: true };
+      service.updateDomicilio(id, updatedData).subscribe({
+        error: (error) => {
+          expect(error).toBeTruthy();
+        }
+      });
+      const req = httpMock.expectOne(`${baseUrl}?id=${id}`);
+      req.error(new ErrorEvent('API error'));
+      expect(mockHandleErrorService.handleError).toHaveBeenCalled();
     });
   });
 
@@ -111,6 +168,18 @@ describe('DomicilioService', () => {
       expect(req.request.method).toBe('DELETE');
       req.flush(mockResponse);
     });
+
+    it('should handle error when DELETE domicilio', () => {
+      const id = 1;
+      service.deleteDomicilio(id).subscribe({
+        error: (error) => {
+          expect(error).toBeTruthy();
+        }
+      });
+      const req = httpMock.expectOne(`${baseUrl}?id=${id}`);
+      req.error(new ErrorEvent('API error'));
+      expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+    });
   });
 
   describe('asignarDomiciliario', () => {
@@ -128,6 +197,20 @@ describe('DomicilioService', () => {
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({});
       req.flush(mockResponse);
+    });
+
+    it('should handle error when POST asignar domiciliario', () => {
+      const domicilioId = 1;
+      const trabajadorId = 2;
+      service.asignarDomiciliario(domicilioId, trabajadorId).subscribe({
+        error: (error) => {
+          expect(error).toBeTruthy();
+        }
+      });
+      const expectedUrl = `${baseUrl}/asignar?domicilio_id=${domicilioId}&trabajador_id=${trabajadorId}`;
+      const req = httpMock.expectOne(expectedUrl);
+      req.error(new ErrorEvent('API error'));
+      expect(mockHandleErrorService.handleError).toHaveBeenCalled();
     });
   });
 });
