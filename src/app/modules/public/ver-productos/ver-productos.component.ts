@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductoService } from '../../../core/services/producto.service';
 import { Producto } from '../../../shared/models/producto.model';
@@ -8,6 +8,8 @@ import { ModalService } from '../../../core/services/modal.service';
 import { UserService } from '../../../core/services/user.service';
 import { Router } from '@angular/router';
 import { CartService } from '../../../core/services/cart.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-ver-productos',
@@ -15,7 +17,7 @@ import { CartService } from '../../../core/services/cart.service';
   styleUrls: ['./ver-productos.component.scss'],
   imports: [CommonModule, FormsModule, ProductoFiltroPipe]
 })
-export class VerProductosComponent implements OnInit {
+export class VerProductosComponent implements OnInit, OnDestroy {
   productos: Producto[] = [];
   mensaje: string = '';
   categorias: string[] = [];
@@ -29,15 +31,23 @@ export class VerProductosComponent implements OnInit {
   maxCalorias?: number;
   userRole: string | null = null;
   carrito: Producto[] = [];
+  private destroy$ = new Subject<void>();
 
   constructor(private productoService: ProductoService, private modalService: ModalService, private userService: UserService, private router: Router, private cartService: CartService) { }
 
   ngOnInit(): void {
     this.obtenerProductos();
 
-    this.userService.getAuthState().subscribe(isLogged => {
-      this.userRole = isLogged ? this.userService.getUserRole() : null;
-    });
+    this.userService.getAuthState()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isLogged => {
+        this.userRole = isLogged ? this.userService.getUserRole() : null;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 
