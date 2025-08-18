@@ -2,8 +2,8 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription, of } from 'rxjs';
-import { switchMap, catchError } from 'rxjs/operators';
+import { Subscription, Subject, of } from 'rxjs';
+import { switchMap, catchError, takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 import { CartService } from '../../../core/services/cart.service';
@@ -36,6 +36,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
   paymentMethods: MetodosPago[] = [];
 
   private sub!: Subscription;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private cart: CartService,
@@ -51,17 +52,22 @@ export class CarritoComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.sub = this.cart.items$.subscribe(items => {
+    this.sub = this.cart.items$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(items => {
       this.carrito = items;
       this.subtotal = items.reduce((s, p) => s + p.precio * (p.cantidad ?? 1), 0);
       this.totalCalorias = items.reduce((s, p) => s + (p.calorias || 0) * (p.cantidad ?? 1), 0);
     });
 
     this.metodosPagoService.getAll()
+      .pipe(takeUntil(this.destroy$))
       .subscribe(r => this.paymentMethods = r.data || []);
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.sub.unsubscribe();
   }
 
@@ -153,7 +159,8 @@ export class CarritoComponent implements OnInit, OnDestroy {
             throw err2;
           })
         );
-      })
+      }),
+      takeUntil(this.destroy$)
     ).subscribe({
       next: (respDomicilio) => {
         // 2.5) Ya tenemos el domicilio recién creado → extraemos domicilioId
@@ -204,7 +211,8 @@ export class CarritoComponent implements OnInit, OnDestroy {
         return domicilioId !== null
           ? this.pedidoService.assignDomicilio(pedidoId, domicilioId)
           : of(null);
-      })
+      }),
+      takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
         // 3.6) Al terminar, limpio carrito y redirijo a “Mis pedidos”

@@ -1,12 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { ModalService } from './modal.service';
 import { ModalData } from '../../shared/models/modal-data.model';
+import { LoggingService } from './logging.service';
 
 describe('ModalService', () => {
   let service: ModalService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [LoggingService]
+    });
     service = TestBed.inject(ModalService);
   });
 

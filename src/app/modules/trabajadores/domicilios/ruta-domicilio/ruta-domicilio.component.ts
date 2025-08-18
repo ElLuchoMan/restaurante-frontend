@@ -8,6 +8,7 @@ import { estadoPago } from '../../../../shared/constants';
 import { ModalService } from '../../../../core/services/modal.service';
 import { ToastrService } from 'ngx-toastr';
 import { SafePipe } from "../../../../shared/pipes/safe.pipe";
+import { LoggingService } from '../../../../core/services/logging.service';
 
 @Component({
   selector: 'app-ruta-domicilio',
@@ -32,7 +33,8 @@ export class RutaDomicilioComponent implements OnInit {
     public domicilioService: DomicilioService,
     public router: Router,
     public modalService: ModalService,
-    public toastrService: ToastrService
+    public toastrService: ToastrService,
+    private logger: LoggingService
   ) { }
 
   ngOnInit(): void {
@@ -69,7 +71,7 @@ export class RutaDomicilioComponent implements OnInit {
         .subscribe(
           response => {
             this.toastrService.success('Domicilio marcado como finalizado');
-            console.log('Domicilio marcado como finalizado', response);
+            this.logger.log('Domicilio marcado como finalizado', response);
           },
           error => {
             console.error('Error al marcar finalizado', error);
@@ -104,7 +106,7 @@ export class RutaDomicilioComponent implements OnInit {
               const selected = modalData?.selects?.[0].selected;
               if (selected) {
                 const metodoPagoSeleccionado = selected;
-                console.log('Método de pago seleccionado:', metodoPagoSeleccionado);
+                this.logger.log('Método de pago seleccionado:', metodoPagoSeleccionado);
                 this.domicilioService.updateDomicilio(this.domicilioId, {
                   estadoPago: estadoPago.PAGADO
                 }).subscribe(

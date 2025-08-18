@@ -8,6 +8,7 @@ import { ModalService } from '../../../../core/services/modal.service';
 import { ToastrService } from 'ngx-toastr';
 import { estadoPago } from '../../../../shared/constants';
 import { mockDomicilioRespone } from './../../../../shared/mocks/domicilio.mock';
+import { LoggingService } from '../../../../core/services/logging.service';
 
 describe('RutaDomicilioComponent', () => {
   let component: RutaDomicilioComponent;
@@ -17,6 +18,7 @@ describe('RutaDomicilioComponent', () => {
   let domicilioService: jest.Mocked<DomicilioService>;
   let modalService: jest.Mocked<ModalService>;
   let toastrService: jest.Mocked<ToastrService>;
+  let loggingService: jest.Mocked<LoggingService>;
 
   // Simulación de queryParams
   const queryParamsMock = {
@@ -58,6 +60,11 @@ describe('RutaDomicilioComponent', () => {
       error: jest.fn()
     };
 
+    const loggingServiceMock = {
+      log: jest.fn(),
+      error: jest.fn()
+    } as unknown as jest.Mocked<LoggingService>;
+
     const routerMock = {
       navigate: jest.fn()
     };
@@ -71,6 +78,7 @@ describe('RutaDomicilioComponent', () => {
         { provide: DomicilioService, useValue: domicilioServiceMock },
         { provide: ModalService, useValue: modalServiceMock },
         { provide: ToastrService, useValue: toastrServiceMock },
+        { provide: LoggingService, useValue: loggingServiceMock },
         { provide: Router, useValue: routerMock }
       ]
     }).compileComponents();
@@ -81,6 +89,7 @@ describe('RutaDomicilioComponent', () => {
     domicilioService = TestBed.inject(DomicilioService) as jest.Mocked<DomicilioService>;
     modalService = TestBed.inject(ModalService) as jest.Mocked<ModalService>;
     toastrService = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
+    loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
 
     component.ngOnInit();
