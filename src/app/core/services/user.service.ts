@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Login, LoginResponse } from '../../shared/models/login.model';
 import { HandleErrorService } from './handle-error.service';
+import jwtDecode from 'jwt-decode';
 
 export interface DecodedToken {
   rol: string;
@@ -50,17 +51,18 @@ export class UserService {
     return match ? decodeURIComponent(match[2]) : null;
   }
 
-  decodeToken(): DecodedToken | null {
-    const token = this.getToken();
-    if (!token) return null;
-
+  private decodeTokenSafely(token: string): DecodedToken | null {
     try {
-      const payload = atob(token.split('.')[1]);
-      return JSON.parse(payload) as DecodedToken;
+      return jwtDecode<DecodedToken>(token);
     } catch (error) {
       console.error('Error al decodificar el token:', error);
       return null;
     }
+  }
+
+  decodeToken(): DecodedToken | null {
+    const token = this.getToken();
+    return token ? this.decodeTokenSafely(token) : null;
   }
 
   getUserRole(): string | null {
@@ -74,10 +76,11 @@ export class UserService {
   }
 
   isTokenExpired(): boolean {
-    const decoded: DecodedToken | null = this.decodeToken();
-    if (!decoded || !decoded.exp) return true;
+    const token = this.getToken();
+    const decoded: DecodedToken | null = token ? this.decodeTokenSafely(token) : null;
+    if (!decoded || typeof decoded.exp !== 'number') return true;
 
-    const currentTime = Math.floor(new Date().getTime() / 1000);
+    const currentTime = Math.floor(Date.now() / 1000);
     return decoded.exp < currentTime;
   }
 
