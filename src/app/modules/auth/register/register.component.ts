@@ -13,7 +13,8 @@ import { TrabajadorService } from '../../../core/services/trabajador.service';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FormatDatePipe],
+  providers: [FormatDatePipe],
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
@@ -45,7 +46,8 @@ export class RegisterComponent implements OnInit {
     private trabajadorService: TrabajadorService,
     private clienteService: ClienteService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private formatDatePipe: FormatDatePipe
   ) {
   }
 
@@ -66,8 +68,8 @@ export class RegisterComponent implements OnInit {
 
 
   onSubmit(): void {
-    const formattedFechaNacimiento = new FormatDatePipe().transform(this.fechaNacimiento);
-    const formattedFechaIngreso = new FormatDatePipe().transform(new Date())
+    const formattedFechaNacimiento = this.formatDatePipe.transform(this.fechaNacimiento);
+    const formattedFechaIngreso = this.formatDatePipe.transform(new Date());
     if (this.esTrabajador) {
       const trabajador: Trabajador = {
         documentoTrabajador: this.documento,
