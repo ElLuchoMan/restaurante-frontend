@@ -13,7 +13,7 @@ import { TrabajadorService } from '../../../core/services/trabajador.service';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, FormsModule, FormatDatePipe],
+  imports: [CommonModule, FormsModule],
   providers: [FormatDatePipe],
   standalone: true,
   templateUrl: './register.component.html',

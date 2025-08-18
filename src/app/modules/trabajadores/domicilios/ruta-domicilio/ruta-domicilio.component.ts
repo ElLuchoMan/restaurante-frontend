@@ -14,7 +14,7 @@ import { SafePipe } from "../../../../shared/pipes/safe.pipe";
   standalone: true,
   templateUrl: './ruta-domicilio.component.html',
   styleUrls: ['./ruta-domicilio.component.scss'],
-  imports: [CommonModule, SafePipe]
+  imports: [CommonModule]
 })
 export class RutaDomicilioComponent implements OnInit {
   ubicacionUrl: SafeResourceUrl | undefined;
