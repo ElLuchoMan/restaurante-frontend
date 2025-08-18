@@ -19,6 +19,8 @@ type DetallesAPI = {
   PRODUCTOS?: string; // viene como string JSON
 };
 
+type ProductoDetalle = Record<string, unknown>;
+
 type PedidoCard = Pedido & {
   total?: number;
   items?: number;
@@ -26,7 +28,7 @@ type PedidoCard = Pedido & {
   metodoPago?: string;
   direccion?: string;
   telefono?: string;
-  productos?: any[];
+  productos?: ProductoDetalle[];
 };
 
 @Component({
@@ -94,7 +96,7 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
     if (!det) return { ...p };
 
     // Parse de PRODUCTOS (viene como string JSON)
-    let productos: any[] | undefined;
+    let productos: ProductoDetalle[] | undefined;
     try {
       const parsed = det.PRODUCTOS ? JSON.parse(det.PRODUCTOS) : [];
       productos = Array.isArray(parsed) ? parsed : [];

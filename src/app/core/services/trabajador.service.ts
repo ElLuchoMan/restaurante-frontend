@@ -27,7 +27,7 @@ export class TrabajadorService {
 
   getTrabajadores(): Observable<Trabajador[]> {
     return this.http.get<ApiResponse<Trabajador[]>>(`${this.baseUrl}/trabajadores`).pipe(
-      map((response: { data: any; }) => response.data),
+      map((response: ApiResponse<Trabajador[]>) => response.data),
       catchError(this.handleError.handleError)
     );
   }

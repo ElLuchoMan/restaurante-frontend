@@ -6,6 +6,7 @@ import { TrabajadorService } from '../../../../core/services/trabajador.service'
 import { ModalService } from '../../../../core/services/modal.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Trabajador } from '../../../../shared/models/trabajador.model';
 
 @Component({
   selector: 'app-consultar-domicilio',
@@ -15,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class ConsultarDomicilioComponent implements OnInit {
   domicilios: Domicilio[] = [];
-  trabajadores: any[] = [];
+  trabajadores: Trabajador[] = [];
   buscarPorDireccion: boolean = false;
   buscarPorTelefono: boolean = false;
   buscarPorFecha: boolean = false;
@@ -43,7 +44,7 @@ export class ConsultarDomicilioComponent implements OnInit {
   }
 
   buscarDomicilios(): void {
-    const params: any = {};
+    const params: Record<string, string> = {};
 
     if (this.buscarPorDireccion && this.direccion) params.direccion = this.direccion;
     if (this.buscarPorTelefono && this.telefono) params.telefono = this.telefono;
@@ -88,7 +89,7 @@ export class ConsultarDomicilioComponent implements OnInit {
             class: 'btn btn-success',
             action: () => {
               const modalData = this.modalService.getModalData();
-              if (modalData.select?.selected) {
+              if (modalData?.select?.selected) {
                 this.confirmarAsignacion(domicilio, modalData.select.selected);
                 this.modalService.closeModal();
               }

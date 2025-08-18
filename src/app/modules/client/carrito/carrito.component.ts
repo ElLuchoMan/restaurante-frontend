@@ -20,6 +20,7 @@ import { Producto } from '../../../shared/models/producto.model';
 import { MetodosPago } from '../../../shared/models/metodo-pago.model';
 import { Domicilio } from '../../../shared/models/domicilio.model';
 import { Cliente } from '../../../shared/models/cliente.model';
+import { ApiResponse } from '../../../shared/models/api-response.model';
 import { estadoPago } from '../../../shared/constants';
 
 @Component({
@@ -103,8 +104,9 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
 
   private onCheckoutConfirm() {
-    const { selects } = this.modalService.getModalData();
-    const [methodSelect, deliverySelect] = selects;
+    const data = this.modalService.getModalData();
+    if (!data?.selects) { return; }
+    const [methodSelect, deliverySelect] = data.selects;
     const methodId      = methodSelect.selected as number;
     const needsDelivery = deliverySelect.selected as boolean;
 
@@ -124,9 +126,9 @@ export class CarritoComponent implements OnInit, OnDestroy {
       catchError(err => {
         console.error('Error al obtener datos del cliente:', err);
         // En caso de error, retornamos null para interrumpir el flujo
-        return of(null as any);
+        return of<ApiResponse<Cliente> | null>(null);
       }),
-      switchMap((resCliente) => {
+      switchMap((resCliente: ApiResponse<Cliente> | null) => {
         if (!resCliente || !resCliente.data) {
           throw new Error('No se pudo obtener la información del cliente');
         }

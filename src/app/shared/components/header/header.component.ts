@@ -23,7 +23,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   cartCount = 0;
   private destroy$ = new Subject<void>();
 
-  constructor(private userService: UserService, @Inject(PLATFORM_ID) private platformId: any, private router: Router, private cartService: CartService) {
+  constructor(private userService: UserService, @Inject(PLATFORM_ID) private platformId: object, private router: Router, private cartService: CartService) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 

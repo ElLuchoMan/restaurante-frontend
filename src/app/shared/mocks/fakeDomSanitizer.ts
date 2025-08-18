@@ -6,7 +6,7 @@ export class FakeDomSanitizer extends DomSanitizer {
     bypassSecurityTrustResourceUrl(url: string): SafeResourceUrl {
         return { toString: () => url, changingThisBreaksApplicationSecurity: url } as unknown as SafeResourceUrl;
     }
-    sanitize(context: any, value: SafeResourceUrl | string | null): string | null {
+    sanitize(context: unknown, value: SafeResourceUrl | string | null): string | null {
         if (!value) { return null; }
         return value.toString();
     }

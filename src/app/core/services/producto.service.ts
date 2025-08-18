@@ -19,7 +19,7 @@ export class ProductoService {
    * @param params 
    * @returns 
    */
-  getProductos(params?: any): Observable<ApiResponse<Producto[]>> {
+  getProductos(params?: Record<string, unknown>): Observable<ApiResponse<Producto[]>> {
     return this.http.get<ApiResponse<Producto[]>>(`${this.baseUrl}`, { params }).pipe(
       catchError(this.handleError.handleError)
     );

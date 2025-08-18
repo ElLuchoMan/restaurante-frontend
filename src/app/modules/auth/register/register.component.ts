@@ -21,7 +21,7 @@ import { TrabajadorService } from '../../../core/services/trabajador.service';
 })
 export class RegisterComponent implements OnInit {
 
-  documento: any;
+  documento: number | null = null;
   nombre: string = '';
   apellido: string = '';
   direccion: string = '';

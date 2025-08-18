@@ -10,7 +10,7 @@ export interface DecodedToken {
   rol: string;
   documento: number;
   exp: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 @Injectable({

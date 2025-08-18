@@ -19,7 +19,7 @@ export class DomicilioService {
    * @param params 
    * @returns 
    */
-  getDomicilios(params?: any): Observable<ApiResponse<Domicilio[]>> {
+  getDomicilios(params?: Record<string, unknown>): Observable<ApiResponse<Domicilio[]>> {
     return this.http.get<ApiResponse<Domicilio[]>>(this.baseUrl, { params }).pipe(
       catchError(this.handleError.handleError)
     );
@@ -60,8 +60,8 @@ export class DomicilioService {
    * Elimina un domicilio por ID.
    * @param id ID del domicilio
    */
-  deleteDomicilio(id: number): Observable<ApiResponse<any>> {
-    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}?id=${id}`).pipe(
+  deleteDomicilio(id: number): Observable<ApiResponse<unknown>> {
+    return this.http.delete<ApiResponse<unknown>>(`${this.baseUrl}?id=${id}`).pipe(
       catchError(this.handleError.handleError)
     );
   }

@@ -1,18 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalComponent } from './modal.component';
 import { ModalService } from '../../../core/services/modal.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { ModalData } from '../../models/modal-data.model';
 
 describe('ModalComponent', () => {
   let component: ModalComponent;
   let fixture: ComponentFixture<ModalComponent>;
-  let modalServiceSpy: any;
-  let modalDataSubject: BehaviorSubject<any>;
+  let modalServiceSpy: { modalData$: Observable<ModalData | null>; isOpen$: Observable<boolean>; closeModal: jest.Mock };
+  let modalDataSubject: BehaviorSubject<ModalData | null>;
   let isOpenSubject: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
-    modalDataSubject = new BehaviorSubject(null);
-    isOpenSubject = new BehaviorSubject(false);
+    modalDataSubject = new BehaviorSubject<ModalData | null>(null);
+    isOpenSubject = new BehaviorSubject<boolean>(false);
     modalServiceSpy = {
       modalData$: modalDataSubject.asObservable(),
       isOpen$: isOpenSubject.asObservable(),
@@ -36,7 +37,7 @@ describe('ModalComponent', () => {
   });
 
   it('should update modalData when modalService emits new data', () => {
-    const testData = { title: 'Test Modal', content: 'Contenido de prueba' };
+    const testData: ModalData = { title: 'Test Modal', buttons: [] };
     modalDataSubject.next(testData);
     fixture.detectChanges();
     expect(component.modalData).toEqual(testData);
