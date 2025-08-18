@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Login, LoginResonse } from '../../shared/models/login.model';
+import { Login, LoginResponse } from '../../shared/models/login.model';
 import { Cliente } from '../../shared/models/cliente.model';
 import { Trabajador } from '../../shared/models/trabajador.model';
 import { HandleErrorService } from './handle-error.service';
@@ -27,8 +27,8 @@ export class UserService {
     return !!this.getToken();
   }
 
-  login(credenciales: Login): Observable<ApiResponse<LoginResonse>> {
-    return this.http.post<ApiResponse<LoginResonse>>(`${this.baseUrl}/login`, credenciales).pipe(
+  login(credenciales: Login): Observable<ApiResponse<LoginResponse>> {
+    return this.http.post<ApiResponse<LoginResponse>>(`${this.baseUrl}/login`, credenciales).pipe(
       catchError(this.handleError.handleError)
     );
   }

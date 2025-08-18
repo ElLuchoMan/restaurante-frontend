@@ -1,4 +1,4 @@
-export interface LoginResonse {
+export interface LoginResponse {
     token: string;
     nombre: string;
 }
