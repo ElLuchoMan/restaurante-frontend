@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { HandleErrorService } from './handle-error.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { mockLogin, mockLoginResponse } from '../../shared/mocks/login.mock';
+import { JwtPayload } from '../../shared/models/jwt-payload.model';
 
 describe('UserService', () => {
   let service: UserService;
@@ -100,11 +101,16 @@ describe('UserService', () => {
   });
 
   it('should decode token correctly', () => {
-    const tokenPayload = { rol: 'Administrador', exp: Math.floor(Date.now() / 1000) + 1000 };
+    const tokenPayload = {
+      rol: 'Administrador',
+      documento: 1,
+      nombre: 'Admin',
+      exp: Math.floor(Date.now() / 1000) + 1000,
+    };
     const encodedPayload = btoa(JSON.stringify(tokenPayload));
     localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     const decoded = service.decodeToken();
-    expect(decoded).toEqual({ rol: 'Administrador', exp: expect.any(Number) });
+    expect(decoded).toEqual(tokenPayload);
   });
 
   it('should log an error and return null if token decoding fails', () => {
@@ -112,9 +118,19 @@ describe('UserService', () => {
     jest.spyOn(service, 'getToken').mockReturnValue(invalidToken);
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const result = service.decodeToken();
-    expect(consoleSpy).toHaveBeenCalledWith('Error al decodificar el token:', expect.any(Error));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Error al decodificar el token:',
+      expect.any(Error)
+    );
     expect(result).toBe(null);
     consoleSpy.mockRestore();
+  });
+
+  it('should return null for token with invalid format', () => {
+    const invalidFormatToken = 'invalid-token';
+    jest.spyOn(service, 'getToken').mockReturnValue(invalidFormatToken);
+    const result = service.decodeToken();
+    expect(result).toBeNull();
   });
 
   it('should return null if no token is found', () => {
@@ -124,7 +140,11 @@ describe('UserService', () => {
   });
 
   it('should return user role if token is valid', () => {
-    const decodedToken = { rol: 'Administrador', exp: Math.floor(Date.now() / 1000) + 1000 };
+    const decodedToken: JwtPayload = {
+      rol: 'Administrador',
+      documento: 1,
+      exp: Math.floor(Date.now() / 1000) + 1000,
+    };
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
     const result = service.getUserRole();
     expect(result).toBe('Administrador');
@@ -137,14 +157,22 @@ describe('UserService', () => {
   });
 
   it('should identify expired token', () => {
-    const expiredTokenPayload = { exp: Math.floor(Date.now() / 1000) - 1000 };
+    const expiredTokenPayload = {
+      rol: 'Cliente',
+      documento: 1,
+      exp: Math.floor(Date.now() / 1000) - 1000,
+    };
     const encodedPayload = btoa(JSON.stringify(expiredTokenPayload));
     localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     expect(service.isTokenExpired()).toBe(true);
   });
 
   it('should identify valid token', () => {
-    const validTokenPayload = { exp: Math.floor(Date.now() / 1000) + 1000 };
+    const validTokenPayload = {
+      rol: 'Cliente',
+      documento: 1,
+      exp: Math.floor(Date.now() / 1000) + 1000,
+    };
     const encodedPayload = btoa(JSON.stringify(validTokenPayload));
     localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     expect(service.isTokenExpired()).toBe(false);
@@ -157,7 +185,7 @@ describe('UserService', () => {
   });
 
   it('should return true if decoded token does not have exp property', () => {
-    const decodedToken = { rol: 'Usuario' };
+    const decodedToken = { rol: 'Usuario', documento: 1 } as unknown as JwtPayload;
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
     const result = service.isTokenExpired();
     expect(result).toBe(true);
@@ -195,7 +223,11 @@ describe('UserService', () => {
   });
 
   it('should return user id if token is valid', () => {
-    const decodedToken = { rol: 'Cliente', documento: 12345, exp: Math.floor(Date.now() / 1000) + 1000 };
+    const decodedToken: JwtPayload = {
+      rol: 'Cliente',
+      documento: 12345,
+      exp: Math.floor(Date.now() / 1000) + 1000,
+    };
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
     const result = service.getUserId();
     expect(result).toBe(12345);

@@ -7,6 +7,7 @@ import { Login, LoginResponse } from '../../shared/models/login.model';
 import { Cliente } from '../../shared/models/cliente.model';
 import { Trabajador } from '../../shared/models/trabajador.model';
 import { HandleErrorService } from './handle-error.service';
+import { JwtPayload } from '../../shared/models/jwt-payload.model';
 
 @Injectable({
   providedIn: 'root',
@@ -45,13 +46,18 @@ export class UserService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  decodeToken(): any {
+  decodeToken(): JwtPayload | null {
     const token = this.getToken();
     if (!token) return null;
 
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return null;
+    }
+
     try {
-      const payload = atob(token.split('.')[1]);
-      return JSON.parse(payload);
+      const payload = JSON.parse(atob(parts[1]));
+      return payload as JwtPayload;
     } catch (error) {
       console.error('Error al decodificar el token:', error);
       return null;
@@ -70,7 +76,7 @@ export class UserService {
 
   isTokenExpired(): boolean {
     const decoded = this.decodeToken();
-    if (!decoded || !decoded.exp) return true;
+    if (!decoded || typeof decoded.exp !== 'number') return true;
 
     const currentTime = Math.floor(new Date().getTime() / 1000);
     return decoded.exp < currentTime;
