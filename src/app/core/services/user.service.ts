@@ -22,7 +22,7 @@ export class UserService {
 
   private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) { }
+  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
 
   getAuthState(): Observable<boolean> {
     return this.authState.asObservable();
@@ -33,21 +33,21 @@ export class UserService {
   }
 
   login(credenciales: Login): Observable<ApiResponse<LoginResponse>> {
-    return this.http.post<ApiResponse<LoginResponse>>(`${this.baseUrl}/login`, credenciales).pipe(
-      catchError(this.handleError.handleError)
-    );
-  }
-
-  saveToken(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
-    this.authState.next(true);
+    return this.http
+      .post<ApiResponse<LoginResponse>>(`${this.baseUrl}/login`, credenciales, {
+        withCredentials: true,
+      })
+      .pipe(catchError(this.handleError.handleError));
   }
 
   getToken(): string | null {
-    if (typeof window === 'undefined') {
+    if (typeof document === 'undefined') {
       return null;
     }
-    return localStorage.getItem(this.tokenKey);
+    const match = document.cookie.match(
+      new RegExp(`(^| )${this.tokenKey}=([^;]+)`)
+    );
+    return match ? decodeURIComponent(match[2]) : null;
   }
 
   decodeToken(): DecodedToken | null {
@@ -82,8 +82,10 @@ export class UserService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    this.authState.next(false);
+    this.http
+      .post(`${this.baseUrl}/logout`, {}, { withCredentials: true })
+      .pipe(catchError(this.handleError.handleError))
+      .subscribe(() => this.authState.next(false));
   }
 
   validateTokenAndLogout(): string | null {
