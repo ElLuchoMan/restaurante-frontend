@@ -36,8 +36,9 @@ export class PedidoComponent implements OnInit {
         if (det) {
           let productos: any[] = [];
           try {
-            const parsed = det.PRODUCTOS ? JSON.parse(det.PRODUCTOS) : [];
+            const parsed = det.productos ? JSON.parse(det.productos) : [];
             productos = Array.isArray(parsed) ? parsed : [];
+            console.log('Aca', productos);
           } catch {
             productos = [];
           }
@@ -45,7 +46,7 @@ export class PedidoComponent implements OnInit {
             const sub = Number(it.SUBTOTAL ?? it.subtotal ?? ((Number(it.PRECIO_UNITARIO ?? it.precio ?? 0)) * (Number(it.CANTIDAD ?? it.cantidad ?? 1))));
             return acc + (isNaN(sub) ? 0 : sub);
           }, 0);
-          this.pedido = { ...det, PRODUCTOS: productos, total };
+          this.pedido = { ...det, productos: productos, total };
         }
         this.loading = false;
       },

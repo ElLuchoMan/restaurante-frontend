@@ -10,13 +10,13 @@ import { forkJoin, of, Subject } from 'rxjs';
 import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 
 type DetallesAPI = {
-  PK_ID_PEDIDO?: number;
-  FECHA?: string;
-  HORA?: string;
-  DELIVERY?: boolean;
-  ESTADO_PEDIDO?: string;
-  METODO_PAGO?: string;
-  PRODUCTOS?: string; // viene como string JSON
+  pedidoId?: number;
+  fechaPedido?: string;
+  horaPedido?: string;
+  delivery?: boolean;
+  estadoPedido?: string;
+  metodoPago?: string;
+  productos?: string; // viene como string JSON
 };
 
 type PedidoCard = Pedido & {
@@ -53,6 +53,7 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
     this.pedidoService.getMisPedidos(userId).pipe(
       // 1) ordena por fecha (DD-MM-YYYY) + hora (0000-01-01 HH:mm:ss …)
       map(res => {
+        console.log('Pedidos', res);
         const base: Pedido[] = res?.data || [];
         return [...base].sort((a, b) => {
           const da = this.toComparableDate(a.fechaPedido, a.horaPedido);
@@ -96,7 +97,7 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
     // Parse de PRODUCTOS (viene como string JSON)
     let productos: any[] | undefined;
     try {
-      const parsed = det.PRODUCTOS ? JSON.parse(det.PRODUCTOS) : [];
+      const parsed = det.productos ? JSON.parse(det.productos) : [];
       productos = Array.isArray(parsed) ? parsed : [];
     } catch {
       productos = undefined;
@@ -116,7 +117,7 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
 
     return {
       ...p,
-      metodoPago: det.METODO_PAGO || undefined,
+      metodoPago: det.metodoPago || undefined,
       productos,
       total: total !== undefined ? total : undefined,
       items

@@ -31,15 +31,15 @@
         <div class="pedido-card__meta">
           <div class="meta__item">
             <span class="meta__label">Fecha</span>
-            <span class="meta__value">{{ pedido.FECHA | formatDate:'date' }}</span>
+            <span class="meta__value">{{ pedido.fechaPedido | formatDate:'date' }}</span>
           </div>
           <div class="meta__item">
             <span class="meta__label">Hora</span>
-            <span class="meta__value">{{ pedido.HORA | formatDate:'time' }}</span>
+            <span class="meta__value">{{ pedido.horaPedido | formatDate:'time' }}</span>
           </div>
           <div class="meta__item">
             <span class="meta__label">Método de pago</span>
-            <span class="meta__value">{{ pedido.METODO_PAGO }}</span>
+            <span class="meta__value">{{ pedido.metodoPago }}</span>
           </div>
         </div>
 
@@ -54,7 +54,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (prod of pedido.PRODUCTOS; track prod.NOMBRE; let i = $index) {
+              @for (prod of pedido.productos; track prod.NOMBRE; let i = $index) {
                 <tr>
                   <td>{{ prod.NOMBRE || prod.nombre }}</td>
                   <td>{{ prod.CANTIDAD || prod.cantidad }}</td>
