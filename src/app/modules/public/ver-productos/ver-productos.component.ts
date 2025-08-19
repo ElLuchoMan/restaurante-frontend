@@ -157,4 +157,8 @@ export class VerProductosComponent implements OnInit, OnDestroy {
       buttons: botones
     });
   }
+
+  trackByProductoId(index: number, item: Producto) {
+    return item.productoId;
+  }
 }
