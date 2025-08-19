@@ -1,18 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Pedido } from '../../shared/models/pedido.model';
 import { environment } from '../../../environments/environment';
+import { HandleErrorService } from './handle-error.service';
 
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
   private baseUrl = `${environment.apiUrl}/pedidos`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private handleError: HandleErrorService) { }
 
   createPedido(pedido: Partial<Pedido>): Observable<ApiResponse<Pedido>> {
-    return this.http.post<ApiResponse<Pedido>>(this.baseUrl, pedido);
+    return this.http.post<ApiResponse<Pedido>>(this.baseUrl, pedido).pipe(
+      catchError(this.handleError.handleError)
+    );
   }
 
   assignPago(pedidoId: number, pagoId: number): Observable<ApiResponse<any>> {
@@ -23,6 +26,8 @@ export class PedidoService {
       `${this.baseUrl}/asignar-pago`,
       null,
       { params }
+    ).pipe(
+      catchError(this.handleError.handleError)
     );
   }
 
@@ -34,16 +39,22 @@ export class PedidoService {
       `${this.baseUrl}/asignar-domicilio`,
       null,
       { params }
+    ).pipe(
+      catchError(this.handleError.handleError)
     );
   }
   getMisPedidos(clienteId: number): Observable<ApiResponse<Pedido[]>> {
     const params = new HttpParams().set('cliente', clienteId.toString());
-    return this.http.get<ApiResponse<Pedido[]>>(this.baseUrl, { params });
+    return this.http.get<ApiResponse<Pedido[]>>(this.baseUrl, { params }).pipe(
+      catchError(this.handleError.handleError)
+    );
   }
 
   getPedidoDetalles(pedidoId: number): Observable<any> {
     const params = new HttpParams().set('pedido_id', String(pedidoId));
-    return this.http.get<any>(`${this.baseUrl}/detalles`, { params });
+    return this.http.get<any>(`${this.baseUrl}/detalles`, { params }).pipe(
+      catchError(this.handleError.handleError)
+    );
   }
 
 }

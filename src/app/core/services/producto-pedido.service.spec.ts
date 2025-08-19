@@ -2,14 +2,24 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ProductoPedidoService } from './producto-pedido.service';
 import { environment } from '../../../environments/environment';
+import { HandleErrorService } from './handle-error.service';
 
 describe('ProductoPedidoService', () => {
   let service: ProductoPedidoService;
   let http: HttpTestingController;
   const baseUrl = `${environment.apiUrl}/producto_pedido`;
+  const mockHandleErrorService = {
+    handleError: jest.fn((error: any) => { throw error; })
+  };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
+    mockHandleErrorService.handleError.mockReset();
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+        { provide: HandleErrorService, useValue: mockHandleErrorService }
+      ]
+    });
     service = TestBed.inject(ProductoPedidoService);
     http = TestBed.inject(HttpTestingController);
   });
@@ -36,5 +46,21 @@ describe('ProductoPedidoService', () => {
       DETALLES_PRODUCTOS: JSON.stringify(payload.DETALLES_PRODUCTOS)
     });
     req.flush(mock);
+  });
+
+  it('handles error on create', () => {
+    const payload: any = {
+      PK_ID_PEDIDO: 1,
+      DETALLES_PRODUCTOS: [
+        { PK_ID_PRODUCTO: 1, NOMBRE: 'A', CANTIDAD: 1, PRECIO_UNITARIO: 10, SUBTOTAL: 10 }
+      ]
+    };
+    service.create(payload).subscribe({
+      next: () => fail('should have failed'),
+      error: err => expect(err).toBeTruthy()
+    });
+    const req = http.expectOne(baseUrl);
+    req.error(new ErrorEvent('Network error'));
+    expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });
 });
