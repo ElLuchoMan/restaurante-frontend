@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { HandleErrorService } from './handle-error.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { mockLogin, mockLoginResponse } from '../../shared/mocks/login.mock';
+import { LoggingService, LogLevel } from './logging.service';
 
 describe('UserService', () => {
   let service: UserService;
@@ -13,13 +14,17 @@ describe('UserService', () => {
   const mockHandleErrorService = {
     handleError: jest.fn((error: any) => { throw error; })
   };
+  const mockLoggingService = {
+    log: jest.fn()
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         UserService,
-        { provide: HandleErrorService, useValue: mockHandleErrorService }
+        { provide: HandleErrorService, useValue: mockHandleErrorService },
+        { provide: LoggingService, useValue: mockLoggingService }
       ]
     });
 
@@ -31,6 +36,8 @@ describe('UserService', () => {
   afterEach(() => {
     httpTestingController.verify();
     localStorage.clear();
+    mockHandleErrorService.handleError.mockReset();
+    mockLoggingService.log.mockReset();
   });
 
   it('should be created', () => {
@@ -110,11 +117,9 @@ describe('UserService', () => {
   it('should log an error and return null if token decoding fails', () => {
     const invalidToken = 'invalid.token.value';
     jest.spyOn(service, 'getToken').mockReturnValue(invalidToken);
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const result = service.decodeToken();
-    expect(consoleSpy).toHaveBeenCalledWith('Error al decodificar el token:', expect.any(Error));
+    expect(mockLoggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error al decodificar el token', expect.any(Error));
     expect(result).toBe(null);
-    consoleSpy.mockRestore();
   });
 
   it('should return null if no token is found', () => {
@@ -152,9 +157,9 @@ describe('UserService', () => {
 
   it('should treat malformed token as expired', () => {
     localStorage.setItem('auth_token', 'invalid.token.value');
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    expect(service.isTokenExpired()).toBe(true);
-    consoleSpy.mockRestore();
+    const result = service.isTokenExpired();
+    expect(result).toBe(true);
+    expect(mockLoggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error al decodificar el token', expect.any(Error));
   });
 
   it('should return true if decodeToken returns null for token expiry', () => {

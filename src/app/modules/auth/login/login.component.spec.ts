@@ -8,7 +8,7 @@ import { of, throwError } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { mockLogin } from '../../../shared/mocks/login.mock';
-import { LoggingService } from '../../../core/services/logging.service';
+import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -35,7 +35,6 @@ describe('LoginComponent', () => {
     } as unknown as jest.Mocked<ToastrService>;
 
     const loggingServiceMock = {
-      error: jest.fn(),
       log: jest.fn()
     } as unknown as jest.Mocked<LoggingService>;
 
@@ -100,7 +99,7 @@ describe('LoginComponent', () => {
     component.onSubmit();
 
     expect(toastr.error).toHaveBeenCalledWith('Error de conexión', 'Error de autenticación');
-    expect(loggingService.error).toHaveBeenCalledWith('err.message:', 'Error de conexión');
+    expect(loggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error de inicio de sesión', mockError);
   });
 
   it('should handle login error and show generic toastr error message when message is missing', () => {
@@ -110,6 +109,6 @@ describe('LoginComponent', () => {
     component.onSubmit();
 
     expect(toastr.error).toHaveBeenCalledWith('Credenciales incorrectas', 'Error de autenticación');
-    expect(loggingService.error).toHaveBeenCalledWith('No hay propiedad "message" en el error.');
+    expect(loggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'No hay propiedad "message" en el error.');
   });
 });
