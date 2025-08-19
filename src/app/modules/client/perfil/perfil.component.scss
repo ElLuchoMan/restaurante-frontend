@@ -9,7 +9,7 @@
 
 // Card principal para que toda la vista quede "contenida"
 .perfil__container {
-  background: $white;
+  background: var(--white);
   border-radius: 16px;
   padding: 16px;
   display: grid;
@@ -32,8 +32,8 @@
   display: grid;
   place-items: center;
   font-size: 32px;
-  background: $white;
-  border: 1px solid $secondary;
+  background: var(--white);
+  border: 1px solid var(--secondary);
 }
 
 .perfil__titles {
@@ -45,7 +45,7 @@
   margin: 0;
   font-size: 1.6rem;
   font-weight: 700;
-  color: $secondary;
+  color: var(--secondary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -54,14 +54,14 @@
 
 .perfil__subtitle {
   margin: 0;
-  color: $primary;
+  color: var(--primary);
   opacity: .9;
 }
 
 // Panel de datos del cliente
 .perfil__panel {
   background: rgba(0, 0, 0, .02);
-  border: 1px solid $primary;
+  border: 1px solid var(--primary);
   border-radius: 16px;
   padding: 12px 12px 12px 12px;
 }
@@ -78,19 +78,19 @@
   gap: 8px;
   padding: 8px 10px;
   background: rgba(0, 0, 0, .03);
-  border: 1px solid $quaternary;
+  border: 1px solid var(--quaternary);
   border-radius: 12px;
   font-size: .95rem;
 }
 
 .chip__label {
-  color: $dark;
+  color: var(--dark);
   opacity: .7;
   font-weight: 600;
 }
 
 .chip__value {
-  color: $dark;
+  color: var(--dark);
 }
 
 // Grid de accesos rápidos
@@ -107,8 +107,8 @@
   text-align: left;
   padding: 16px;
   border-radius: 16px;
-  border: 1px solid $primary;
-  background: $white;
+  border: 1px solid var(--primary);
+  background: var(--white);
   text-decoration: none;
   color: inherit;
   transition: transform .1s ease, box-shadow .1s ease;
@@ -126,19 +126,19 @@
 
 .card__title {
   font-weight: 700;
-  color: $secondary;
+  color: var(--secondary);
 }
 
 .card__text {
   margin: 0;
-  color: $dark;
+  color: var(--dark);
   opacity: .8;
   font-size: .95rem;
 }
 
 .card__cta {
   font-size: .9rem;
-  color: $primary;
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -152,12 +152,12 @@
   border-radius: 999px;
   padding: 2px 10px;
   font-size: .8rem;
-  background: $light;
+  background: var(--light);
 }
 
 .badge--ok {
-  color: $success;
-  border-color: $success;
+  color: var(--success);
+  border-color: var(--success);
   background: rgba(17, 228, 10, 0.06);
 }
 
@@ -170,7 +170,7 @@
   padding: 10px 12px;
   border-radius: 12px;
   background: rgba(0, 0, 0, .03);
-  border: 1px solid $quaternary;
+  border: 1px solid var(--quaternary);
 }
 
 .state__box--warn {

@@ -43,7 +43,7 @@
 
         .producto-precio {
             font-size: 1rem;
-            color: $green;
+            color: var(--green);
             font-weight: bold;
         }
     }
@@ -99,7 +99,7 @@
 .form-group {
         label {
         margin-bottom: 4px;
-        color: $dark;
+        color: var(--dark);
     }
 
     input,
@@ -110,7 +110,7 @@
 
 .filtros-card {
     border: 1px solid var(--gray);
-    background-color: $white;
+    background-color: var(--white);
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -132,9 +132,9 @@
 }
 
 .text-primary {
-    color: $primary !important;
+    color: var(--primary) !important;
 }
 
 .text-secondary {
-    color: $quaternary !important;
+    color: var(--quaternary) !important;
 }

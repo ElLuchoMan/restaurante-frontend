@@ -1,7 +1,7 @@
 @use "../../../../assets/styles.scss" as *;
 
 a.link {
-  color: $primary;
+  color: var(--primary);
   display: flex;
   justify-content: center;
   text-align: center;
