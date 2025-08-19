@@ -1,4 +1,5 @@
 @use 'variables' as *;
+@use "sass:color";
 
 :root {
   --blue: #{$blue};
@@ -24,6 +25,7 @@
   --danger: #{$danger};
   --light: #{$light};
   --dark: #{$dark};
+  --primary-dark: #{color.adjust($primary, $lightness: -15%)};
   --breakpoint-xs: 0;
   --breakpoint-sm: 576px;
   --breakpoint-md: 768px;

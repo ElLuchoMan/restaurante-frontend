@@ -5,9 +5,9 @@
 }
 
 .pedido-card {
-  border: 1px solid $primary;
+  border: 1px solid var(--primary);
   border-radius: 16px;
-  background: $white;
+  background: var(--white);
   padding: 16px;
   display: grid;
   gap: 16px;
@@ -26,7 +26,7 @@
 .pedido-card__id {
   margin: 0;
   font-weight: 700;
-  color: $secondary;
+  color: var(--secondary);
 }
 
 .pedido-card__tags {
@@ -40,32 +40,32 @@
   padding: 2px 10px;
   border-radius: 999px;
   font-size: .8rem;
-  background: $light;
-  border: 1px solid $quaternary;
-  color: $dark;
+  background: var(--light);
+  border: 1px solid var(--quaternary);
+  color: var(--dark);
 }
 
 .tag--ok {
-  color: $success;
-  border-color: $success;
+  color: var(--success);
+  border-color: var(--success);
   background: rgba(17, 228, 10, 0.06);
 }
 
 .tag--warn {
-  color: $warning;
-  border-color: $warning;
+  color: var(--warning);
+  border-color: var(--warning);
   background: rgba(255, 193, 7, .1);
 }
 
 .tag--danger {
-  color: $danger;
-  border-color: $danger;
+  color: var(--danger);
+  border-color: var(--danger);
   background: rgba(220, 53, 69, .08);
 }
 
 .tag--muted {
-  color: $primary;
-  border-color: $primary;
+  color: var(--primary);
+  border-color: var(--primary);
   background: rgba(0, 0, 0, .03);
 }
 
@@ -99,7 +99,7 @@
 
 .back-link {
   font-weight: 600;
-  color: $primary;
+  color: var(--primary);
   text-decoration: none;
 
   &:hover {

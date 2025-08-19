@@ -49,6 +49,11 @@ restaurante-frontend/
 - `npm run watch` – rebuilds on file changes
 - `npm run lint` / `npm run lint:scss` – code and style linting
 
+## Styling
+Color tokens are defined once in `src/assets/_base.scss` as CSS custom properties.
+Use them in components with the `var(--token)` syntax (e.g., `var(--primary)`).
+Sass variables remain only for build‑time values such as breakpoints.
+
 ## Testing
 - `npm test` – run Jest unit tests with coverage
 - `npm run e2e` – execute Angular end-to-end tests

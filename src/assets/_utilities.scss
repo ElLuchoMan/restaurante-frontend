@@ -1,6 +1,3 @@
-@use 'variables' as *;
-@use "sass:color";
-
 .text-monospace {
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
 }
@@ -128,28 +125,28 @@
 }
 
 .text-white {
-  color: $white !important;
+  color: var(--white) !important;
 }
 
 .text-primary {
-  color: $secondary !important;
+  color: var(--secondary) !important;
 }
 
 a.text-primary {
   &:hover,
   &:focus {
-    color: $quaternary !important;
+    color: var(--quaternary) !important;
   }
 }
 
 .text-secondary {
-  color: $primary !important;
+  color: var(--primary) !important;
 }
 
 a.text-secondary {
   &:hover,
   &:focus {
-    color: $tertiary !important;
+    color: var(--tertiary) !important;
   }
 }
 
@@ -198,7 +195,7 @@ a.text-danger {
 }
 
 .text-light {
-  color: $white fff !important;
+  color: var(--white) !important;
 }
 
 a.text-light {
@@ -209,7 +206,7 @@ a.text-light {
 }
 
 .text-dark {
-  color: $dark !important;
+  color: var(--dark) !important;
 }
 
 a.text-dark {
@@ -224,7 +221,7 @@ a.text-dark {
 }
 
 .text-muted {
-  color: $gray !important;
+  color: var(--gray) !important;
 }
 
 .text-black-50 {
@@ -331,7 +328,7 @@ a.text-dark {
 
     td,
     th {
-      background-color: $white !important;
+      background-color: var(--white) !important;
     }
   }
 
@@ -372,7 +369,7 @@ h6,
 .h4,
 .h5,
 .h6 {
-  color: $dark;
+  color: var(--dark);
   font-weight: 500;
   line-height: 1.2;
   margin-bottom: 0.5rem;
@@ -468,7 +465,7 @@ h3 {
 
   &.btn-primary,
   &.btn-secondary {
-    color: $white fff;
+    color: var(--white);
   }
 }
 
@@ -494,7 +491,7 @@ h3 {
 }
 
 .nav-bar::before {
-  background: $tertiary;
+  background: var(--tertiary);
   content: "";
   height: 50%;
   left: 0;
@@ -504,7 +501,7 @@ h3 {
 }
 
 .navbar-light .navbar-nav .nav-link {
-  color: $dark;
+  color: var(--dark);
   font-size: 17px;
   font-weight: 500;
   outline: none;
@@ -512,7 +509,7 @@ h3 {
 
   &:hover,
   &.active {
-    color: $primary;
+    color: var(--primary);
   }
 }
 
@@ -549,7 +546,7 @@ h3 {
 
 .section-title {
   &::before {
-    background: $primary;
+    background: var(--primary);
     content: "";
     height: 5px;
     left: 0;
@@ -559,7 +556,7 @@ h3 {
   }
 
   &::after {
-    background: $primary;
+    background: var(--primary);
     content: "";
     height: 1px;
     left: 0;
@@ -577,7 +574,7 @@ h3 {
 }
 
 .btn-play {
-  background: $white fff;
+  background: var(--white);
   border: none;
   border-radius: 100%;
   box-sizing: content-box;
@@ -592,7 +589,7 @@ h3 {
 
   &::before {
     animation: pulse-border 1500ms ease-out infinite;
-    background: $white fff;
+    background: var(--white);
     border-radius: 100%;
     content: "";
     display: block;
@@ -606,7 +603,7 @@ h3 {
   }
 
   &::after {
-    background: $white fff;
+    background: var(--white);
     border-radius: 100%;
     content: "";
     display: block;
@@ -622,7 +619,7 @@ h3 {
 
   span {
     border-bottom: 15px solid transparent;
-    border-left: 25px solid $primary;
+    border-left: 25px solid var(--primary);
     border-top: 15px solid transparent;
     display: block;
     height: 0;
@@ -658,8 +655,8 @@ h3 {
   }
 
   .close {
-    background: $black;
-    color: $white fff;
+    background: var(--black);
+    color: var(--white);
     font-size: 30px;
     font-weight: normal;
     height: 30px;
@@ -686,9 +683,9 @@ h3 {
   .owl-prev,
   .owl-next {
     align-items: center;
-    background: $white fff;
+    background: var(--white);
     border-radius: 60px;
-    color: $primary;
+    color: var(--primary);
     display: flex;
     font-size: 30px;
     height: 60px;
@@ -709,7 +706,7 @@ h3 {
     z-index: 1;
 
     &::before {
-      background: $primary;
+      background: var(--primary);
       border-radius: 150px;
       content: "";
       inset: 15px 0 -15px;
@@ -735,21 +732,21 @@ h3 {
   }
 
   &:hover {
-    background: $secondary !important;
+    background: var(--secondary) !important;
 
     h5 {
-      color: $white fff !important;
+      color: var(--white) !important;
     }
 
     .btn {
-      background: $primary !important;
+      background: var(--primary) !important;
     }
   }
 }
 
 .portfolio-item {
   &::after {
-    border: 2px solid $white fff;
+    border: 2px solid var(--white);
     content: "";
     inset: 30px;
     position: absolute;
@@ -758,7 +755,7 @@ h3 {
 
   .portfolio-btn {
     align-items: center;
-    background: $white fff;
+    background: var(--white);
     display: flex;
     height: 0;
     justify-content: center;
@@ -784,7 +781,7 @@ h3 {
 .team-item {
   .team-img {
     align-items: center;
-    border: 15px solid $primary;
+    border: 15px solid var(--primary);
     border-radius: 200px;
     display: flex;
     height: 200px;
@@ -795,7 +792,7 @@ h3 {
     z-index: 1;
 
     &::after {
-      border: 2px solid $primary;
+      border: 2px solid var(--primary);
       border-radius: 200px;
       content: "";
       inset: 15px;
@@ -847,7 +844,7 @@ h3 {
   }
 
   .owl-dot {
-    background: $primary;
+    background: var(--primary);
     border-radius: 15px;
     display: inline-block;
     height: 15px;
@@ -856,7 +853,7 @@ h3 {
     width: 15px;
 
     &::after {
-      border: 2px solid $primary;
+      border: 2px solid var(--primary);
       border-radius: 20px;
       content: "";
       inset: -5px;
@@ -864,7 +861,7 @@ h3 {
     }
 
     &.active {
-      background: $secondary;
+      background: var(--secondary);
     }
   }
 }
@@ -896,22 +893,22 @@ label {
 }
 
 .badge-warning {
-  background-color: $warning;
+  background-color: var(--warning);
   color: black;
 }
 
 .badge-success {
-  background-color: $success;
+  background-color: var(--success);
   color: white;
 }
 
 .badge-secondary {
-  background-color: $cyan;
+  background-color: var(--cyan);
   color: white;
 }
 
 .badge-danger {
-  background-color: $danger;
+  background-color: var(--danger);
   color: white;
 }
 
@@ -974,13 +971,13 @@ label {
 }
 
 .search {
-  color: $primary;
+  color: var(--primary);
   margin-bottom: 10px;
 }
 
 .volver-container {
   align-items: center;
-  color: $primary;
+  color: var(--primary);
   cursor: pointer;
   display: inline-flex;
   font-size: 18px;
@@ -992,11 +989,11 @@ label {
     transform 0.2s ease;
   user-select: none;
 
-  &:hover {
-    color: color.adjust($primary, $lightness: -15%);
-    transform: translateX(-3px);
+    &:hover {
+      color: var(--primary-dark);
+      transform: translateX(-3px);
+    }
   }
-}
 
 .volver-icon {
   font-size: 22px;
