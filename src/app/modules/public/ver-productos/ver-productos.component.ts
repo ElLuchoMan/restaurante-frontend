@@ -54,6 +54,7 @@ export class VerProductosComponent implements OnInit, OnDestroy {
   obtenerProductos(): void {
     this.productoService
       .getProductos({ onlyActive: true, includeImage: true })
+      .pipe(takeUntil(this.destroy$))
       .subscribe(response => {
         if (response.data) {
           this.productos = response.data;
