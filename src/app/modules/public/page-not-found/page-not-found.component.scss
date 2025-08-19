@@ -87,7 +87,7 @@ a {
 @keyframes dash {
   0%,
   30% {
-    fill: #4b4b62;
+    fill: var(--gray-dark);
     stroke-dashoffset: 0;
   }
 
