@@ -226,7 +226,7 @@ describe('VerProductosComponent', () => {
 
     const args = modalService.openModal.mock.calls[0][0];
     expect(args.buttons.length).toBe(0);
-    expect(args.details.calorias).toBeUndefined();
+    expect(args.message).toContain('N/A');
   });
 });
 

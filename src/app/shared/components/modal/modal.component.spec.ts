@@ -36,7 +36,7 @@ describe('ModalComponent', () => {
   });
 
   it('should update modalData when modalService emits new data', () => {
-    const testData = { title: 'Test Modal', message: 'Contenido de prueba' };
+    const testData = { title: 'Test Modal', content: 'Contenido de prueba' };
     modalDataSubject.next(testData);
     fixture.detectChanges();
     expect(component.modalData).toEqual(testData);

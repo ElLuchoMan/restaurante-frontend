@@ -8,15 +8,7 @@
         <div class="modal-body">
             <img *ngIf="modalData.image" [src]="modalData.image" alt="Imagen modal" />
 
-            <div class="mt-3" *ngIf="modalData.message">{{ modalData.message }}</div>
-
-            <div class="mt-3" *ngIf="modalData.details">
-                <p><strong>Precio:</strong> ${{ modalData.details.precio }}</p>
-                <p><strong>Calorías:</strong> {{ modalData.details.calorias || 'N/A' }}</p>
-                <p><strong>Categoría:</strong> {{ modalData.details.categoria }}</p>
-                <p><strong>Subcategoría:</strong> {{ modalData.details.subcategoria }}</p>
-                <p><strong>Descripción:</strong> {{ modalData.details.descripcion || 'Sin descripción' }}</p>
-            </div>
+            <div class="mt-3" *ngIf="modalData.message" [innerHTML]="modalData.message"></div>
 
             <ng-container *ngIf="modalData.selects">
                 <div *ngFor="let sel of modalData.selects" class="form-group mt-3">
