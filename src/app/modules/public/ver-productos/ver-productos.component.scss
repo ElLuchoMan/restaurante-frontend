@@ -43,7 +43,7 @@
 
         .producto-precio {
             font-size: 1rem;
-            color: #28a745;
+            color: $green;
             font-weight: bold;
         }
     }
@@ -97,9 +97,9 @@
 }
 
 .form-group {
-    label {
+        label {
         margin-bottom: 4px;
-        color: #333;
+        color: $dark;
     }
 
     input,
@@ -109,8 +109,8 @@
 }
 
 .filtros-card {
-    border: 1px solid #dee2e6;
-    background-color: #ffffff;
+    border: 1px solid var(--gray);
+    background-color: $white;
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
