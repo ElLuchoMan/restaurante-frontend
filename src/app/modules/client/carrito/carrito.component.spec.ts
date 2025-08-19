@@ -225,7 +225,7 @@ describe('CarritoComponent', () => {
     component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
     pedidoServiceMock.createPedido.mockReturnValue(throwError(() => new Error('fail')));
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
-    (component as any).finalizeOrder(3, null);
+    await (component as any).finalizeOrder(3, null).catch(() => {});
     expect(errorSpy).toHaveBeenCalled();
     expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
     errorSpy.mockRestore();
