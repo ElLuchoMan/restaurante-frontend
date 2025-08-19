@@ -1,96 +1,74 @@
-# RestauranteFrontend
+# Restaurante Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.5.
-
-## Development server
-
-To start a local development server, run:
-
-```bash
-npm run start
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Building
-
-To build the project run:
-
-```bash
-npm run build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Jest](https://jestjs.io/) test runner, use the following command:
-
-```bash
-npm run test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-
-
-## Status
+![AutoGen with AI](https://img.shields.io/badge/AutoGen%20with%20AI-%F0%9F%8C%9F-blueviolet)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/08900eb5-ce5b-4278-932b-037569ffd3c4/deploy-status)](https://app.netlify.com/sites/lacocinademaria/deploys)
 
-## Structure
+A modular Angular web application for restaurant operations, featuring administrative, public, and client-facing modules.
 
+## Technologies
+- Angular 20.1.6
+- Angular CLI 20.1.6
+- TypeScript 5.8.3
+- Bootstrap 5.3.7
+- Jest 29.7.0
+- Stylelint 16.21.1
+- Netlify Angular Runtime 2.4.0
+
+## Project Structure
 ```
-src/
-├── app/
-│   ├── core/                  # Elementos esenciales y configuración de la app
-│   │   ├── components/        # Componentes reutilizables globales
-│   │   ├── guards/            # Guardias para autenticación y roles
-│   │   ├── interceptors/      # Interceptores HTTP (e.g., manejo de JWT)
-│   │   ├── services/          # Servicios generales (e.g., autenticación)
-│   │   ├── core.module.ts     # Módulo de configuración de Core
-│   │   └── app.config.ts      # Configuración global (e.g., constantes, URLs)
-│   ├── shared/                # Componentes y utilidades reutilizables
-│   │   ├── components/        # Botones, tarjetas, modales, etc.
-│   │   │   ├── header/        # Header común
-│   │   │   ├── footer/        # Footer común
-│   │   ├── directives/        # Directivas personalizadas
-│   │   ├── pipes/             # Pipes comunes
-│   │   └── shared.module.ts   # Módulo compartido
-│   ├── modules/               # Módulos específicos por funcionalidad/rol
-│   │   ├── public/            # Vistas públicas (sin autenticación)
-│   │   │   ├── home/          # Página principal
-│   │   │   ├── about/         # Sobre nosotros
-│   │   │   ├── contact/       # Contacto
-│   │   │   └── public.module.ts
-│   │   ├── admin/             # Módulo de administrador
-│   │   │   ├── dashboard/     # Panel de administración
-│   │   │   ├── users/         # Gestión de usuarios
-│   │   │   └── admin.module.ts
-│   │   ├── client/            # Módulo de cliente
-│   │   │   ├── profile/       # Perfil del cliente
-│   │   │   ├── orders/        # Gestión de pedidos
-│   │   │   └── client.module.ts
-│   │   └── auth/              # Módulo de autenticación
-│   │       ├── login/         # Página de inicio de sesión
-│   │       ├── register/      # Página de registro
-│   │       └── auth.module.ts
-│   ├── app-routing.module.ts  # Configuración de rutas principales
-│   ├── app.component.ts       # Componente raíz
-│   └── app.module.ts          # Módulo raíz
-├── assets/                    # Recursos estáticos (imágenes, fuentes, etc.)
-├── environments/              # Archivos de configuración de entorno
-│   ├── environment.ts         # Configuración para desarrollo
-│   └── environment.prod.ts    # Configuración para producción
+restaurante-frontend/
+├── public/                  # Static public assets
+├── src/
+│   ├── app/
+│   │   ├── core/            # Bootstrapping config, guards, interceptors, services
+│   │   ├── modules/         # Feature modules
+│   │   │   ├── admin/       # Product management screens
+│   │   │   ├── auth/        # Login and registration flows
+│   │   │   ├── client/      # Cart, orders, profile
+│   │   │   ├── public/      # Home, reservations, catalog, 404
+│   │   │   └── trabajadores/# Delivery-staff views
+│   │   └── shared/          # Reusable components, models, pipes, mocks
+│   ├── assets/              # Global images, third-party scripts
+│   ├── environments/        # Environment configurations
+│   ├── main.ts              # Browser entry point
+│   ├── main.server.ts       # SSR entry point
+│   ├── server.ts            # Express server for SSR
+│   └── setup-jest.ts        # Jest test setup
+├── angular.json             # Angular workspace config
+├── jest.config.ts           # Jest configuration
+├── netlify.toml             # Netlify deployment config
+└── tsconfig*.json           # TypeScript configs
+```
 
+## Installation
+1. `npm install`
+2. Configuration files are located at the repository root (`angular.json`, `jest.config.ts`, `netlify.toml`, `.stylelintrc.json`, etc.).
 
+## Development
+- `npm run start` – start local dev server on http://localhost:4200
+- `npm run watch` – rebuilds on file changes
+- `npm run lint` / `npm run lint:scss` – code and style linting
+
+## Testing
+- `npm test` – run Jest unit tests with coverage
+- `npm run e2e` – execute Angular end-to-end tests
+- `npm run lint` – static analysis
+
+## Production
+- `npm run build` – generate production build in `dist/`
+- `npm run serve:ssr:restaurante-frontend` – run the server-side rendered build
+
+## How to make a PR
+1. Create a feature branch from `main`.
+2. Commit your changes and push.
+3. Open a draft PR at [https://github.com/ORG/REPO/compare](https://github.com/ORG/REPO/compare).
+4. Mark the PR as **Ready for review** once complete.
+
+## API Documentation
+Placeholder
+
+## Additional Documentation
+Placeholder
+
+## License
+© 2024 TODO: Organization
