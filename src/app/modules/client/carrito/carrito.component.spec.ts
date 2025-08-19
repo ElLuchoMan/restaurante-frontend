@@ -160,7 +160,7 @@ describe('CarritoComponent', () => {
     userServiceMock.getUserId.mockReturnValue(77);
     clienteServiceMock.getClienteId.mockReturnValue(of({ data: { direccion: 'dir', telefono: 'tel', observaciones: '' } }));
     domicilioServiceMock.createDomicilio.mockReturnValue(of({ data: { domicilioId: 9 } }));
-    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
+    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
     await (component as any).onCheckoutConfirm();
     expect(clienteServiceMock.getClienteId).toHaveBeenCalledWith(77);
     expect(domicilioServiceMock.createDomicilio).toHaveBeenCalled();
