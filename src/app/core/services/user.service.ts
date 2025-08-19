@@ -6,6 +6,7 @@ import { ApiResponse } from '../../shared/models/api-response.model';
 import { Login, LoginResponse } from '../../shared/models/login.model';
 import { HandleErrorService } from './handle-error.service';
 import { jwtDecode } from 'jwt-decode';
+import { LoggingService, LogLevel } from './logging.service';
 
 export interface DecodedToken {
   rol: string;
@@ -23,7 +24,7 @@ export class UserService {
 
   private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) { }
+  constructor(private http: HttpClient, private handleError: HandleErrorService, private logger: LoggingService) { }
 
   getAuthState(): Observable<boolean> {
     return this.authState.asObservable();
@@ -55,7 +56,7 @@ export class UserService {
     try {
       return jwtDecode<DecodedToken>(token);
     } catch (error) {
-      console.error('Error al decodificar el token:', error);
+      this.logger.log(LogLevel.ERROR, 'Error al decodificar el token', error);
       return null;
     }
   }
