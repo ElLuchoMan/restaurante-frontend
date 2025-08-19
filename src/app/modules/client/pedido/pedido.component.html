@@ -16,14 +16,14 @@
       <article class="pedido-card">
         <header class="pedido-card__header">
           <div class="pedido-card__title">
-            <h3 class="pedido-card__id">Pedido #{{ pedido.PK_ID_PEDIDO }}</h3>
+            <h3 class="pedido-card__id">Detalle de tu pedido</h3>
             <div class="pedido-card__tags">
               <span class="tag" [ngClass]="{
-                'tag--ok': pedido.ESTADO_PEDIDO === 'TERMINADO',
-                'tag--warn': pedido.ESTADO_PEDIDO === 'INICIADO',
-                'tag--danger': pedido.ESTADO_PEDIDO === 'CANCELADO'
-              }">{{ pedido.ESTADO_PEDIDO }}</span>
-              <span class="tag" [ngClass]="{ 'tag--muted': !pedido.DELIVERY }">{{ pedido.DELIVERY ? 'Domicilio' : 'En restaurante' }}</span>
+                'tag--ok': pedido.estadoPedido=== 'TERMINADO',
+                'tag--warn': pedido.estadoPedido === 'INICIADO',
+                'tag--danger': pedido.estadoPedido === 'CANCELADO'
+              }">{{ pedido.estadoPedido }}</span>
+              <span class="tag" [ngClass]="{ 'tag--muted': !pedido.delivery }">{{ pedido.delivery ? 'Domicilio' : 'En restaurante' }}</span>
             </div>
           </div>
         </header>

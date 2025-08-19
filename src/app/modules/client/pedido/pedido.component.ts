@@ -33,12 +33,12 @@ export class PedidoComponent implements OnInit {
     this.pedidoService.getPedidoDetalles(id).subscribe({
       next: res => {
         const det = res?.data;
+        console.log('Detalles del pedido', det);
         if (det) {
           let productos: any[] = [];
           try {
             const parsed = det.productos ? JSON.parse(det.productos) : [];
             productos = Array.isArray(parsed) ? parsed : [];
-            console.log('Aca', productos);
           } catch {
             productos = [];
           }
