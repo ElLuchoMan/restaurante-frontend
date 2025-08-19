@@ -49,7 +49,7 @@
             </p>
         </div>
         <br class="mb-3 mt-3">
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3" *ngFor="let producto of productosPaginados"
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3" *ngFor="let producto of productosPaginados; trackBy: trackByProductoId"
             (click)="abrirDetalle(producto)">
             <div class="card producto-card">
                 <span class="badge bg-primary categoria-badge">{{ producto.categoria }}</span>
