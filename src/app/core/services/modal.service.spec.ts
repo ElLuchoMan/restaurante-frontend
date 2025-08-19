@@ -27,7 +27,7 @@ describe('ModalService', () => {
   });
 
   it('should update modalData and set isOpen to true when openModal is called', () => {
-    const data = { title: 'Test Modal', content: 'Contenido de prueba' };
+    const data = { title: 'Test Modal', message: 'Contenido de prueba' };
     service.openModal(data);
 
     expect(service.getModalData()).toEqual(data);
