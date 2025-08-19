@@ -148,8 +148,8 @@ describe('CarritoComponent', () => {
   it('should finalize order without delivery', async () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({ selects: [{ selected: 2 }, { selected: false }] });
-    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
-    (component as any).onCheckoutConfirm();
+    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
+    await (component as any).onCheckoutConfirm();
     expect(modalServiceMock.closeModal).toHaveBeenCalled();
     expect(finalizeSpy).toHaveBeenCalledWith(2, null);
   });
@@ -172,7 +172,7 @@ describe('CarritoComponent', () => {
     modalServiceMock.getModalData.mockReturnValue({ selects: [{ selected: 1 }, { selected: true }] });
     userServiceMock.getUserId.mockReturnValue(10);
     clienteServiceMock.getClienteId.mockReturnValue(throwError(() => new Error('fail')));
-    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
+    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
     await (component as any).onCheckoutConfirm().catch(() => {});
     expect(finalizeSpy).not.toHaveBeenCalled();
@@ -186,7 +186,7 @@ describe('CarritoComponent', () => {
     userServiceMock.getUserId.mockReturnValue(20);
     clienteServiceMock.getClienteId.mockReturnValue(of({ data: { direccion: 'a', telefono: 'b', observaciones: '' } }));
     domicilioServiceMock.createDomicilio.mockReturnValue(throwError(() => new Error('dom fail')));
-    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
+    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
     await (component as any).onCheckoutConfirm().catch(() => {});
     expect(finalizeSpy).not.toHaveBeenCalled();

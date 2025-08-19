@@ -6,7 +6,7 @@ import { UserService } from '../../../core/services/user.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Trabajador } from '../../../shared/models/trabajador.model';
@@ -47,7 +47,7 @@ describe('RegisterComponent', () => {
       navigate: jest.fn()
     } as unknown as jest.Mocked<Router>;
     await TestBed.configureTestingModule({
-      imports: [RegisterComponent, FormsModule, CommonModule, HttpClientTestingModule],
+      imports: [RegisterComponent, ReactiveFormsModule, CommonModule, HttpClientTestingModule],
       providers: [
         { provide: UserService, useValue: userServiceMock },
         { provide: TrabajadorService, useValue: trabajadorServiceMock },
@@ -85,19 +85,22 @@ describe('RegisterComponent', () => {
   it('should register a client successfully', fakeAsync(() => {
     clienteService.registroCliente.mockReturnValue(of(mockClienteRegisterResponse));
 
-    component.documento = mockClienteBody.documentoCliente;
-    component.nombre = mockClienteBody.nombre;
-    component.apellido = mockClienteBody.apellido;
-    component.password = mockClienteBody.password;
-    component.direccion = mockClienteBody.direccion;
-    component.telefono = mockClienteBody.telefono;
-    component.observaciones = mockClienteBody.observaciones;
+    component.registerForm.patchValue({
+      documento: mockClienteBody.documentoCliente.toString(),
+      nombre: mockClienteBody.nombre,
+      apellido: mockClienteBody.apellido,
+      password: mockClienteBody.password,
+      direccion: mockClienteBody.direccion,
+      telefono: mockClienteBody.telefono,
+      observaciones: mockClienteBody.observaciones,
+      correo: 'test@example.com'
+    });
 
     component.onSubmit();
     tick();
 
     expect(clienteService.registroCliente).toHaveBeenCalledWith(
-      expect.objectContaining(mockClienteBody)
+      expect.objectContaining({ ...mockClienteBody, correo: 'test@example.com' })
     );
     expect(toastr.success).toHaveBeenCalledWith('Cliente registrado con éxito');
     expect(router.navigate).toHaveBeenCalledWith(['/']);
@@ -106,28 +109,31 @@ describe('RegisterComponent', () => {
   it('should register a worker successfully', fakeAsync(() => {
     const formatDatePipe = new FormatDatePipe();
 
-    const formattedFechaIngreso = formatDatePipe.transform(component.fechaIngreso);
-    const formattedFechaNacimiento = formatDatePipe.transform(component.fechaNacimiento);
+    const formattedFechaIngreso = formatDatePipe.transform(new Date());
+    const formattedFechaNacimiento = formatDatePipe.transform(new Date('1990-01-01'));
 
     trabajadorService.registroTrabajador.mockReturnValue(of(mockTrabajadorRegisterResponse));
 
-    component.esTrabajador = true;
-    component.documento = mockTrabajadorBody.documentoTrabajador;
-    component.nombre = mockTrabajadorBody.nombre;
-    component.apellido = mockTrabajadorBody.apellido;
-    component.password = mockTrabajadorBody.password;
-    component.sueldo = mockTrabajadorBody.sueldo;
-    component.telefono = mockTrabajadorBody.telefono;
-    component.rol = mockTrabajadorBody.rol;
-    component.horaEntrada = '08:00';
-    component.horaSalida = '20:00';
+    component.registerForm.patchValue({
+      esTrabajador: true,
+      documento: mockTrabajadorBody.documentoTrabajador.toString(),
+      nombre: mockTrabajadorBody.nombre,
+      apellido: mockTrabajadorBody.apellido,
+      password: mockTrabajadorBody.password,
+      sueldo: mockTrabajadorBody.sueldo,
+      telefono: mockTrabajadorBody.telefono,
+      rol: mockTrabajadorBody.rol,
+      horaEntrada: '08:00',
+      horaSalida: '20:00',
+      fechaNacimiento: '1990-01-01'
+    });
 
     component.onSubmit();
     tick();
 
     expect(trabajadorService.registroTrabajador).toHaveBeenCalledWith({
       ...mockTrabajadorBody,
-      horario: `${component.horaEntrada} - ${component.horaSalida}`,
+      horario: '08:00 - 20:00',
       fechaIngreso: formattedFechaIngreso,
       fechaNacimiento: formattedFechaNacimiento,
     });
@@ -141,10 +147,15 @@ describe('RegisterComponent', () => {
       message: 'Error al registrar'
     })));
 
-    component.documento = 12345;
-    component.nombre = 'Cliente';
-    component.apellido = 'Prueba';
-    component.password = 'password';
+    component.registerForm.patchValue({
+      documento: '12345',
+      nombre: 'Cliente',
+      apellido: 'Prueba',
+      password: 'password',
+      direccion: 'Dir',
+      telefono: '123',
+      correo: 'a@a.com'
+    });
 
     component.onSubmit();
     tick();
@@ -157,12 +168,19 @@ describe('RegisterComponent', () => {
       message: 'Error al registrar trabajador'
     })));
 
-    component.esTrabajador = true;
-    component.documento = 54321;
-    component.nombre = 'Trabajador';
-    component.apellido = 'Prueba';
-    component.password = 'password';
-    component.sueldo = 1000000;
+    component.registerForm.patchValue({
+      esTrabajador: true,
+      documento: '54321',
+      nombre: 'Trabajador',
+      apellido: 'Prueba',
+      password: 'password',
+      sueldo: 1000000,
+      telefono: '123',
+      rol: 'Mesero',
+      horaEntrada: '08:00',
+      horaSalida: '20:00',
+      fechaNacimiento: '1990-01-01'
+    });
 
     component.onSubmit();
     tick();
@@ -178,12 +196,19 @@ describe('RegisterComponent', () => {
 
     trabajadorService.registroTrabajador.mockReturnValue(of(mockErrorResponse));
 
-    component.esTrabajador = true;
-    component.documento = 54321;
-    component.nombre = 'Trabajador';
-    component.apellido = 'Prueba';
-    component.password = 'password';
-    component.sueldo = 1000000;
+    component.registerForm.patchValue({
+      esTrabajador: true,
+      documento: '54321',
+      nombre: 'Trabajador',
+      apellido: 'Prueba',
+      password: 'password',
+      sueldo: 1000000,
+      telefono: '123',
+      rol: 'Mesero',
+      horaEntrada: '08:00',
+      horaSalida: '20:00',
+      fechaNacimiento: '1990-01-01'
+    });
 
     component.onSubmit();
     tick();
@@ -200,10 +225,15 @@ describe('RegisterComponent', () => {
 
     clienteService.registroCliente.mockReturnValue(of(mockErrorResponse));
 
-    component.documento = 12345;
-    component.nombre = 'Cliente';
-    component.apellido = 'Prueba';
-    component.password = 'password';
+    component.registerForm.patchValue({
+      documento: '12345',
+      nombre: 'Cliente',
+      apellido: 'Prueba',
+      password: 'password',
+      direccion: 'Dir',
+      telefono: '123',
+      correo: 'a@a.com'
+    });
 
     component.onSubmit();
     tick();
@@ -219,12 +249,19 @@ describe('RegisterComponent', () => {
 
     trabajadorService.registroTrabajador.mockReturnValue(of(mockErrorResponse));
 
-    component.esTrabajador = true;
-    component.documento = 54321;
-    component.nombre = 'Trabajador';
-    component.apellido = 'Prueba';
-    component.password = 'password';
-    component.sueldo = 1000000;
+    component.registerForm.patchValue({
+      esTrabajador: true,
+      documento: '54321',
+      nombre: 'Trabajador',
+      apellido: 'Prueba',
+      password: 'password',
+      sueldo: 1000000,
+      telefono: '123',
+      rol: 'Mesero',
+      horaEntrada: '08:00',
+      horaSalida: '20:00',
+      fechaNacimiento: '1990-01-01'
+    });
 
     component.onSubmit();
     tick();
@@ -240,10 +277,15 @@ describe('RegisterComponent', () => {
 
     clienteService.registroCliente.mockReturnValue(of(mockErrorResponse));
 
-    component.documento = 12345;
-    component.nombre = 'Cliente';
-    component.apellido = 'Prueba';
-    component.password = 'password';
+    component.registerForm.patchValue({
+      documento: '12345',
+      nombre: 'Cliente',
+      apellido: 'Prueba',
+      password: 'password',
+      direccion: 'Dir',
+      telefono: '123',
+      correo: 'a@a.com'
+    });
 
     component.onSubmit();
     tick();
