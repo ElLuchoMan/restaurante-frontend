@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { take } from 'rxjs';
@@ -13,22 +13,32 @@ import { environment } from '../../../../environments/environment';
   standalone: true,
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  imports: [FormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule],
 })
 export class LoginComponent {
-  documento: string = '';
-  password: string = '';
+  loginForm: FormGroup;
 
   constructor(
+    private fb: FormBuilder,
     private router: Router,
     private toastr: ToastrService,
     private userService: UserService,
     private logger: LoggingService
-  ) { }
+  ) {
+    this.loginForm = this.fb.group({
+      documento: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+    });
+  }
 
   onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
     this.userService
-      .login({ documento: this.documento, password: this.password })
+      .login(this.loginForm.value)
       .pipe(take(1))
       .subscribe({
         next: (response) => {
@@ -44,7 +54,10 @@ export class LoginComponent {
             if (err && err.message) {
               this.logger.log(LogLevel.ERROR, 'Error de inicio de sesión', err);
             } else {
-              this.logger.log(LogLevel.ERROR,'No hay propiedad "message" en el error.');
+              this.logger.log(
+                LogLevel.ERROR,
+                'No hay propiedad "message" en el error.'
+              );
             }
           }
           if (err && err.message) {

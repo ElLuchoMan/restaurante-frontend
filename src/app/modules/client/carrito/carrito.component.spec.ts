@@ -14,6 +14,7 @@ import { ClienteService } from '../../../core/services/cliente.service';
 import { Router } from '@angular/router';
 
 import { Producto } from '../../../shared/models/producto.model';
+import { ToastrService } from 'ngx-toastr';
 
 describe('CarritoComponent', () => {
   let component: CarritoComponent;
@@ -29,6 +30,7 @@ describe('CarritoComponent', () => {
   let userServiceMock: any;
   let clienteServiceMock: any;
   let routerMock: any;
+  let toastrServiceMock: any;
 
   async function setup({
     items = [],
@@ -59,6 +61,7 @@ describe('CarritoComponent', () => {
     userServiceMock = { getUserId: jest.fn() };
     clienteServiceMock = { getClienteId: jest.fn() };
     routerMock = { navigate: jest.fn() };
+    toastrServiceMock = { success: jest.fn(), error: jest.fn() };
 
     await TestBed.configureTestingModule({
       imports: [CarritoComponent],
@@ -73,6 +76,7 @@ describe('CarritoComponent', () => {
         { provide: UserService, useValue: userServiceMock },
         { provide: ClienteService, useValue: clienteServiceMock },
         { provide: Router, useValue: routerMock },
+        { provide: ToastrService, useValue: toastrServiceMock },
       ],
     }).compileComponents();
 
