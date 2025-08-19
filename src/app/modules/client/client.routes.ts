@@ -4,6 +4,7 @@ import { RoleGuard } from '../../core/guards/role.guard';
 import { CarritoComponent } from './carrito/carrito.component';
 import { MisPedidosComponent } from './mis-pedidos/mis-pedidos.component';
 import { PerfilComponent } from './perfil/perfil.component';
+import { PedidoComponent } from './pedido/pedido.component';
 
 export const clientRoutes: Routes = [
     {
@@ -19,6 +20,13 @@ export const clientRoutes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['Cliente'] },
         title: 'Mis pedidos',
+    },
+    {
+        path: 'pedido/:id',
+        component: PedidoComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['Cliente'] },
+        title: 'Detalle del pedido',
     },
     {
         path: 'perfil',

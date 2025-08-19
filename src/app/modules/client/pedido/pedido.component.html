@@ -1,0 +1,76 @@
+<div class="container-fluid mt-4">
+  <div class="container">
+    <a class="back-link" routerLink="/cliente/mis-pedidos">&larr; Volver</a>
+
+    <h1 class="text-center mb-4">Detalle del pedido</h1>
+
+    @if (loading) {
+      <div class="text-center text-muted">Cargando pedido…</div>
+    }
+
+    @if (error) {
+      <div class="alert alert-danger">{{ error }}</div>
+    }
+
+    @if (!loading && pedido) {
+      <article class="pedido-card">
+        <header class="pedido-card__header">
+          <div class="pedido-card__title">
+            <h3 class="pedido-card__id">Pedido #{{ pedido.PK_ID_PEDIDO }}</h3>
+            <div class="pedido-card__tags">
+              <span class="tag" [ngClass]="{
+                'tag--ok': pedido.ESTADO_PEDIDO === 'TERMINADO',
+                'tag--warn': pedido.ESTADO_PEDIDO === 'INICIADO',
+                'tag--danger': pedido.ESTADO_PEDIDO === 'CANCELADO'
+              }">{{ pedido.ESTADO_PEDIDO }}</span>
+              <span class="tag" [ngClass]="{ 'tag--muted': !pedido.DELIVERY }">{{ pedido.DELIVERY ? 'Domicilio' : 'En restaurante' }}</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="pedido-card__meta">
+          <div class="meta__item">
+            <span class="meta__label">Fecha</span>
+            <span class="meta__value">{{ pedido.FECHA | formatDate:'date' }}</span>
+          </div>
+          <div class="meta__item">
+            <span class="meta__label">Hora</span>
+            <span class="meta__value">{{ pedido.HORA | formatDate:'time' }}</span>
+          </div>
+          <div class="meta__item">
+            <span class="meta__label">Método de pago</span>
+            <span class="meta__value">{{ pedido.METODO_PAGO }}</span>
+          </div>
+        </div>
+
+        <div class="pedido-detalle__productos">
+          <h3 class="pedido-detalle__subtitle">Productos</h3>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Cant.</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (prod of pedido.PRODUCTOS; track prod.NOMBRE; let i = $index) {
+                <tr>
+                  <td>{{ prod.NOMBRE || prod.nombre }}</td>
+                  <td>{{ prod.CANTIDAD || prod.cantidad }}</td>
+                  <td>
+                    ${{ (prod.SUBTOTAL ?? (prod.PRECIO_UNITARIO || prod.precio || 0) * (prod.CANTIDAD || prod.cantidad || 1)) | number:'1.0-0' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="pedido-card__footer">
+          <span class="pedido-detalle__total">Total: ${{ pedido.total | number:'1.0-0' }}</span>
+        </footer>
+      </article>
+    }
+  </div>
+</div>
