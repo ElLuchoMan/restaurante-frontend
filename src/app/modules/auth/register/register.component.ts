@@ -5,7 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../../core/services/user.service';
 import { Cliente } from '../../../shared/models/cliente.model';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Trabajador } from '../../../shared/models/trabajador.model';
 import { Roles } from '../../../shared/constants';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
@@ -13,7 +13,7 @@ import { TrabajadorService } from '../../../core/services/trabajador.service';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   providers: [FormatDatePipe],
   standalone: true,
   templateUrl: './register.component.html',
@@ -21,25 +21,43 @@ import { TrabajadorService } from '../../../core/services/trabajador.service';
 })
 export class RegisterComponent implements OnInit {
 
-  documento: any;
-  nombre: string = '';
-  apellido: string = '';
-  direccion: string = '';
-  correo: string = '';
-  password: string = '';
-  esTrabajador: boolean = false;
-  sueldo?: number;
-  telefono: string = '';
-  observaciones: string = '';
-  fechaNacimiento: Date = new Date();
-  fechaIngreso: Date = new Date();
-  rol?: string;
+  registerForm: FormGroup<{
+    documento: FormControl<string>;
+    nombre: FormControl<string>;
+    apellido: FormControl<string>;
+    direccion: FormControl<string>;
+    correo: FormControl<string>;
+    password: FormControl<string>;
+    esTrabajador: FormControl<boolean>;
+    sueldo: FormControl<number | null>;
+    telefono: FormControl<string>;
+    observaciones: FormControl<string>;
+    fechaNacimiento: FormControl<string>;
+    nuevo: FormControl<boolean>;
+    rol: FormControl<string>;
+    horaEntrada: FormControl<string>;
+    horaSalida: FormControl<string>;
+  }> = new FormGroup({
+    documento: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    nombre: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    apellido: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    direccion: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    correo: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    esTrabajador: new FormControl(false, { nonNullable: true }),
+    sueldo: new FormControl<number | null>(null),
+    telefono: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    observaciones: new FormControl('', { nonNullable: true }),
+    fechaNacimiento: new FormControl('', { nonNullable: true }),
+    nuevo: new FormControl(true, { nonNullable: true }),
+    rol: new FormControl('', { nonNullable: true }),
+    horaEntrada: new FormControl('', { nonNullable: true }),
+    horaSalida: new FormControl('', { nonNullable: true }),
+  });
+
   roles: string[] = [];
-  nuevo: boolean = true;
   horasEntradaDisponibles: string[] = ['08:00', '12:00', '16:00'];
   horasSalidaDisponibles: string[] = ['17:00', '20:00', '22:00'];
-  horaEntrada: string = '';
-  horaSalida: string = '';
 
   constructor(
     private userService: UserService,
@@ -56,6 +74,30 @@ export class RegisterComponent implements OnInit {
     Object.values(Roles).forEach((element: string) => {
       this.roles.push(element);
     });
+    this.registerForm.get('esTrabajador')?.valueChanges.subscribe((esTrabajador) => {
+      if (esTrabajador) {
+        this.registerForm.get('direccion')?.clearValidators();
+        this.registerForm.get('correo')?.clearValidators();
+        this.registerForm.get('fechaNacimiento')?.setValidators([Validators.required]);
+        this.registerForm.get('nuevo')?.setValidators([Validators.required]);
+        this.registerForm.get('sueldo')?.setValidators([Validators.required]);
+        this.registerForm.get('rol')?.setValidators([Validators.required]);
+        this.registerForm.get('horaEntrada')?.setValidators([Validators.required]);
+        this.registerForm.get('horaSalida')?.setValidators([Validators.required]);
+      } else {
+        this.registerForm.get('direccion')?.setValidators([Validators.required]);
+        this.registerForm.get('correo')?.setValidators([Validators.required, Validators.email]);
+        this.registerForm.get('fechaNacimiento')?.clearValidators();
+        this.registerForm.get('nuevo')?.clearValidators();
+        this.registerForm.get('sueldo')?.clearValidators();
+        this.registerForm.get('rol')?.clearValidators();
+        this.registerForm.get('horaEntrada')?.clearValidators();
+        this.registerForm.get('horaSalida')?.clearValidators();
+      }
+      ['direccion','correo','fechaNacimiento','nuevo','sueldo','rol','horaEntrada','horaSalida'].forEach(ctrl => {
+        this.registerForm.get(ctrl as keyof typeof this.registerForm.controls)?.updateValueAndValidity();
+      });
+    });
   }
 
   isAdmin(): boolean {
@@ -67,21 +109,27 @@ export class RegisterComponent implements OnInit {
   }
 
 
+  get esTrabajador(): boolean {
+    return this.registerForm.get('esTrabajador')?.value || false;
+  }
+
   onSubmit(): void {
-    const formattedFechaNacimiento = this.formatDatePipe.transform(this.fechaNacimiento);
+    const values = this.registerForm.getRawValue();
     const formattedFechaIngreso = this.formatDatePipe.transform(new Date());
-    if (this.esTrabajador) {
+
+    if (values.esTrabajador) {
+      const formattedFechaNacimiento = this.formatDatePipe.transform(new Date(values.fechaNacimiento));
       const trabajador: Trabajador = {
-        documentoTrabajador: this.documento,
-        nombre: this.nombre,
-        apellido: this.apellido,
-        password: this.password,
+        documentoTrabajador: Number(values.documento),
+        nombre: values.nombre,
+        apellido: values.apellido,
+        password: values.password,
         restauranteId: 1,
-        rol: this.rol || 'Mesero',
-        nuevo: true,
-        horario: `${this.horaEntrada} - ${this.horaSalida}`,
-        sueldo: this.sueldo!,
-        telefono: this.telefono,
+        rol: values.rol || 'Mesero',
+        nuevo: values.nuevo,
+        horario: `${values.horaEntrada} - ${values.horaSalida}`,
+        sueldo: Number(values.sueldo),
+        telefono: values.telefono,
         fechaIngreso: formattedFechaIngreso,
         fechaNacimiento: formattedFechaNacimiento,
       };
@@ -100,14 +148,14 @@ export class RegisterComponent implements OnInit {
       });
     } else {
       const cliente: Cliente = {
-        documentoCliente: this.documento!,
-        nombre: this.nombre,
-        apellido: this.apellido,
-        password: this.password,
-        direccion: this.direccion,
-        correo: this.correo,
-        telefono: this.telefono,
-        observaciones: this.observaciones,
+        documentoCliente: Number(values.documento),
+        nombre: values.nombre,
+        apellido: values.apellido,
+        password: values.password,
+        direccion: values.direccion,
+        correo: values.correo,
+        telefono: values.telefono,
+        observaciones: values.observaciones,
       };
       this.clienteService.registroCliente(cliente).subscribe({
         next: response => {
