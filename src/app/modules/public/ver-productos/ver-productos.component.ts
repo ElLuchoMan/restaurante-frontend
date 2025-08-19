@@ -147,14 +147,14 @@ export class VerProductosComponent implements OnInit, OnDestroy {
 
     this.modalService.openModal({
       title: producto.nombre,
-      image: producto.imagen || '../../../../assets/img/logo2.png',
-      message: `
-      <strong>Precio:</strong> $${producto.precio}<br>
-      <strong>Calorías:</strong> ${producto.calorias || 'N/A'}<br>
-      <strong>Categoría:</strong> ${producto.categoria}<br>
-      <strong>Subcategoría:</strong> ${producto.subcategoria}<br>
-      <strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}
-    `,
+      image: typeof producto.imagen === 'string' ? producto.imagen : '../../../../assets/img/logo2.png',
+      details: {
+        precio: producto.precio,
+        calorias: producto.calorias,
+        categoria: producto.categoria,
+        subcategoria: producto.subcategoria,
+        descripcion: producto.descripcion
+      },
       buttons: botones
     });
   }
