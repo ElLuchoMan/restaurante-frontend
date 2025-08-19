@@ -33,7 +33,7 @@
   }
 }
 
-@media (width <=1200px) {
+@media (width <= $breakpoint-xl) {
   .logo-container {
     flex-grow: 0.75 !important;
   }
