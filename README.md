@@ -59,9 +59,9 @@ restaurante-frontend/
 - `npm run serve:ssr:restaurante-frontend` – run the server-side rendered build
 
 ## How to make a PR
-1. Create a feature branch from `main`.
+1. Create a feature branch from `develop`.
 2. Commit your changes and push.
-3. Open a draft PR at [https://github.com/ORG/REPO/compare](https://github.com/ORG/REPO/compare).
+3. Open a draft PR at [https://github.com/ElLuchoMan/restaurante-frontend/compare](https://github.com/ORG/REPO/compare).
 4. Mark the PR as **Ready for review** once complete.
 
 ## API Documentation
@@ -71,4 +71,4 @@ Placeholder
 Placeholder
 
 ## License
-© 2024 TODO: Organization
+© 2024 ElLuchoman
