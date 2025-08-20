@@ -28,4 +28,12 @@ export class ModalService {
     this.logger.log(LogLevel.INFO, 'getModalData');
     return this.modalData.value as ModalData;
   }
+
+  updateSelect(index: number, value: any) {
+    const data = this.modalData.value;
+    if (data?.selects && data.selects[index]) {
+      data.selects[index].selected = value;
+      this.modalData.next({ ...data });
+    }
+  }
 }

@@ -94,16 +94,17 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
   private mergeDetalles(p: Pedido, det?: DetallesAPI): PedidoCard {
     if (!det) return { ...p };
 
-    // Parse de PRODUCTOS (viene como string JSON)
+    const metodoPago = det.metodoPago ?? (det as any).METODO_PAGO;
+    const productosStr = det.productos ?? (det as any).PRODUCTOS;
+
     let productos: any[] | undefined;
     try {
-      const parsed = det.productos ? JSON.parse(det.productos) : [];
+      const parsed = productosStr ? JSON.parse(productosStr) : [];
       productos = Array.isArray(parsed) ? parsed : [];
     } catch {
       productos = undefined;
     }
 
-    // total: preferir SUBTOTAL; si no, PRECIO_UNITARIO * CANTIDAD
     const total = productos?.reduce((acc, it) => {
       const sub = Number(it.SUBTOTAL ?? it.subtotal);
       if (!isNaN(sub)) return acc + sub;
@@ -112,12 +113,11 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
       return acc + (isNaN(u) || isNaN(q) ? 0 : u * q);
     }, 0);
 
-    // items = cantidad de renglones
     const items = productos?.length ?? undefined;
 
     return {
       ...p,
-      metodoPago: det.metodoPago || undefined,
+      metodoPago: metodoPago || undefined,
       productos,
       total: total !== undefined ? total : undefined,
       items

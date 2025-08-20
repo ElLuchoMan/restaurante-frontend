@@ -103,10 +103,9 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
 
   private async onCheckoutConfirm() {
-    const { selects } = this.modalService.getModalData();
-    const [methodSelect, deliverySelect] = selects!;
-    const methodId = methodSelect.selected as number;
-    const needsDelivery = deliverySelect.selected as boolean;
+    const modalData = this.modalService.getModalData();
+    const methodId = modalData.selects?.[0].selected as number;
+    const needsDelivery = modalData.selects?.[1].selected as boolean;
 
     this.modalService.closeModal();
 

@@ -15,7 +15,7 @@ export class ModalComponent implements OnInit {
   isOpen = false;
   modalData: ModalData = {} as ModalData;
 
-  constructor(private modalService: ModalService) { }
+  constructor(public modalService: ModalService) { }
 
   ngOnInit() {
     this.modalService.modalData$.subscribe((data) => {

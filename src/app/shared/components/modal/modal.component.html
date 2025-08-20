@@ -19,9 +19,9 @@
             </div>
 
             <ng-container *ngIf="modalData.selects">
-                <div *ngFor="let sel of modalData.selects" class="form-group mt-3">
+                <div *ngFor="let sel of modalData.selects; let i = index" class="form-group mt-3">
                     <label>{{ sel.label }}</label>
-                    <select class="form-control" [(ngModel)]="sel.selected">
+                    <select class="form-control" [(ngModel)]="sel.selected" (ngModelChange)="modalService.updateSelect(i, $event)">
                         <option *ngFor="let o of sel.options" [ngValue]="o.value">
                             {{ o.label }}
                         </option>
