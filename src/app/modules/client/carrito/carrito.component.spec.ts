@@ -145,6 +145,35 @@ describe('CarritoComponent', () => {
     expect(confirmSpy).toHaveBeenCalled();
   });
 
+  it('should set needsDelivery true and call fetchCliente and crearDomicilio when delivery is selected', async () => {
+    await setup({ paymentResp: { data: [{ metodoPagoId: 4, tipo: 'Cash' }] } });
+    component.crearOrden();
+
+    const config = modalServiceMock.openModal.mock.calls[0][0];
+    config.selects[0].selected = 4;
+    config.selects[1].selected = true;
+    modalServiceMock.getModalData.mockReturnValue({ selects: config.selects });
+
+    const fetchClienteSpy = jest
+      .spyOn(component as any, 'fetchCliente')
+      .mockResolvedValue({} as any);
+    const crearDomicilioSpy = jest
+      .spyOn(component as any, 'crearDomicilio')
+      .mockResolvedValue(12);
+    const finalizeSpy = jest
+      .spyOn(component as any, 'finalizeOrder')
+      .mockResolvedValue(undefined);
+
+    await config.buttons[1].action();
+
+    expect(modalServiceMock.getModalData).toHaveBeenCalled();
+    const modalData = modalServiceMock.getModalData.mock.results[0].value;
+    expect(modalData.selects[1].selected).toBe(true);
+    expect(fetchClienteSpy).toHaveBeenCalled();
+    expect(crearDomicilioSpy).toHaveBeenCalled();
+    expect(finalizeSpy).toHaveBeenCalledWith(4, 12);
+  });
+
   it('should finalize order without delivery', async () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({ selects: [{ selected: 2 }, { selected: false }] });
