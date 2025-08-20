@@ -167,6 +167,19 @@ describe('CarritoComponent', () => {
     expect(finalizeSpy).toHaveBeenCalledWith(3, 9);
   });
 
+  it('should handle string "true" for delivery selection', async () => {
+    await setup();
+    modalServiceMock.getModalData.mockReturnValue({ selects: [{ selected: 4 }, { selected: 'true' }] });
+    userServiceMock.getUserId.mockReturnValue(88);
+    clienteServiceMock.getClienteId.mockReturnValue(of({ data: { direccion: 'dir2', telefono: 'tel2', observaciones: '' } }));
+    domicilioServiceMock.createDomicilio.mockReturnValue(of({ data: { domicilioId: 5 } }));
+    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
+    await (component as any).onCheckoutConfirm();
+    expect(clienteServiceMock.getClienteId).toHaveBeenCalledWith(88);
+    expect(domicilioServiceMock.createDomicilio).toHaveBeenCalled();
+    expect(finalizeSpy).toHaveBeenCalledWith(4, 5);
+  });
+
   it('should handle error when getting client data fails', async () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({ selects: [{ selected: 1 }, { selected: true }] });
