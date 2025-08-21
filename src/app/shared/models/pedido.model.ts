@@ -16,7 +16,7 @@ export interface PedidoDetalle {
     PK_ID_PEDIDO?: number;
     FECHA: string;
     HORA: string;
-    DELIVERY: boolean;
+    delivery: boolean;
     ESTADO_PEDIDO: string;
     METODO_PAGO: string;
     PRODUCTOS: string;
