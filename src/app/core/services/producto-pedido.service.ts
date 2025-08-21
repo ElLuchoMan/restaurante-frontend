@@ -27,7 +27,7 @@ export class ProductoPedidoService {
   create(payload: CrearProductoPedido): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(this.baseUrl, {
       PK_ID_PEDIDO: payload.PK_ID_PEDIDO,
-      DETALLES_PRODUCTOS: JSON.stringify(payload.DETALLES_PRODUCTOS)
+      DETALLES_PRODUCTOS: payload.DETALLES_PRODUCTOS
     }).pipe(
       catchError(this.handleError.handleError)
     );
