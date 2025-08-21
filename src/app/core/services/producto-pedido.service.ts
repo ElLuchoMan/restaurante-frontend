@@ -20,16 +20,18 @@ interface CrearProductoPedido {
 
 @Injectable({ providedIn: 'root' })
 export class ProductoPedidoService {
-  private baseUrl = `${environment.apiUrl}/producto_pedido`;
+  private baseUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient, private handleError: HandleErrorService) { }
 
-  create(payload: CrearProductoPedido): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(this.baseUrl, {
-      PK_ID_PEDIDO: payload.PK_ID_PEDIDO,
-      DETALLES_PRODUCTOS: payload.DETALLES_PRODUCTOS
-    }).pipe(
-      catchError(this.handleError.handleError)
-    );
-  }
+  create(data: { PK_ID_PEDIDO: number; DETALLES_PRODUCTOS: any[] }) {
+  const body = {
+    pedidoId: data.PK_ID_PEDIDO,
+    detallesProductos: data.DETALLES_PRODUCTOS, 
+  };
+  return this.http.post<ApiResponse<any>>(
+    `${this.baseUrl}/producto_pedido`,
+    body
+  ).pipe(catchError(this.handleError.handleError));
+}
 }

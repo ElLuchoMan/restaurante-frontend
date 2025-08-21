@@ -43,6 +43,7 @@ export class PedidoService {
       catchError(this.handleError.handleError)
     );
   }
+
   getMisPedidos(clienteId: number): Observable<ApiResponse<Pedido[]>> {
     const params = new HttpParams().set('cliente', clienteId.toString());
     return this.http.get<ApiResponse<Pedido[]>>(this.baseUrl, { params }).pipe(
