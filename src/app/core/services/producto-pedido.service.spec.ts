@@ -43,8 +43,9 @@ describe('ProductoPedidoService', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
       PK_ID_PEDIDO: 1,
-      DETALLES_PRODUCTOS: JSON.stringify(payload.DETALLES_PRODUCTOS)
+      DETALLES_PRODUCTOS: payload.DETALLES_PRODUCTOS
     });
+    expect(Array.isArray(req.request.body.DETALLES_PRODUCTOS)).toBe(true);
     req.flush(mock);
   });
 
