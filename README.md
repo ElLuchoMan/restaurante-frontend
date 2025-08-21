@@ -70,7 +70,7 @@ Sass variables remain only for build‑time values such as breakpoints.
 4. Mark the PR as **Ready for review** once complete.
 
 ## API Documentation
-Placeholder
+See [docs/pedidos-contract.md](docs/pedidos-contract.md) for the current contract of the pedidos endpoint, including the `delivery` boolean field.
 
 ## Additional Documentation
 Placeholder
