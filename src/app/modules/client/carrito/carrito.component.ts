@@ -2,7 +2,7 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription, of } from 'rxjs';
+import { Subscription, of, throwError } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
@@ -106,7 +106,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
 
     // 1) Si NO requiere domicilio → finalizamos sin crear domicilio
     if (!needsDelivery) {
-      return this.finalizeOrder(methodId, null);
+      return this.finalizeOrder(methodId, null, needsDelivery);
     }
 
     // 2) Si requiere domicilio:
@@ -157,7 +157,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
         // 2.5) Ya tenemos el domicilio recién creado → extraemos domicilioId
         const domicilioId = (respDomicilio.data as Domicilio).domicilioId!;
         // 2.6) Continuamos el flujo normal con finalizeOrder
-        this.finalizeOrder(methodId, domicilioId);
+        this.finalizeOrder(methodId, domicilioId, needsDelivery);
       },
       error: (err) => {
         // Si algo falla al obtener cliente o crear domicilio → mostramos un error
@@ -167,9 +167,9 @@ export class CarritoComponent implements OnInit, OnDestroy {
     });
   }
 
-  private finalizeOrder(methodId: number, domicilioId: number | null) {
+  private finalizeOrder(methodId: number, domicilioId: number | null, needsDelivery: boolean) {
     // 3.1) Crear el pedido (POST /pedidos) → devolvemos el ID
-    this.pedidoService.createPedido({ delivery: domicilioId !== null }).pipe(
+    this.pedidoService.createPedido({ delivery: needsDelivery }).pipe(
       switchMap(res => {
         const pedidoId = res.data.pedidoId!;
 
@@ -197,11 +197,15 @@ export class CarritoComponent implements OnInit, OnDestroy {
       switchMap(pedidoId =>
         this.pedidoService.assignPago(pedidoId, methodId).pipe(switchMap(() => of(pedidoId)))
       ),
-      // 3.5) Si existe domicilioId, asignarlo (POST /pedidos/asignar-domicilio?pedido_id=X&domicilio_id=Y)
+      // 3.5) Si se requiere domicilio, asignarlo; si falta domicilioId, abortar
       switchMap(pedidoId => {
-        return domicilioId !== null
-          ? this.pedidoService.assignDomicilio(pedidoId, domicilioId)
-          : of(null);
+        if (!needsDelivery) {
+          return of(null);
+        }
+        if (domicilioId === null) {
+          return throwError(() => new Error('No se pudo crear el domicilio'));
+        }
+        return this.pedidoService.assignDomicilio(pedidoId, domicilioId);
       })
     ).subscribe({
       next: () => {

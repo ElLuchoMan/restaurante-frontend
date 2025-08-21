@@ -145,7 +145,7 @@ describe('CarritoComponent', () => {
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
     (component as any).onCheckoutConfirm();
     expect(modalServiceMock.closeModal).toHaveBeenCalled();
-    expect(finalizeSpy).toHaveBeenCalledWith(2, null);
+    expect(finalizeSpy).toHaveBeenCalledWith(2, null, false);
   });
 
   it('should create domicilio and finalize order when delivery is needed', async () => {
@@ -158,7 +158,7 @@ describe('CarritoComponent', () => {
     (component as any).onCheckoutConfirm();
     expect(clienteServiceMock.getClienteId).toHaveBeenCalledWith(77);
     expect(domicilioServiceMock.createDomicilio).toHaveBeenCalled();
-    expect(finalizeSpy).toHaveBeenCalledWith(3, 9);
+    expect(finalizeSpy).toHaveBeenCalledWith(3, 9, true);
   });
 
   it('should handle error when getting client data fails', async () => {
@@ -197,7 +197,7 @@ describe('CarritoComponent', () => {
     pedidoClienteServiceMock.create.mockReturnValue(of({}));
     pedidoServiceMock.assignPago.mockReturnValue(of({}));
     pedidoServiceMock.assignDomicilio.mockReturnValue(of({}));
-    (component as any).finalizeOrder(1, null);
+    (component as any).finalizeOrder(1, null, false);
     expect(pedidoServiceMock.assignDomicilio).not.toHaveBeenCalled();
     expect(cartServiceMock.clearCart).toHaveBeenCalled();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/cliente/mis-pedidos']);
@@ -212,7 +212,7 @@ describe('CarritoComponent', () => {
     pedidoClienteServiceMock.create.mockReturnValue(of({}));
     pedidoServiceMock.assignPago.mockReturnValue(of({}));
     pedidoServiceMock.assignDomicilio.mockReturnValue(of({}));
-    (component as any).finalizeOrder(2, 7);
+    (component as any).finalizeOrder(2, 7, true);
     expect(pedidoServiceMock.assignDomicilio).toHaveBeenCalledWith(50, 7);
   });
 
@@ -221,7 +221,7 @@ describe('CarritoComponent', () => {
     component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
     pedidoServiceMock.createPedido.mockReturnValue(throwError(() => new Error('fail')));
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
-    (component as any).finalizeOrder(3, null);
+    (component as any).finalizeOrder(3, null, false);
     expect(errorSpy).toHaveBeenCalled();
     expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
     errorSpy.mockRestore();
