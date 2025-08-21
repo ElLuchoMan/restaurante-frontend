@@ -63,7 +63,7 @@ export const mockPedidoDetalle: ApiResponse<PedidoDetalle> = {
         PK_ID_PEDIDO: 0,
         FECHA: "",
         HORA: "",
-        DELIVERY: false,
+        delivery: false,
         ESTADO_PEDIDO: "",
         METODO_PAGO: "Nequi",
         PRODUCTOS: "[{\"NOMBRE\": \"Coca Cola 500ml\", \"CANTIDAD\": 1, \"SUBTOTAL\": 2000, \"PK_ID_PRODUCTO\": 1, \"PRECIO_UNITARIO\": 2000}]"

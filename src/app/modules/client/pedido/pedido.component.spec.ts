@@ -30,7 +30,19 @@ describe('PedidoComponent', () => {
   });
 
   it('should load pedido on init', () => {
-    pedidoService.getPedidoDetalles.mockReturnValue(of({ data: { PK_ID_PEDIDO: 5, PRODUCTOS: '[]', METODO_PAGO: 'Nequi', FECHA: '01-01-2024', HORA: '0000-01-01 10:00:00 +0000 UTC', DELIVERY: true, ESTADO_PEDIDO: 'TERMINADO' } }));
+    pedidoService.getPedidoDetalles.mockReturnValue(
+      of({
+        data: {
+          PK_ID_PEDIDO: 5,
+          PRODUCTOS: '[]',
+          METODO_PAGO: 'Nequi',
+          FECHA: '01-01-2024',
+          HORA: '0000-01-01 10:00:00 +0000 UTC',
+          delivery: true,
+          ESTADO_PEDIDO: 'TERMINADO'
+        }
+      })
+    );
     component.ngOnInit();
     expect(pedidoService.getPedidoDetalles).toHaveBeenCalledWith(5);
     expect(component.loading).toBe(false);

@@ -71,7 +71,7 @@ describe('MisPedidosComponent', () => {
 
     pedidoService.getPedidoDetalles.mockImplementation((id: number) => {
       if (id === 1) {
-        return of({ data: { METODO_PAGO: 'CARD', PRODUCTOS: '[]' } });
+        return of({ data: { metodoPago: 'CARD', productos: '[]' } });
       }
       return throwError(() => new Error('fail'));
     });
@@ -128,8 +128,8 @@ describe('MisPedidosComponent', () => {
 
     it('should merge products and calculate totals', () => {
       const det = {
-        METODO_PAGO: 'EFECTIVO',
-        PRODUCTOS: JSON.stringify([
+        metodoPago: 'EFECTIVO',
+        productos: JSON.stringify([
           { SUBTOTAL: 10 },
           { PRECIO_UNITARIO: 2, CANTIDAD: 3 },
           { PRECIO_UNITARIO: 5, CANTIDAD: 'bad' },
@@ -146,7 +146,7 @@ describe('MisPedidosComponent', () => {
     });
 
     it('should handle missing product string', () => {
-      const det = { METODO_PAGO: 'CARD' } as any;
+      const det = { metodoPago: 'CARD' } as any;
       const res = (component as any).mergeDetalles(basePedido, det);
       expect(res.productos).toEqual([]);
       expect(res.total).toBe(0);
@@ -154,7 +154,7 @@ describe('MisPedidosComponent', () => {
     });
 
     it('should handle non array product string', () => {
-      const det = { METODO_PAGO: 'CARD', PRODUCTOS: JSON.stringify({ foo: 1 }) };
+      const det = { metodoPago: 'CARD', productos: JSON.stringify({ foo: 1 }) };
       const res = (component as any).mergeDetalles(basePedido, det);
       expect(res.productos).toEqual([]);
       expect(res.total).toBe(0);
@@ -162,7 +162,7 @@ describe('MisPedidosComponent', () => {
     });
 
     it('should handle invalid JSON', () => {
-      const det = { PRODUCTOS: 'invalid' } as any;
+      const det = { productos: 'invalid' } as any;
       const res = (component as any).mergeDetalles(basePedido, det);
       expect(res.metodoPago).toBeUndefined();
       expect(res.productos).toBeUndefined();
