@@ -47,7 +47,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
     private productoPedidoService: ProductoPedidoService,
     private pedidoClienteService: PedidoClienteService,
     private userService: UserService,
-    private clienteService: ClienteService, // Ya existe en tu proyecto
+    private clienteService: ClienteService,
     private router: Router,
     private toastr: ToastrService
   ) { }
@@ -56,10 +56,10 @@ export class CarritoComponent implements OnInit, OnDestroy {
     this.cart.items$
       .pipe(takeUntil(this.destroy$))
       .subscribe(items => {
-      this.carrito = items;
-      this.subtotal = items.reduce((s, p) => s + p.precio * (p.cantidad ?? 1), 0);
-      this.totalCalorias = items.reduce((s, p) => s + (p.calorias || 0) * (p.cantidad ?? 1), 0);
-    });
+        this.carrito = items;
+        this.subtotal = items.reduce((s, p) => s + p.precio * (p.cantidad ?? 1), 0);
+        this.totalCalorias = items.reduce((s, p) => s + (p.calorias || 0) * (p.cantidad ?? 1), 0);
+      });
 
     this.metodosPagoService.getAll()
       .pipe(takeUntil(this.destroy$))
@@ -71,9 +71,9 @@ export class CarritoComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  sumar(p: Producto)   { this.cart.changeQty(p.productoId!, +1); }
-  restar(p: Producto)  { this.cart.changeQty(p.productoId!, -1); }
-  eliminar(p: Producto){ this.cart.remove(p.productoId!); }
+  sumar(p: Producto) { this.cart.changeQty(p.productoId!, +1); }
+  restar(p: Producto) { this.cart.changeQty(p.productoId!, -1); }
+  eliminar(p: Producto) { this.cart.remove(p.productoId!); }
 
   crearOrden() {
     const selects = [
@@ -88,7 +88,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
           { label: 'No', value: false },
           { label: 'Sí', value: true }
         ],
-        selected: false
+        selected: null
       }
     ];
 
@@ -97,7 +97,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       selects,
       buttons: [
         { label: 'Cancelar', class: 'btn btn-secondary', action: () => this.modalService.closeModal() },
-        { label: 'Confirmar', class: 'btn btn-primary',  action: () => this.onCheckoutConfirm() }
+        { label: 'Confirmar', class: 'btn btn-primary', action: () => this.onCheckoutConfirm() }
       ]
     });
   }
@@ -106,7 +106,10 @@ export class CarritoComponent implements OnInit, OnDestroy {
     const { selects } = this.modalService.getModalData();
     const [methodSelect, deliverySelect] = selects!;
     const methodId = methodSelect.selected as number;
-    const needsDelivery = deliverySelect.selected === true || deliverySelect.selected === 'true';
+    const needsDelivery =
+      deliverySelect.selected === true ||
+      String(deliverySelect.selected).toLowerCase() === 'true';
+
 
     this.modalService.closeModal();
 
@@ -223,4 +226,5 @@ export class CarritoComponent implements OnInit, OnDestroy {
     console.error(message, error);
     this.toastr.error(message, 'Error');
   }
+  
 }
