@@ -71,7 +71,7 @@ describe('PedidoService', () => {
   });
 
   it('assigns domicilio', () => {
-    const mock = { code: 200, message: 'ok' };
+    const mock = { code: 200, message: 'ok', data: { delivery: true, estadoPedido: 'EN CURSO' } };
     service.assignDomicilio(1, 3).subscribe(res => expect(res).toEqual(mock));
     const req = http.expectOne(`${baseUrl}/asignar-domicilio?pedido_id=1&domicilio_id=3`);
     expect(req.request.method).toBe('POST');
