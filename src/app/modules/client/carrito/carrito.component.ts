@@ -175,7 +175,11 @@ export class CarritoComponent implements OnInit, OnDestroy {
     try {
       const pedidoRes = await firstValueFrom(
         this.pedidoService
-          .createPedido({ delivery: domicilioId !== null })
+          .createPedido({
+            delivery: domicilioId !== null,
+            pagoId: methodId,
+            estadoPedido: 'PENDIENTE'
+          })
           .pipe(takeUntil(this.destroy$))
       );
       const pedidoId = pedidoRes.data.pedidoId!;
@@ -199,19 +203,16 @@ export class CarritoComponent implements OnInit, OnDestroy {
           .create({ pedidoId, documentoCliente: this.userService.getUserId() })
           .pipe(takeUntil(this.destroy$))
       );
-
-      await firstValueFrom(
-        this.pedidoService
-          .assignPago(pedidoId, methodId)
-          .pipe(takeUntil(this.destroy$))
-      );
-
+      // El pago se confirmará cuando el pedido sea efectivamente pagado
       if (domicilioId !== null) {
-        await firstValueFrom(
+        const resp = await firstValueFrom(
           this.pedidoService
             .assignDomicilio(pedidoId, domicilioId)
             .pipe(takeUntil(this.destroy$))
         );
+        if (resp.data?.delivery !== true || resp.data?.estadoPedido !== 'EN CURSO') {
+          console.warn('Respuesta inesperada al asignar domicilio', resp.data);
+        }
       }
 
       this.cart.clearCart();

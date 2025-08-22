@@ -243,9 +243,14 @@ describe('CarritoComponent', () => {
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
     pedidoClienteServiceMock.create.mockReturnValue(of({}));
-    pedidoServiceMock.assignPago.mockReturnValue(of({}));
     pedidoServiceMock.assignDomicilio.mockReturnValue(of({}));
     await (component as any).finalizeOrder(1, null);
+    expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
+      delivery: false,
+      pagoId: 1,
+      estadoPedido: 'PENDIENTE'
+    });
+    expect(pedidoServiceMock.assignPago).not.toHaveBeenCalled();
     expect(pedidoServiceMock.assignDomicilio).not.toHaveBeenCalled();
     expect(cartServiceMock.clearCart).toHaveBeenCalled();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/cliente/mis-pedidos']);
@@ -258,9 +263,14 @@ describe('CarritoComponent', () => {
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 50 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
     pedidoClienteServiceMock.create.mockReturnValue(of({}));
-    pedidoServiceMock.assignPago.mockReturnValue(of({}));
-    pedidoServiceMock.assignDomicilio.mockReturnValue(of({}));
+    pedidoServiceMock.assignDomicilio.mockReturnValue(of({ data: { delivery: true, estadoPedido: 'EN CURSO' } }));
     await (component as any).finalizeOrder(2, 7);
+    expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
+      delivery: true,
+      pagoId: 2,
+      estadoPedido: 'PENDIENTE'
+    });
+    expect(pedidoServiceMock.assignPago).not.toHaveBeenCalled();
     expect(pedidoServiceMock.assignDomicilio).toHaveBeenCalledWith(50, 7);
   });
 
