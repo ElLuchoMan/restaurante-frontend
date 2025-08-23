@@ -110,7 +110,6 @@ export class CarritoComponent implements OnInit, OnDestroy {
       deliverySelect.selected === true ||
       String(deliverySelect.selected).toLowerCase() === 'true';
 
-
     this.modalService.closeModal();
 
     try {
@@ -177,8 +176,8 @@ export class CarritoComponent implements OnInit, OnDestroy {
         this.pedidoService
           .createPedido({
             delivery: domicilioId !== null,
-            pagoId: methodId,
-            estadoPedido: 'PENDIENTE'
+            // El backend pone ESTADO_PEDIDO=INICIADO; no enviar PENDIENTE
+            // El pago se asignará cuando sea efectivo (endpoint de asignar-pago)
           })
           .pipe(takeUntil(this.destroy$))
       );
@@ -203,14 +202,15 @@ export class CarritoComponent implements OnInit, OnDestroy {
           .create({ pedidoId, documentoCliente: this.userService.getUserId() })
           .pipe(takeUntil(this.destroy$))
       );
-      // El pago se confirmará cuando el pedido sea efectivamente pagado
+
       if (domicilioId !== null) {
         const resp = await firstValueFrom(
           this.pedidoService
             .assignDomicilio(pedidoId, domicilioId)
             .pipe(takeUntil(this.destroy$))
         );
-        if (resp.data?.delivery !== true || resp.data?.estadoPedido !== 'EN CURSO') {
+        // Sólo validamos que delivery se mantenga TRUE; el estado sigue siendo INICIADO por contrato
+        if (resp.data?.delivery !== true) {
           console.warn('Respuesta inesperada al asignar domicilio', resp.data);
         }
       }
@@ -227,5 +227,4 @@ export class CarritoComponent implements OnInit, OnDestroy {
     console.error(message, error);
     this.toastr.error(message, 'Error');
   }
-  
 }
