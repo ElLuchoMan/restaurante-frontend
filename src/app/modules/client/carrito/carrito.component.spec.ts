@@ -240,13 +240,14 @@ describe('CarritoComponent', () => {
     await setup();
     component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 2, precio: 10 }];
     userServiceMock.getUserId.mockReturnValue(5);
-    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
+    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99, delivery: false } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
     pedidoClienteServiceMock.create.mockReturnValue(of({}));
     pedidoServiceMock.assignDomicilio.mockReturnValue(of({}));
     await (component as any).finalizeOrder(1, null);
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: false,
+      domicilioId: null,
       pagoId: 1,
       estadoPedido: 'PENDIENTE'
     });
@@ -260,13 +261,14 @@ describe('CarritoComponent', () => {
     await setup();
     component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
     userServiceMock.getUserId.mockReturnValue(5);
-    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 50 } }));
+    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 50, delivery: true } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
     pedidoClienteServiceMock.create.mockReturnValue(of({}));
     pedidoServiceMock.assignDomicilio.mockReturnValue(of({ data: { delivery: true, estadoPedido: 'EN CURSO' } }));
     await (component as any).finalizeOrder(2, 7);
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: true,
+      domicilioId: 7,
       pagoId: 2,
       estadoPedido: 'PENDIENTE'
     });
