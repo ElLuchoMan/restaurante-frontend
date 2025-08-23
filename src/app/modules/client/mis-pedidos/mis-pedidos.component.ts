@@ -114,14 +114,13 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
 
     // items = cantidad de renglones
     const items = productos?.length ?? undefined;
-
     return {
       ...p,
       delivery: det.delivery ?? p.delivery,
       metodoPago: det.metodoPago || undefined,
       productos,
       total: total !== undefined ? total : undefined,
-      items
+      items,
     };
   }
 

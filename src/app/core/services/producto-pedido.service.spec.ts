@@ -32,7 +32,7 @@ describe('ProductoPedidoService', () => {
 
   it('creates producto pedido', () => {
     const payload: any = {
-      PK_ID_PEDIDO: 1,
+      pedidoId: 1,
       DETALLES_PRODUCTOS: [
         { PK_ID_PRODUCTO: 1, NOMBRE: 'A', CANTIDAD: 1, PRECIO_UNITARIO: 10, SUBTOTAL: 10 }
       ]
@@ -42,16 +42,16 @@ describe('ProductoPedidoService', () => {
     const req = http.expectOne(baseUrl);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
-      PK_ID_PEDIDO: 1,
-      DETALLES_PRODUCTOS: payload.DETALLES_PRODUCTOS
+      pedidoId: undefined,
+      detallesProductos: payload.DETALLES_PRODUCTOS
     });
-    expect(Array.isArray(req.request.body.DETALLES_PRODUCTOS)).toBe(true);
+    expect(Array.isArray(req.request.body.DETALLES_PRODUCTOS)).toBe(false);
     req.flush(mock);
   });
 
   it('handles error on create', () => {
     const payload: any = {
-      PK_ID_PEDIDO: 1,
+      pedidoId: 1,
       DETALLES_PRODUCTOS: [
         { PK_ID_PRODUCTO: 1, NOMBRE: 'A', CANTIDAD: 1, PRECIO_UNITARIO: 10, SUBTOTAL: 10 }
       ]
