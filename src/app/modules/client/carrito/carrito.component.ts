@@ -177,12 +177,17 @@ export class CarritoComponent implements OnInit, OnDestroy {
         this.pedidoService
           .createPedido({
             delivery: domicilioId !== null,
+            domicilioId,
             pagoId: methodId,
             estadoPedido: 'PENDIENTE'
           })
           .pipe(takeUntil(this.destroy$))
       );
-      const pedidoId = pedidoRes.data.pedidoId!;
+      const pedidoData = pedidoRes.data;
+      const pedidoId = pedidoData.pedidoId!;
+      if (domicilioId !== null && pedidoData.delivery !== true) {
+        console.warn('El backend no persiste delivery como true', pedidoData);
+      }
 
       const detalles = this.carrito.map(p => ({
         PK_ID_PRODUCTO: p.productoId!,
