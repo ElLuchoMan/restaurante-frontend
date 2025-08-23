@@ -117,6 +117,7 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
 
     return {
       ...p,
+      delivery: det.delivery ?? p.delivery,
       metodoPago: det.metodoPago || undefined,
       productos,
       total: total !== undefined ? total : undefined,
