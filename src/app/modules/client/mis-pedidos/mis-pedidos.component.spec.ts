@@ -169,6 +169,15 @@ describe('MisPedidosComponent', () => {
       expect(res.total).toBeUndefined();
       expect(res.items).toBeUndefined();
     });
+
+    it('should merge delivery flag with fallback to pedido', () => {
+      const base = { ...basePedido, delivery: false };
+      const res1 = (component as any).mergeDetalles(base, { delivery: true });
+      expect(res1.delivery).toBe(true);
+
+      const res2 = (component as any).mergeDetalles(base, {} as any);
+      expect(res2.delivery).toBe(false);
+    });
   });
 
   it('toComparableDate should convert to UTC date', () => {
