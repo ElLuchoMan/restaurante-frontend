@@ -26,3 +26,8 @@ export enum estadoProducto {
     DISPONIBLE = 'DISPONIBLE',
     NO_DISPONIBLE = 'NO DISPONIBLE',
 }
+export const metodoPago = {
+    Nequi: { metodoPagoId: 1, tipo: 'Nequi', detallle: '3042449339' },
+    Daviplata: { metodoPagoId: 2, tipo: 'Daviplata', detallle: '3042449339' },
+    Efectivo: { metodoPagoId: 3, tipo: 'Efectivo', detallle: '3042449339' },
+} as const;

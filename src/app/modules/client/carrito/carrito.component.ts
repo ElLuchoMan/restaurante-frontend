@@ -176,8 +176,6 @@ export class CarritoComponent implements OnInit, OnDestroy {
         this.pedidoService
           .createPedido({
             delivery: domicilioId !== null,
-            // El backend pone ESTADO_PEDIDO=INICIADO; no enviar PENDIENTE
-            // El pago se asignará cuando sea efectivo (endpoint de asignar-pago)
           })
           .pipe(takeUntil(this.destroy$))
       );
