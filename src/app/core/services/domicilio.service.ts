@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Domicilio } from '../../shared/models/domicilio.model';
+import { Domicilio, DomicilioDetalle } from '../../shared/models/domicilio.model';
 import { environment } from '../../../environments/environment';
 import { HandleErrorService } from './handle-error.service';
 
@@ -29,8 +29,8 @@ export class DomicilioService {
    * Obtiene un domicilio por ID.
    * @param id ID del domicilio
    */
-  getDomicilioById(id: number): Observable<ApiResponse<Domicilio>> {
-    return this.http.get<ApiResponse<Domicilio>>(`${this.baseUrl}/search?id=${id}`).pipe(
+  getDomicilioById(id: number): Observable<ApiResponse<DomicilioDetalle>> {
+    return this.http.get<ApiResponse<DomicilioDetalle>>(`${this.baseUrl}/search?id=${id}`).pipe(
       catchError(this.handleError.handleError)
     );
   }

@@ -15,3 +15,11 @@ export interface Domicilio {
     trabajadorAsignado?: number;
     trabajadorNombre?: string;
 }
+
+export interface DomicilioDetalle {
+    cliente: {
+        documento: number;
+        nombre: string;
+    },
+    domicilio: Domicilio;
+}

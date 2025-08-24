@@ -7,8 +7,8 @@ import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { estadoPago } from '../../../../shared/constants';
 import { ModalService } from '../../../../core/services/modal.service';
 import { ToastrService } from 'ngx-toastr';
-import { SafePipe } from "../../../../shared/pipes/safe.pipe";
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
 
 @Component({
   selector: 'app-ruta-domicilio',
@@ -24,12 +24,14 @@ export class RutaDomicilioComponent implements OnInit {
   observaciones: string = '';
   googleMapsUrl: string = '';
   domicilioId: number = 0;
+  nombreCliente: string = '';
 
   public restauranteDireccion = 'Calle 78a # 62 - 48, Bogotá, Colombia';
 
   constructor(
     public route: ActivatedRoute,
     public sanitizer: DomSanitizer,
+    public clienteService: ClienteService,
     public domicilioService: DomicilioService,
     public router: Router,
     public modalService: ModalService,
@@ -39,10 +41,18 @@ export class RutaDomicilioComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
+      this.domicilioId = params['id'] ? +params['id'] : 0;
+      this.domicilioService.getDomicilioById(this.domicilioId).subscribe(response => {
+        if (response) {
+          console.log('Domicilio obtenido:', response);
+          this.nombreCliente = response.data.cliente.nombre;
+        }
+      });
       this.direccionCliente = params['direccion'] || 'Calle 100 # 13 - 55, Bogotá, Colombia';
       this.telefonoCliente = params['telefono'] || 'No disponible';
       this.observaciones = params['observaciones'] || 'Sin observaciones';
-      this.domicilioId = params['id'] ? +params['id'] : 0;
+      this.nombreCliente = params['nombre'] || 'Cliente';
+
 
       if (this.direccionCliente) {
         this.generarRuta();

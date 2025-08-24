@@ -13,11 +13,15 @@ export interface Pedido {
 }
 
 export interface PedidoDetalle {
-    PK_ID_PEDIDO?: number;
-    FECHA: string;
-    HORA: string;
-    delivery: boolean;
-    ESTADO_PEDIDO: string;
-    METODO_PAGO: string;
-    PRODUCTOS: string;
+  pedidoId: number
+  fechaPedido: string
+  horaPedido: string
+  delivery: boolean
+  estadoPedido: string
+  metodoPago: string
+  productos: string
+  pagoId: number
+  metodoPagoId: number
+  domicilioId: number
+  documentoCliente: number
 }

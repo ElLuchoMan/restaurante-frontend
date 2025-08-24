@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Pedido } from '../../shared/models/pedido.model';
+import { Pedido, PedidoDetalle } from '../../shared/models/pedido.model';
 import { environment } from '../../../environments/environment';
 import { HandleErrorService } from './handle-error.service';
 
@@ -51,9 +51,9 @@ export class PedidoService {
     );
   }
 
-  getPedidoDetalles(pedidoId: number): Observable<any> {
+  getPedidoDetalles(pedidoId: number): Observable<ApiResponse<PedidoDetalle>> {
     const params = new HttpParams().set('pedido_id', String(pedidoId));
-    return this.http.get<any>(`${this.baseUrl}/detalles`, { params }).pipe(
+    return this.http.get<ApiResponse<PedidoDetalle>>(`${this.baseUrl}/detalles`, { params }).pipe(
       catchError(this.handleError.handleError)
     );
   }
