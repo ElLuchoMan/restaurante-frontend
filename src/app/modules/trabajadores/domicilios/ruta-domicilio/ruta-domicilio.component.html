@@ -13,19 +13,25 @@
         <p><i class="fas fa-map-marker-alt"></i> {{ direccionCliente }}</p>
         <p><i class="fas fa-phone"></i> {{ telefonoCliente }}</p>
         <p><i class="fas fa-sticky-note"></i> {{ observaciones }}</p>
+        <p> <i class="fas fa-dollar-sign"></i> Total del Pedido: ${{ totalPedido}} </p>
+        <div *ngIf="productos?.length; else sinProductos"> <i class="fas fa-cart-shopping"></i> Productos:
+            <div *ngFor="let p of productos">
+                {{ p.cantidad }}x {{ p.nombre }}
+
+            </div>
+        </div>
+        <ng-template #sinProductos>
+            <small>No hay productos para este pedido.</small>
+        </ng-template>
     </div>
 
     <div class="text-center mt-3">
-        <button (click)="marcarFinalizado()" class="btn btn-success">
-            Marcar finalizado
-        </button>
-        <button (click)="marcarPago()" class="btn btn-warning ml-2">
-            Marcar pago
-        </button>
+        <button (click)="marcarFinalizado()" class="btn btn-success">Marcar finalizado</button>
+        <button (click)="marcarPago()" class="btn btn-warning ml-2">Marcar pago</button>
     </div>
+
     <div class="volver-container mt-3" (click)="volver()">
         <i class="fas fa-arrow-left volver-icon"></i>
         <span class="volver-text">Volver</span>
     </div>
-
 </div>
