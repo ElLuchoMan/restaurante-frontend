@@ -12,12 +12,10 @@ export class PagoService {
 
   constructor(private http: HttpClient, private handleError: HandleErrorService) { }
 
-  createPago(payload: Pago) /*Observable<ApiResponse<Pago>>*/{
-    return payload;
-/*
+  createPago(payload: Pago): Observable<ApiResponse<Pago>> {
+    console.log('Creating pago with payload:', payload);
     return this.http.post<ApiResponse<Pago>>(this.baseUrl, payload)
       .pipe(catchError(this.handleError.handleError));
-*/
   }
 
   getPagos(params?: any): Observable<ApiResponse<Pago[]>> {

@@ -11,7 +11,8 @@ import { LoggingService, LogLevel } from '../../../../core/services/logging.serv
 import { ClienteService } from '../../../../core/services/cliente.service';
 import { PagoService } from '../../../../core/services/pago.service';
 import { UserService } from '../../../../core/services/user.service';
-import { fechaDDMMYYYY_Bogota, horaHHMMSS_Bogota, fechaHoraDDMMYYYY_HHMMSS_Bogota } from '../../../../shared/utils/dateHelper';
+import { fechaDDMMYYYY_Bogota, horaHHMMSS_Bogota, fechaHoraDDMMYYYY_HHMMSS_Bogota, fechaYYYYMMDD_Bogota } from '../../../../shared/utils/dateHelper';
+import { PedidoService } from '../../../../core/services/pedido.service';
 
 interface ProductoDetalleVM {
   nombre: string;
@@ -38,6 +39,7 @@ export class RutaDomicilioComponent implements OnInit {
   nombreCliente: string = '';
   totalPedido: number = 0;
   productos: ProductoDetalleVM[] = [];
+  pedidoId: number = 0;
 
   public restauranteDireccion = 'Calle 78a # 62 - 48, Bogotá, Colombia';
 
@@ -48,11 +50,12 @@ export class RutaDomicilioComponent implements OnInit {
     public domicilioService: DomicilioService,
     public userService: UserService,
     public pagoService: PagoService,
+    public pedidoService: PedidoService,
     public router: Router,
     public modalService: ModalService,
     public toastrService: ToastrService,
     private logger: LoggingService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -81,8 +84,8 @@ export class RutaDomicilioComponent implements OnInit {
         // Total
         const totalRaw = response.data?.pedido?.total;
         this.totalPedido = Number(totalRaw ?? this.productos.reduce((s, p) => s + (p.subtotal || 0), 0));
-
-        this.logger.log(LogLevel.INFO, 'Detalle domicilio', { cliente: this.nombreCliente, total: this.totalPedido, productos: this.productos });
+        this.pedidoId = Number(response.data?.pedido?.pedidoId ?? 0);
+        this.logger.log(LogLevel.INFO, 'Detalle domicilio', response);
       });
 
       this.direccionCliente = params['direccion'] || 'Calle 100 # 13 - 55, Bogotá, Colombia';
@@ -157,23 +160,38 @@ export class RutaDomicilioComponent implements OnInit {
             try {
               const ahora = new Date();
               try {
-                const pago = this.pagoService.createPago({
+                this.pagoService.createPago({
                   estadoPago: estadoPago.PAGADO,
-                  fechaPago: fechaDDMMYYYY_Bogota(ahora),
+                  fechaPago: fechaYYYYMMDD_Bogota(ahora),
                   horaPago: horaHHMMSS_Bogota(ahora),
                   metodoPagoId: this.devolverMetodoPago(metodoPagoSeleccionado),
-                  monto: this.totalPedido || this.productos.reduce((s, p) => s + (p.subtotal || 0), 0),
+                  monto: this.totalPedido,
                   pagoId: 0,
                   updatedAt: fechaHoraDDMMYYYY_HHMMSS_Bogota(ahora),
                   updatedBy: `${this.userService.getUserRole()} - ${this.userService.getUserId()}`,
+                }).subscribe({
+                  next: (response) => {
+                    const pagoId = response?.data?.pagoId;
+                    this.logger.log(LogLevel.INFO, 'Pago creado:', pagoId);
+                    if (pagoId) {
+                      this.pedidoService.assignPago(this.pedidoId, pagoId).subscribe({
+                        next: () => this.toastrService.success('Pago asignado al domicilio'),
+                        error: (err) => this.logger.log(LogLevel.ERROR, 'Error al asignar pago:', err)
+                      });
+                    }
+                  },
+                  error: (err) => {
+                    this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err);
+                  }
                 });
-                this.logger.log(LogLevel.INFO, 'Pago creado:', pago);
+
               } catch (err) {
                 this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err);
               }
             } catch (error) {
               this.logger.log(LogLevel.ERROR, 'Error al crear pago:', error);
             }
+
 
             this.domicilioService.updateDomicilio(this.domicilioId, {
               estadoPago: estadoPago.PAGADO
