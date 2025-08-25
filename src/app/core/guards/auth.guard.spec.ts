@@ -12,6 +12,7 @@ describe('AuthGuard', () => {
 
   beforeEach(() => {
     const userServiceMock = {
+      isLoggedIn: jest.fn(),
       isTokenExpired: jest.fn()
     } as unknown as jest.Mocked<UserService>;
 
@@ -20,7 +21,8 @@ describe('AuthGuard', () => {
     } as unknown as jest.Mocked<Router>;
 
     const toastrMock = {
-      error: jest.fn()
+      error: jest.fn(),
+      clear: jest.fn()
     } as unknown as jest.Mocked<ToastrService>;
 
     TestBed.configureTestingModule({
@@ -42,7 +44,8 @@ describe('AuthGuard', () => {
     expect(authGuard).toBeTruthy();
   });
 
-  it('should allow access if token is not expired', () => {
+  it('should allow access if user is logged in and token is not expired', () => {
+    userService.isLoggedIn.mockReturnValue(true);
     userService.isTokenExpired.mockReturnValue(false);
 
     const result = authGuard.canActivate();
@@ -50,18 +53,33 @@ describe('AuthGuard', () => {
     expect(result).toBe(true);
     expect(router.navigate).not.toHaveBeenCalled();
     expect(toastr.error).not.toHaveBeenCalled();
+    expect(toastr.clear).not.toHaveBeenCalled();
   });
 
-  it('should deny access and navigate to login if token is expired', () => {
-    userService.isTokenExpired.mockReturnValue(true);
+  it('should deny access and navigate to login without toast if user is not logged in', () => {
+    userService.isLoggedIn.mockReturnValue(false);
 
     const result = authGuard.canActivate();
 
     expect(result).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(toastr.error).not.toHaveBeenCalled();
+    expect(toastr.clear).not.toHaveBeenCalled();
+    expect(userService.isTokenExpired).not.toHaveBeenCalled();
+  });
+
+  it('should deny access, clear toasts and navigate to login if token is expired', () => {
+    userService.isLoggedIn.mockReturnValue(true);
+    userService.isTokenExpired.mockReturnValue(true);
+
+    const result = authGuard.canActivate();
+
+    expect(result).toBe(false);
+    expect(toastr.clear).toHaveBeenCalled();
     expect(toastr.error).toHaveBeenCalledWith(
       'La sesión ha expirado, por favor inicia sesión nuevamente',
       'Sesión expirada'
     );
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
 });
