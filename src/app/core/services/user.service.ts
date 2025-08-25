@@ -78,7 +78,11 @@ export class UserService {
 
   isTokenExpired(): boolean {
     const token = this.getToken();
-    const decoded: DecodedToken | null = token ? this.decodeTokenSafely(token) : null;
+    if (!token) {
+      return false;
+    }
+
+    const decoded: DecodedToken | null = this.decodeTokenSafely(token);
     if (!decoded || typeof decoded.exp !== 'number') return true;
 
     const currentTime = Math.floor(Date.now() / 1000);

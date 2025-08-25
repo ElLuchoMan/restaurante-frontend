@@ -162,8 +162,15 @@ describe('UserService', () => {
     expect(mockLoggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error al decodificar el token', expect.any(Error));
   });
 
-  it('should return true if decodeToken returns null for token expiry', () => {
-    jest.spyOn(service, 'decodeToken').mockReturnValue(null);
+  it('should return false if token does not exist for token expiry', () => {
+    localStorage.removeItem('auth_token');
+    const result = service.isTokenExpired();
+    expect(result).toBe(false);
+  });
+
+  it('should return true if decodeTokenSafely returns null for token expiry', () => {
+    localStorage.setItem('auth_token', 'testToken');
+    jest.spyOn<any>(service, 'decodeTokenSafely').mockReturnValue(null);
     const result = service.isTokenExpired();
     expect(result).toBe(true);
   });
