@@ -18,11 +18,6 @@
                 <p><strong>Descripción:</strong> {{ modalData.details.descripcion || 'Sin descripción' }}</p>
             </div>
 
-            <div class="form-group mt-3" *ngIf="modalData.input">
-                <label>{{ modalData.input.label }}</label>
-                <input type="text" class="form-control" [(ngModel)]="modalData.input.value" />
-            </div>
-
             <ng-container *ngIf="modalData.selects">
                 <div *ngFor="let sel of modalData.selects" class="form-group mt-3">
                     <label>{{ sel.label }}</label>
