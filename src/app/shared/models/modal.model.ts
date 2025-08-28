@@ -15,6 +15,11 @@ export interface ModalSelect {
     selected: any;
 }
 
+export interface ModalInput {
+    label: string;
+    value: string;
+}
+
 export interface ModalDetails {
     precio: number;
     calorias?: number;
@@ -30,5 +35,6 @@ export interface ModalData {
     details?: ModalDetails;
     select?: ModalSelect;
     selects?: ModalSelect[];
+    input?: ModalInput;
     buttons?: ModalButton[];
 }

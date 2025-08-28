@@ -94,6 +94,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
 
     this.modalService.openModal({
       title: 'Finalizar Pedido',
+      input: { label: 'Observaciones', value: '' },
       selects,
       buttons: [
         { label: 'Cancelar', class: 'btn btn-secondary', action: () => this.modalService.closeModal() },
@@ -103,9 +104,12 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
 
   private async onCheckoutConfirm() {
-    const { selects } = this.modalService.getModalData();
+    const { selects, input } = this.modalService.getModalData();
     const [methodSelect, deliverySelect] = selects!;
     const methodId = methodSelect.selected as number;
+    const metodoLabel =
+      methodSelect.options?.find(o => o.value === methodId)?.label || '';
+    const observacion = input?.value || '';
     const needsDelivery =
       deliverySelect.selected === true ||
       String(deliverySelect.selected).toLowerCase() === 'true';
@@ -118,7 +122,12 @@ export class CarritoComponent implements OnInit, OnDestroy {
       if (needsDelivery) {
         const clienteId = this.userService.getUserId();
         const cliente = await this.fetchCliente(clienteId);
-        domicilioId = await this.crearDomicilio(cliente, clienteId);
+        domicilioId = await this.crearDomicilio(
+          cliente,
+          clienteId,
+          metodoLabel,
+          observacion
+        );
       }
 
       await this.finalizeOrder(methodId, domicilioId);
@@ -142,12 +151,19 @@ export class CarritoComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async crearDomicilio(cliente: Cliente, clienteId: number): Promise<number> {
+  private async crearDomicilio(
+    cliente: Cliente,
+    clienteId: number,
+    metodoLabel: string,
+    observacion: string
+  ): Promise<number> {
     const hoy = new Date();
     const yyyy = hoy.getFullYear();
     const mm = String(hoy.getMonth() + 1).padStart(2, '0');
     const dd = String(hoy.getDate()).padStart(2, '0');
     const fechaHoy = `${yyyy}-${mm}-${dd}`;
+
+    const obs = `Método pago: ${metodoLabel} - Observaciones: ${observacion || 'Sin observaciones'}`;
 
     const nuevoDomicilio: Domicilio = {
       direccion: cliente.direccion,
@@ -155,7 +171,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       estadoPago: estadoPago.PENDIENTE,
       entregado: false,
       fechaDomicilio: fechaHoy,
-      observaciones: cliente.observaciones || '',
+      observaciones: obs,
       createdBy: `Usuario ${clienteId}`,
     };
 
@@ -176,6 +192,8 @@ export class CarritoComponent implements OnInit, OnDestroy {
         this.pedidoService
           .createPedido({
             delivery: domicilioId !== null,
+            pagoId: methodId,
+            estadoPedido: estadoPago.PENDIENTE,
           })
           .pipe(takeUntil(this.destroy$))
       );
