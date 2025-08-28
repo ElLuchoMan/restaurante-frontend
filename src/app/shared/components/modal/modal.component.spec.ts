@@ -52,4 +52,22 @@ describe('ModalComponent', () => {
     component.close();
     expect(modalServiceSpy.closeModal).toHaveBeenCalled();
   });
+
+  it('should render and bind input field when modalData has input', async () => {
+    const inputData = { input: { label: 'Reason', value: 'Initial' } };
+    modalDataSubject.next(inputData);
+    isOpenSubject.next(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const textarea: HTMLTextAreaElement = fixture.nativeElement.querySelector('textarea');
+    expect(textarea).toBeTruthy();
+    expect(textarea.value).toBe('Initial');
+
+    textarea.value = 'Updated';
+    textarea.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(component.modalData.input?.value).toBe('Updated');
+  });
 });

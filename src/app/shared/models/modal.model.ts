@@ -30,5 +30,6 @@ export interface ModalData {
     details?: ModalDetails;
     select?: ModalSelect;
     selects?: ModalSelect[];
+    input?: { label: string; value: string };
     buttons?: ModalButton[];
 }
