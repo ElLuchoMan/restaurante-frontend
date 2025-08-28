@@ -33,7 +33,14 @@ export class RutaDomicilioComponent implements OnInit {
   ubicacionUrl: SafeResourceUrl | undefined;
   direccionCliente: string = '';
   telefonoCliente: string = '';
+
+  /** Texto original que llega por query param (si llega concatenado) */
+  observacionesRaw: string = '';
+
+  /** Campos parseados para mostrar bonito */
+  metodoPagoTexto: string = '';
   observaciones: string = '';
+
   googleMapsUrl: string = '';
   domicilioId: number = 0;
   nombreCliente: string = '';
@@ -85,18 +92,65 @@ export class RutaDomicilioComponent implements OnInit {
         const totalRaw = response.data?.pedido?.total;
         this.totalPedido = Number(totalRaw ?? this.productos.reduce((s, p) => s + (p.subtotal || 0), 0));
         this.pedidoId = Number(response.data?.pedido?.pedidoId ?? 0);
+
         this.logger.log(LogLevel.INFO, 'Detalle domicilio', response);
       });
 
       this.direccionCliente = params['direccion'] || 'Calle 100 # 13 - 55, Bogotá, Colombia';
       this.telefonoCliente = params['telefono'] || 'No disponible';
-      this.observaciones = params['observaciones'] || 'Sin observaciones';
+
+      // Observaciones puede venir como: "Método pago: Daviplata - Observaciones: Test"
+      this.observacionesRaw = params['observaciones'] || 'Sin observaciones';
+      const { metodo, observaciones } = this.parseMetodoYObservaciones(this.observacionesRaw);
+      this.metodoPagoTexto = metodo;
+      this.observaciones = observaciones;
 
       if (this.direccionCliente) {
         this.generarRuta();
         this.generarUrlGoogleMaps();
       }
     });
+  }
+
+  /** 
+   * Parsea cadenas del tipo:
+   *  - "Método pago: Daviplata - Observaciones: Test"
+   *  - "Metodo pago: NEQUI"
+   *  - "Observaciones: Entregar en portería"
+   *  - o cualquier otra (devuelve todo en observaciones)
+   */
+  private parseMetodoYObservaciones(s: string): { metodo: string; observaciones: string } {
+    if (!s) return { metodo: '', observaciones: '' };
+
+    // Regex tolerante a acentos, espacios y guiones
+    const re = /m[eé]todo\s*pago\s*:\s*([^-\n\r]+)?(?:\s*-\s*observaciones\s*:\s*(.+))?/i;
+    const m = s.match(re);
+    if (m) {
+      const metodo = (m[1] ?? '').trim();
+      const obs = (m[2] ?? '').trim();
+      return {
+        metodo,
+        observaciones: obs || (!metodo ? s : '')
+      };
+    }
+
+    // Plan B sencillo: dividir por " - " y " : "
+    if (s.includes(' - ') || s.includes(':')) {
+      const trozos = s.split(' - ');
+      let metodo = '';
+      let obs = '';
+      for (const t of trozos) {
+        const [k, ...v] = t.split(':');
+        const key = (k || '').trim().toLowerCase();
+        const val = v.join(':').trim();
+        if (key.includes('método') || key.includes('metodo')) metodo = val;
+        else if (key.includes('observac')) obs = val;
+      }
+      if (metodo || obs) return { metodo, observaciones: obs };
+    }
+
+    // Si no encaja, lo dejamos entero como observaciones
+    return { metodo: '', observaciones: s };
   }
 
   public generarRuta(): void {
@@ -159,39 +213,32 @@ export class RutaDomicilioComponent implements OnInit {
 
             try {
               const ahora = new Date();
-              try {
-                this.pagoService.createPago({
-                  estadoPago: estadoPago.PAGADO,
-                  fechaPago: fechaYYYYMMDD_Bogota(ahora),
-                  horaPago: horaHHMMSS_Bogota(ahora),
-                  metodoPagoId: this.devolverMetodoPago(metodoPagoSeleccionado),
-                  monto: this.totalPedido,
-                  pagoId: 0,
-                  updatedAt: fechaHoraDDMMYYYY_HHMMSS_Bogota(ahora),
-                  updatedBy: `${this.userService.getUserRole()} - ${this.userService.getUserId()}`,
-                }).subscribe({
-                  next: (response) => {
-                    const pagoId = response?.data?.pagoId;
-                    this.logger.log(LogLevel.INFO, 'Pago creado:', pagoId);
-                    if (pagoId) {
-                      this.pedidoService.assignPago(this.pedidoId, pagoId).subscribe({
-                        next: () => this.toastrService.success('Pago asignado al domicilio'),
-                        error: (err) => this.logger.log(LogLevel.ERROR, 'Error al asignar pago:', err)
-                      });
-                    }
-                  },
-                  error: (err) => {
-                    this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err);
+              this.pagoService.createPago({
+                estadoPago: estadoPago.PAGADO,
+                fechaPago: fechaYYYYMMDD_Bogota(ahora),
+                horaPago: horaHHMMSS_Bogota(ahora),
+                metodoPagoId: this.devolverMetodoPago(metodoPagoSeleccionado),
+                monto: this.totalPedido,
+                pagoId: 0,
+                updatedAt: fechaHoraDDMMYYYY_HHMMSS_Bogota(ahora),
+                updatedBy: `${this.userService.getUserRole()} - ${this.userService.getUserId()}`,
+              }).subscribe({
+                next: (response) => {
+                  const pagoId = response?.data?.pagoId;
+                  this.logger.log(LogLevel.INFO, 'Pago creado:', pagoId);
+                  if (pagoId) {
+                    this.pedidoService.assignPago(this.pedidoId, pagoId).subscribe({
+                      next: () => this.toastrService.success('Pago asignado al domicilio'),
+                      error: (err) => this.logger.log(LogLevel.ERROR, 'Error al asignar pago:', err)
+                    });
                   }
-                });
+                },
+                error: (err) => this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err)
+              });
 
-              } catch (err) {
-                this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err);
-              }
             } catch (error) {
               this.logger.log(LogLevel.ERROR, 'Error al crear pago:', error);
             }
-
 
             this.domicilioService.updateDomicilio(this.domicilioId, {
               estadoPago: estadoPago.PAGADO

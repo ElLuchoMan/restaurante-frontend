@@ -7,19 +7,27 @@
         </iframe>
     </div>
 
-    <div class="info-card">
-        <h2>🏠 Datos del Cliente</h2>
-        <p><i class="fas fa-user"></i> {{ nombreCliente }}</p>
-        <p><i class="fas fa-map-marker-alt"></i> {{ direccionCliente }}</p>
-        <p><i class="fas fa-phone"></i> {{ telefonoCliente }}</p>
-        <p><i class="fas fa-sticky-note"></i> {{ observaciones }}</p>
-        <p> <i class="fas fa-dollar-sign"></i> Total del Pedido: ${{ totalPedido}} </p>
-        <div *ngIf="productos?.length; else sinProductos"> <i class="fas fa-cart-shopping"></i> Productos:
-            <div *ngFor="let p of productos">
-                {{ p.cantidad }}x {{ p.nombre }}
+    <div class="info-card text-start">
+        <h2>🏠 Datos del Pedido</h2>
+        <p><i class="fas fa-user"></i> Cliente: {{ nombreCliente }}</p>
+        <p><i class="fas fa-map-marker-alt"></i> Dirección: {{ direccionCliente }}</p>
+        <p><i class="fas fa-phone"></i> Teléfono: {{ telefonoCliente }}</p>
+        @if (metodoPagoTexto) {
+        <p><i class="fas fa-money-bill-wave"></i> Método de pago: {{ metodoPagoTexto }}</p>
+        }
+        <p><i class="fas fa-dollar-sign"></i> Total del Pedido: {{ totalPedido }}</p>
 
-            </div>
+        @if (productos.length > 0) {
+        <i class="fas fa-cart-shopping"></i> Productos:
+        @for (p of productos; track p) {
+        <div>
+            {{ p.cantidad }}x {{ p.nombre }} – {{ p.subtotal }}
         </div>
+        }
+        } @else {
+        <small>No hay productos para este pedido.</small>
+        }
+        <p><i class="fas fa-sticky-note"></i> Observaciones: {{ observaciones || 'Sin observaciones' }}</p>
         <ng-template #sinProductos>
             <small>No hay productos para este pedido.</small>
         </ng-template>
