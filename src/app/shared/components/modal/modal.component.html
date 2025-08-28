@@ -42,6 +42,11 @@
                     </option>
                 </select>
             </div>
+
+            <div class="form-group mt-3" *ngIf="modalData.input">
+                <label>{{ modalData.input.label }}</label>
+                <textarea class="form-control" [(ngModel)]="modalData.input.value"></textarea>
+            </div>
         </div>
 
         <div class="modal-buttons" *ngIf="modalData.buttons">
