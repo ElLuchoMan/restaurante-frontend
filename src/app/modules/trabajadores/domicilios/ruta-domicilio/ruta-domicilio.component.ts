@@ -196,7 +196,7 @@ export class RutaDomicilioComponent implements OnInit {
           { label: 'Daviplata', value: 'DAVIPLATA' },
           { label: 'Efectivo', value: 'EFECTIVO' }
         ],
-        selected: null
+        selected: this.obtenerMetodoPagoDefault()
       },
       buttons: [
         {
@@ -253,6 +253,28 @@ export class RutaDomicilioComponent implements OnInit {
         { label: 'Cancelar', class: 'btn btn-danger', action: () => this.modalService.closeModal() }
       ]
     });
+  }
+
+  /**
+   * Intenta mapear el texto de método de pago extraído de las observaciones
+   * a uno de los valores válidos del selector: 'NEQUI' | 'DAVIPLATA' | 'EFECTIVO'.
+   */
+  private obtenerMetodoPagoDefault(): 'NEQUI' | 'DAVIPLATA' | 'EFECTIVO' | null {
+    const raw = (this.metodoPagoTexto || '').toString().trim().toUpperCase();
+    if (!raw) return null;
+
+    // Normalizar posibles variantes (remueve acentos y símbolos)
+    const norm = raw
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/[^A-Z0-9]/g, '')
+      .replace(/\s+/g, '');
+
+    if (norm.includes('NEQUI')) return 'NEQUI';
+    if (norm.includes('DAVIPLATA') || norm.includes('DAVI')) return 'DAVIPLATA';
+    if (norm.includes('EFECTIVO') || norm === 'CASH') return 'EFECTIVO';
+
+    return null;
   }
 
   devolverMetodoPago(metodoPagoSeleccionado: string): number {
