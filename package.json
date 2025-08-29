@@ -10,7 +10,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "limpieza": "npx rimraf node_modules package-lock.json .angular/cache && npm install --prefer-online",
-    "unnecesary": "npx depcheck",
+    "deps:unused": "npx depcheck",
     "updates": "npm-check-updates -u && npm install",
     "lint:scss": "stylelint src/**/*.scss --fix",
     "serve:ssr:restaurante-frontend": "node dist/restaurante-frontend/server/server.mjs"
