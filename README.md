@@ -48,6 +48,7 @@ restaurante-frontend/
 - `npm run start` – start local dev server on http://localhost:4200
 - `npm run watch` – rebuilds on file changes
 - `npm run lint` / `npm run lint:scss` – code and style linting
+- `npm run deps:unused` – detect unused dependencies
 
 ## Styling
 Color tokens are defined once in `src/assets/_base.scss` as CSS custom properties.
