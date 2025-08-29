@@ -13,7 +13,7 @@
       position: absolute;
       transform: translateX(-50%) rotate(-5deg);
       transition: transform 0.3s ease;
-      width: 200px;
+      width: clamp(120px, 20vw, 200px);
     }
 
     .logo-text {
@@ -29,7 +29,9 @@
 
 @media (width <=991px) {
   .logo-container {
-    display: none !important;
+    .logo-img {
+      width: clamp(100px, 25vw, 150px);
+    }
   }
 }
 
@@ -40,21 +42,30 @@
 }
 
 .menu-left {
-  margin-right: 20px;
+  margin-right: 1.25rem;
 }
 
 .menu-right {
-  margin-left: 20px;
+  margin-left: 1.25rem;
+}
+
+@media (width <=576px) {
+  .menu-left {
+    margin-right: 0.5rem;
+  }
+
+  .menu-right {
+    margin-left: 0.5rem;
+  }
 }
 
 .menu-right {
   .nav-link {
     &.position-relative {
-
       // ya lo agregamos en el template
       .cart-badge {
-        position: absolute;
         font-size: 0.5rem;
+        position: absolute;
       }
     }
   }
