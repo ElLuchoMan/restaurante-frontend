@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "jest --coverage",
     "lint": "ng lint",
-    "e2e": "ng e2e",
+    "e2e": "ng run restaurante-frontend:e2e",
     "limpieza": "npx rimraf node_modules package-lock.json .angular/cache && npm install --prefer-online",
     "unnecesary": "npx depcheck",
     "updates": "npm-check-updates -u && npm install",

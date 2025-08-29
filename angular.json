@@ -113,6 +113,12 @@
             ],
             "scripts": []
           }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/architect:run-commands",
+          "options": {
+            "command": "cypress run"
+          }
         }
       }
     }
