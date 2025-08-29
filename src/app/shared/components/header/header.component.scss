@@ -27,13 +27,13 @@
   }
 }
 
-@media (width <=991px) {
+@media (max-width: $breakpoint-lg) {
   .logo-container {
     display: none !important;
   }
 }
 
-@media (width <= $breakpoint-xl) {
+@media (max-width: $breakpoint-xl) {
   .logo-container {
     flex-grow: 0.75 !important;
   }
