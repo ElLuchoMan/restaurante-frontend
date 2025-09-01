@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ModalComponent } from './modal.component';
-import { ModalService } from '../../../core/services/modal.service';
 import { BehaviorSubject } from 'rxjs';
+import { ModalService } from '../../../core/services/modal.service';
+import { ModalComponent } from './modal.component';
 
 describe('ModalComponent', () => {
   let component: ModalComponent;
@@ -16,14 +16,12 @@ describe('ModalComponent', () => {
     modalServiceSpy = {
       modalData$: modalDataSubject.asObservable(),
       isOpen$: isOpenSubject.asObservable(),
-      closeModal: jest.fn()
+      closeModal: jest.fn(),
     };
 
     await TestBed.configureTestingModule({
       imports: [ModalComponent],
-      providers: [
-        { provide: ModalService, useValue: modalServiceSpy }
-      ]
+      providers: [{ provide: ModalService, useValue: modalServiceSpy }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ModalComponent);

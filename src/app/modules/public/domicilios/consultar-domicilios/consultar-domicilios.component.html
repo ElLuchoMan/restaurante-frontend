@@ -1,101 +1,155 @@
 <div class="container">
-    <h1 class="text-center mb-4">Consultar Domicilios</h1>
-    <div class="form-card-bg p-4">
-        <div class="filtro-container">
-            <label><strong>Filtrar por:</strong></label>
-            <div class="custom-control custom-checkbox mx-2">
-                <input class="custom-control-input" type="checkbox" id="busquedaDireccion"
-                    [(ngModel)]="buscarPorDireccion" (change)="actualizarTipoBusqueda()">
-                <label class="custom-control-label" for="busquedaDireccion">Dirección</label>
-            </div>
-            <div class="custom-control custom-checkbox mx-2">
-                <input class="custom-control-input" type="checkbox" id="busquedaTelefono"
-                    [(ngModel)]="buscarPorTelefono" (change)="actualizarTipoBusqueda()">
-                <label class="custom-control-label" for="busquedaTelefono">Teléfono</label>
-            </div>
-            <div class="custom-control custom-checkbox mx-2">
-                <input class="custom-control-input" type="checkbox" id="busquedaFecha" [(ngModel)]="buscarPorFecha"
-                    (change)="actualizarTipoBusqueda()">
-                <label class="custom-control-label" for="busquedaFecha">Fecha</label>
-            </div>
-        </div>
-
-        <div class="row mt-3 align-items-center">
-            <div
-                [ngClass]="{'col-12': countFiltros() === 1, 'col-md-6': countFiltros() === 2, 'col-md-4': countFiltros() === 3}"
-                *ngIf="buscarPorDireccion">
-                <input type="text" id="direccion" class="form-control" [(ngModel)]="direccion"
-                    placeholder="Ej: Calle 50 #20-30" />
-            </div>
-
-            <div
-                [ngClass]="{'col-12': countFiltros() === 1, 'col-md-6': countFiltros() === 2, 'col-md-4': countFiltros() === 3}"
-                *ngIf="buscarPorTelefono">
-                <input type="text" id="telefono" class="form-control" [(ngModel)]="telefono"
-                    placeholder="Ej: 3042449339" />
-            </div>
-
-            <div
-                [ngClass]="{'col-12': countFiltros() === 1, 'col-md-6': countFiltros() === 2, 'col-md-4': countFiltros() === 3}"
-                *ngIf="buscarPorFecha">
-                <input type="date" id="fechaDomicilio" class="form-control" [(ngModel)]="fechaDomicilio" />
-            </div>
-
-            <div class="col-12 d-flex justify-content-center justify-content-md-center align-items-center mt-2">
-                <button class="btn-no-bg tooltip-btn search"
-                     (click)="buscarDomicilios()"
-                    data-tooltip="Buscar Domicilios">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </div>
+  <h1 class="text-center mb-4">Consultar Domicilios</h1>
+  <div class="form-card-bg p-4">
+    <div class="filtro-container">
+      <label><strong>Filtrar por:</strong></label>
+      <div class="custom-control custom-checkbox mx-2">
+        <input
+          class="custom-control-input"
+          type="checkbox"
+          id="busquedaDireccion"
+          [(ngModel)]="buscarPorDireccion"
+          (change)="actualizarTipoBusqueda()"
+        />
+        <label class="custom-control-label" for="busquedaDireccion">Dirección</label>
+      </div>
+      <div class="custom-control custom-checkbox mx-2">
+        <input
+          class="custom-control-input"
+          type="checkbox"
+          id="busquedaTelefono"
+          [(ngModel)]="buscarPorTelefono"
+          (change)="actualizarTipoBusqueda()"
+        />
+        <label class="custom-control-label" for="busquedaTelefono">Teléfono</label>
+      </div>
+      <div class="custom-control custom-checkbox mx-2">
+        <input
+          class="custom-control-input"
+          type="checkbox"
+          id="busquedaFecha"
+          [(ngModel)]="buscarPorFecha"
+          (change)="actualizarTipoBusqueda()"
+        />
+        <label class="custom-control-label" for="busquedaFecha">Fecha</label>
+      </div>
     </div>
 
-    <div class="form-card-bg p-4 mt-4" *ngIf="domicilios.length > 0">
-        <h2 class="text-center mb-4">Resultados</h2>
-        <div class="table-container">
-            <table class="table table-bordered text-center">
-                <thead>
-                    <tr>
-                        <th>Dirección</th>
-                        <th>Teléfono</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th>Asignado a</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let domicilio of domicilios">
-                        <td>{{ domicilio.direccion }}</td>
-                        <td>{{ domicilio.telefono }}</td>
-                        <td>{{ domicilio.fechaDomicilio }}</td>
-                        <td>
-                            <span class="badge" [ngClass]="{
-                                'badge-warning': domicilio.entregado === false,
-                                'badge-success': domicilio.entregado === true
-                            }">
-                                {{ domicilio.entregado ? 'Entregado' : 'Pendiente' }}
-                            </span>
-                        </td>
-                        <td>{{ domicilio.trabajadorNombre || 'No asignado' }}</td>
-                        <td>
-                            <button class="btn-no-bg tooltip-btn text-info"
-                                *ngIf="!domicilio.entregado && !domicilio.trabajadorAsignado"
-                                (click)="asignarDomicilio(domicilio)" data-tooltip="Asignar Domicilio">
-                                <i class="fas fa-user-plus"></i>
-                            </button>
-                            <button class="btn-no-bg tooltip-btn text-success" *ngIf="!domicilio.entregado"
-                                (click)="marcarEntregado(domicilio)" data-tooltip="Marcar como Entregado">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="row mt-3 align-items-center">
+      <div
+        [ngClass]="{
+          'col-12': countFiltros() === 1,
+          'col-md-6': countFiltros() === 2,
+          'col-md-4': countFiltros() === 3
+        }"
+        *ngIf="buscarPorDireccion"
+      >
+        <input
+          type="text"
+          id="direccion"
+          class="form-control"
+          [(ngModel)]="direccion"
+          placeholder="Ej: Calle 50 #20-30"
+        />
+      </div>
+
+      <div
+        [ngClass]="{
+          'col-12': countFiltros() === 1,
+          'col-md-6': countFiltros() === 2,
+          'col-md-4': countFiltros() === 3
+        }"
+        *ngIf="buscarPorTelefono"
+      >
+        <input
+          type="text"
+          id="telefono"
+          class="form-control"
+          [(ngModel)]="telefono"
+          placeholder="Ej: 3042449339"
+        />
+      </div>
+
+      <div
+        [ngClass]="{
+          'col-12': countFiltros() === 1,
+          'col-md-6': countFiltros() === 2,
+          'col-md-4': countFiltros() === 3
+        }"
+        *ngIf="buscarPorFecha"
+      >
+        <input type="date" id="fechaDomicilio" class="form-control" [(ngModel)]="fechaDomicilio" />
+      </div>
+
+      <div
+        class="col-12 d-flex justify-content-center justify-content-md-center align-items-center mt-2"
+      >
+        <button
+          class="btn-no-bg tooltip-btn search"
+          (click)="buscarDomicilios()"
+          data-tooltip="Buscar Domicilios"
+        >
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
     </div>
-    <div class="alert alert-info text-center mt-4" *ngIf="mostrarMensaje">
-        {{mensaje}}
+  </div>
+
+  <div class="form-card-bg p-4 mt-4" *ngIf="domicilios.length > 0">
+    <h2 class="text-center mb-4">Resultados</h2>
+    <div class="table-container">
+      <table class="table table-bordered text-center">
+        <thead>
+          <tr>
+            <th>Dirección</th>
+            <th>Teléfono</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Asignado a</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let domicilio of domicilios">
+            <td>{{ domicilio.direccion }}</td>
+            <td>{{ domicilio.telefono }}</td>
+            <td>{{ domicilio.fechaDomicilio }}</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'badge-warning': domicilio.entregado === false,
+                  'badge-success': domicilio.entregado === true
+                }"
+              >
+                {{ domicilio.entregado ? 'Entregado' : 'Pendiente' }}
+              </span>
+            </td>
+            <td>{{ domicilio.trabajadorNombre || 'No asignado' }}</td>
+            <td>
+              <button
+                class="btn-no-bg tooltip-btn text-info"
+                *ngIf="!domicilio.entregado && !domicilio.trabajadorAsignado"
+                (click)="asignarDomicilio(domicilio)"
+                data-tooltip="Asignar Domicilio"
+              >
+                <i class="fas fa-user-plus"></i>
+              </button>
+              <button
+                class="btn-no-bg tooltip-btn text-success"
+                *ngIf="!domicilio.entregado"
+                (click)="marcarEntregado(domicilio)"
+                data-tooltip="Marcar como Entregado"
+              >
+                <i class="fas fa-check"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
+  <div class="alert alert-info text-center mt-4" *ngIf="mostrarMensaje">
+    {{ mensaje }}
+  </div>
 </div>

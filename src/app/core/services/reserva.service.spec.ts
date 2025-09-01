@@ -1,13 +1,13 @@
-import { TestBed } from '@angular/core/testing';
-import { ReservaService } from './reserva.service';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { HandleErrorService } from '../../core/services/handle-error.service';
 import { UserService } from '../../core/services/user.service';
-import { of, throwError } from 'rxjs';
+import { mockReservaBody, mockReservaResponse } from '../../shared/mocks/reserva.mocks';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Reserva } from '../../shared/models/reserva.model';
-import { mockReservaBody, mockReservaResponse } from '../../shared/mocks/reserva.mocks';
+import { ReservaService } from './reserva.service';
 
 describe('ReservaService', () => {
   let service: ReservaService;
@@ -16,7 +16,7 @@ describe('ReservaService', () => {
 
   beforeEach(() => {
     const handleErrorMock = {
-      handleError: jest.fn(() => throwError(() => new Error('Error de API')))
+      handleError: jest.fn(() => throwError(() => new Error('Error de API'))),
     } as unknown as jest.Mocked<HandleErrorService>;
 
     TestBed.configureTestingModule({
@@ -24,8 +24,8 @@ describe('ReservaService', () => {
       providers: [
         ReservaService,
         { provide: HandleErrorService, useValue: handleErrorMock },
-        { provide: UserService, useValue: {} }
-      ]
+        { provide: UserService, useValue: {} },
+      ],
     });
 
     service = TestBed.inject(ReservaService);
@@ -38,7 +38,7 @@ describe('ReservaService', () => {
   });
 
   it('should create a reserva successfully', () => {
-    service.crearReserva(mockReservaBody).subscribe(response => {
+    service.crearReserva(mockReservaBody).subscribe((response) => {
       expect(response).toEqual(mockReservaResponse);
     });
 
@@ -52,10 +52,10 @@ describe('ReservaService', () => {
     const mockResponse: ApiResponse<Reserva[]> = {
       code: 200,
       message: 'Reservas obtenidas',
-      data: [mockReservaBody]
+      data: [mockReservaBody],
     };
 
-    service.obtenerReservas().subscribe(response => {
+    service.obtenerReservas().subscribe((response) => {
       expect(response).toEqual(mockResponse);
     });
 
@@ -65,11 +65,13 @@ describe('ReservaService', () => {
   });
 
   it('should update a reserva successfully', () => {
-    service.actualizarReserva(mockReservaBody.reservaId!, mockReservaBody).subscribe(response => {
+    service.actualizarReserva(mockReservaBody.reservaId!, mockReservaBody).subscribe((response) => {
       expect(response).toEqual(mockReservaResponse);
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/reservas?id=${mockReservaBody.reservaId}`);
+    const req = httpMock.expectOne(
+      `${environment.apiUrl}/reservas?id=${mockReservaBody.reservaId}`,
+    );
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(mockReservaBody);
     req.flush(mockReservaResponse);
@@ -79,14 +81,16 @@ describe('ReservaService', () => {
     const mockResponse: ApiResponse<Reserva[]> = {
       code: 200,
       message: 'Reserva encontrada',
-      data: [mockReservaBody]
+      data: [mockReservaBody],
     };
 
-    service.getReservaByParameter(1015466494).subscribe(response => {
+    service.getReservaByParameter(1015466494).subscribe((response) => {
       expect(response).toEqual(mockResponse);
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter?documentoCliente=1015466494`);
+    const req = httpMock.expectOne(
+      `${environment.apiUrl}/reservas/parameter?documentoCliente=1015466494`,
+    );
     expect(req.request.method).toBe('GET');
     req.flush(mockResponse);
   });
@@ -95,10 +99,10 @@ describe('ReservaService', () => {
     const mockResponse: ApiResponse<Reserva[]> = {
       code: 200,
       message: 'Reservas encontradas por fecha',
-      data: [mockReservaBody]
+      data: [mockReservaBody],
     };
 
-    service.getReservaByParameter(undefined, '2025-02-06').subscribe(response => {
+    service.getReservaByParameter(undefined, '2025-02-06').subscribe((response) => {
       expect(response).toEqual(mockResponse);
     });
 
@@ -111,7 +115,7 @@ describe('ReservaService', () => {
     service.crearReserva(mockReservaBody).subscribe({
       error: (error) => {
         expect(error).toBeTruthy();
-      }
+      },
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas`);
@@ -123,7 +127,7 @@ describe('ReservaService', () => {
     service.obtenerReservas().subscribe({
       error: (error) => {
         expect(error).toBeTruthy();
-      }
+      },
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas`);
@@ -135,10 +139,12 @@ describe('ReservaService', () => {
     service.actualizarReserva(mockReservaBody.reservaId!, mockReservaBody).subscribe({
       error: (error) => {
         expect(error).toBeTruthy();
-      }
+      },
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/reservas?id=${mockReservaBody.reservaId}`);
+    const req = httpMock.expectOne(
+      `${environment.apiUrl}/reservas?id=${mockReservaBody.reservaId}`,
+    );
     req.error(new ErrorEvent('API error'));
     expect(handleErrorService.handleError).toHaveBeenCalled();
   });
@@ -147,10 +153,12 @@ describe('ReservaService', () => {
     service.getReservaByParameter(1015466494).subscribe({
       error: (error) => {
         expect(error).toBeTruthy();
-      }
+      },
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter?documentoCliente=1015466494`);
+    const req = httpMock.expectOne(
+      `${environment.apiUrl}/reservas/parameter?documentoCliente=1015466494`,
+    );
     req.error(new ErrorEvent('API error'));
     expect(handleErrorService.handleError).toHaveBeenCalled();
   });

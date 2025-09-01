@@ -1,11 +1,11 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { CartService } from '../../../core/services/cart.service';
 import { UserService } from '../../../core/services/user.service';
 import { MenuItem } from '../../models/menu-item.model';
-import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-header',
@@ -23,23 +23,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
   cartCount = 0;
   private destroy$ = new Subject<void>();
 
-  constructor(private userService: UserService, @Inject(PLATFORM_ID) private platformId: any, private router: Router, private cartService: CartService) {
+  constructor(
+    private userService: UserService,
+    @Inject(PLATFORM_ID) private platformId: any,
+    private router: Router,
+    private cartService: CartService,
+  ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
   ngOnInit(): void {
-    this.userService.getAuthState()
+    this.userService
+      .getAuthState()
       .pipe(takeUntil(this.destroy$))
       .subscribe((isLoggedIn) => {
         this.userRole = isLoggedIn ? this.userService.getUserRole() : null;
         this.generateMenu();
       });
 
-    this.cartService.count$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(count => {
-        this.cartCount = count;
-      });
+    this.cartService.count$.pipe(takeUntil(this.destroy$)).subscribe((count) => {
+      this.cartCount = count;
+    });
     if (this.isBrowser) {
       this.checkScreenSize();
     }
@@ -78,24 +82,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
       if (this.userRole === 'Cliente') {
         menuItems.unshift({ label: 'Perfil', route: 'cliente/perfil', priority: 7 });
         menuItems.unshift({ label: '🛒', route: 'cliente/carrito-cliente', priority: 8 });
-        menuItems = menuItems.filter(item => item.label !== 'Inicio');
-        menuItems = menuItems.filter(item => item.label !== 'Ubicación');
-        menuItems = menuItems.filter(item => item.label !== 'Galería');
+        menuItems = menuItems.filter((item) => item.label !== 'Inicio');
+        menuItems = menuItems.filter((item) => item.label !== 'Ubicación');
+        menuItems = menuItems.filter((item) => item.label !== 'Galería');
       } else if (this.userRole === 'Administrador') {
         menuItems.unshift({ label: 'Registrar', route: 'admin/registro-admin', priority: 6 });
-        menuItems = menuItems.filter(item => item.label !== 'Inicio');
-        menuItems = menuItems.filter(item => item.label !== 'Galería');
-        menuItems = menuItems.filter(item => item.label !== 'Menú');
-        menuItems = menuItems.filter(item => item.label !== 'Ubicación');
+        menuItems = menuItems.filter((item) => item.label !== 'Inicio');
+        menuItems = menuItems.filter((item) => item.label !== 'Galería');
+        menuItems = menuItems.filter((item) => item.label !== 'Menú');
+        menuItems = menuItems.filter((item) => item.label !== 'Ubicación');
         menuItems.unshift({ label: 'Domicilios', route: '/domicilios/consultar', priority: 3 });
         menuItems.unshift({ label: 'Productos', route: '/admin/productos/', priority: 3 });
       } else if (this.userRole === 'Mesero') {
         menuItems.push({ label: 'Pedidos', route: '/pedidos', priority: 8 });
       } else if (this.userRole === 'Domiciliario') {
         menuItems.push({ label: 'Domicilios', route: '/trabajador/domicilios/tomar', priority: 8 });
-        menuItems = menuItems.filter(item => item.label !== 'Galería');
-        menuItems = menuItems.filter(item => item.label !== 'Menú');
-        menuItems = menuItems.filter(item => item.label !== 'Reservas');
+        menuItems = menuItems.filter((item) => item.label !== 'Galería');
+        menuItems = menuItems.filter((item) => item.label !== 'Menú');
+        menuItems = menuItems.filter((item) => item.label !== 'Reservas');
       }
     }
 
@@ -126,5 +130,4 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
 }

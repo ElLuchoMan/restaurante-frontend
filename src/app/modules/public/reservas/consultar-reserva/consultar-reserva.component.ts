@@ -1,20 +1,20 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 
 import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
-import { Reserva } from '../../../../shared/models/reserva.model';
 import { estadoReserva } from '../../../../shared/constants';
+import { Reserva } from '../../../../shared/models/reserva.model';
 
 @Component({
   selector: 'app-consultar-reserva',
   standalone: true,
   templateUrl: './consultar-reserva.component.html',
   styleUrls: ['./consultar-reserva.component.scss'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
 })
 export class ConsultarReservaComponent implements OnInit {
   reservas: Reserva[] = [];
@@ -31,7 +31,7 @@ export class ConsultarReservaComponent implements OnInit {
     private reservaService: ReservaService,
     private toastr: ToastrService,
     private userService: UserService,
-    private logger: LoggingService
+    private logger: LoggingService,
   ) {}
 
   ngOnInit(): void {
@@ -97,23 +97,22 @@ export class ConsultarReservaComponent implements OnInit {
 
     this.reservaService.getReservaByParameter(documentoNumerico, fechaISO).subscribe({
       next: (response) => {
-        this.reservas = response.data
-          .sort((a: Reserva, b: Reserva) => {
-            const fechaA = new Date(a.fechaReserva.split('-').reverse().join('-'));
-            const fechaB = new Date(b.fechaReserva.split('-').reverse().join('-'));
-            if (fechaA.getTime() !== fechaB.getTime()) {
-              return fechaB.getTime() - fechaA.getTime();
-            }
-            const horaA = new Date(`1970-01-01T${a.horaReserva}`);
-            const horaB = new Date(`1970-01-01T${b.horaReserva}`);
-            return horaB.getTime() - horaA.getTime();
-          });
+        this.reservas = response.data.sort((a: Reserva, b: Reserva) => {
+          const fechaA = new Date(a.fechaReserva.split('-').reverse().join('-'));
+          const fechaB = new Date(b.fechaReserva.split('-').reverse().join('-'));
+          if (fechaA.getTime() !== fechaB.getTime()) {
+            return fechaB.getTime() - fechaA.getTime();
+          }
+          const horaA = new Date(`1970-01-01T${a.horaReserva}`);
+          const horaB = new Date(`1970-01-01T${b.horaReserva}`);
+          return horaB.getTime() - horaA.getTime();
+        });
 
         this.mostrarMensaje = true;
       },
       error: () => {
         this.toastr.error('Ocurrió un error al buscar la reserva', 'Error');
-      }
+      },
     });
   }
 
@@ -153,7 +152,7 @@ export class ConsultarReservaComponent implements OnInit {
       error: (error) => {
         this.logger.log(LogLevel.ERROR, 'Error:', error);
         this.toastr.error('Ocurrió un error al actualizar la reserva', 'Error');
-      }
+      },
     });
   }
 }

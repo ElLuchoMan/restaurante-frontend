@@ -12,12 +12,13 @@ export const routes: Routes = [
   },
   {
     path: 'trabajador',
-    loadChildren: () => import('../modules/trabajadores/trabajadores.module').then((m) => m.TrabajadoresModule),
+    loadChildren: () =>
+      import('../modules/trabajadores/trabajadores.module').then((m) => m.TrabajadoresModule),
   },
   {
     path: 'cliente',
     loadChildren: () => import('../modules/client/client.module').then((m) => m.ClientModule),
   },
-  { path: 'not-found', component: PageNotFoundComponent, },
-  { path: '**', component: PageNotFoundComponent, },
+  { path: 'not-found', component: PageNotFoundComponent },
+  { path: '**', component: PageNotFoundComponent },
 ];

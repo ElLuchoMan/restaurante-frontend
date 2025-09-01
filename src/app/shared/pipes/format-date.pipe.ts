@@ -15,7 +15,6 @@ export class FormatDatePipe implements PipeTransform {
     // 1) Si ya es Date lo usamos tal cual
     if (value instanceof Date) {
       dateObj = value;
-
     } else {
       const s = value.trim();
       let m: RegExpMatchArray | null;
@@ -61,7 +60,7 @@ export class FormatDatePipe implements PipeTransform {
           hour12: false,
           hour: '2-digit',
           minute: '2-digit',
-          second: '2-digit'
+          second: '2-digit',
         });
       case 'datetime':
         const d = dateObj.toLocaleDateString('sv', { timeZone: TZ });
@@ -70,7 +69,7 @@ export class FormatDatePipe implements PipeTransform {
           hour12: false,
           hour: '2-digit',
           minute: '2-digit',
-          second: '2-digit'
+          second: '2-digit',
         });
         return `${d} ${t}`;
       default: // 'date'

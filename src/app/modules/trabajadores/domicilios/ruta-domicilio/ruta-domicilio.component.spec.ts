@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RutaDomicilioComponent } from './ruta-domicilio.component';
-import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 import { DomicilioService } from '../../../../core/services/domicilio.service';
+import { LoggingService } from '../../../../core/services/logging.service';
 import { ModalService } from '../../../../core/services/modal.service';
-import { ToastrService } from 'ngx-toastr';
 import { estadoPago } from '../../../../shared/constants';
 import { mockDomicilioRespone } from './../../../../shared/mocks/domicilio.mock';
-import { LoggingService } from '../../../../core/services/logging.service';
+import { RutaDomicilioComponent } from './ruta-domicilio.component';
 
 describe('RutaDomicilioComponent', () => {
   let component: RutaDomicilioComponent;
@@ -25,47 +25,47 @@ describe('RutaDomicilioComponent', () => {
     direccion: 'Test Address, Bogotá',
     telefono: '123456',
     observaciones: 'Test Observations',
-    id: '1'
+    id: '1',
   };
 
   beforeEach(async () => {
     const activatedRouteMock = {
-      queryParams: of(queryParamsMock)
+      queryParams: of(queryParamsMock),
     };
 
     const sanitizerMock = {
       bypassSecurityTrustResourceUrl: jest.fn((url: string) => {
         return {
           toString: () => url,
-          changingThisBreaksApplicationSecurity: url
+          changingThisBreaksApplicationSecurity: url,
         } as unknown as SafeResourceUrl;
       }),
       sanitize: jest.fn((context: any, value: SafeResourceUrl) => {
         return (value as any).toString();
-      })
+      }),
     };
 
     const domicilioServiceMock = {
-      updateDomicilio: jest.fn()
+      updateDomicilio: jest.fn(),
     };
 
     const modalServiceMock = {
       openModal: jest.fn(),
       getModalData: jest.fn(),
-      closeModal: jest.fn()
+      closeModal: jest.fn(),
     };
 
     const toastrServiceMock = {
       success: jest.fn(),
-      error: jest.fn()
+      error: jest.fn(),
     };
 
     const loggingServiceMock = {
-      log: jest.fn()
+      log: jest.fn(),
     } as unknown as jest.Mocked<LoggingService>;
 
     const routerMock = {
-      navigate: jest.fn()
+      navigate: jest.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -78,8 +78,8 @@ describe('RutaDomicilioComponent', () => {
         { provide: ModalService, useValue: modalServiceMock },
         { provide: ToastrService, useValue: toastrServiceMock },
         { provide: LoggingService, useValue: loggingServiceMock },
-        { provide: Router, useValue: routerMock }
-      ]
+        { provide: Router, useValue: routerMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RutaDomicilioComponent);
@@ -124,7 +124,7 @@ describe('RutaDomicilioComponent', () => {
   describe('marcarPago', () => {
     it('should open modal and process payment when a method is selected', () => {
       modalService.getModalData.mockReturnValue({
-        select: { selected: 'NEQUI' }
+        select: { selected: 'NEQUI' },
       });
       domicilioService.updateDomicilio.mockReturnValue(of(mockDomicilioRespone));
 
@@ -135,25 +135,27 @@ describe('RutaDomicilioComponent', () => {
       const config = modalService.openModal.mock.calls[0][0];
       config.buttons[0].action();
 
-      expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, { estadoPago: estadoPago.PAGADO });
+      expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, {
+        estadoPago: estadoPago.PAGADO,
+      });
       expect(toastrService.success).toHaveBeenCalledWith('Domicilio marcado como pagado');
       expect(modalService.closeModal).toHaveBeenCalled();
     });
 
     it('should log error when no payment method is selected', () => {
       modalService.getModalData.mockReturnValue({
-        select: { selected: null }
+        select: { selected: null },
       });
       console.error = jest.fn();
       component.marcarPago();
       const config = modalService.openModal.mock.calls[0][0];
       config.buttons[0].action();
-      expect(console.error).toHaveBeenCalledWith("No se ha seleccionado un método de pago.");
+      expect(console.error).toHaveBeenCalledWith('No se ha seleccionado un método de pago.');
     });
 
     it('should handle error when updating domicilio payment fails', () => {
       modalService.getModalData.mockReturnValue({
-        select: { selected: 'DAVIPLATA' }
+        select: { selected: 'DAVIPLATA' },
       });
       const errorResponse = new Error('Error');
       domicilioService.updateDomicilio.mockReturnValue(throwError(() => errorResponse));
@@ -165,7 +167,7 @@ describe('RutaDomicilioComponent', () => {
 
     it('should close modal when cancel button is clicked', () => {
       modalService.getModalData.mockReturnValue({
-        select: { selected: 'NEQUI' }
+        select: { selected: 'NEQUI' },
       });
       component.marcarPago();
       const config = modalService.openModal.mock.calls[0][0];
@@ -193,19 +195,19 @@ describe('RutaDomicilioComponent with default params', () => {
 
   beforeEach(async () => {
     const activatedRouteMock = {
-      queryParams: of({})
+      queryParams: of({}),
     };
 
     const sanitizerMock = {
       bypassSecurityTrustResourceUrl: jest.fn((url: string) => {
         return {
           toString: () => url,
-          changingThisBreaksApplicationSecurity: url
+          changingThisBreaksApplicationSecurity: url,
         } as unknown as SafeResourceUrl;
       }),
       sanitize: jest.fn((context: any, value: SafeResourceUrl) => {
         return (value as any).toString();
-      })
+      }),
     };
 
     await TestBed.configureTestingModule({
@@ -214,10 +216,13 @@ describe('RutaDomicilioComponent with default params', () => {
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: DomSanitizer, useValue: sanitizerMock },
         { provide: DomicilioService, useValue: { updateDomicilio: jest.fn() } },
-        { provide: ModalService, useValue: { openModal: jest.fn(), getModalData: jest.fn(), closeModal: jest.fn() } },
+        {
+          provide: ModalService,
+          useValue: { openModal: jest.fn(), getModalData: jest.fn(), closeModal: jest.fn() },
+        },
         { provide: ToastrService, useValue: { success: jest.fn(), error: jest.fn() } },
-        { provide: Router, useValue: { navigate: jest.fn() } }
-      ]
+        { provide: Router, useValue: { navigate: jest.fn() } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RutaDomicilioComponent);

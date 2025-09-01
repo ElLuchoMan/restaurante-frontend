@@ -16,24 +16,24 @@ export const adminRoutes: Routes = [
     path: 'registro-admin',
     component: RegisterComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Administrador'] }
+    data: { roles: ['Administrador'] },
   },
   {
     path: 'productos',
     component: ProductosComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Administrador'] }
+    data: { roles: ['Administrador'] },
   },
   {
     path: 'productos/crear',
     component: CrearProductoComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Administrador'] }
+    data: { roles: ['Administrador'] },
   },
   {
     path: 'productos/editar/:id',
     component: CrearProductoComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Administrador'] }
+    data: { roles: ['Administrador'] },
   },
 ];

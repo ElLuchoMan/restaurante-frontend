@@ -1,9 +1,13 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { environment } from '../../../environments/environment';
+import {
+  mockClienteBody,
+  mockClienteRegisterResponse,
+  mockResponseCliente,
+} from '../../shared/mocks/cliente.mock';
 import { ClienteService } from './cliente.service';
 import { HandleErrorService } from './handle-error.service';
-import { environment } from '../../../environments/environment';
-import { mockResponseCliente, mockClienteBody, mockClienteRegisterResponse } from '../../shared/mocks/cliente.mock';
 
 describe('ClienteService', () => {
   let service: ClienteService;
@@ -11,7 +15,9 @@ describe('ClienteService', () => {
   const baseUrl = environment.apiUrl;
 
   const fakeHandleErrorService = {
-    handleError: (error: any) => { throw error; }
+    handleError: (error: any) => {
+      throw error;
+    },
   };
 
   beforeEach(() => {
@@ -19,8 +25,8 @@ describe('ClienteService', () => {
       imports: [HttpClientTestingModule],
       providers: [
         ClienteService,
-        { provide: HandleErrorService, useValue: fakeHandleErrorService }
-      ]
+        { provide: HandleErrorService, useValue: fakeHandleErrorService },
+      ],
     });
     service = TestBed.inject(ClienteService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -37,7 +43,7 @@ describe('ClienteService', () => {
   describe('getClienteId', () => {
     it('should get cliente by id', () => {
       const documento = mockResponseCliente.data.documentoCliente;
-      service.getClienteId(documento).subscribe(response => {
+      service.getClienteId(documento).subscribe((response) => {
         expect(response).toEqual(mockResponseCliente);
       });
 
@@ -51,7 +57,7 @@ describe('ClienteService', () => {
       service.getClienteId(documento).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();
-        }
+        },
       });
       const req = httpMock.expectOne(`${baseUrl}/clientes/search?id=${documento}`);
       req.error(new ErrorEvent('API error'));
@@ -60,7 +66,7 @@ describe('ClienteService', () => {
 
   describe('registroCliente', () => {
     it('should register a new cliente', () => {
-      service.registroCliente(mockClienteBody).subscribe(response => {
+      service.registroCliente(mockClienteBody).subscribe((response) => {
         expect(response).toEqual(mockClienteRegisterResponse);
       });
 
@@ -74,7 +80,7 @@ describe('ClienteService', () => {
       service.registroCliente(mockClienteBody).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();
-        }
+        },
       });
 
       const req = httpMock.expectOne(`${baseUrl}/clientes`);

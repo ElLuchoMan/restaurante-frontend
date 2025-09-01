@@ -1,33 +1,34 @@
 export enum Roles {
-    ADMINISTRADOR = 'Administrador',
-    CLIENTE = 'Cliente',
-    MESERO = 'Mesero',
-    DOMICILIARIO = 'Domiciliario',
-    COCINERO = 'Cocinero',
-    GENERAL = 'General'
+  ADMINISTRADOR = 'Administrador',
+  CLIENTE = 'Cliente',
+  MESERO = 'Mesero',
+  DOMICILIARIO = 'Domiciliario',
+  COCINERO = 'Cocinero',
+  GENERAL = 'General',
 }
 export enum estadoReserva {
-    PENDIENTE = 'PENDIENTE',
-    CONFIRMADA = 'CONFIRMADA',
-    CANCELADA = 'CANCELADA',
-    CUMPLIDA = 'CUMPLIDA'
+  PENDIENTE = 'PENDIENTE',
+  CONFIRMADA = 'CONFIRMADA',
+  CANCELADA = 'CANCELADA',
+  CUMPLIDA = 'CUMPLIDA',
 }
 
 export enum estadoNomina {
-    PAGO = 'PAGO',
-    NO_PAGO = 'NO PAGO',
+  PAGO = 'PAGO',
+  NO_PAGO = 'NO_PAGO',
 }
 export enum estadoPago {
-    PAGADO = 'PAGADO',
-    PENDIENTE = 'PENDIENTE',
-    NO_PAGADO = 'NO PAGO',
+  PAGADO = 'PAGADO',
+  PENDIENTE = 'PENDIENTE',
+  NO_PAGADO = 'NO_PAGO',
 }
 export enum estadoProducto {
-    DISPONIBLE = 'DISPONIBLE',
-    NO_DISPONIBLE = 'NO DISPONIBLE',
+  DISPONIBLE = 'DISPONIBLE',
+  NO_DISPONIBLE = 'NO_DISPONIBLE',
 }
 export const metodoPago = {
-    Nequi: { metodoPagoId: 1, tipo: 'Nequi', detallle: '3042449339' },
-    Daviplata: { metodoPagoId: 2, tipo: 'Daviplata', detallle: '3042449339' },
-    Efectivo: { metodoPagoId: 3, tipo: 'Efectivo', detallle: '3042449339' },
+  Nequi: { metodoPagoId: 1, tipo: 'Nequi', detallle: '3042449339' },
+  Daviplata: { metodoPagoId: 2, tipo: 'Daviplata', detallle: '3042449339' },
+  Efectivo: { metodoPagoId: 3, tipo: 'Efectivo', detallle: '3042449339' },
+  Tarjeta: { metodoPagoId: 4, tipo: 'Tarjeta', detallle: 'N/A' },
 } as const;

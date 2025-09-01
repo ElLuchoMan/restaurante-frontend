@@ -4,9 +4,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { take } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 import { UserService } from '../../../core/services/user.service';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +23,7 @@ export class LoginComponent {
     private router: Router,
     private toastr: ToastrService,
     private userService: UserService,
-    private logger: LoggingService
+    private logger: LoggingService,
   ) {
     this.loginForm = this.fb.group({
       documento: ['', Validators.required],
@@ -43,10 +43,7 @@ export class LoginComponent {
       .subscribe({
         next: (response) => {
           this.userService.saveToken(response.data.token);
-          this.toastr.success(
-            'Inicio de sesión exitoso',
-            `Bienvenido ${response.data.nombre}`
-          );
+          this.toastr.success('Inicio de sesión exitoso', `Bienvenido ${response.data.nombre}`);
           this.router.navigate(['/home']);
         },
         error: (err) => {
@@ -54,19 +51,13 @@ export class LoginComponent {
             if (err && err.message) {
               this.logger.log(LogLevel.ERROR, 'Error de inicio de sesión', err);
             } else {
-              this.logger.log(
-                LogLevel.ERROR,
-                'No hay propiedad "message" en el error.'
-              );
+              this.logger.log(LogLevel.ERROR, 'No hay propiedad "message" en el error.');
             }
           }
           if (err && err.message) {
             this.toastr.error(err?.message, 'Error de autenticación');
           } else {
-            this.toastr.error(
-              'Credenciales incorrectas',
-              'Error de autenticación'
-            );
+            this.toastr.error('Credenciales incorrectas', 'Error de autenticación');
           }
         },
       });

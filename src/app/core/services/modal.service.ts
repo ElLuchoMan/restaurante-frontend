@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { LoggingService, LogLevel } from './logging.service';
 import { ModalData } from '../../shared/models/modal.model';
+import { LoggingService, LogLevel } from './logging.service';
 
 @Injectable({
   providedIn: 'root',

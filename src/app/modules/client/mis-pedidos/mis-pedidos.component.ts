@@ -1,13 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
+import { forkJoin, of, Subject } from 'rxjs';
+import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
 import { Pedido } from '../../../shared/models/pedido.model';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
-import { forkJoin, of, Subject } from 'rxjs';
-import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 
 type DetallesAPI = {
   pedidoId?: number;
@@ -34,7 +34,7 @@ type PedidoCard = Pedido & {
   standalone: true,
   templateUrl: './mis-pedidos.component.html',
   styleUrls: ['./mis-pedidos.component.scss'],
-  imports: [CommonModule, RouterModule, FormatDatePipe]
+  imports: [CommonModule, RouterModule, FormatDatePipe],
 })
 export class MisPedidosComponent implements OnInit, OnDestroy {
   pedidos: PedidoCard[] = [];
@@ -42,45 +42,44 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
   error = '';
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private pedidoService: PedidoService,
-    private userService: UserService
-  ) { }
+  constructor(private pedidoService: PedidoService, private userService: UserService) {}
 
   ngOnInit(): void {
     const userId = this.userService.getUserId();
 
-    this.pedidoService.getMisPedidos(userId).pipe(
-      // 1) ordena por fecha (DD-MM-YYYY) + hora (0000-01-01 HH:mm:ss …)
-      map(res => {
-        console.log('Pedidos', res);
-        const base: Pedido[] = res?.data || [];
-        return [...base].sort((a, b) => {
-          const da = this.toComparableDate(a.fechaPedido, a.horaPedido);
-          const db = this.toComparableDate(b.fechaPedido, b.horaPedido);
-          return db.getTime() - da.getTime();
-        });
-      }),
-      // 2) enriquece cada pedido con /pedidos/detalles (si falla, simplemente deja los campos como undefined)
-      switchMap(sorted =>
-        forkJoin(
-          sorted.map(p =>
-            p.pedidoId !== undefined
-              ? this.pedidoService.getPedidoDetalles(p.pedidoId).pipe(
-                map(resp => this.mergeDetalles(p, resp?.data as DetallesAPI)),
-                catchError(() => of(p as PedidoCard))
-              )
-              : of(p as PedidoCard)
-          )
-        )
-      ),
-      catchError(() => {
-        this.error = 'No se pudieron cargar tus pedidos';
-        return of([] as PedidoCard[]);
-      }),
-      takeUntil(this.destroy$)
-    )
-      .subscribe(peds => {
+    this.pedidoService
+      .getMisPedidos(userId)
+      .pipe(
+        // 1) ordena por fecha (DD-MM-YYYY) + hora (0000-01-01 HH:mm:ss …)
+        map((res) => {
+          console.log('Pedidos', res);
+          const base: Pedido[] = res?.data || [];
+          return [...base].sort((a, b) => {
+            const da = this.toComparableDate(a.fechaPedido, a.horaPedido);
+            const db = this.toComparableDate(b.fechaPedido, b.horaPedido);
+            return db.getTime() - da.getTime();
+          });
+        }),
+        // 2) enriquece cada pedido con /pedidos/detalles (si falla, simplemente deja los campos como undefined)
+        switchMap((sorted) =>
+          forkJoin(
+            sorted.map((p) =>
+              p.pedidoId !== undefined
+                ? this.pedidoService.getPedidoDetalles(p.pedidoId).pipe(
+                    map((resp) => this.mergeDetalles(p, resp?.data as DetallesAPI)),
+                    catchError(() => of(p as PedidoCard)),
+                  )
+                : of(p as PedidoCard),
+            ),
+          ),
+        ),
+        catchError(() => {
+          this.error = 'No se pudieron cargar tus pedidos';
+          return of([] as PedidoCard[]);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((peds) => {
         this.pedidos = peds;
         this.loading = false;
       });

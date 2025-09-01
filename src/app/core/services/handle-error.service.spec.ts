@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { mockHttpError400, mockHttpError500 } from '../../shared/mocks/error.mock';
 import { HandleErrorService } from './handle-error.service';
-import { mockHttpError500, mockHttpError400 } from '../../shared/mocks/error.mock';
 
 describe('HandleErrorService', () => {
   let service: HandleErrorService;

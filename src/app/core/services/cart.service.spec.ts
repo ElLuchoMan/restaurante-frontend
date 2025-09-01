@@ -1,7 +1,7 @@
-import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
-import { CartService } from './cart.service';
+import { TestBed } from '@angular/core/testing';
 import { Producto } from '../../shared/models/producto.model';
+import { CartService } from './cart.service';
 
 const STORAGE_KEY = 'carrito';
 const LAST_KEY = `${STORAGE_KEY}-lastClear`;
@@ -17,9 +17,15 @@ describe('CartService', () => {
     store = {};
     const mockLS = {
       getItem: (k: string) => (k in store ? store[k] : null),
-      setItem: (k: string, v: string) => { store[k] = v; },
-      removeItem: (k: string) => { delete store[k]; },
-      clear: () => { store = {}; }
+      setItem: (k: string, v: string) => {
+        store[k] = v;
+      },
+      removeItem: (k: string) => {
+        delete store[k];
+      },
+      clear: () => {
+        store = {};
+      },
     };
     Object.defineProperty(window, 'localStorage', { value: mockLS, writable: true });
   });
@@ -27,7 +33,7 @@ describe('CartService', () => {
   function init(platform: 'browser' | 'server' = 'browser'): CartService {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [{ provide: PLATFORM_ID, useValue: platform }]
+      providers: [{ provide: PLATFORM_ID, useValue: platform }],
     });
     return TestBed.inject(CartService);
   }
@@ -112,10 +118,10 @@ describe('CartService', () => {
     (service as any).saveCart([{ productoId: 10 } as any, { productoId: 11, cantidad: 2 } as any]);
     expect(service.count$.value).toBe(3);
     service.addToCart({ productoId: 10 } as any);
-    expect(service.getItems().find(p => p.productoId === 10)?.cantidad).toBe(2);
+    expect(service.getItems().find((p) => p.productoId === 10)?.cantidad).toBe(2);
     (service as any).saveCart([{ productoId: 12 } as any, { productoId: 13, cantidad: 1 } as any]);
     service.changeQty(12, 1);
-    expect(service.getItems().find(p => p.productoId === 12)?.cantidad).toBe(2);
+    expect(service.getItems().find((p) => p.productoId === 12)?.cantidad).toBe(2);
   });
 
   it('loads empty cart when storage missing', () => {

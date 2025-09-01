@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { DomicilioService } from '../../../../core/services/domicilio.service';
-import { UserService } from '../../../../core/services/user.service';
-import { TrabajadorService } from '../../../../core/services/trabajador.service';
 import { ModalService } from '../../../../core/services/modal.service';
+import { TrabajadorService } from '../../../../core/services/trabajador.service';
+import { UserService } from '../../../../core/services/user.service';
 import { estadoPago } from '../../../../shared/constants';
 import { Domicilio } from '../../../../shared/models/domicilio.model';
 import { ConsultarDomicilioComponent } from './consultar-domicilios.component';
@@ -21,19 +21,19 @@ describe('ConsultarDomicilioComponent', () => {
     domicilioService = {
       getDomicilios: jest.fn(),
       asignarDomiciliario: jest.fn(),
-      updateDomicilio: jest.fn()
+      updateDomicilio: jest.fn(),
     } as any;
     userService = {
-      getUserId: jest.fn()
+      getUserId: jest.fn(),
     } as any;
     trabajadorService = {
       searchTrabajador: jest.fn(),
-      getTrabajadores: jest.fn()
+      getTrabajadores: jest.fn(),
     } as any;
     modalService = {
       openModal: jest.fn(),
       getModalData: jest.fn(),
-      closeModal: jest.fn()
+      closeModal: jest.fn(),
     } as any;
 
     await TestBed.configureTestingModule({
@@ -42,8 +42,8 @@ describe('ConsultarDomicilioComponent', () => {
         { provide: DomicilioService, useValue: domicilioService },
         { provide: UserService, useValue: userService },
         { provide: TrabajadorService, useValue: trabajadorService },
-        { provide: ModalService, useValue: modalService }
-      ]
+        { provide: ModalService, useValue: modalService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ConsultarDomicilioComponent);
@@ -107,7 +107,7 @@ describe('ConsultarDomicilioComponent', () => {
           observaciones: '',
           createdBy: '',
           trabajadorAsignado: 10,
-          domicilioId: 1
+          domicilioId: 1,
         },
         {
           fechaDomicilio: '',
@@ -118,7 +118,7 @@ describe('ConsultarDomicilioComponent', () => {
           observaciones: '',
           createdBy: '',
           trabajadorAsignado: 20,
-          domicilioId: 2
+          domicilioId: 2,
         },
         {
           fechaDomicilio: '',
@@ -128,13 +128,13 @@ describe('ConsultarDomicilioComponent', () => {
           entregado: false,
           observaciones: '',
           createdBy: '',
-          domicilioId: 3
-        }
+          domicilioId: 3,
+        },
       ];
 
       domicilioService.getDomicilios.mockReturnValue(of({ code: 200, data: domicilios }));
       trabajadorService.searchTrabajador.mockImplementation((id: number) =>
-        id === 10 ? of({ data: { nombre: 'Juan', apellido: 'Pérez' } }) : of(null)
+        id === 10 ? of({ data: { nombre: 'Juan', apellido: 'Pérez' } }) : of(null),
       );
 
       component.buscarDomicilios();
@@ -142,7 +142,7 @@ describe('ConsultarDomicilioComponent', () => {
       expect(domicilioService.getDomicilios).toHaveBeenCalledWith({
         direccion: 'dir',
         telefono: '123',
-        fecha: '2024-01-01'
+        fecha: '2024-01-01',
       });
       expect(trabajadorService.searchTrabajador).toHaveBeenCalledTimes(2);
       expect(component.domicilios[0].trabajadorNombre).toBe('Juan Pérez');
@@ -178,19 +178,21 @@ describe('ConsultarDomicilioComponent', () => {
       entregado: false,
       observaciones: '',
       createdBy: '',
-      domicilioId: 1
+      domicilioId: 1,
     };
 
     it('should open modal and confirm selection', () => {
-      trabajadorService.getTrabajadores.mockReturnValue(of([
-        { nombre: 'A', apellido: 'B', documentoTrabajador: 1 }
-      ]));
+      trabajadorService.getTrabajadores.mockReturnValue(
+        of([{ nombre: 'A', apellido: 'B', documentoTrabajador: 1 }]),
+      );
       let modalConfig: any;
-      modalService.openModal.mockImplementation(config => (modalConfig = config));
+      modalService.openModal.mockImplementation((config) => (modalConfig = config));
       modalService.getModalData.mockReturnValue({ select: { selected: 1 } });
       jest.spyOn(component, 'confirmarAsignacion');
       domicilioService.asignarDomiciliario.mockReturnValue(of({ code: 200 }));
-      trabajadorService.searchTrabajador.mockReturnValue(of({ data: { nombre: 'A', apellido: 'B' } }));
+      trabajadorService.searchTrabajador.mockReturnValue(
+        of({ data: { nombre: 'A', apellido: 'B' } }),
+      );
 
       component.asignarDomicilio(domicilioBase);
 
@@ -203,11 +205,11 @@ describe('ConsultarDomicilioComponent', () => {
     });
 
     it('should not confirm when no worker selected', () => {
-      trabajadorService.getTrabajadores.mockReturnValue(of([
-        { nombre: 'A', apellido: 'B', documentoTrabajador: 1 }
-      ]));
+      trabajadorService.getTrabajadores.mockReturnValue(
+        of([{ nombre: 'A', apellido: 'B', documentoTrabajador: 1 }]),
+      );
       let modalConfig: any;
-      modalService.openModal.mockImplementation(config => (modalConfig = config));
+      modalService.openModal.mockImplementation((config) => (modalConfig = config));
       modalService.getModalData.mockReturnValue({ select: { selected: null } });
       jest.spyOn(component, 'confirmarAsignacion');
 
@@ -229,11 +231,13 @@ describe('ConsultarDomicilioComponent', () => {
         entregado: false,
         observaciones: '',
         createdBy: '',
-        domicilioId: 1
+        domicilioId: 1,
       };
 
       domicilioService.asignarDomiciliario.mockReturnValue(of({ code: 200 }));
-      trabajadorService.searchTrabajador.mockReturnValue(of({ data: { nombre: 'Ana', apellido: 'Gómez' } }));
+      trabajadorService.searchTrabajador.mockReturnValue(
+        of({ data: { nombre: 'Ana', apellido: 'Gómez' } }),
+      );
 
       component.confirmarAsignacion(domicilio, 5);
 
@@ -252,7 +256,7 @@ describe('ConsultarDomicilioComponent', () => {
         entregado: false,
         observaciones: '',
         createdBy: '',
-        domicilioId: 1
+        domicilioId: 1,
       };
 
       domicilioService.asignarDomiciliario.mockReturnValue(of({ code: 500 }));
@@ -305,7 +309,7 @@ describe('ConsultarDomicilioComponent', () => {
         entregado: false,
         observaciones: '',
         createdBy: '',
-        domicilioId: 1
+        domicilioId: 1,
       };
 
       domicilioService.updateDomicilio.mockReturnValue(of({ code: 200 }));
@@ -325,7 +329,7 @@ describe('ConsultarDomicilioComponent', () => {
         entregado: false,
         observaciones: '',
         createdBy: '',
-        domicilioId: 1
+        domicilioId: 1,
       };
 
       domicilioService.updateDomicilio.mockReturnValue(of({ code: 500 }));
@@ -336,4 +340,3 @@ describe('ConsultarDomicilioComponent', () => {
     });
   });
 });
-

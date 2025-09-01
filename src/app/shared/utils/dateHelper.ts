@@ -6,23 +6,39 @@ function nowInBogota(): Date {
 }
 
 export function fechaYYYYMMDD_Bogota(d = nowInBogota()): string {
-  const parts = new Intl.DateTimeFormat('es-CO', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' })
+  const parts = new Intl.DateTimeFormat('es-CO', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
     .formatToParts(d)
-    .reduce((acc, p) => (acc[p.type] = p.value, acc), {} as any);
+    .reduce((acc, p) => ((acc[p.type] = p.value), acc), {} as any);
   return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
 export function fechaDDMMYYYY_Bogota(d = nowInBogota()): string {
-  const parts = new Intl.DateTimeFormat('es-CO', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' })
+  const parts = new Intl.DateTimeFormat('es-CO', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
     .formatToParts(d)
-    .reduce((acc, p) => (acc[p.type] = p.value, acc), {} as any);
+    .reduce((acc, p) => ((acc[p.type] = p.value), acc), {} as any);
   return `${parts.day}-${parts.month}-${parts.year}`;
 }
 
 export function horaHHMMSS_Bogota(d = nowInBogota()): string {
-  const parts = new Intl.DateTimeFormat('es-CO', { timeZone: TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+  const parts = new Intl.DateTimeFormat('es-CO', {
+    timeZone: TZ,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
     .formatToParts(d)
-    .reduce((acc, p) => (acc[p.type] = p.value, acc), {} as any);
+    .reduce((acc, p) => ((acc[p.type] = p.value), acc), {} as any);
   return `${parts.hour}:${parts.minute}:${parts.second}`;
 }
 

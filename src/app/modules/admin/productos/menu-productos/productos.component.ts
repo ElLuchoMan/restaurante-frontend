@@ -8,13 +8,13 @@ import { UserService } from '../../../../core/services/user.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './productos.component.html',
-  styleUrl: './productos.component.scss'
+  styleUrl: './productos.component.scss',
 })
 export class ProductosComponent implements OnInit {
   mostrarMenu = true;
   esAdmin = false;
   constructor(private router: Router, private userService: UserService) {
-    this.router.events.subscribe(evt => {
+    this.router.events.subscribe((evt) => {
       if (evt instanceof NavigationEnd) {
         this.mostrarMenu = evt.urlAfterRedirects === '/admin/productos';
       }

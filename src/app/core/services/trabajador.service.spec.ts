@@ -1,9 +1,13 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { TrabajadorService } from './trabajador.service';
-import { HandleErrorService } from './handle-error.service';
+import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
-import { mockTrabajadorResponse, mockTrabajadorBody, mockTrabajadorRegisterResponse } from '../../shared/mocks/trabajador.mock';
+import {
+  mockTrabajadorBody,
+  mockTrabajadorRegisterResponse,
+  mockTrabajadorResponse,
+} from '../../shared/mocks/trabajador.mock';
+import { HandleErrorService } from './handle-error.service';
+import { TrabajadorService } from './trabajador.service';
 
 describe('TrabajadorService', () => {
   let service: TrabajadorService;
@@ -11,7 +15,9 @@ describe('TrabajadorService', () => {
   const baseUrl = environment.apiUrl;
 
   const fakeHandleErrorService = {
-    handleError: (error: any) => { throw error; }
+    handleError: (error: any) => {
+      throw error;
+    },
   };
 
   beforeEach(() => {
@@ -19,8 +25,8 @@ describe('TrabajadorService', () => {
       imports: [HttpClientTestingModule],
       providers: [
         TrabajadorService,
-        { provide: HandleErrorService, useValue: fakeHandleErrorService }
-      ]
+        { provide: HandleErrorService, useValue: fakeHandleErrorService },
+      ],
     });
     service = TestBed.inject(TrabajadorService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -36,7 +42,7 @@ describe('TrabajadorService', () => {
 
   describe('registroTrabajador', () => {
     it('should register a trabajador', () => {
-      service.registroTrabajador(mockTrabajadorBody).subscribe(response => {
+      service.registroTrabajador(mockTrabajadorBody).subscribe((response) => {
         expect(response).toEqual(mockTrabajadorRegisterResponse);
       });
 
@@ -50,7 +56,7 @@ describe('TrabajadorService', () => {
   describe('searchTrabajador', () => {
     it('should search and return a trabajador', () => {
       const documento = mockTrabajadorResponse.data.documentoTrabajador;
-      service.searchTrabajador(documento).subscribe(response => {
+      service.searchTrabajador(documento).subscribe((response) => {
         expect(response).toEqual(mockTrabajadorResponse);
       });
 
@@ -65,10 +71,10 @@ describe('TrabajadorService', () => {
       const mockResponse = {
         code: 200,
         message: 'Success',
-        data: [mockTrabajadorResponse.data]
+        data: [mockTrabajadorResponse.data],
       };
 
-      service.getTrabajadores().subscribe(trabajadores => {
+      service.getTrabajadores().subscribe((trabajadores) => {
         expect(trabajadores).toEqual([mockTrabajadorResponse.data]);
       });
 
@@ -81,7 +87,7 @@ describe('TrabajadorService', () => {
   describe('getTrabajadorId', () => {
     it('should get a trabajador by ID', () => {
       const documento = mockTrabajadorResponse.data.documentoTrabajador;
-      service.getTrabajadorId(documento).subscribe(response => {
+      service.getTrabajadorId(documento).subscribe((response) => {
         expect(response).toEqual(mockTrabajadorResponse);
       });
 

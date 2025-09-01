@@ -1,15 +1,18 @@
 <div class="container mt-5 col-md-6">
-    <h1 class="text-center mb-4">Ubícanos</h1>
+  <h1 class="text-center mb-4">Ubícanos</h1>
 
-    <div class="map-container">
-        <iframe [src]="ubicacionUrl" loading="lazy" title="Ubicación de La Cocina de María"
-            aria-label="Mapa con la ubicación de La Cocina de María"></iframe>
-
-    </div>
-    <div class="info-card" [ngClass]="{'show': mostrarInfo}">
-        <h2>📌 La Cocina de María</h2>
-        <p><i class="fas fa-map-marker-alt"></i> Calle 78a # 62 - 48, Bogotá, Colombia</p>
-        <p><i class="fas fa-clock"></i> Horarios: 9:00 AM - 10:00 PM</p>
-        <p><i class="fas fa-phone-alt"></i> Teléfono: +57 304 244 9339</p>
-    </div>
+  <div class="map-container">
+    <iframe
+      [src]="ubicacionUrl"
+      loading="lazy"
+      title="Ubicación de La Cocina de María"
+      aria-label="Mapa con la ubicación de La Cocina de María"
+    ></iframe>
+  </div>
+  <div class="info-card" [ngClass]="{ show: mostrarInfo }">
+    <h2>📌 La Cocina de María</h2>
+    <p><i class="fas fa-map-marker-alt"></i> Calle 78a # 62 - 48, Bogotá, Colombia</p>
+    <p><i class="fas fa-clock"></i> Horarios: 9:00 AM - 10:00 PM</p>
+    <p><i class="fas fa-phone-alt"></i> Teléfono: +57 304 244 9339</p>
+  </div>
 </div>

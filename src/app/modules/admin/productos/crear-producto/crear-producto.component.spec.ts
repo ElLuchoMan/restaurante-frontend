@@ -1,12 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 
-import { CrearProductoComponent } from './crear-producto.component';
 import { ProductoService } from '../../../../core/services/producto.service';
 import { estadoProducto } from '../../../../shared/constants';
-
+import { CrearProductoComponent } from './crear-producto.component';
 
 describe('CrearProductoComponent', () => {
   let component: CrearProductoComponent;
@@ -19,7 +18,7 @@ describe('CrearProductoComponent', () => {
     productoServiceMock = {
       createProducto: jest.fn(),
       getProductoById: jest.fn(),
-      updateProducto: jest.fn()
+      updateProducto: jest.fn(),
     };
     activatedRouteMock = { snapshot: { paramMap: convertToParamMap({}) } };
 
@@ -27,8 +26,8 @@ describe('CrearProductoComponent', () => {
       imports: [CrearProductoComponent, RouterTestingModule],
       providers: [
         { provide: ProductoService, useValue: productoServiceMock },
-        { provide: ActivatedRoute, useValue: activatedRouteMock }
-      ]
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CrearProductoComponent);
@@ -86,7 +85,7 @@ describe('CrearProductoComponent', () => {
       estadoProducto: estadoProducto.DISPONIBLE,
       cantidad: 5,
       categoria: 'cat',
-      subcategoria: 'sub'
+      subcategoria: 'sub',
     };
     component.imagenSeleccionada = null;
     productoServiceMock.createProducto.mockReturnValue(of({ code: 201 }));
@@ -110,7 +109,7 @@ describe('CrearProductoComponent', () => {
       estadoProducto: estadoProducto.DISPONIBLE,
       cantidad: 5,
       categoria: 'cat',
-      subcategoria: 'sub'
+      subcategoria: 'sub',
     };
     const file = new File(['data'], 'image.jpg');
     component.imagenSeleccionada = file;
@@ -127,7 +126,7 @@ describe('CrearProductoComponent', () => {
     component.producto = {
       nombre: 'Test',
       precio: 20,
-      cantidad: 1
+      cantidad: 1,
     } as any;
     component.imagenSeleccionada = null;
     productoServiceMock.createProducto.mockReturnValue(of({ code: 500 }));
@@ -156,7 +155,7 @@ describe('CrearProductoComponent', () => {
       estadoProducto: estadoProducto.DISPONIBLE,
       cantidad: 1,
       categoria: 'c',
-      subcategoria: 's'
+      subcategoria: 's',
     };
     productoServiceMock.getProductoById.mockReturnValue(of({ data: producto }));
     component.cargarProducto('1');
@@ -188,7 +187,7 @@ describe('CrearProductoComponent', () => {
       estadoProducto: estadoProducto.DISPONIBLE,
       cantidad: 5,
       categoria: 'cat',
-      subcategoria: 'sub'
+      subcategoria: 'sub',
     };
     productoServiceMock.updateProducto.mockReturnValue(of({ code: 200 }));
     const navigateSpy = jest.spyOn(router, 'navigate');
@@ -211,7 +210,7 @@ describe('CrearProductoComponent', () => {
       estadoProducto: estadoProducto.DISPONIBLE,
       cantidad: 5,
       categoria: 'cat',
-      subcategoria: 'sub'
+      subcategoria: 'sub',
     };
     const file = new File(['data'], 'img.png');
     component.imagenSeleccionada = file;
@@ -229,7 +228,7 @@ describe('CrearProductoComponent', () => {
     component.producto = {
       nombre: 'Test',
       precio: 20,
-      cantidad: 1
+      cantidad: 1,
     } as any;
     component.imagenSeleccionada = null;
     productoServiceMock.updateProducto.mockReturnValue(of({ code: 500 }));
@@ -249,4 +248,3 @@ describe('CrearProductoComponent', () => {
     appendSpy.mockRestore();
   });
 });
-

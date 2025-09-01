@@ -1,5 +1,5 @@
-import { routes } from './app.routes';
 import { PageNotFoundComponent } from '../modules/public/page-not-found/page-not-found.component';
+import { routes } from './app.routes';
 
 describe('App Routes', () => {
   it('should load the public module for root route', async () => {
@@ -36,13 +36,13 @@ describe('App Routes', () => {
 
   it('should contain not-found route', () => {
     expect(routes).toContainEqual(
-      expect.objectContaining({ path: 'not-found', component: PageNotFoundComponent })
+      expect.objectContaining({ path: 'not-found', component: PageNotFoundComponent }),
     );
   });
 
   it('should contain wildcard route', () => {
     expect(routes).toContainEqual(
-      expect.objectContaining({ path: '**', component: PageNotFoundComponent })
+      expect.objectContaining({ path: '**', component: PageNotFoundComponent }),
     );
   });
 });

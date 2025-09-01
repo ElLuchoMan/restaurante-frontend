@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { jwtDecode } from 'jwt-decode';
+import { BehaviorSubject, catchError, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Login, LoginResponse } from '../../shared/models/login.model';
 import { HandleErrorService } from './handle-error.service';
-import { jwtDecode } from 'jwt-decode';
 import { LoggingService, LogLevel } from './logging.service';
 
 export interface DecodedToken {
@@ -24,7 +24,11 @@ export class UserService {
 
   private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService, private logger: LoggingService) { }
+  constructor(
+    private http: HttpClient,
+    private handleError: HandleErrorService,
+    private logger: LoggingService,
+  ) {}
 
   getAuthState(): Observable<boolean> {
     return this.authState.asObservable();
@@ -35,9 +39,9 @@ export class UserService {
   }
 
   login(credenciales: Login): Observable<ApiResponse<LoginResponse>> {
-    return this.http.post<ApiResponse<LoginResponse>>(`${this.baseUrl}/login`, credenciales).pipe(
-      catchError(this.handleError.handleError)
-    );
+    return this.http
+      .post<ApiResponse<LoginResponse>>(`${this.baseUrl}/login`, credenciales)
+      .pipe(catchError(this.handleError.handleError));
   }
 
   saveToken(token: string): void {

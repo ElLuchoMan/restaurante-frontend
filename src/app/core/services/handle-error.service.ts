@@ -3,10 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HandleErrorService {
-
   handleError(error: HttpErrorResponse): Observable<never> {
     const formattedError = {
       code: error.status,

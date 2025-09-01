@@ -1,18 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { environment } from '../../../../../environments/environment';
 import { CommonModule } from '@angular/common';
-import { DomicilioService } from '../../../../core/services/domicilio.service';
-import { estadoPago, metodoPago } from '../../../../shared/constants';
-import { ModalService } from '../../../../core/services/modal.service';
+import { Component, OnInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
+import { environment } from '../../../../../environments/environment';
 import { ClienteService } from '../../../../core/services/cliente.service';
+import { DomicilioService } from '../../../../core/services/domicilio.service';
+import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
+import { ModalService } from '../../../../core/services/modal.service';
 import { PagoService } from '../../../../core/services/pago.service';
-import { UserService } from '../../../../core/services/user.service';
-import { fechaDDMMYYYY_Bogota, horaHHMMSS_Bogota, fechaHoraDDMMYYYY_HHMMSS_Bogota, fechaYYYYMMDD_Bogota } from '../../../../shared/utils/dateHelper';
 import { PedidoService } from '../../../../core/services/pedido.service';
+import { UserService } from '../../../../core/services/user.service';
+import { estadoPago, metodoPago } from '../../../../shared/constants';
+import {
+  fechaHoraDDMMYYYY_HHMMSS_Bogota,
+  fechaYYYYMMDD_Bogota,
+  horaHHMMSS_Bogota
+} from '../../../../shared/utils/dateHelper';
 
 interface ProductoDetalleVM {
   nombre: string;
@@ -27,7 +31,7 @@ interface ProductoDetalleVM {
   standalone: true,
   templateUrl: './ruta-domicilio.component.html',
   styleUrls: ['./ruta-domicilio.component.scss'],
-  imports: [CommonModule]
+  imports: [CommonModule],
 })
 export class RutaDomicilioComponent implements OnInit {
   ubicacionUrl: SafeResourceUrl | undefined;
@@ -61,14 +65,14 @@ export class RutaDomicilioComponent implements OnInit {
     public router: Router,
     public modalService: ModalService,
     public toastrService: ToastrService,
-    private logger: LoggingService
-  ) { }
+    private logger: LoggingService,
+  ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       this.domicilioId = params['id'] ? +params['id'] : 0;
 
-      this.domicilioService.getDomicilioById(this.domicilioId).subscribe(response => {
+      this.domicilioService.getDomicilioById(this.domicilioId).subscribe((response) => {
         if (!response?.data) return;
 
         // Nombre cliente
@@ -85,12 +89,14 @@ export class RutaDomicilioComponent implements OnInit {
           cantidad: Number(x.CANTIDAD ?? x.cantidad ?? 0),
           precioUnitario: Number(x.PRECIO_UNITARIO ?? x.precioUnitario ?? x.PRECIO ?? 0),
           subtotal: Number(x.SUBTOTAL ?? x.subtotal ?? 0),
-          productoId: x.PK_ID_PRODUCTO ?? x.productoId
+          productoId: x.PK_ID_PRODUCTO ?? x.productoId,
         }));
 
         // Total
         const totalRaw = response.data?.pedido?.total;
-        this.totalPedido = Number(totalRaw ?? this.productos.reduce((s, p) => s + (p.subtotal || 0), 0));
+        this.totalPedido = Number(
+          totalRaw ?? this.productos.reduce((s, p) => s + (p.subtotal || 0), 0),
+        );
         this.pedidoId = Number(response.data?.pedido?.pedidoId ?? 0);
 
         this.logger.log(LogLevel.INFO, 'Detalle domicilio', response);
@@ -112,7 +118,7 @@ export class RutaDomicilioComponent implements OnInit {
     });
   }
 
-  /** 
+  /**
    * Parsea cadenas del tipo:
    *  - "Método pago: Daviplata - Observaciones: Test"
    *  - "Metodo pago: NEQUI"
@@ -130,7 +136,7 @@ export class RutaDomicilioComponent implements OnInit {
       const obs = (m[2] ?? '').trim();
       return {
         metodo,
-        observaciones: obs || (!metodo ? s : '')
+        observaciones: obs || (!metodo ? s : ''),
       };
     }
 
@@ -172,14 +178,13 @@ export class RutaDomicilioComponent implements OnInit {
       console.error('No se encontró el ID del domicilio.');
       return;
     }
-    this.domicilioService.updateDomicilio(this.domicilioId, { entregado: true })
-      .subscribe({
-        next: response => {
-          this.toastrService.success('Domicilio marcado como finalizado');
-          this.logger.log(LogLevel.INFO, 'Domicilio marcado como finalizado', response);
-        },
-        error: err => console.error('Error al marcar finalizado', err)
-      });
+    this.domicilioService.updateDomicilio(this.domicilioId, { entregado: true }).subscribe({
+      next: (response) => {
+        this.toastrService.success('Domicilio marcado como finalizado');
+        this.logger.log(LogLevel.INFO, 'Domicilio marcado como finalizado', response);
+      },
+      error: (err) => console.error('Error al marcar finalizado', err),
+    });
   }
 
   marcarPago(): void {
@@ -194,9 +199,9 @@ export class RutaDomicilioComponent implements OnInit {
         options: [
           { label: 'Nequi', value: 'NEQUI' },
           { label: 'Daviplata', value: 'DAVIPLATA' },
-          { label: 'Efectivo', value: 'EFECTIVO' }
+          { label: 'Efectivo', value: 'EFECTIVO' },
         ],
-        selected: this.obtenerMetodoPagoDefault()
+        selected: this.obtenerMetodoPagoDefault(),
       },
       buttons: [
         {
@@ -213,45 +218,53 @@ export class RutaDomicilioComponent implements OnInit {
 
             try {
               const ahora = new Date();
-              this.pagoService.createPago({
-                estadoPago: estadoPago.PAGADO,
-                fechaPago: fechaYYYYMMDD_Bogota(ahora),
-                horaPago: horaHHMMSS_Bogota(ahora),
-                metodoPagoId: this.devolverMetodoPago(metodoPagoSeleccionado),
-                monto: this.totalPedido,
-                pagoId: 0,
-                updatedAt: fechaHoraDDMMYYYY_HHMMSS_Bogota(ahora),
-                updatedBy: `${this.userService.getUserRole()} - ${this.userService.getUserId()}`,
-              }).subscribe({
-                next: (response) => {
-                  const pagoId = response?.data?.pagoId;
-                  this.logger.log(LogLevel.INFO, 'Pago creado:', pagoId);
-                  if (pagoId) {
-                    this.pedidoService.assignPago(this.pedidoId, pagoId).subscribe({
-                      next: () => this.toastrService.success('Pago asignado al domicilio'),
-                      error: (err) => this.logger.log(LogLevel.ERROR, 'Error al asignar pago:', err)
-                    });
-                  }
-                },
-                error: (err) => this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err)
-              });
-
+              this.pagoService
+                .createPago({
+                  estadoPago: estadoPago.PAGADO,
+                  fechaPago: fechaYYYYMMDD_Bogota(ahora),
+                  horaPago: horaHHMMSS_Bogota(ahora),
+                  metodoPagoId: this.devolverMetodoPago(metodoPagoSeleccionado),
+                  monto: this.totalPedido,
+                  pagoId: 0,
+                  updatedAt: fechaHoraDDMMYYYY_HHMMSS_Bogota(ahora),
+                  updatedBy: `${this.userService.getUserRole()} - ${this.userService.getUserId()}`,
+                })
+                .subscribe({
+                  next: (response) => {
+                    const pagoId = response?.data?.pagoId;
+                    this.logger.log(LogLevel.INFO, 'Pago creado:', pagoId);
+                    if (pagoId) {
+                      this.pedidoService.assignPago(this.pedidoId, pagoId).subscribe({
+                        next: () => this.toastrService.success('Pago asignado al domicilio'),
+                        error: (err) =>
+                          this.logger.log(LogLevel.ERROR, 'Error al asignar pago:', err),
+                      });
+                    }
+                  },
+                  error: (err) => this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err),
+                });
             } catch (error) {
               this.logger.log(LogLevel.ERROR, 'Error al crear pago:', error);
             }
 
-            this.domicilioService.updateDomicilio(this.domicilioId, {
-              estadoPago: estadoPago.PAGADO
-            }).subscribe(
-              () => this.toastrService.success('Domicilio marcado como pagado'),
-              () => this.toastrService.error('Error al marcar como pagado')
-            );
+            this.domicilioService
+              .updateDomicilio(this.domicilioId, {
+                estadoPago: estadoPago.PAGADO,
+              })
+              .subscribe(
+                () => this.toastrService.success('Domicilio marcado como pagado'),
+                () => this.toastrService.error('Error al marcar como pagado'),
+              );
 
             this.modalService.closeModal();
-          }
+          },
         },
-        { label: 'Cancelar', class: 'btn btn-danger', action: () => this.modalService.closeModal() }
-      ]
+        {
+          label: 'Cancelar',
+          class: 'btn btn-danger',
+          action: () => this.modalService.closeModal(),
+        },
+      ],
     });
   }
 
@@ -279,10 +292,14 @@ export class RutaDomicilioComponent implements OnInit {
 
   devolverMetodoPago(metodoPagoSeleccionado: string): number {
     switch (metodoPagoSeleccionado) {
-      case 'NEQUI': return metodoPago.Nequi.metodoPagoId;
-      case 'DAVIPLATA': return metodoPago.Daviplata.metodoPagoId;
-      case 'EFECTIVO': return metodoPago.Efectivo.metodoPagoId;
-      default: return 0;
+      case 'NEQUI':
+        return metodoPago.Nequi.metodoPagoId;
+      case 'DAVIPLATA':
+        return metodoPago.Daviplata.metodoPagoId;
+      case 'EFECTIVO':
+        return metodoPago.Efectivo.metodoPagoId;
+      default:
+        return 0;
     }
   }
 

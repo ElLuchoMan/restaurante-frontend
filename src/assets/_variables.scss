@@ -1,4 +1,4 @@
-@use "sass:color";
+@use 'sass:color';
 
 $blue: #007bff;
 $indigo: #6610f2;
@@ -29,8 +29,9 @@ $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 992px;
 $breakpoint-xl: 1200px;
-$font-family-sans-serif: "Poppins", sans-serif;
+$font-family-sans-serif: 'Poppins', sans-serif;
 $headings-color: $dark;
 $enable-responsive-font-sizes: true;
-$font-family-monospace: sfmono-regular, menlo, monaco, consolas, "Liberation Mono", "Courier New", monospace;
+$font-family-monospace: sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New',
+  monospace;
 $border-radius: 5px;

@@ -1,9 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { UserService } from '../../../core/services/user.service';
-import { ClienteService } from '../../../core/services/cliente.service';
 import { ToastrService } from 'ngx-toastr';
+import { ClienteService } from '../../../core/services/cliente.service';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-perfil',
@@ -28,22 +28,22 @@ export class PerfilComponent implements OnInit {
   constructor(
     private userService: UserService,
     private clienteService: ClienteService,
-    private toastr: ToastrService
-  ) { }
+    private toastr: ToastrService,
+  ) {}
 
   ngOnInit(): void {
     // Documento (ID) desde el JWT
     this.documento = this.userService.getUserId();
 
     // Si no hay documento en el token → sesión inválida
-      if (!this.documento) {
+    if (!this.documento) {
       this.router.navigate(['/login']);
       return;
     }
 
     // Nombre desde el JWT (mostrado en el encabezado)
     const tokenDecoded = this.userService.decodeToken();
-    this.nombre = tokenDecoded?.["nombre"] ?? 'Cliente';
+    this.nombre = tokenDecoded?.['nombre'] ?? 'Cliente';
 
     // Traer datos del cliente desde el API
     this.clienteService.getClienteId(this.documento).subscribe({
@@ -51,8 +51,7 @@ export class PerfilComponent implements OnInit {
         const data = response?.data ?? null;
         this.direccion = data?.direccion ?? 'No registrada';
         this.telefono = data?.telefono ?? 'No registrado';
-        this.observaciones =
-          data?.observaciones === 'Cliente frecuente' ? 'Cliente frecuente' : '';
+        this.observaciones = data?.observaciones === 'Cliente frecuente' ? 'Cliente frecuente' : '';
         this.correo = data?.correo ?? 'No registrado';
         this.cargando = false;
         this.errorCargando = false;

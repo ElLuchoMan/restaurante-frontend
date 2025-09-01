@@ -1,15 +1,15 @@
-import { ClienteService } from './../../../core/services/cliente.service';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { UserService } from '../../../core/services/user.service';
-import { Cliente } from '../../../shared/models/cliente.model';
-import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Trabajador } from '../../../shared/models/trabajador.model';
-import { Roles } from '../../../shared/constants';
-import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
 import { TrabajadorService } from '../../../core/services/trabajador.service';
+import { UserService } from '../../../core/services/user.service';
+import { Roles } from '../../../shared/constants';
+import { Cliente } from '../../../shared/models/cliente.model';
+import { Trabajador } from '../../../shared/models/trabajador.model';
+import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
+import { ClienteService } from './../../../core/services/cliente.service';
 
 @Component({
   selector: 'app-register',
@@ -20,7 +20,6 @@ import { TrabajadorService } from '../../../core/services/trabajador.service';
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {
-
   registerForm: FormGroup<{
     documento: FormControl<string>;
     nombre: FormControl<string>;
@@ -42,7 +41,10 @@ export class RegisterComponent implements OnInit {
     nombre: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     apellido: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     direccion: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    correo: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    correo: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
     password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     esTrabajador: new FormControl(false, { nonNullable: true }),
     sueldo: new FormControl<number | null>(null),
@@ -65,9 +67,8 @@ export class RegisterComponent implements OnInit {
     private clienteService: ClienteService,
     private toastr: ToastrService,
     private router: Router,
-    private formatDatePipe: FormatDatePipe
-  ) {
-  }
+    private formatDatePipe: FormatDatePipe,
+  ) {}
 
   ngOnInit(): void {
     const admin = this.isAdmin();
@@ -94,8 +95,19 @@ export class RegisterComponent implements OnInit {
         this.registerForm.get('horaEntrada')?.clearValidators();
         this.registerForm.get('horaSalida')?.clearValidators();
       }
-      ['direccion','correo','fechaNacimiento','nuevo','sueldo','rol','horaEntrada','horaSalida'].forEach(ctrl => {
-        this.registerForm.get(ctrl as keyof typeof this.registerForm.controls)?.updateValueAndValidity();
+      [
+        'direccion',
+        'correo',
+        'fechaNacimiento',
+        'nuevo',
+        'sueldo',
+        'rol',
+        'horaEntrada',
+        'horaSalida',
+      ].forEach((ctrl) => {
+        this.registerForm
+          .get(ctrl as keyof typeof this.registerForm.controls)
+          ?.updateValueAndValidity();
       });
     });
   }
@@ -108,7 +120,6 @@ export class RegisterComponent implements OnInit {
     return false;
   }
 
-
   get esTrabajador(): boolean {
     return this.registerForm.get('esTrabajador')?.value || false;
   }
@@ -118,7 +129,9 @@ export class RegisterComponent implements OnInit {
     const formattedFechaIngreso = this.formatDatePipe.transform(new Date());
 
     if (values.esTrabajador) {
-      const formattedFechaNacimiento = this.formatDatePipe.transform(new Date(values.fechaNacimiento));
+      const formattedFechaNacimiento = this.formatDatePipe.transform(
+        new Date(values.fechaNacimiento),
+      );
       const trabajador: Trabajador = {
         documentoTrabajador: Number(values.documento),
         nombre: values.nombre,
@@ -134,7 +147,7 @@ export class RegisterComponent implements OnInit {
         fechaNacimiento: formattedFechaNacimiento,
       };
       this.trabajadorService.registroTrabajador(trabajador).subscribe({
-        next: response => {
+        next: (response) => {
           if (response?.code === 201) {
             this.toastr.success(response?.message);
             this.router.navigate(['/']);
@@ -142,9 +155,9 @@ export class RegisterComponent implements OnInit {
             this.toastr.error(response?.message || 'Ocurrió un error desconocido', 'Error');
           }
         },
-        error: err => {
+        error: (err) => {
           this.toastr.error(err.message, 'Error');
-        }
+        },
       });
     } else {
       const cliente: Cliente = {
@@ -158,7 +171,7 @@ export class RegisterComponent implements OnInit {
         observaciones: values.observaciones,
       };
       this.clienteService.registroCliente(cliente).subscribe({
-        next: response => {
+        next: (response) => {
           if (response?.code === 201) {
             this.toastr.success('Cliente registrado con éxito');
             this.router.navigate(['/']);
@@ -166,9 +179,9 @@ export class RegisterComponent implements OnInit {
             this.toastr.error(response.message || 'Ocurrió un error', 'Error');
           }
         },
-        error: err => {
+        error: (err) => {
           this.toastr.error(err.message, 'Error');
-        }
+        },
       });
     }
   }

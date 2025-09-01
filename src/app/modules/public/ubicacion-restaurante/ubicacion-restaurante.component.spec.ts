@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { UbicacionRestauranteComponent } from './ubicacion-restaurante.component';
 import { Router } from '@angular/router';
-import { DomicilioService } from '../../../core/services/domicilio.service';
-import { ToastrService } from 'ngx-toastr';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ToastrService } from 'ngx-toastr';
+import { DomicilioService } from '../../../core/services/domicilio.service';
+import { UbicacionRestauranteComponent } from './ubicacion-restaurante.component';
 
 describe('UbicacionRestauranteComponent', () => {
   let component: UbicacionRestauranteComponent;
@@ -22,8 +22,8 @@ describe('UbicacionRestauranteComponent', () => {
       providers: [
         { provide: Router, useValue: routerMock },
         { provide: DomicilioService, useValue: domicilioServiceMock },
-        { provide: ToastrService, useValue: toastrMock }
-      ]
+        { provide: ToastrService, useValue: toastrMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UbicacionRestauranteComponent);
@@ -50,9 +50,12 @@ describe('UbicacionRestauranteComponent', () => {
     fixture.detectChanges();
     expect(component.ubicacionUrl).toBeTruthy();
     const safeUrl = component.ubicacionUrl as any;
-    expect(safeUrl.changingThisBreaksApplicationSecurity).toContain('https://www.google.com/maps/embed/v1/place');
-    expect(safeUrl.changingThisBreaksApplicationSecurity)
-      .toContain(encodeURIComponent('Calle 78a # 62 - 48, Bogotá, Colombia'));
+    expect(safeUrl.changingThisBreaksApplicationSecurity).toContain(
+      'https://www.google.com/maps/embed/v1/place',
+    );
+    expect(safeUrl.changingThisBreaksApplicationSecurity).toContain(
+      encodeURIComponent('Calle 78a # 62 - 48, Bogotá, Colombia'),
+    );
   });
   it('should set mostrarInfo to true after 500ms in ngAfterViewInit', fakeAsync(() => {
     component.ngAfterViewInit();
@@ -60,5 +63,4 @@ describe('UbicacionRestauranteComponent', () => {
     tick(500);
     expect(component.mostrarInfo).toBe(true);
   }));
-  
 });

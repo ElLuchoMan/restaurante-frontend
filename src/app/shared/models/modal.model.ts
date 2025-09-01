@@ -1,40 +1,40 @@
 export interface ModalButton {
-    label: string;
-    class?: string;
-    action: () => void;
+  label: string;
+  class?: string;
+  action: () => void;
 }
 
 export interface ModalSelectOption {
-    label: string;
-    value: any;
+  label: string;
+  value: any;
 }
 
 export interface ModalSelect {
-    label: string;
-    options: ModalSelectOption[];
-    selected: any;
+  label: string;
+  options: ModalSelectOption[];
+  selected: any;
 }
 
 export interface ModalInput {
-    label: string;
-    value: string;
+  label: string;
+  value: string;
 }
 
 export interface ModalDetails {
-    precio: number;
-    calorias?: number;
-    categoria?: string;
-    subcategoria?: string;
-    descripcion?: string;
+  precio: number;
+  calorias?: number;
+  categoria?: string;
+  subcategoria?: string;
+  descripcion?: string;
 }
 
 export interface ModalData {
-    title?: string;
-    image?: string;
-    message?: string;
-    details?: ModalDetails;
-    select?: ModalSelect;
-    selects?: ModalSelect[];
-    input?: ModalInput;
-    buttons?: ModalButton[];
+  title?: string;
+  image?: string;
+  message?: string;
+  details?: ModalDetails;
+  select?: ModalSelect;
+  selects?: ModalSelect[];
+  input?: ModalInput;
+  buttons?: ModalButton[];
 }

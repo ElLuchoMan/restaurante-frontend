@@ -1,12 +1,15 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReservasDelDiaComponent } from './reservas-del-dia.component';
-import { ReservaService } from '../../../../core/services/reserva.service';
-import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
-import { Reserva } from '../../../../shared/models/reserva.model';
-import { mockReservaResponse, mockReservasDelDiaResponse } from '../../../../shared/mocks/reserva.mocks';
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
+import { ReservaService } from '../../../../core/services/reserva.service';
+import {
+  mockReservaResponse,
+  mockReservasDelDiaResponse,
+} from '../../../../shared/mocks/reserva.mocks';
+import { Reserva } from '../../../../shared/models/reserva.model';
+import { ReservasDelDiaComponent } from './reservas-del-dia.component';
 
 describe('ReservasDelDiaComponent', () => {
   let component: ReservasDelDiaComponent;
@@ -18,16 +21,16 @@ describe('ReservasDelDiaComponent', () => {
   beforeEach(async () => {
     const reservaServiceMock = {
       getReservaByParameter: jest.fn(),
-      actualizarReserva: jest.fn()
+      actualizarReserva: jest.fn(),
     } as unknown as jest.Mocked<ReservaService>;
 
     const toastrMock = {
       success: jest.fn(),
-      error: jest.fn()
+      error: jest.fn(),
     } as unknown as jest.Mocked<ToastrService>;
 
     const loggingServiceMock = {
-      log: jest.fn()
+      log: jest.fn(),
     } as unknown as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
@@ -35,8 +38,8 @@ describe('ReservasDelDiaComponent', () => {
       providers: [
         { provide: ReservaService, useValue: reservaServiceMock },
         { provide: ToastrService, useValue: toastrMock },
-        { provide: LoggingService, useValue: loggingServiceMock }
-      ]
+        { provide: LoggingService, useValue: loggingServiceMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReservasDelDiaComponent);
@@ -72,9 +75,14 @@ describe('ReservasDelDiaComponent', () => {
     });
 
     it('should call toastr.error if getReservaByParameter fails', () => {
-      reservaService.getReservaByParameter.mockReturnValue(throwError(() => new Error('Error fetching reservas')));
+      reservaService.getReservaByParameter.mockReturnValue(
+        throwError(() => new Error('Error fetching reservas')),
+      );
       component.consultarReservasDelDia();
-      expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error al consultar las reservas del día', 'Error');
+      expect(toastr.error).toHaveBeenCalledWith(
+        'Ocurrió un error al consultar las reservas del día',
+        'Error',
+      );
     });
   });
 
@@ -82,37 +90,60 @@ describe('ReservasDelDiaComponent', () => {
     let reserva: Reserva;
     beforeEach(() => {
       reserva = { ...mockReservaResponse.data, reservaId: 1 };
-      reserva.fechaReserva = "06-02-2025";
+      reserva.fechaReserva = '06-02-2025';
     });
 
     it('should update reservation and show success for confirmarReserva', () => {
-      reservaService.actualizarReserva.mockReturnValue(of({ code: 200, message: 'Actualización exitosa', data: reserva }));
+      reservaService.actualizarReserva.mockReturnValue(
+        of({ code: 200, message: 'Actualización exitosa', data: reserva }),
+      );
 
       component.confirmarReserva(reserva);
 
-      const expectedReserva = { ...reserva, estadoReserva: 'CONFIRMADA', fechaReserva: '2025-02-06' };
+      const expectedReserva = {
+        ...reserva,
+        estadoReserva: 'CONFIRMADA',
+        fechaReserva: '2025-02-06',
+      };
       expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expectedReserva);
-      expect(toastr.success).toHaveBeenCalledWith('Reserva marcada como CONFIRMADA', 'Actualización Exitosa');
+      expect(toastr.success).toHaveBeenCalledWith(
+        'Reserva marcada como CONFIRMADA',
+        'Actualización Exitosa',
+      );
     });
 
     it('should update reservation and show success for cancelarReserva', () => {
-      reservaService.actualizarReserva.mockReturnValue(of({ code: 200, message: 'Actualización exitosa', data: reserva }));
+      reservaService.actualizarReserva.mockReturnValue(
+        of({ code: 200, message: 'Actualización exitosa', data: reserva }),
+      );
 
       component.cancelarReserva(reserva);
 
-      const expectedReserva = { ...reserva, estadoReserva: 'CANCELADA', fechaReserva: '2025-02-06' };
+      const expectedReserva = {
+        ...reserva,
+        estadoReserva: 'CANCELADA',
+        fechaReserva: '2025-02-06',
+      };
       expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expectedReserva);
-      expect(toastr.success).toHaveBeenCalledWith('Reserva marcada como CANCELADA', 'Actualización Exitosa');
+      expect(toastr.success).toHaveBeenCalledWith(
+        'Reserva marcada como CANCELADA',
+        'Actualización Exitosa',
+      );
     });
 
     it('should update reservation and show success for cumplirReserva', () => {
-      reservaService.actualizarReserva.mockReturnValue(of({ code: 200, message: 'Actualización exitosa', data: reserva }));
+      reservaService.actualizarReserva.mockReturnValue(
+        of({ code: 200, message: 'Actualización exitosa', data: reserva }),
+      );
 
       component.cumplirReserva(reserva);
 
       const expectedReserva = { ...reserva, estadoReserva: 'CUMPLIDA', fechaReserva: '2025-02-06' };
       expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expectedReserva);
-      expect(toastr.success).toHaveBeenCalledWith('Reserva marcada como CUMPLIDA', 'Actualización Exitosa');
+      expect(toastr.success).toHaveBeenCalledWith(
+        'Reserva marcada como CUMPLIDA',
+        'Actualización Exitosa',
+      );
     });
 
     it('should show error if reservaId is invalid in actualizarReserva', () => {
@@ -130,8 +161,10 @@ describe('ReservasDelDiaComponent', () => {
       component['actualizarReserva'](reserva);
 
       expect(loggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error:', errorResponse);
-      expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error al actualizar la reserva', 'Error');
+      expect(toastr.error).toHaveBeenCalledWith(
+        'Ocurrió un error al actualizar la reserva',
+        'Error',
+      );
     });
   });
-
 });

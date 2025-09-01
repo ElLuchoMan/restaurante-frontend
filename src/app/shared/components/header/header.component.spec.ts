@@ -1,10 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HeaderComponent } from './header.component';
-import { UserService } from '../../../core/services/user.service';
-import { Router } from '@angular/router';
-import { of } from 'rxjs';
 import { PLATFORM_ID } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { of } from 'rxjs';
+import { UserService } from '../../../core/services/user.service';
+import { HeaderComponent } from './header.component';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
@@ -23,8 +23,8 @@ describe('HeaderComponent', () => {
       imports: [HeaderComponent, RouterTestingModule],
       providers: [
         { provide: UserService, useValue: userServiceMock },
-        { provide: PLATFORM_ID, useValue: 'browser' }
-      ]
+        { provide: PLATFORM_ID, useValue: 'browser' },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HeaderComponent);
@@ -47,7 +47,7 @@ describe('HeaderComponent', () => {
 
     expect(component.userRole).toBeNull();
     const allMenu = [...component.menuLeft, ...component.menuRight];
-    expect(allMenu.some(item => item.label === 'Login')).toBe(true);
+    expect(allMenu.some((item) => item.label === 'Login')).toBe(true);
   });
 
   it('should generate menu for user "Cliente"', () => {
@@ -57,8 +57,8 @@ describe('HeaderComponent', () => {
 
     expect(component.userRole).toBe('Cliente');
     const allMenu = [...component.menuLeft, ...component.menuRight];
-    expect(allMenu.some(item => item.label === 'Perfil')).toBe(true);
-    expect(allMenu.some(item => item.label === 'Logout')).toBe(true);
+    expect(allMenu.some((item) => item.label === 'Perfil')).toBe(true);
+    expect(allMenu.some((item) => item.label === 'Logout')).toBe(true);
   });
 
   it('should generate menu for user "Administrador"', () => {
@@ -68,11 +68,11 @@ describe('HeaderComponent', () => {
 
     expect(component.userRole).toBe('Administrador');
     const allMenu = [...component.menuLeft, ...component.menuRight];
-    expect(allMenu.some(item => item.label === 'Registrar')).toBe(true);
-    expect(allMenu.some(item => item.label === 'Logout')).toBe(true);
-    expect(allMenu.some(item => item.label === 'Galería')).toBe(false);
-    expect(allMenu.some(item => item.label === 'Menú')).toBe(false);
-    expect(allMenu.some(item => item.label === 'Ubicación')).toBe(false);
+    expect(allMenu.some((item) => item.label === 'Registrar')).toBe(true);
+    expect(allMenu.some((item) => item.label === 'Logout')).toBe(true);
+    expect(allMenu.some((item) => item.label === 'Galería')).toBe(false);
+    expect(allMenu.some((item) => item.label === 'Menú')).toBe(false);
+    expect(allMenu.some((item) => item.label === 'Ubicación')).toBe(false);
   });
 
   it('should generate menu for user "Mesero"', () => {
@@ -82,8 +82,8 @@ describe('HeaderComponent', () => {
 
     expect(component.userRole).toBe('Mesero');
     const allMenu = [...component.menuLeft, ...component.menuRight];
-    expect(allMenu.some(item => item.label === 'Pedidos')).toBe(true);
-    expect(allMenu.some(item => item.label === 'Logout')).toBe(true);
+    expect(allMenu.some((item) => item.label === 'Pedidos')).toBe(true);
+    expect(allMenu.some((item) => item.label === 'Logout')).toBe(true);
   });
 
   it('should generate menu for user "Domiciliario"', () => {
@@ -93,21 +93,33 @@ describe('HeaderComponent', () => {
 
     expect(component.userRole).toBe('Domiciliario');
     const allMenu = [...component.menuLeft, ...component.menuRight];
-    expect(allMenu.some(item => item.label === 'Logout')).toBe(true);
+    expect(allMenu.some((item) => item.label === 'Logout')).toBe(true);
   });
 
   it('should update imagenVisible based on screen width and total menu items', () => {
-    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1300,
+    });
     component.menuLeft = [{ label: 'Item1', route: '/item1', priority: 1 }];
     component.menuRight = [{ label: 'Item2', route: '/item2', priority: 2 }];
     component.checkScreenSize();
     expect(component.imagenVisible).toBe(false);
 
-    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1000 });
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1000,
+    });
     component.checkScreenSize();
     expect(component.imagenVisible).toBe(true);
 
-    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1300,
+    });
     component.menuLeft = new Array(4).fill({ label: 'Item', route: '/item', priority: 1 });
     component.menuRight = new Array(3).fill({ label: 'Item', route: '/item', priority: 1 });
     component.checkScreenSize();
@@ -141,7 +153,7 @@ describe('HeaderComponent', () => {
     getElementSpy.mockRestore();
     document.body.removeChild(fakeNavbar);
   });
-  
+
   it('should do nothing when navbar exists but does not have "show" class', () => {
     const fakeNavbar = document.createElement('div');
     fakeNavbar.id = 'navbarCollapse';
@@ -150,7 +162,7 @@ describe('HeaderComponent', () => {
     expect(fakeNavbar.classList.contains('show')).toBe(false);
     document.body.removeChild(fakeNavbar);
   });
-  
+
   it('should not throw an error when navbar element does not exist', () => {
     const existing = document.getElementById('navbarCollapse');
     if (existing) {

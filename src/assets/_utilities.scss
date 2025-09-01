@@ -1,7 +1,7 @@
 @use 'variables' as *;
 
 .text-monospace {
-  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
 }
 
 .text-justify {
@@ -280,7 +280,7 @@ a.text-dark {
   }
 
   abbr[title]::after {
-    content: " (" attr(title) ")";
+    content: ' (' attr(title) ')';
   }
 
   pre {
@@ -347,7 +347,7 @@ a.text-dark {
     th,
     td,
     thead th,
-    tbody+tbody {
+    tbody + tbody {
       border-color: #dee2e6;
     }
   }
@@ -494,7 +494,7 @@ h3 {
 
 .nav-bar::before {
   background: var(--tertiary);
-  content: "";
+  content: '';
   height: 50%;
   left: 0;
   position: absolute;
@@ -539,9 +539,7 @@ h3 {
 }
 
 .page-header {
-  background:
-    linear-gradient(rgb(0 0 0 / 30%), rgb(0 0 0 / 30%)),
-    url("./img/header.jpg"),
+  background: linear-gradient(rgb(0 0 0 / 30%), rgb(0 0 0 / 30%)), url('./img/header.jpg'),
     no-repeat center center;
   background-size: cover;
 }
@@ -549,7 +547,7 @@ h3 {
 .section-title {
   &::before {
     background: var(--primary);
-    content: "";
+    content: '';
     height: 5px;
     left: 0;
     position: absolute;
@@ -559,7 +557,7 @@ h3 {
 
   &::after {
     background: var(--primary);
-    content: "";
+    content: '';
     height: 1px;
     left: 0;
     position: absolute;
@@ -593,7 +591,7 @@ h3 {
     animation: pulse-border 1500ms ease-out infinite;
     background: var(--white);
     border-radius: 100%;
-    content: "";
+    content: '';
     display: block;
     height: 100px;
     left: 50%;
@@ -607,7 +605,7 @@ h3 {
   &::after {
     background: var(--white);
     border-radius: 100%;
-    content: "";
+    content: '';
     display: block;
     height: 100px;
     left: 50%;
@@ -710,7 +708,7 @@ h3 {
     &::before {
       background: var(--primary);
       border-radius: 150px;
-      content: "";
+      content: '';
       inset: 15px 0 -15px;
       position: absolute;
       z-index: -1;
@@ -749,7 +747,7 @@ h3 {
 .portfolio-item {
   &::after {
     border: 2px solid var(--white);
-    content: "";
+    content: '';
     inset: 30px;
     position: absolute;
     z-index: 1;
@@ -796,7 +794,7 @@ h3 {
     &::after {
       border: 2px solid var(--primary);
       border-radius: 200px;
-      content: "";
+      content: '';
       inset: 15px;
       position: absolute;
       transition: 0.5s;
@@ -857,7 +855,7 @@ h3 {
     &::after {
       border: 2px solid var(--primary);
       border-radius: 20px;
-      content: "";
+      content: '';
       inset: -5px;
       position: absolute;
     }
@@ -880,13 +878,13 @@ h3 {
   }
 }
 
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
   appearance: none;
   margin: 0;
 }
 
-input[type="number"] {
+input[type='number'] {
   appearance: textfield;
 }
 
@@ -986,16 +984,14 @@ label {
   font-weight: bold;
   gap: 8px;
   padding: 5px 10px;
-  transition:
-    color 0.3s ease,
-    transform 0.2s ease;
+  transition: color 0.3s ease, transform 0.2s ease;
   user-select: none;
 
-    &:hover {
-      color: var(--primary-dark);
-      transform: translateX(-3px);
-    }
+  &:hover {
+    color: var(--primary-dark);
+    transform: translateX(-3px);
   }
+}
 
 .volver-icon {
   font-size: 22px;

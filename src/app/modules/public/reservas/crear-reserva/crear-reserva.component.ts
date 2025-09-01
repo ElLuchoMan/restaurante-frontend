@@ -1,15 +1,15 @@
-import { ClienteService } from './../../../../core/services/cliente.service';
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
+import { TrabajadorService } from '../../../../core/services/trabajador.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { Reserva } from '../../../../shared/models/reserva.model';
-import { TrabajadorService } from '../../../../core/services/trabajador.service';
-import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
+import { ClienteService } from './../../../../core/services/cliente.service';
 
 @Component({
   selector: 'app-reserva',
@@ -43,13 +43,13 @@ export class CrearReservaComponent implements OnInit {
     private clienteService: ClienteService,
     private toastr: ToastrService,
     private router: Router,
-    private logger: LoggingService
-  ) { }
+    private logger: LoggingService,
+  ) {}
 
   ngOnInit(): void {
     this.rol = this.userService.getUserRole() || null;
     this.esAdmin = this.rol === 'Administrador';
-    this.rol === 'Cliente' ? this.mostrarCampo = false : this.mostrarCampo = true;
+    this.rol === 'Cliente' ? (this.mostrarCampo = false) : (this.mostrarCampo = true);
   }
 
   onSubmit(): void {
@@ -68,7 +68,7 @@ export class CrearReservaComponent implements OnInit {
         error: () => {
           this.nombreTrabajador = 'Administrador Desconocido';
           this.crearReserva(timestamp, userRole, userId);
-        }
+        },
       });
     } else if (userRole === 'Cliente') {
       this.clienteService.getClienteId(this.userId).subscribe({
@@ -81,17 +81,16 @@ export class CrearReservaComponent implements OnInit {
         error: () => {
           this.nombreCompleto = 'Cliente Desconocido';
           this.crearReserva(timestamp, userRole, userId);
-        }
+        },
       });
       this.crearReserva(timestamp, userRole, userId);
-    }
-    else {
+    } else {
       this.crearReserva(timestamp, userRole, userId);
     }
   }
 
   checkPersonas(): void {
-    if (this.personas === "5+") {
+    if (this.personas === '5+') {
       this.mostrarInputPersonas = true;
       this.mostrarInfoEvento = true;
     } else {
@@ -100,7 +99,7 @@ export class CrearReservaComponent implements OnInit {
     }
   }
   private crearReserva(timestamp: string, userRole: string | null, userId: number | null): void {
-    const totalPersonas = this.personas === "5+" ? this.personasExtra : Number(this.personas);
+    const totalPersonas = this.personas === '5+' ? this.personasExtra : Number(this.personas);
     if (this.horaReserva.length === 5) {
       this.horaReserva = `${this.horaReserva}:00`;
     }
@@ -111,15 +110,22 @@ export class CrearReservaComponent implements OnInit {
     const reserva: Reserva = {
       createdAt: timestamp,
       updatedAt: timestamp,
-      createdBy: userRole === 'Administrador'
-        ? `${this.rol} - ${this.nombreTrabajador}`
-        : userRole ? `Cliente - ${this.nombreCompleto}` : 'Anónimo',
-      updatedBy: userRole === 'Administrador'
-        ? `${this.rol} - ${this.nombreTrabajador}`
-        : userRole ? `Cliente - ${this.nombreCompleto}` : 'Anónimo',
-      documentoCliente: userRole === 'Administrador'
-        ? Number(userId)
-        : userRole === 'Cliente'
+      createdBy:
+        userRole === 'Administrador'
+          ? `${this.rol} - ${this.nombreTrabajador}`
+          : userRole
+          ? `Cliente - ${this.nombreCompleto}`
+          : 'Anónimo',
+      updatedBy:
+        userRole === 'Administrador'
+          ? `${this.rol} - ${this.nombreTrabajador}`
+          : userRole
+          ? `Cliente - ${this.nombreCompleto}`
+          : 'Anónimo',
+      documentoCliente:
+        userRole === 'Administrador'
+          ? Number(userId)
+          : userRole === 'Cliente'
           ? Number(userId)
           : Number(this.documentoCliente),
       estadoReserva: estadoReserva.PENDIENTE,
@@ -127,7 +133,7 @@ export class CrearReservaComponent implements OnInit {
       horaReserva: this.horaReserva,
       indicaciones: this.indicaciones,
       nombreCompleto: this.nombreCompleto,
-      personas: this.personas === "5+" ? this.personasExtra : Number(this.personas),
+      personas: this.personas === '5+' ? this.personasExtra : Number(this.personas),
       telefono: this.telefono,
     };
     this.reservaService.crearReserva(reserva).subscribe({
@@ -138,8 +144,7 @@ export class CrearReservaComponent implements OnInit {
       error: (error) => {
         this.logger.log(LogLevel.ERROR, 'Error al crear la reserva', error);
         this.toastr.error(error.message, 'Error');
-      }
+      },
     });
   }
-
 }

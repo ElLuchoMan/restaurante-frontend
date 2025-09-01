@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { DomicilioService } from '../../../../core/services/domicilio.service';
-import { Domicilio } from '../../../../shared/models/domicilio.model';
-import { UserService } from '../../../../core/services/user.service';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { DomicilioService } from '../../../../core/services/domicilio.service';
+import { UserService } from '../../../../core/services/user.service';
+import { Domicilio } from '../../../../shared/models/domicilio.model';
 
 @Component({
   selector: 'app-tomar-domicilio',
   standalone: true,
   templateUrl: './tomar-domicilio.component.html',
   styleUrls: ['./tomar-domicilio.component.scss'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
 })
 export class TomarDomicilioComponent implements OnInit {
   domicilios: Domicilio[] = [];
@@ -22,8 +22,8 @@ export class TomarDomicilioComponent implements OnInit {
   constructor(
     private domicilioService: DomicilioService,
     private userService: UserService,
-    private router: Router
-  ) { }
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.trabajadorId = this.userService.getUserId();
@@ -37,11 +37,12 @@ export class TomarDomicilioComponent implements OnInit {
 
     const params = { trabajador: this.trabajadorId, fecha: today };
 
-    this.domicilioService.getDomicilios(params).subscribe(response => {
+    this.domicilioService.getDomicilios(params).subscribe((response) => {
       if (response.code === 200) {
-        this.domicilios = response.data.filter(domicilio =>
-          !domicilio.entregado &&
-          (!domicilio.trabajadorAsignado || domicilio.trabajadorAsignado === this.trabajadorId)
+        this.domicilios = response.data.filter(
+          (domicilio) =>
+            !domicilio.entregado &&
+            (!domicilio.trabajadorAsignado || domicilio.trabajadorAsignado === this.trabajadorId),
         );
       } else {
         this.mostrarMensaje = true;
@@ -53,8 +54,9 @@ export class TomarDomicilioComponent implements OnInit {
   tomarDomicilio(domicilio: Domicilio): void {
     if (!this.trabajadorId) return;
 
-    this.domicilioService.asignarDomiciliario(domicilio.domicilioId!, this.trabajadorId)
-      .subscribe(response => {
+    this.domicilioService
+      .asignarDomiciliario(domicilio.domicilioId!, this.trabajadorId)
+      .subscribe((response) => {
         if (response.code === 200 && this.trabajadorId !== null) {
           domicilio.trabajadorAsignado = this.trabajadorId;
         }
@@ -67,8 +69,8 @@ export class TomarDomicilioComponent implements OnInit {
         direccion: domicilio.direccion,
         telefono: domicilio.telefono,
         observaciones: domicilio.observaciones || null,
-        id: domicilio.domicilioId
-      }
+        id: domicilio.domicilioId,
+      },
     });
   }
 }

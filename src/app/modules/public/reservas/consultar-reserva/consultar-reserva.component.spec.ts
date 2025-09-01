@@ -1,22 +1,20 @@
+import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ConsultarReservaComponent } from './consultar-reserva.component';
-import { ReservaService } from '../../../../core/services/reserva.service';
+import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { ApiResponse } from '../../../../shared/models/api-response.model';
-import { Reserva } from '../../../../shared/models/reserva.model';
+import { LoggingService } from '../../../../core/services/logging.service';
+import { ReservaService } from '../../../../core/services/reserva.service';
+import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import {
   mockReserva,
-  mockReservaResponse,
-  mockReservasDelDiaResponse,
-  mockReservaUpdateResponse,
   mockReservasUnordered,
+  mockReservaUpdateResponse
 } from '../../../../shared/mocks/reserva.mocks';
-import { UserService } from '../../../../core/services/user.service';
-import { LoggingService } from '../../../../core/services/logging.service';
+import { ApiResponse } from '../../../../shared/models/api-response.model';
+import { Reserva } from '../../../../shared/models/reserva.model';
+import { ConsultarReservaComponent } from './consultar-reserva.component';
 
 describe('ConsultarReservaComponent', () => {
   let component: ConsultarReservaComponent;
@@ -29,13 +27,13 @@ describe('ConsultarReservaComponent', () => {
   beforeEach(async () => {
     const reservaServiceMock = {
       getReservaByParameter: jest.fn(),
-      actualizarReserva: jest.fn()
+      actualizarReserva: jest.fn(),
     } as unknown as jest.Mocked<ReservaService>;
 
     const toastrMock = {
       success: jest.fn(),
       warning: jest.fn(),
-      error: jest.fn()
+      error: jest.fn(),
     } as unknown as jest.Mocked<ToastrService>;
 
     const userServiceMock = {
@@ -44,7 +42,7 @@ describe('ConsultarReservaComponent', () => {
     } as unknown as jest.Mocked<UserService>;
 
     const loggingServiceMock = {
-      log: jest.fn()
+      log: jest.fn(),
     } as unknown as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
@@ -81,7 +79,10 @@ describe('ConsultarReservaComponent', () => {
 
   it('should show warning if no search criteria is selected', () => {
     component.buscarReserva();
-    expect(toastr.warning).toHaveBeenCalledWith('Selecciona al menos un criterio de búsqueda', 'Atención');
+    expect(toastr.warning).toHaveBeenCalledWith(
+      'Selecciona al menos un criterio de búsqueda',
+      'Atención',
+    );
   });
 
   it('should show warning if document is required but missing', () => {
@@ -106,7 +107,9 @@ describe('ConsultarReservaComponent', () => {
   });
 
   it('should call reservaService.getReservaByParameter with correct params', () => {
-    reservaService.getReservaByParameter.mockReturnValue(of({ code: 200, message: 'Reservas obtenidas con éxito', data: [mockReserva] }));
+    reservaService.getReservaByParameter.mockReturnValue(
+      of({ code: 200, message: 'Reservas obtenidas con éxito', data: [mockReserva] }),
+    );
 
     component.buscarPorDocumento = true;
     component.documentoCliente = '123456';
@@ -135,38 +138,56 @@ describe('ConsultarReservaComponent', () => {
 
     component.confirmarReserva(mockReserva);
 
-    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expect.objectContaining({ estadoReserva: estadoReserva.CONFIRMADA }));
-    expect(toastr.success).toHaveBeenCalledWith('Reserva marcada como CONFIRMADA', 'Actualización Exitosa');
+    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({ estadoReserva: estadoReserva.CONFIRMADA }),
+    );
+    expect(toastr.success).toHaveBeenCalledWith(
+      'Reserva marcada como CONFIRMADA',
+      'Actualización Exitosa',
+    );
   });
 
   it('should cancel a reservation and update its status', () => {
     const mockUpdateResponse: ApiResponse<Reserva> = {
       code: 200,
       message: 'Reserva actualizada con éxito',
-      data: mockReserva
+      data: mockReserva,
     };
 
     reservaService.actualizarReserva.mockReturnValue(of(mockUpdateResponse));
 
     component.cancelarReserva(mockReserva);
 
-    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expect.objectContaining({ estadoReserva: 'CANCELADA' }));
-    expect(toastr.success).toHaveBeenCalledWith('Reserva marcada como CANCELADA', 'Actualización Exitosa');
+    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({ estadoReserva: 'CANCELADA' }),
+    );
+    expect(toastr.success).toHaveBeenCalledWith(
+      'Reserva marcada como CANCELADA',
+      'Actualización Exitosa',
+    );
   });
 
   it('should fulfill a reservation and update its status', () => {
     const mockUpdateResponse: ApiResponse<Reserva> = {
       code: 200,
       message: 'Reserva actualizada con éxito',
-      data: mockReserva
+      data: mockReserva,
     };
 
     reservaService.actualizarReserva.mockReturnValue(of(mockUpdateResponse));
 
     component.cumplirReserva(mockReserva);
 
-    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expect.objectContaining({ estadoReserva: 'CUMPLIDA' }));
-    expect(toastr.success).toHaveBeenCalledWith('Reserva marcada como CUMPLIDA', 'Actualización Exitosa');
+    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({ estadoReserva: 'CUMPLIDA' }),
+    );
+    expect(toastr.success).toHaveBeenCalledWith(
+      'Reserva marcada como CUMPLIDA',
+      'Actualización Exitosa',
+    );
   });
 
   it('should show error if updating a reservation fails', () => {
@@ -184,7 +205,9 @@ describe('ConsultarReservaComponent', () => {
   });
 
   it('should sort reservations by date (desc) and time (desc)', () => {
-    reservaService.getReservaByParameter.mockReturnValue(of({ code: 200, message: 'Reservas obtenidas', data: mockReservasUnordered }));
+    reservaService.getReservaByParameter.mockReturnValue(
+      of({ code: 200, message: 'Reservas obtenidas', data: mockReservasUnordered }),
+    );
 
     component.buscarPorDocumento = true;
     component.documentoCliente = '123456';
@@ -192,19 +215,20 @@ describe('ConsultarReservaComponent', () => {
 
     expect(reservaService.getReservaByParameter).toHaveBeenCalledWith(123456, undefined);
 
-    expect(component.reservas.map(r => ({ fecha: r.fechaReserva, hora: r.horaReserva })))
-      .toEqual([
+    expect(component.reservas.map((r) => ({ fecha: r.fechaReserva, hora: r.horaReserva }))).toEqual(
+      [
         { fecha: '02-01-2025', hora: '16:00' },
         { fecha: '01-01-2025', hora: '18:00' },
-        { fecha: '01-01-2025', hora: '14:00' }
-      ]);
+        { fecha: '01-01-2025', hora: '14:00' },
+      ],
+    );
   });
 
   it('should initialize as non-admin and load reservations', () => {
     userService.getUserRole.mockReturnValue('Cliente');
     userService.getUserId.mockReturnValue(123456);
     reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] })
+      of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] }),
     );
 
     component.ngOnInit();
@@ -237,7 +261,7 @@ describe('ConsultarReservaComponent', () => {
     component.buscarPorFecha = false;
     component.documentoCliente = '';
     reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] })
+      of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] }),
     );
 
     component.buscarReserva();
@@ -253,7 +277,7 @@ describe('ConsultarReservaComponent', () => {
     component.buscarPorFecha = false;
     component.documentoCliente = '';
     reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] })
+      of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] }),
     );
 
     component.buscarReserva();

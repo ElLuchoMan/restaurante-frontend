@@ -8,7 +8,7 @@ import { UserService } from '../../../../core/services/user.service';
   standalone: true,
   templateUrl: './menu-reservas.component.html',
   styleUrls: ['./menu-reservas.component.scss'],
-  imports: [RouterOutlet, CommonModule]
+  imports: [RouterOutlet, CommonModule],
 })
 export class MenuReservasComponent implements OnInit {
   mostrarMenu: boolean = true;
@@ -16,7 +16,7 @@ export class MenuReservasComponent implements OnInit {
   esAdmin: boolean = false;
 
   constructor(private router: Router, private userService: UserService) {
-    this.router.events.subscribe(event => {
+    this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects.split('?')[0];
         this.mostrarMenu = url === '/reservas' || url === '/reservas/';

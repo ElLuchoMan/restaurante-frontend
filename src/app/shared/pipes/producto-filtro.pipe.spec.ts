@@ -1,5 +1,5 @@
-import { ProductoFiltroPipe } from './producto-filtro.pipe';
 import { Producto } from '../models/producto.model';
+import { ProductoFiltroPipe } from './producto-filtro.pipe';
 
 describe('ProductoFiltroPipe', () => {
   let pipe: ProductoFiltroPipe;
@@ -94,10 +94,6 @@ describe('ProductoFiltroPipe', () => {
   });
 
   it('should filter by calorias range', () => {
-    expect(pipe.transform(productos, '', '', '', 100, 300)).toEqual([
-      productos[1],
-      productos[2],
-    ]);
+    expect(pipe.transform(productos, '', '', '', 100, 300)).toEqual([productos[1], productos[2]]);
   });
 });
-

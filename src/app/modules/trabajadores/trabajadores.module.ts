@@ -1,15 +1,10 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { trabajadoresRoutes } from './trabajadores.routes';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-
-
+import { trabajadoresRoutes } from './trabajadores.routes';
 
 @NgModule({
   declarations: [],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(trabajadoresRoutes),
-  ]
+  imports: [CommonModule, RouterModule.forChild(trabajadoresRoutes)],
 })
-export class TrabajadoresModule { }
+export class TrabajadoresModule {}

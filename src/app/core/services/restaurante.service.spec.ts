@@ -1,11 +1,14 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
 
-import { RestauranteService } from './restaurante.service';
+import {
+  mockCambioHorarioResponse,
+  mockRestaurantesResponse,
+} from '../../shared/mocks/restaurante.mock';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Restaurante } from '../../shared/models/restaurante.model';
 import { CambioHorario } from '../../shared/models/cambio-horario.model';
-import { mockCambioHorarioResponse, mockRestaurantesResponse } from '../../shared/mocks/restaurante.mock';
+import { Restaurante } from '../../shared/models/restaurante.model';
+import { RestauranteService } from './restaurante.service';
 
 describe('RestauranteService', () => {
   let service: RestauranteService;

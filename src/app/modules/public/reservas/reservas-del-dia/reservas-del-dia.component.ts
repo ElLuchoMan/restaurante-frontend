@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReservaService } from '../../../../core/services/reserva.service';
-import { Reserva } from '../../../../shared/models/reserva.model';
+import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { estadoReserva } from '../../../../shared/constants';
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
+import { ReservaService } from '../../../../core/services/reserva.service';
+import { estadoReserva } from '../../../../shared/constants';
+import { Reserva } from '../../../../shared/models/reserva.model';
 
 @Component({
   selector: 'app-reservas-del-dia',
@@ -17,7 +17,11 @@ export class ReservasDelDiaComponent implements OnInit {
   reservas: Reserva[] = [];
   fechaHoy: string = '';
 
-  constructor(private reservaService: ReservaService, private toastr: ToastrService, private logger: LoggingService) { }
+  constructor(
+    private reservaService: ReservaService,
+    private toastr: ToastrService,
+    private logger: LoggingService,
+  ) {}
 
   ngOnInit(): void {
     this.consultarReservasDelDia();
@@ -38,11 +42,10 @@ export class ReservasDelDiaComponent implements OnInit {
           const horaB = new Date(`1970-01-01T${b.horaReserva}`);
           return horaA.getTime() - horaB.getTime();
         });
-
       },
       error: () => {
         this.toastr.error('Ocurrió un error al consultar las reservas del día', 'Error');
-      }
+      },
     });
   }
 
@@ -69,12 +72,15 @@ export class ReservasDelDiaComponent implements OnInit {
 
     this.reservaService.actualizarReserva(Number(reserva.reservaId), reserva).subscribe({
       next: () => {
-        this.toastr.success(`Reserva marcada como ${reserva.estadoReserva}`, 'Actualización Exitosa');
+        this.toastr.success(
+          `Reserva marcada como ${reserva.estadoReserva}`,
+          'Actualización Exitosa',
+        );
       },
       error: (error) => {
         this.logger.log(LogLevel.ERROR, 'Error:', error);
         this.toastr.error('Ocurrió un error al actualizar la reserva', 'Error');
-      }
+      },
     });
   }
 }

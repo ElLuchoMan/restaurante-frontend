@@ -1,10 +1,10 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Producto } from '../../shared/models/producto.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CartService {
   private readonly storageKey = 'carrito';
@@ -58,7 +58,7 @@ export class CartService {
   /** Agrega un producto (aumenta cantidad si ya existe) */
   addToCart(product: Producto): void {
     const items = [...this.items$.value];
-    const idx = items.findIndex(p => p.productoId === product.productoId);
+    const idx = items.findIndex((p) => p.productoId === product.productoId);
     if (idx > -1) {
       items[idx].cantidad = (items[idx].cantidad || 1) + 1;
     } else {
@@ -71,19 +71,19 @@ export class CartService {
   /** Cambia la cantidad de un producto; si llega a 0 lo elimina */
   changeQty(productId: number, delta: number): void {
     const items = this.items$.value
-      .map(p => {
+      .map((p) => {
         if (p.productoId === productId) {
           return { ...p, cantidad: (p.cantidad || 1) + delta };
         }
         return p;
       })
-      .filter(p => (p.cantidad || 0) > 0);
+      .filter((p) => (p.cantidad || 0) > 0);
     this.saveCart(items);
   }
 
   /** Elimina por completo un producto del carrito */
   remove(productId: number): void {
-    const items = this.items$.value.filter(p => p.productoId !== productId);
+    const items = this.items$.value.filter((p) => p.productoId !== productId);
     this.saveCart(items);
   }
 

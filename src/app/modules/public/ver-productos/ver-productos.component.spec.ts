@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
-import { VerProductosComponent } from './ver-productos.component';
-import { ProductoService } from '../../../core/services/producto.service';
-import { UserService } from '../../../core/services/user.service';
-import { ModalService } from '../../../core/services/modal.service';
 import { Router } from '@angular/router';
 import { CartService } from '../../../core/services/cart.service';
+import { ModalService } from '../../../core/services/modal.service';
+import { ProductoService } from '../../../core/services/producto.service';
+import { UserService } from '../../../core/services/user.service';
 import { Producto } from '../../../shared/models/producto.model';
+import { VerProductosComponent } from './ver-productos.component';
 
 describe('VerProductosComponent', () => {
   let component: VerProductosComponent;
@@ -26,7 +26,7 @@ describe('VerProductosComponent', () => {
       cantidad: 1,
       categoria: 'Bebidas',
       subcategoria: 'Gaseosas',
-      calorias: 100
+      calorias: 100,
     },
     {
       productoId: 2,
@@ -35,14 +35,14 @@ describe('VerProductosComponent', () => {
       cantidad: 1,
       categoria: 'Comidas',
       subcategoria: 'Entradas',
-      calorias: 200
+      calorias: 200,
     },
     {
       productoId: 3,
       nombre: 'Agua',
       precio: 5,
-      cantidad: 1
-    }
+      cantidad: 1,
+    },
   ];
 
   beforeEach(async () => {
@@ -59,8 +59,8 @@ describe('VerProductosComponent', () => {
         { provide: UserService, useValue: userService },
         { provide: ModalService, useValue: modalService },
         { provide: Router, useValue: router },
-        { provide: CartService, useValue: cartService }
-      ]
+        { provide: CartService, useValue: cartService },
+      ],
     }).compileComponents();
   });
 
@@ -229,4 +229,3 @@ describe('VerProductosComponent', () => {
     expect(args.details.calorias).toBeUndefined();
   });
 });
-

@@ -1,5 +1,12 @@
+import {
+  DomSanitizer,
+  SafeHtml,
+  SafeResourceUrl,
+  SafeScript,
+  SafeStyle,
+  SafeUrl,
+} from '@angular/platform-browser';
 import { SafePipe } from './safe.pipe';
-import { DomSanitizer, SafeHtml, SafeStyle, SafeScript, SafeUrl, SafeResourceUrl } from '@angular/platform-browser';
 
 describe('SafePipe', () => {
   let pipe: SafePipe;
@@ -11,8 +18,10 @@ describe('SafePipe', () => {
       bypassSecurityTrustStyle: jest.fn().mockReturnValue('safeStyle' as unknown as SafeStyle),
       bypassSecurityTrustScript: jest.fn().mockReturnValue('safeScript' as unknown as SafeScript),
       bypassSecurityTrustUrl: jest.fn().mockReturnValue('safeUrl' as unknown as SafeUrl),
-      bypassSecurityTrustResourceUrl: jest.fn().mockReturnValue('safeResourceUrl' as unknown as SafeResourceUrl),
-      sanitize: jest.fn()
+      bypassSecurityTrustResourceUrl: jest
+        .fn()
+        .mockReturnValue('safeResourceUrl' as unknown as SafeResourceUrl),
+      sanitize: jest.fn(),
     } as unknown as DomSanitizer;
 
     pipe = new SafePipe(sanitizer);
@@ -55,6 +64,8 @@ describe('SafePipe', () => {
 
   it('should throw an error when an invalid type is specified', () => {
     const value = 'test';
-    expect(() => pipe.transform(value, 'invalidType')).toThrowError('Invalid safe type specified: invalidType');
+    expect(() => pipe.transform(value, 'invalidType')).toThrowError(
+      'Invalid safe type specified: invalidType',
+    );
   });
 });

@@ -1,9 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MenuReservasComponent } from './menu-reservas.component';
-import { Router, NavigationEnd } from '@angular/router';
-import { UserService } from '../../../../core/services/user.service';
-import { Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NavigationEnd, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { UserService } from '../../../../core/services/user.service';
+import { MenuReservasComponent } from './menu-reservas.component';
 
 describe('MenuReservasComponent', () => {
   let component: MenuReservasComponent;
@@ -117,4 +117,3 @@ describe('MenuReservasComponent', () => {
     });
   });
 });
-

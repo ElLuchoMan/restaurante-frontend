@@ -1,8 +1,8 @@
 export interface LoginResponse {
-    token: string;
-    nombre: string;
+  token: string;
+  nombre: string;
 }
 export interface Login {
-    documento: string;
-    password: string;
+  documento: string;
+  password: string;
 }

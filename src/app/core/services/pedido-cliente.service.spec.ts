@@ -1,24 +1,24 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { PedidoClienteService } from './pedido-cliente.service';
+import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { HandleErrorService } from './handle-error.service';
+import { PedidoClienteService } from './pedido-cliente.service';
 
 describe('PedidoClienteService', () => {
   let service: PedidoClienteService;
   let http: HttpTestingController;
   const baseUrl = `${environment.apiUrl}/pedido_clientes`;
   const mockHandleErrorService = {
-    handleError: jest.fn((error: any) => { throw error; })
+    handleError: jest.fn((error: any) => {
+      throw error;
+    }),
   };
 
   beforeEach(() => {
     mockHandleErrorService.handleError.mockReset();
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [
-        { provide: HandleErrorService, useValue: mockHandleErrorService }
-      ]
+      providers: [{ provide: HandleErrorService, useValue: mockHandleErrorService }],
     });
     service = TestBed.inject(PedidoClienteService);
     http = TestBed.inject(HttpTestingController);
@@ -33,7 +33,7 @@ describe('PedidoClienteService', () => {
   it('creates relation', () => {
     const payload = { pedidoId: 1, clienteId: 2 } as any;
     const mock = { code: 200, message: 'ok', data: {} };
-    service.create(payload).subscribe(res => expect(res).toEqual(mock));
+    service.create(payload).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(baseUrl);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(payload);
@@ -44,7 +44,7 @@ describe('PedidoClienteService', () => {
     const payload = { pedidoId: 1, clienteId: 2 } as any;
     service.create(payload).subscribe({
       next: () => fail('should have failed'),
-      error: err => expect(err).toBeTruthy()
+      error: (err) => expect(err).toBeTruthy(),
     });
     const req = http.expectOne(baseUrl);
     req.error(new ErrorEvent('Network error'));
@@ -53,7 +53,7 @@ describe('PedidoClienteService', () => {
 
   it('gets pedido cliente', () => {
     const mock = { code: 200, message: 'ok', data: {} };
-    service.getPedidoCliente(3, 4).subscribe(res => expect(res).toEqual(mock));
+    service.getPedidoCliente(3, 4).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(`${baseUrl}/3/4`);
     expect(req.request.method).toBe('GET');
     req.flush(mock);
@@ -62,7 +62,7 @@ describe('PedidoClienteService', () => {
   it('handles error on getPedidoCliente', () => {
     service.getPedidoCliente(3, 4).subscribe({
       next: () => fail('should have failed'),
-      error: err => expect(err).toBeTruthy()
+      error: (err) => expect(err).toBeTruthy(),
     });
     const req = http.expectOne(`${baseUrl}/3/4`);
     req.error(new ErrorEvent('Network error'));

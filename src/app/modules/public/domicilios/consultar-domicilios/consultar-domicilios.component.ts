@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { DomicilioService } from '../../../../core/services/domicilio.service';
-import { Domicilio } from '../../../../shared/models/domicilio.model';
-import { UserService } from '../../../../core/services/user.service';
-import { TrabajadorService } from '../../../../core/services/trabajador.service';
-import { ModalService } from '../../../../core/services/modal.service';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DomicilioService } from '../../../../core/services/domicilio.service';
+import { ModalService } from '../../../../core/services/modal.service';
+import { TrabajadorService } from '../../../../core/services/trabajador.service';
+import { UserService } from '../../../../core/services/user.service';
+import { Domicilio } from '../../../../shared/models/domicilio.model';
 
 @Component({
   selector: 'app-consultar-domicilio',
   templateUrl: './consultar-domicilios.component.html',
   styleUrls: ['./consultar-domicilios.component.scss'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
 })
 export class ConsultarDomicilioComponent implements OnInit {
   domicilios: Domicilio[] = [];
@@ -29,8 +29,8 @@ export class ConsultarDomicilioComponent implements OnInit {
     private domicilioService: DomicilioService,
     private userService: UserService,
     private trabajadorService: TrabajadorService,
-    private modalService: ModalService
-  ) { }
+    private modalService: ModalService,
+  ) {}
 
   ngOnInit(): void {
     this.userService.getUserId();
@@ -49,18 +49,21 @@ export class ConsultarDomicilioComponent implements OnInit {
     if (this.buscarPorTelefono && this.telefono) params.telefono = this.telefono;
     if (this.buscarPorFecha && this.fechaDomicilio) params.fecha = this.fechaDomicilio;
 
-    this.domicilioService.getDomicilios(params).subscribe(response => {
+    this.domicilioService.getDomicilios(params).subscribe((response) => {
       if (response.code === 200) {
         this.domicilios = response.data;
 
-        this.domicilios.forEach(domicilio => {
+        this.domicilios.forEach((domicilio) => {
           if (domicilio.trabajadorAsignado) {
-            this.trabajadorService.searchTrabajador(domicilio.trabajadorAsignado).subscribe(trabajador => {
-              domicilio.trabajadorNombre = trabajador ? `${trabajador.data.nombre} ${trabajador.data.apellido}` : 'No asignado';
-            });
+            this.trabajadorService
+              .searchTrabajador(domicilio.trabajadorAsignado)
+              .subscribe((trabajador) => {
+                domicilio.trabajadorNombre = trabajador
+                  ? `${trabajador.data.nombre} ${trabajador.data.apellido}`
+                  : 'No asignado';
+              });
           }
         });
-
       } else {
         this.mostrarMensaje = true;
         this.mensaje = response.message;
@@ -69,10 +72,10 @@ export class ConsultarDomicilioComponent implements OnInit {
   }
 
   asignarDomicilio(domicilio: Domicilio): void {
-    this.trabajadorService.getTrabajadores().subscribe(trabajadores => {
-      const trabajadoresOptions = trabajadores.map(t => ({
+    this.trabajadorService.getTrabajadores().subscribe((trabajadores) => {
+      const trabajadoresOptions = trabajadores.map((t) => ({
         label: `${t.nombre} ${t.apellido}`,
-        value: t.documentoTrabajador
+        value: t.documentoTrabajador,
       }));
 
       this.modalService.openModal({
@@ -80,7 +83,7 @@ export class ConsultarDomicilioComponent implements OnInit {
         select: {
           label: 'Seleccione un trabajador',
           options: trabajadoresOptions,
-          selected: null
+          selected: null,
         },
         buttons: [
           {
@@ -92,25 +95,26 @@ export class ConsultarDomicilioComponent implements OnInit {
                 this.confirmarAsignacion(domicilio, modalData.select.selected);
                 this.modalService.closeModal();
               }
-            }
+            },
           },
           {
             label: 'Cancelar',
             class: 'btn btn-danger',
-            action: () => this.modalService.closeModal()
-          }
-        ]
+            action: () => this.modalService.closeModal(),
+          },
+        ],
       });
     });
   }
 
   confirmarAsignacion(domicilio: Domicilio, trabajadorId: number): void {
-    this.domicilioService.asignarDomiciliario(domicilio.domicilioId!, trabajadorId)
-      .subscribe(response => {
+    this.domicilioService
+      .asignarDomiciliario(domicilio.domicilioId!, trabajadorId)
+      .subscribe((response) => {
         if (response.code === 200) {
           domicilio.trabajadorAsignado = trabajadorId;
 
-          this.trabajadorService.searchTrabajador(trabajadorId).subscribe(trabajador => {
+          this.trabajadorService.searchTrabajador(trabajadorId).subscribe((trabajador) => {
             domicilio.trabajadorNombre = `${trabajador.data.nombre} ${trabajador.data.apellido}`;
           });
         }
@@ -118,17 +122,16 @@ export class ConsultarDomicilioComponent implements OnInit {
   }
 
   countFiltros(): number {
-    return [
-      this.buscarPorDireccion,
-      this.buscarPorTelefono,
-      this.buscarPorFecha
-    ].filter(Boolean).length;
+    return [this.buscarPorDireccion, this.buscarPorTelefono, this.buscarPorFecha].filter(Boolean)
+      .length;
   }
   marcarEntregado(domicilio: Domicilio): void {
-    this.domicilioService.updateDomicilio(domicilio.domicilioId!, { entregado: true }).subscribe(response => {
-      if (response.code === 200) {
-        domicilio.entregado = true;
-      }
-    });
+    this.domicilioService
+      .updateDomicilio(domicilio.domicilioId!, { entregado: true })
+      .subscribe((response) => {
+        if (response.code === 200) {
+          domicilio.entregado = true;
+        }
+      });
   }
 }

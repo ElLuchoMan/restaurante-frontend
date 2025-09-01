@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { ModalService } from '../../../core/services/modal.service';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ModalService } from '../../../core/services/modal.service';
 import { ModalData } from '../../../shared/models/modal.model';
 
 @Component({
@@ -9,13 +9,13 @@ import { ModalData } from '../../../shared/models/modal.model';
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.scss'],
   imports: [CommonModule, FormsModule],
-  standalone: true
+  standalone: true,
 })
 export class ModalComponent implements OnInit {
   isOpen = false;
   modalData: ModalData = {} as ModalData;
 
-  constructor(private modalService: ModalService) { }
+  constructor(private modalService: ModalService) {}
 
   ngOnInit() {
     this.modalService.modalData$.subscribe((data) => {
@@ -32,5 +32,4 @@ export class ModalComponent implements OnInit {
   close() {
     this.modalService.closeModal();
   }
-  
 }

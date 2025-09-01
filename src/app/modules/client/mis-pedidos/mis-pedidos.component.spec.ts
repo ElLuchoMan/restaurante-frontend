@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Observable, of, throwError } from 'rxjs';
 
-import { MisPedidosComponent } from './mis-pedidos.component';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
 import { Pedido } from '../../../shared/models/pedido.model';
+import { MisPedidosComponent } from './mis-pedidos.component';
 
 describe('MisPedidosComponent', () => {
   let component: MisPedidosComponent;
@@ -15,18 +15,18 @@ describe('MisPedidosComponent', () => {
   beforeEach(async () => {
     pedidoService = {
       getMisPedidos: jest.fn(),
-      getPedidoDetalles: jest.fn()
+      getPedidoDetalles: jest.fn(),
     };
     userService = {
-      getUserId: jest.fn()
+      getUserId: jest.fn(),
     };
 
     await TestBed.configureTestingModule({
       imports: [MisPedidosComponent],
       providers: [
         { provide: PedidoService, useValue: pedidoService },
-        { provide: UserService, useValue: userService }
-      ]
+        { provide: UserService, useValue: userService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MisPedidosComponent);
@@ -59,13 +59,13 @@ describe('MisPedidosComponent', () => {
       delivery: false,
       estadoPedido: '',
       pagoId: 0,
-      restauranteId: 0
+      restauranteId: 0,
     });
 
     const pedidos = [
       createPedido(1, '01-01-2024', '0000-01-01 10:00:00 +0000 UTC'),
       createPedido(2, '02-01-2024', '0000-01-01 09:00:00 +0000 UTC'),
-      createPedido(undefined, '03-01-2024', '0000-01-01 08:00:00 +0000 UTC')
+      createPedido(undefined, '03-01-2024', '0000-01-01 08:00:00 +0000 UTC'),
     ];
     pedidoService.getMisPedidos.mockReturnValue(of({ data: pedidos }));
 
@@ -118,7 +118,7 @@ describe('MisPedidosComponent', () => {
       delivery: false,
       estadoPedido: '',
       pagoId: 0,
-      restauranteId: 0
+      restauranteId: 0,
     };
 
     it('should return base when det undefined', () => {
@@ -135,8 +135,8 @@ describe('MisPedidosComponent', () => {
           { PRECIO_UNITARIO: 5, CANTIDAD: 'bad' },
           { PRECIO_UNITARIO: 'bad', CANTIDAD: 4 },
           { precio: 7, cantidad: 2 },
-          {}
-        ])
+          {},
+        ]),
       };
       const res = (component as any).mergeDetalles(basePedido, det);
       expect(res.metodoPago).toBe('EFECTIVO');

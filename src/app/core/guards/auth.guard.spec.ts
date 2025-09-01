@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AuthGuard } from './auth.guard';
 import { UserService } from '../services/user.service';
+import { AuthGuard } from './auth.guard';
 
 describe('AuthGuard', () => {
   let authGuard: AuthGuard;
@@ -13,16 +13,16 @@ describe('AuthGuard', () => {
   beforeEach(() => {
     const userServiceMock = {
       isLoggedIn: jest.fn(),
-      isTokenExpired: jest.fn()
+      isTokenExpired: jest.fn(),
     } as unknown as jest.Mocked<UserService>;
 
     const routerMock = {
-      navigate: jest.fn()
+      navigate: jest.fn(),
     } as unknown as jest.Mocked<Router>;
 
     const toastrMock = {
       error: jest.fn(),
-      clear: jest.fn()
+      clear: jest.fn(),
     } as unknown as jest.Mocked<ToastrService>;
 
     TestBed.configureTestingModule({
@@ -30,8 +30,8 @@ describe('AuthGuard', () => {
         AuthGuard,
         { provide: UserService, useValue: userServiceMock },
         { provide: Router, useValue: routerMock },
-        { provide: ToastrService, useValue: toastrMock }
-      ]
+        { provide: ToastrService, useValue: toastrMock },
+      ],
     });
 
     authGuard = TestBed.inject(AuthGuard);
@@ -78,7 +78,7 @@ describe('AuthGuard', () => {
     expect(toastr.clear).toHaveBeenCalled();
     expect(toastr.error).toHaveBeenCalledWith(
       'La sesión ha expirado, por favor inicia sesión nuevamente',
-      'Sesión expirada'
+      'Sesión expirada',
     );
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });

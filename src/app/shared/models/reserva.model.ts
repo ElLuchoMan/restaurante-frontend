@@ -1,4 +1,4 @@
-import { estadoReserva } from "../constants";
+import { estadoReserva } from '../constants';
 
 export interface Reserva {
   createdAt: string;

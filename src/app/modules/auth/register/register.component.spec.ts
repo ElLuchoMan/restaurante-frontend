@@ -1,19 +1,22 @@
-import { ClienteService } from './../../../core/services/cliente.service';
-import { TrabajadorService } from './../../../core/services/trabajador.service';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { RegisterComponent } from './register.component';
-import { UserService } from '../../../core/services/user.service';
-import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
-import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { Trabajador } from '../../../shared/models/trabajador.model';
-import { Cliente } from '../../../shared/models/cliente.model';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import { of, throwError } from 'rxjs';
+import { UserService } from '../../../core/services/user.service';
 import { mockClienteBody, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
-import { mockTrabajadorBody, mockTrabajadorRegisterResponse } from '../../../shared/mocks/trabajador.mock';
+import {
+  mockTrabajadorBody,
+  mockTrabajadorRegisterResponse,
+} from '../../../shared/mocks/trabajador.mock';
+import { Cliente } from '../../../shared/models/cliente.model';
+import { Trabajador } from '../../../shared/models/trabajador.model';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
+import { ClienteService } from './../../../core/services/cliente.service';
+import { TrabajadorService } from './../../../core/services/trabajador.service';
+import { RegisterComponent } from './register.component';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
@@ -31,20 +34,20 @@ describe('RegisterComponent', () => {
     } as unknown as jest.Mocked<UserService>;
 
     const trabajadorServiceMock = {
-      registroTrabajador: jest.fn()
+      registroTrabajador: jest.fn(),
     } as unknown as jest.Mocked<TrabajadorService>;
 
     const clienteServiceMock = {
-      registroCliente: jest.fn().mockImplementation(() => of({}))
+      registroCliente: jest.fn().mockImplementation(() => of({})),
     } as unknown as jest.Mocked<ClienteService>;
-    
+
     const toastrMock = {
       success: jest.fn(),
-      error: jest.fn()
+      error: jest.fn(),
     } as unknown as jest.Mocked<ToastrService>;
 
     const routerMock = {
-      navigate: jest.fn()
+      navigate: jest.fn(),
     } as unknown as jest.Mocked<Router>;
     await TestBed.configureTestingModule({
       imports: [RegisterComponent, ReactiveFormsModule, CommonModule, HttpClientTestingModule],
@@ -53,8 +56,8 @@ describe('RegisterComponent', () => {
         { provide: TrabajadorService, useValue: trabajadorServiceMock },
         { provide: ClienteService, useValue: clienteServiceMock },
         { provide: ToastrService, useValue: toastrMock },
-        { provide: Router, useValue: routerMock }
-      ]
+        { provide: Router, useValue: routerMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterComponent);
@@ -93,14 +96,14 @@ describe('RegisterComponent', () => {
       direccion: mockClienteBody.direccion,
       telefono: mockClienteBody.telefono,
       observaciones: mockClienteBody.observaciones,
-      correo: 'test@example.com'
+      correo: 'test@example.com',
     });
 
     component.onSubmit();
     tick();
 
     expect(clienteService.registroCliente).toHaveBeenCalledWith(
-      expect.objectContaining({ ...mockClienteBody, correo: 'test@example.com' })
+      expect.objectContaining({ ...mockClienteBody, correo: 'test@example.com' }),
     );
     expect(toastr.success).toHaveBeenCalledWith('Cliente registrado con éxito');
     expect(router.navigate).toHaveBeenCalledWith(['/']);
@@ -125,7 +128,7 @@ describe('RegisterComponent', () => {
       rol: mockTrabajadorBody.rol,
       horaEntrada: '08:00',
       horaSalida: '20:00',
-      fechaNacimiento: '1990-01-01'
+      fechaNacimiento: '1990-01-01',
     });
 
     component.onSubmit();
@@ -143,9 +146,11 @@ describe('RegisterComponent', () => {
   }));
 
   it('should handle error when registering a client fails', fakeAsync(() => {
-    clienteService.registroCliente.mockReturnValue(throwError(() => ({
-      message: 'Error al registrar'
-    })));
+    clienteService.registroCliente.mockReturnValue(
+      throwError(() => ({
+        message: 'Error al registrar',
+      })),
+    );
 
     component.registerForm.patchValue({
       documento: '12345',
@@ -154,7 +159,7 @@ describe('RegisterComponent', () => {
       password: 'password',
       direccion: 'Dir',
       telefono: '123',
-      correo: 'a@a.com'
+      correo: 'a@a.com',
     });
 
     component.onSubmit();
@@ -164,9 +169,11 @@ describe('RegisterComponent', () => {
   }));
 
   it('should handle error when registering a worker fails', fakeAsync(() => {
-    trabajadorService.registroTrabajador.mockReturnValue(throwError(() => ({
-      message: 'Error al registrar trabajador'
-    })));
+    trabajadorService.registroTrabajador.mockReturnValue(
+      throwError(() => ({
+        message: 'Error al registrar trabajador',
+      })),
+    );
 
     component.registerForm.patchValue({
       esTrabajador: true,
@@ -179,7 +186,7 @@ describe('RegisterComponent', () => {
       rol: 'Mesero',
       horaEntrada: '08:00',
       horaSalida: '20:00',
-      fechaNacimiento: '1990-01-01'
+      fechaNacimiento: '1990-01-01',
     });
 
     component.onSubmit();
@@ -191,7 +198,7 @@ describe('RegisterComponent', () => {
     const mockErrorResponse = {
       code: 400,
       message: 'failed to fetch',
-      data: {} as Trabajador
+      data: {} as Trabajador,
     };
 
     trabajadorService.registroTrabajador.mockReturnValue(of(mockErrorResponse));
@@ -207,7 +214,7 @@ describe('RegisterComponent', () => {
       rol: 'Mesero',
       horaEntrada: '08:00',
       horaSalida: '20:00',
-      fechaNacimiento: '1990-01-01'
+      fechaNacimiento: '1990-01-01',
     });
 
     component.onSubmit();
@@ -220,7 +227,7 @@ describe('RegisterComponent', () => {
     const mockErrorResponse = {
       code: 400,
       message: 'failed to fetch',
-      data: {} as Cliente
+      data: {} as Cliente,
     };
 
     clienteService.registroCliente.mockReturnValue(of(mockErrorResponse));
@@ -232,7 +239,7 @@ describe('RegisterComponent', () => {
       password: 'password',
       direccion: 'Dir',
       telefono: '123',
-      correo: 'a@a.com'
+      correo: 'a@a.com',
     });
 
     component.onSubmit();
@@ -244,7 +251,7 @@ describe('RegisterComponent', () => {
     const mockErrorResponse = {
       code: 400,
       message: '',
-      data: {} as Trabajador
+      data: {} as Trabajador,
     };
 
     trabajadorService.registroTrabajador.mockReturnValue(of(mockErrorResponse));
@@ -260,7 +267,7 @@ describe('RegisterComponent', () => {
       rol: 'Mesero',
       horaEntrada: '08:00',
       horaSalida: '20:00',
-      fechaNacimiento: '1990-01-01'
+      fechaNacimiento: '1990-01-01',
     });
 
     component.onSubmit();
@@ -272,7 +279,7 @@ describe('RegisterComponent', () => {
     const mockErrorResponse = {
       code: 400,
       message: '',
-      data: {} as Cliente
+      data: {} as Cliente,
     };
 
     clienteService.registroCliente.mockReturnValue(of(mockErrorResponse));
@@ -284,7 +291,7 @@ describe('RegisterComponent', () => {
       password: 'password',
       direccion: 'Dir',
       telefono: '123',
-      correo: 'a@a.com'
+      correo: 'a@a.com',
     });
 
     component.onSubmit();

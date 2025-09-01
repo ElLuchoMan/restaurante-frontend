@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
-import { CarritoComponent } from './carrito.component';
+import { Router } from '@angular/router';
 import { CartService } from '../../../core/services/cart.service';
-import { ModalService } from '../../../core/services/modal.service';
-import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
+import { ClienteService } from '../../../core/services/cliente.service';
 import { DomicilioService } from '../../../core/services/domicilio.service';
+import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
+import { ModalService } from '../../../core/services/modal.service';
+import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
-import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
 import { UserService } from '../../../core/services/user.service';
-import { ClienteService } from '../../../core/services/cliente.service';
-import { Router } from '@angular/router';
+import { CarritoComponent } from './carrito.component';
 
-import { Producto } from '../../../shared/models/producto.model';
 import { ToastrService } from 'ngx-toastr';
+import { Producto } from '../../../shared/models/producto.model';
 
 describe('CarritoComponent', () => {
   let component: CarritoComponent;
@@ -34,7 +34,7 @@ describe('CarritoComponent', () => {
 
   async function setup({
     items = [],
-    paymentResp = { data: [] }
+    paymentResp = { data: [] },
   }: { items?: any[]; paymentResp?: any } = {}) {
     cartServiceMock = {
       items$: new BehaviorSubject<Producto[]>(items as Producto[]),
@@ -134,7 +134,9 @@ describe('CarritoComponent', () => {
 
   it('should open modal with payment options when creating order', async () => {
     await setup({ paymentResp: { data: [{ metodoPagoId: 1, tipo: 'Card' }] } });
-    const confirmSpy = jest.spyOn(component as any, 'onCheckoutConfirm').mockImplementation(() => {});
+    const confirmSpy = jest
+      .spyOn(component as any, 'onCheckoutConfirm')
+      .mockImplementation(() => {});
     component.crearOrden();
     expect(modalServiceMock.openModal).toHaveBeenCalled();
     const config = modalServiceMock.openModal.mock.calls[0][0];
@@ -155,18 +157,14 @@ describe('CarritoComponent', () => {
     config.selects[1].selected = true;
     modalServiceMock.getModalData.mockReturnValue({
       selects: config.selects,
-      input: { value: 'nota' }
+      input: { value: 'nota' },
     });
 
     const fetchClienteSpy = jest
       .spyOn(component as any, 'fetchCliente')
       .mockResolvedValue({} as any);
-    const crearDomicilioSpy = jest
-      .spyOn(component as any, 'crearDomicilio')
-      .mockResolvedValue(12);
-    const finalizeSpy = jest
-      .spyOn(component as any, 'finalizeOrder')
-      .mockResolvedValue(undefined);
+    const crearDomicilioSpy = jest.spyOn(component as any, 'crearDomicilio').mockResolvedValue(12);
+    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
 
     await config.buttons[1].action();
 
@@ -178,7 +176,7 @@ describe('CarritoComponent', () => {
       expect.anything(),
       expect.any(Number),
       'Cash',
-      'nota'
+      'nota',
     );
     expect(finalizeSpy).toHaveBeenCalledWith(4, 12);
   });
@@ -186,11 +184,8 @@ describe('CarritoComponent', () => {
   it('should finalize order without delivery', async () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
-      selects: [
-        { selected: 2, options: [{ label: 'M2', value: 2 }] },
-        { selected: false }
-      ],
-      input: { value: '' }
+      selects: [{ selected: 2, options: [{ label: 'M2', value: 2 }] }, { selected: false }],
+      input: { value: '' },
     });
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
     await (component as any).onCheckoutConfirm();
@@ -201,22 +196,21 @@ describe('CarritoComponent', () => {
   it('should create domicilio and finalize order when delivery is needed', async () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
-      selects: [
-        { selected: 3, options: [{ label: 'M3', value: 3 }] },
-        { selected: true }
-      ],
-      input: { value: 'obs' }
+      selects: [{ selected: 3, options: [{ label: 'M3', value: 3 }] }, { selected: true }],
+      input: { value: 'obs' },
     });
     userServiceMock.getUserId.mockReturnValue(77);
-    clienteServiceMock.getClienteId.mockReturnValue(of({ data: { direccion: 'dir', telefono: 'tel', observaciones: '' } }));
+    clienteServiceMock.getClienteId.mockReturnValue(
+      of({ data: { direccion: 'dir', telefono: 'tel', observaciones: '' } }),
+    );
     domicilioServiceMock.createDomicilio.mockReturnValue(of({ data: { domicilioId: 9 } }));
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
     await (component as any).onCheckoutConfirm();
     expect(clienteServiceMock.getClienteId).toHaveBeenCalledWith(77);
     expect(domicilioServiceMock.createDomicilio).toHaveBeenCalledWith(
       expect.objectContaining({
-        observaciones: 'Método pago: M3 - Observaciones: obs'
-      })
+        observaciones: 'Método pago: M3 - Observaciones: obs',
+      }),
     );
     expect(finalizeSpy).toHaveBeenCalledWith(3, 9);
   });
@@ -224,14 +218,13 @@ describe('CarritoComponent', () => {
   it('should handle string "true" for delivery selection', async () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
-      selects: [
-        { selected: 4, options: [{ label: 'M4', value: 4 }] },
-        { selected: 'true' }
-      ],
-      input: { value: '' }
+      selects: [{ selected: 4, options: [{ label: 'M4', value: 4 }] }, { selected: 'true' }],
+      input: { value: '' },
     });
     userServiceMock.getUserId.mockReturnValue(88);
-    clienteServiceMock.getClienteId.mockReturnValue(of({ data: { direccion: 'dir2', telefono: 'tel2', observaciones: '' } }));
+    clienteServiceMock.getClienteId.mockReturnValue(
+      of({ data: { direccion: 'dir2', telefono: 'tel2', observaciones: '' } }),
+    );
     domicilioServiceMock.createDomicilio.mockReturnValue(of({ data: { domicilioId: 5 } }));
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockImplementation(() => {});
     await (component as any).onCheckoutConfirm();
@@ -243,11 +236,8 @@ describe('CarritoComponent', () => {
   it('should handle error when getting client data fails', async () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
-      selects: [
-        { selected: 1, options: [{ label: 'M1', value: 1 }] },
-        { selected: true }
-      ],
-      input: { value: '' }
+      selects: [{ selected: 1, options: [{ label: 'M1', value: 1 }] }, { selected: true }],
+      input: { value: '' },
     });
     userServiceMock.getUserId.mockReturnValue(10);
     clienteServiceMock.getClienteId.mockReturnValue(throwError(() => new Error('fail')));
@@ -262,14 +252,13 @@ describe('CarritoComponent', () => {
   it('should handle error when creating domicilio fails', async () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
-      selects: [
-        { selected: 4, options: [{ label: 'M4', value: 4 }] },
-        { selected: true }
-      ],
-      input: { value: '' }
+      selects: [{ selected: 4, options: [{ label: 'M4', value: 4 }] }, { selected: true }],
+      input: { value: '' },
     });
     userServiceMock.getUserId.mockReturnValue(20);
-    clienteServiceMock.getClienteId.mockReturnValue(of({ data: { direccion: 'a', telefono: 'b', observaciones: '' } }));
+    clienteServiceMock.getClienteId.mockReturnValue(
+      of({ data: { direccion: 'a', telefono: 'b', observaciones: '' } }),
+    );
     domicilioServiceMock.createDomicilio.mockReturnValue(throwError(() => new Error('dom fail')));
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -291,7 +280,7 @@ describe('CarritoComponent', () => {
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: false,
       pagoId: 1,
-      estadoPedido: 'PENDIENTE'
+      estadoPedido: 'PENDIENTE',
     });
     expect(pedidoServiceMock.assignPago).not.toHaveBeenCalled();
     expect(pedidoServiceMock.assignDomicilio).not.toHaveBeenCalled();
@@ -306,12 +295,14 @@ describe('CarritoComponent', () => {
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 50 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
     pedidoClienteServiceMock.create.mockReturnValue(of({}));
-    pedidoServiceMock.assignDomicilio.mockReturnValue(of({ data: { delivery: true, estadoPedido: 'EN CURSO' } }));
+    pedidoServiceMock.assignDomicilio.mockReturnValue(
+      of({ data: { delivery: true, estadoPedido: 'EN CURSO' } }),
+    );
     await (component as any).finalizeOrder(2, 7);
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: true,
       pagoId: 2,
-      estadoPedido: 'PENDIENTE'
+      estadoPedido: 'PENDIENTE',
     });
     expect(pedidoServiceMock.assignPago).not.toHaveBeenCalled();
     expect(pedidoServiceMock.assignDomicilio).toHaveBeenCalledWith(50, 7);
@@ -328,4 +319,3 @@ describe('CarritoComponent', () => {
     errorSpy.mockRestore();
   });
 });
-

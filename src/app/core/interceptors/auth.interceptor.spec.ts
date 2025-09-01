@@ -1,8 +1,8 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
-import { authInterceptor } from './auth.interceptor';
-import { UserService } from '../services/user.service';
+import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { UserService } from '../services/user.service';
+import { authInterceptor } from './auth.interceptor';
 
 describe('authInterceptor', () => {
   let interceptor: HttpInterceptorFn;
@@ -10,17 +10,14 @@ describe('authInterceptor', () => {
 
   beforeEach(() => {
     const userServiceMock = {
-      validateTokenAndLogout: jest.fn()
+      validateTokenAndLogout: jest.fn(),
     } as unknown as jest.Mocked<UserService>;
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: UserService, useValue: userServiceMock }
-      ]
+      providers: [{ provide: UserService, useValue: userServiceMock }],
     });
 
-    interceptor = (req, next) =>
-      TestBed.runInInjectionContext(() => authInterceptor(req, next));
+    interceptor = (req, next) => TestBed.runInInjectionContext(() => authInterceptor(req, next));
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
   });
 

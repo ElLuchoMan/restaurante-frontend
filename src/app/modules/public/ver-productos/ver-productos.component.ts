@@ -1,21 +1,21 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProductoService } from '../../../core/services/producto.service';
-import { Producto } from '../../../shared/models/producto.model';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ProductoFiltroPipe } from "../../../shared/pipes/producto-filtro.pipe";
-import { ModalService } from '../../../core/services/modal.service';
-import { UserService } from '../../../core/services/user.service';
 import { Router } from '@angular/router';
-import { CartService } from '../../../core/services/cart.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { CartService } from '../../../core/services/cart.service';
+import { ModalService } from '../../../core/services/modal.service';
+import { ProductoService } from '../../../core/services/producto.service';
+import { UserService } from '../../../core/services/user.service';
+import { Producto } from '../../../shared/models/producto.model';
+import { ProductoFiltroPipe } from '../../../shared/pipes/producto-filtro.pipe';
 
 @Component({
   selector: 'app-ver-productos',
   templateUrl: './ver-productos.component.html',
   styleUrls: ['./ver-productos.component.scss'],
-  imports: [CommonModule, FormsModule, ProductoFiltroPipe]
+  imports: [CommonModule, FormsModule, ProductoFiltroPipe],
 })
 export class VerProductosComponent implements OnInit, OnDestroy {
   productos: Producto[] = [];
@@ -33,14 +33,21 @@ export class VerProductosComponent implements OnInit, OnDestroy {
   carrito: Producto[] = [];
   private destroy$ = new Subject<void>();
 
-  constructor(private productoService: ProductoService, private modalService: ModalService, private userService: UserService, private router: Router, private cartService: CartService) { }
+  constructor(
+    private productoService: ProductoService,
+    private modalService: ModalService,
+    private userService: UserService,
+    private router: Router,
+    private cartService: CartService,
+  ) {}
 
   ngOnInit(): void {
     this.obtenerProductos();
 
-    this.userService.getAuthState()
+    this.userService
+      .getAuthState()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(isLogged => {
+      .subscribe((isLogged) => {
         this.userRole = isLogged ? this.userService.getUserRole() : null;
       });
   }
@@ -50,12 +57,11 @@ export class VerProductosComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-
   obtenerProductos(): void {
     this.productoService
       .getProductos({ onlyActive: true, includeImage: true })
       .pipe(takeUntil(this.destroy$))
-      .subscribe(response => {
+      .subscribe((response) => {
         if (response.data) {
           this.productos = response.data;
 
@@ -63,7 +69,7 @@ export class VerProductosComponent implements OnInit, OnDestroy {
           const categoriasSet = new Set<string>();
           const subcategoriasSet = new Set<string>();
 
-          this.productos.forEach(p => {
+          this.productos.forEach((p) => {
             if (p.categoria) categoriasSet.add(p.categoria);
             if (p.subcategoria) subcategoriasSet.add(p.subcategoria);
           });
@@ -78,8 +84,8 @@ export class VerProductosComponent implements OnInit, OnDestroy {
   actualizarSubcategorias(): void {
     const set = new Set<string>();
     this.productos
-      .filter(p => p.categoria === this.categoriaSeleccionada)
-      .forEach(p => {
+      .filter((p) => p.categoria === this.categoriaSeleccionada)
+      .forEach((p) => {
         if (p.subcategoria) set.add(p.subcategoria);
       });
     this.subcategorias = Array.from(set);
@@ -99,12 +105,15 @@ export class VerProductosComponent implements OnInit, OnDestroy {
   productosPorPagina = 8;
 
   get productosFiltrados(): Producto[] {
-    return this.productos.filter(p => {
+    return this.productos.filter((p) => {
       const nombreMatch = p.nombre.toLowerCase().includes(this.filtroNombre.toLowerCase());
-      const categoriaMatch = !this.categoriaSeleccionada || p.categoria === this.categoriaSeleccionada;
-      const subcategoriaMatch = !this.subcategoriaSeleccionada || p.subcategoria === this.subcategoriaSeleccionada;
+      const categoriaMatch =
+        !this.categoriaSeleccionada || p.categoria === this.categoriaSeleccionada;
+      const subcategoriaMatch =
+        !this.subcategoriaSeleccionada || p.subcategoria === this.subcategoriaSeleccionada;
       const caloriasMatch =
-        (this.minCalorias == null || (p.calorias !== undefined && p.calorias >= this.minCalorias)) &&
+        (this.minCalorias == null ||
+          (p.calorias !== undefined && p.calorias >= this.minCalorias)) &&
         (this.maxCalorias == null || (p.calorias !== undefined && p.calorias <= this.maxCalorias));
 
       return nombreMatch && categoriaMatch && subcategoriaMatch && caloriasMatch;
@@ -130,7 +139,7 @@ export class VerProductosComponent implements OnInit, OnDestroy {
         action: () => {
           this.cartService.addToCart(producto);
           this.modalService.closeModal();
-        }
+        },
       });
     }
 
@@ -141,21 +150,22 @@ export class VerProductosComponent implements OnInit, OnDestroy {
         action: () => {
           this.router.navigate(['/admin/productos/editar', producto.productoId]);
           this.modalService.closeModal();
-        }
+        },
       });
     }
 
     this.modalService.openModal({
       title: producto.nombre,
-      image: typeof producto.imagen === 'string' ? producto.imagen : '../../../../assets/img/logo2.png',
+      image:
+        typeof producto.imagen === 'string' ? producto.imagen : '../../../../assets/img/logo2.png',
       details: {
         precio: producto.precio,
         calorias: producto.calorias,
         categoria: producto.categoria,
         subcategoria: producto.subcategoria,
-        descripcion: producto.descripcion
+        descripcion: producto.descripcion,
       },
-      buttons: botones
+      buttons: botones,
     });
   }
 

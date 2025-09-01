@@ -1,18 +1,17 @@
-import { estadoProducto } from '../../../../shared/constants';
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductoService } from '../../../../core/services/producto.service';
+import { estadoProducto } from '../../../../shared/constants';
 import { Producto } from '../../../../shared/models/producto.model';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-crear-producto',
   standalone: true,
   templateUrl: './crear-producto.component.html',
   styleUrls: ['./crear-producto.component.scss'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
 })
 export class CrearProductoComponent {
   producto: Producto = {
@@ -23,7 +22,7 @@ export class CrearProductoComponent {
     estadoProducto: estadoProducto.DISPONIBLE,
     cantidad: 0,
     categoria: '',
-    subcategoria: ''
+    subcategoria: '',
   };
   imagenSeleccionada: File | null = null;
   mensaje: string = '';
@@ -31,7 +30,11 @@ export class CrearProductoComponent {
   productoId: string | null = null;
   esEdicion = false;
 
-  constructor(private productoService: ProductoService, private router: Router, private route: ActivatedRoute) { }
+  constructor(
+    private productoService: ProductoService,
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
     this.productoId = this.route.snapshot.paramMap.get('id');
@@ -48,13 +51,13 @@ export class CrearProductoComponent {
 
   crearProducto(): void {
     if (!this.producto.nombre || this.producto.precio <= 0) {
-      this.mensaje = "El nombre y el precio son obligatorios";
+      this.mensaje = 'El nombre y el precio son obligatorios';
       return;
     }
 
     const formData = this.crearFormData(this.producto);
 
-    this.productoService.createProducto(formData).subscribe(response => {
+    this.productoService.createProducto(formData).subscribe((response) => {
       if (response.code === 201) {
         this.mensaje = 'Producto creado con éxito';
         setTimeout(() => this.router.navigate(['/admin/productos']), 2000);
@@ -62,7 +65,7 @@ export class CrearProductoComponent {
     });
   }
   cargarProducto(id: string): void {
-    this.productoService.getProductoById(Number(id)).subscribe(response => {
+    this.productoService.getProductoById(Number(id)).subscribe((response) => {
       if (response?.data) {
         this.producto = response.data;
       }
@@ -73,7 +76,7 @@ export class CrearProductoComponent {
 
     const formData = this.crearFormData(this.producto);
 
-    this.productoService.updateProducto(Number(this.productoId), formData).subscribe(response => {
+    this.productoService.updateProducto(Number(this.productoId), formData).subscribe((response) => {
       if (response.code === 200) {
         this.mensaje = 'Producto actualizado con éxito';
         setTimeout(() => this.router.navigate(['/admin/productos']), 2000);
@@ -100,6 +103,4 @@ export class CrearProductoComponent {
 
     return formData;
   }
-
-
 }

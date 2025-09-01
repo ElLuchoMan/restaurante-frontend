@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { ModalService } from './modal.service';
 import { LoggingService } from './logging.service';
+import { ModalService } from './modal.service';
 
 describe('ModalService', () => {
   let service: ModalService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [LoggingService]
+      providers: [LoggingService],
     });
     service = TestBed.inject(ModalService);
   });
@@ -20,7 +20,7 @@ describe('ModalService', () => {
     expect(service.getModalData()).toBeNull();
 
     let isOpenValue: boolean | undefined;
-    service.isOpen$.subscribe(value => {
+    service.isOpen$.subscribe((value) => {
       isOpenValue = value;
     });
     expect(isOpenValue).toBe(false);
@@ -33,7 +33,7 @@ describe('ModalService', () => {
     expect(service.getModalData()).toEqual(data);
 
     let isOpenValue: boolean | undefined;
-    service.isOpen$.subscribe(value => {
+    service.isOpen$.subscribe((value) => {
       isOpenValue = value;
     });
     expect(isOpenValue).toBe(true);
@@ -44,7 +44,7 @@ describe('ModalService', () => {
     service.closeModal();
 
     let isOpenValue: boolean | undefined;
-    service.isOpen$.subscribe(value => {
+    service.isOpen$.subscribe((value) => {
       isOpenValue = value;
     });
     expect(isOpenValue).toBe(false);

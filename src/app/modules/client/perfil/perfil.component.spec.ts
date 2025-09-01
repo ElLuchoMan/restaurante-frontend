@@ -1,17 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
-import { PerfilComponent } from './perfil.component';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { UserService } from '../../../core/services/user.service';
-import { ToastrService } from 'ngx-toastr';
+import { PerfilComponent } from './perfil.component';
 
 describe('PerfilComponent', () => {
   const setup = async (
     userServiceMock: Partial<UserService>,
     clienteServiceMock: Partial<ClienteService>,
-    toastrMock: Partial<ToastrService> = { error: jest.fn() }
+    toastrMock: Partial<ToastrService> = { error: jest.fn() },
   ) => {
     await TestBed.configureTestingModule({
       imports: [PerfilComponent, RouterTestingModule],
@@ -31,7 +31,14 @@ describe('PerfilComponent', () => {
   it('should load client data successfully', async () => {
     const userServiceMock = {
       getUserId: jest.fn().mockReturnValue(1),
-      decodeToken: jest.fn().mockReturnValue({ nombre: 'Cliente', rol: 'Cliente', documento: 1, exp: Math.floor(Date.now() / 1000) + 1000 }),
+      decodeToken: jest
+        .fn()
+        .mockReturnValue({
+          nombre: 'Cliente',
+          rol: 'Cliente',
+          documento: 1,
+          exp: Math.floor(Date.now() / 1000) + 1000,
+        }),
     } as Partial<UserService>;
     const clienteData = {
       direccion: 'Calle 1',
@@ -43,10 +50,7 @@ describe('PerfilComponent', () => {
       getClienteId: jest.fn().mockReturnValue(of({ data: clienteData })),
     } as Partial<ClienteService>;
 
-    const { fixture, component, router } = await setup(
-      userServiceMock,
-      clienteServiceMock
-    );
+    const { fixture, component, router } = await setup(userServiceMock, clienteServiceMock);
     const navigateSpy = jest.spyOn(router, 'navigate');
     fixture.detectChanges();
 
@@ -68,10 +72,11 @@ describe('PerfilComponent', () => {
       getClienteId: jest.fn(),
     } as Partial<ClienteService>;
 
-    const { fixture, router, clienteServiceMock: clienteMock } = await setup(
-      userServiceMock,
-      clienteServiceMock
-    );
+    const {
+      fixture,
+      router,
+      clienteServiceMock: clienteMock,
+    } = await setup(userServiceMock, clienteServiceMock);
     const navigateSpy = jest.spyOn(router, 'navigate');
     fixture.detectChanges();
 
@@ -82,26 +87,24 @@ describe('PerfilComponent', () => {
   it('should handle error when service fails', async () => {
     const userServiceMock = {
       getUserId: jest.fn().mockReturnValue(1),
-      decodeToken: jest.fn().mockReturnValue({ nombre: 'Cliente', rol: 'Cliente', documento: 1, exp: Math.floor(Date.now() / 1000) + 1000 }),
+      decodeToken: jest
+        .fn()
+        .mockReturnValue({
+          nombre: 'Cliente',
+          rol: 'Cliente',
+          documento: 1,
+          exp: Math.floor(Date.now() / 1000) + 1000,
+        }),
     } as Partial<UserService>;
     const clienteServiceMock = {
-      getClienteId: jest
-        .fn()
-        .mockReturnValue(throwError(() => new Error('fail'))),
+      getClienteId: jest.fn().mockReturnValue(throwError(() => new Error('fail'))),
     } as Partial<ClienteService>;
     const toastrMock = { error: jest.fn() } as Partial<ToastrService>;
 
-    const { fixture, component } = await setup(
-      userServiceMock,
-      clienteServiceMock,
-      toastrMock
-    );
+    const { fixture, component } = await setup(userServiceMock, clienteServiceMock, toastrMock);
     fixture.detectChanges();
 
-    expect(toastrMock.error).toHaveBeenCalledWith(
-      'Error al cargar los datos del cliente',
-      'Error'
-    );
+    expect(toastrMock.error).toHaveBeenCalledWith('Error al cargar los datos del cliente', 'Error');
     expect(component.direccion).toBe('No registrada');
     expect(component.telefono).toBe('No registrado');
     expect(component.observaciones).toBe('');
@@ -112,7 +115,14 @@ describe('PerfilComponent', () => {
   it('should leave observaciones empty when not frequent client', async () => {
     const userServiceMock = {
       getUserId: jest.fn().mockReturnValue(1),
-      decodeToken: jest.fn().mockReturnValue({ nombre: 'Cliente', rol: 'Cliente', documento: 1, exp: Math.floor(Date.now() / 1000) + 1000 }),
+      decodeToken: jest
+        .fn()
+        .mockReturnValue({
+          nombre: 'Cliente',
+          rol: 'Cliente',
+          documento: 1,
+          exp: Math.floor(Date.now() / 1000) + 1000,
+        }),
     } as Partial<UserService>;
     const clienteData = {
       direccion: 'Calle 2',
@@ -124,10 +134,7 @@ describe('PerfilComponent', () => {
       getClienteId: jest.fn().mockReturnValue(of({ data: clienteData })),
     } as Partial<ClienteService>;
 
-    const { fixture, component } = await setup(
-      userServiceMock,
-      clienteServiceMock
-    );
+    const { fixture, component } = await setup(userServiceMock, clienteServiceMock);
     fixture.detectChanges();
 
     expect(component.observaciones).toBe('');
@@ -144,10 +151,7 @@ describe('PerfilComponent', () => {
       getClienteId: jest.fn().mockReturnValue(of({})),
     } as Partial<ClienteService>;
 
-    const { fixture, component } = await setup(
-      userServiceMock,
-      clienteServiceMock
-    );
+    const { fixture, component } = await setup(userServiceMock, clienteServiceMock);
     fixture.detectChanges();
 
     expect(component.nombre).toBe('Cliente');
@@ -156,4 +160,3 @@ describe('PerfilComponent', () => {
     expect(component.correo).toBe('No registrado');
   });
 });
-

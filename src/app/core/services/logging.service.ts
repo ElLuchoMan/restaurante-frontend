@@ -4,11 +4,11 @@ import { environment } from '../../../environments/environment';
 export enum LogLevel {
   INFO = 'info',
   WARN = 'warn',
-  ERROR = 'error'
+  ERROR = 'error',
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoggingService {
   private readonly isProduction = environment.production;
@@ -31,4 +31,3 @@ export class LoggingService {
     }
   }
 }
-

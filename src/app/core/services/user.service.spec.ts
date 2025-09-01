@@ -1,21 +1,23 @@
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
-import { UserService } from './user.service';
 import { environment } from '../../../environments/environment';
-import { HandleErrorService } from './handle-error.service';
+import { mockLoginResponse } from '../../shared/mocks/login.mock';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { mockLogin, mockLoginResponse } from '../../shared/mocks/login.mock';
+import { HandleErrorService } from './handle-error.service';
 import { LoggingService, LogLevel } from './logging.service';
+import { UserService } from './user.service';
 
 describe('UserService', () => {
   let service: UserService;
   let httpTestingController: HttpTestingController;
 
   const mockHandleErrorService = {
-    handleError: jest.fn((error: any) => { throw error; })
+    handleError: jest.fn((error: any) => {
+      throw error;
+    }),
   };
   const mockLoggingService = {
-    log: jest.fn()
+    log: jest.fn(),
   };
 
   beforeEach(() => {
@@ -24,8 +26,8 @@ describe('UserService', () => {
       providers: [
         UserService,
         { provide: HandleErrorService, useValue: mockHandleErrorService },
-        { provide: LoggingService, useValue: mockLoggingService }
-      ]
+        { provide: LoggingService, useValue: mockLoggingService },
+      ],
     });
 
     service = TestBed.inject(UserService);
@@ -63,7 +65,7 @@ describe('UserService', () => {
     service.login(credentials).subscribe({
       error: (error) => {
         expect(error).toBeTruthy();
-      }
+      },
     });
 
     const req = httpTestingController.expectOne(`${environment.apiUrl}/login`);
@@ -107,7 +109,11 @@ describe('UserService', () => {
   });
 
   it('should decode token correctly', () => {
-    const tokenPayload = { rol: 'Administrador', documento: 1, exp: Math.floor(Date.now() / 1000) + 1000 };
+    const tokenPayload = {
+      rol: 'Administrador',
+      documento: 1,
+      exp: Math.floor(Date.now() / 1000) + 1000,
+    };
     const encodedPayload = btoa(JSON.stringify(tokenPayload));
     localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     const decoded = service.decodeToken();
@@ -118,7 +124,11 @@ describe('UserService', () => {
     const invalidToken = 'invalid.token.value';
     jest.spyOn(service, 'getToken').mockReturnValue(invalidToken);
     const result = service.decodeToken();
-    expect(mockLoggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error al decodificar el token', expect.any(Error));
+    expect(mockLoggingService.log).toHaveBeenCalledWith(
+      LogLevel.ERROR,
+      'Error al decodificar el token',
+      expect.any(Error),
+    );
     expect(result).toBe(null);
   });
 
@@ -129,7 +139,11 @@ describe('UserService', () => {
   });
 
   it('should return user role if token is valid', () => {
-    const decodedToken = { rol: 'Administrador', documento: 1, exp: Math.floor(Date.now() / 1000) + 1000 };
+    const decodedToken = {
+      rol: 'Administrador',
+      documento: 1,
+      exp: Math.floor(Date.now() / 1000) + 1000,
+    };
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
     const result = service.getUserRole();
     expect(result).toBe('Administrador');
@@ -159,7 +173,11 @@ describe('UserService', () => {
     localStorage.setItem('auth_token', 'invalid.token.value');
     const result = service.isTokenExpired();
     expect(result).toBe(true);
-    expect(mockLoggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error al decodificar el token', expect.any(Error));
+    expect(mockLoggingService.log).toHaveBeenCalledWith(
+      LogLevel.ERROR,
+      'Error al decodificar el token',
+      expect.any(Error),
+    );
   });
 
   it('should return false if token does not exist for token expiry', () => {
@@ -189,7 +207,11 @@ describe('UserService', () => {
   });
 
   it('should call logout if token is expired in validateTokenAndLogout', () => {
-    const expiredPayload = { rol: 'Cliente', documento: 123, exp: Math.floor(Date.now() / 1000) - 10 };
+    const expiredPayload = {
+      rol: 'Cliente',
+      documento: 123,
+      exp: Math.floor(Date.now() / 1000) - 10,
+    };
     const encodedPayload = btoa(JSON.stringify(expiredPayload));
     localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     const logoutSpy = jest.spyOn(service, 'logout');
@@ -198,7 +220,11 @@ describe('UserService', () => {
   });
 
   it('should not call logout if token is valid in validateTokenAndLogout', () => {
-    const validPayload = { rol: 'Cliente', documento: 123, exp: Math.floor(Date.now() / 1000) + 3600 };
+    const validPayload = {
+      rol: 'Cliente',
+      documento: 123,
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    };
     const encodedPayload = btoa(JSON.stringify(validPayload));
     localStorage.setItem('auth_token', `header.${encodedPayload}.signature`);
     const logoutSpy = jest.spyOn(service, 'logout');
@@ -214,7 +240,11 @@ describe('UserService', () => {
   });
 
   it('should return user id if token is valid', () => {
-    const decodedToken = { rol: 'Cliente', documento: 12345, exp: Math.floor(Date.now() / 1000) + 1000 };
+    const decodedToken = {
+      rol: 'Cliente',
+      documento: 12345,
+      exp: Math.floor(Date.now() / 1000) + 1000,
+    };
     jest.spyOn(service, 'decodeToken').mockReturnValue(decodedToken);
     const result = service.getUserId();
     expect(result).toBe(12345);

@@ -1,18 +1,18 @@
 @use '../../../../../assets/styles.scss' as *;
 
 .form-card-bg {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .volver-container {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
 
-    .volver-icon {
-        margin-right: 0.5rem;
-    }
+  .volver-icon {
+    margin-right: 0.5rem;
+  }
 }

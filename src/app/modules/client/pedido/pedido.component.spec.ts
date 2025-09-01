@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { convertToParamMap, ActivatedRoute } from '@angular/router';
 
-import { PedidoComponent } from './pedido.component';
 import { PedidoService } from '../../../core/services/pedido.service';
+import { PedidoComponent } from './pedido.component';
 
 describe('PedidoComponent', () => {
   let component: PedidoComponent;
@@ -17,8 +17,11 @@ describe('PedidoComponent', () => {
       imports: [PedidoComponent],
       providers: [
         { provide: PedidoService, useValue: pedidoService },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '5' }) } } }
-      ]
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: '5' }) } },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PedidoComponent);
@@ -39,9 +42,9 @@ describe('PedidoComponent', () => {
           FECHA: '01-01-2024',
           HORA: '0000-01-01 10:00:00 +0000 UTC',
           delivery: true,
-          ESTADO_PEDIDO: 'TERMINADO'
-        }
-      })
+          ESTADO_PEDIDO: 'TERMINADO',
+        },
+      }),
     );
     component.ngOnInit();
     expect(pedidoService.getPedidoDetalles).toHaveBeenCalledWith(5);

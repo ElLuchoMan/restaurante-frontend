@@ -1,53 +1,55 @@
 <div class="modal-overlay" *ngIf="isOpen" (click)="close()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-            <h2 *ngIf="modalData.title">{{ modalData.title }}</h2>
-            <button class="close-btn" (click)="close()">&times;</button>
-        </div>
-
-        <div class="modal-body">
-            <img *ngIf="modalData.image" [src]="modalData.image" alt="Imagen modal" />
-
-            <div class="mt-3" *ngIf="modalData.message">{{ modalData.message }}</div>
-
-            <div class="mt-3" *ngIf="modalData.details">
-                <p><strong>Precio:</strong> ${{ modalData.details.precio }}</p>
-                <p><strong>Calorías:</strong> {{ modalData.details.calorias || 'N/A' }}</p>
-                <p><strong>Categoría:</strong> {{ modalData.details.categoria }}</p>
-                <p><strong>Subcategoría:</strong> {{ modalData.details.subcategoria }}</p>
-                <p><strong>Descripción:</strong> {{ modalData.details.descripcion || 'Sin descripción' }}</p>
-            </div>
-
-            <ng-container *ngIf="modalData.selects">
-                <div *ngFor="let sel of modalData.selects" class="form-group mt-3">
-                    <label>{{ sel.label }}</label>
-                    <select class="form-control" [(ngModel)]="sel.selected">
-                        <option *ngFor="let o of sel.options" [ngValue]="o.value">
-                            {{ o.label }}
-                        </option>
-                    </select>
-                </div>
-            </ng-container>
-
-            <div *ngIf="modalData.select">
-                <label>{{ modalData.select.label }}</label>
-                <select class="form-control" [(ngModel)]="modalData.select.selected">
-                    <option *ngFor="let item of modalData.select.options" [value]="item.value">
-                        {{ item.label }}
-                    </option>
-                </select>
-            </div>
-
-            <div class="form-group mt-3" *ngIf="modalData.input">
-                <label>{{ modalData.input.label }}</label>
-                <textarea class="form-control" [(ngModel)]="modalData.input.value"></textarea>
-            </div>
-        </div>
-
-        <div class="modal-buttons" *ngIf="modalData.buttons">
-            <button *ngFor="let btn of modalData.buttons" (click)="btn.action()" [class]="btn.class">
-                {{ btn.label }}
-            </button>
-        </div>
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 *ngIf="modalData.title">{{ modalData.title }}</h2>
+      <button class="close-btn" (click)="close()">&times;</button>
     </div>
+
+    <div class="modal-body">
+      <img *ngIf="modalData.image" [src]="modalData.image" alt="Imagen modal" />
+
+      <div class="mt-3" *ngIf="modalData.message">{{ modalData.message }}</div>
+
+      <div class="mt-3" *ngIf="modalData.details">
+        <p><strong>Precio:</strong> ${{ modalData.details.precio }}</p>
+        <p><strong>Calorías:</strong> {{ modalData.details.calorias || 'N/A' }}</p>
+        <p><strong>Categoría:</strong> {{ modalData.details.categoria }}</p>
+        <p><strong>Subcategoría:</strong> {{ modalData.details.subcategoria }}</p>
+        <p>
+          <strong>Descripción:</strong> {{ modalData.details.descripcion || 'Sin descripción' }}
+        </p>
+      </div>
+
+      <ng-container *ngIf="modalData.selects">
+        <div *ngFor="let sel of modalData.selects" class="form-group mt-3">
+          <label>{{ sel.label }}</label>
+          <select class="form-control" [(ngModel)]="sel.selected">
+            <option *ngFor="let o of sel.options" [ngValue]="o.value">
+              {{ o.label }}
+            </option>
+          </select>
+        </div>
+      </ng-container>
+
+      <div *ngIf="modalData.select">
+        <label>{{ modalData.select.label }}</label>
+        <select class="form-control" [(ngModel)]="modalData.select.selected">
+          <option *ngFor="let item of modalData.select.options" [value]="item.value">
+            {{ item.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group mt-3" *ngIf="modalData.input">
+        <label>{{ modalData.input.label }}</label>
+        <textarea class="form-control" [(ngModel)]="modalData.input.value"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-buttons" *ngIf="modalData.buttons">
+      <button *ngFor="let btn of modalData.buttons" (click)="btn.action()" [class]="btn.class">
+        {{ btn.label }}
+      </button>
+    </div>
+  </div>
 </div>

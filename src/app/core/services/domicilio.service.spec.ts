@@ -1,11 +1,14 @@
-import { mockDomicilioBody, mockDomicilioRespone, mockDomiciliosRespone } from './../../shared/mocks/domicilio.mock';
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { DomicilioService } from './domicilio.service';
+import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
-import { Domicilio } from '../../shared/models/domicilio.model';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { estadoPago } from '../../shared/constants';
+import { Domicilio } from '../../shared/models/domicilio.model';
+import {
+  mockDomicilioBody,
+  mockDomicilioRespone,
+  mockDomiciliosRespone,
+} from './../../shared/mocks/domicilio.mock';
+import { DomicilioService } from './domicilio.service';
 import { HandleErrorService } from './handle-error.service';
 
 describe('DomicilioService', () => {
@@ -14,7 +17,9 @@ describe('DomicilioService', () => {
   const baseUrl = `${environment.apiUrl}/domicilios`;
 
   const mockHandleErrorService = {
-    handleError: jest.fn((error: any) => { throw error; })
+    handleError: jest.fn((error: any) => {
+      throw error;
+    }),
   };
 
   beforeEach(() => {
@@ -23,8 +28,8 @@ describe('DomicilioService', () => {
       imports: [HttpClientTestingModule],
       providers: [
         DomicilioService,
-        { provide: HandleErrorService, useValue: mockHandleErrorService }
-      ]
+        { provide: HandleErrorService, useValue: mockHandleErrorService },
+      ],
     });
     service = TestBed.inject(DomicilioService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -43,12 +48,12 @@ describe('DomicilioService', () => {
       const mockResponse = mockDomiciliosRespone;
       const params = { filter: 'test' };
 
-      service.getDomicilios(params).subscribe(response => {
+      service.getDomicilios(params).subscribe((response) => {
         expect(response).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne(req =>
-        req.url === baseUrl && req.params.get('filter') === 'test'
+      const req = httpMock.expectOne(
+        (req) => req.url === baseUrl && req.params.get('filter') === 'test',
       );
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);
@@ -59,9 +64,9 @@ describe('DomicilioService', () => {
       service.getDomicilios(params).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();
-        }
+        },
       });
-      const req = httpMock.expectOne(r => r.url === baseUrl && r.params.get('filter') === 'test');
+      const req = httpMock.expectOne((r) => r.url === baseUrl && r.params.get('filter') === 'test');
       req.error(new ErrorEvent('API error'));
       expect(mockHandleErrorService.handleError).toHaveBeenCalled();
     });
@@ -72,7 +77,7 @@ describe('DomicilioService', () => {
       const id = 1;
       const mockResponse = mockDomicilioRespone;
 
-      service.getDomicilioById(id).subscribe(response => {
+      service.getDomicilioById(id).subscribe((response) => {
         expect(response).toEqual(mockResponse);
       });
 
@@ -86,7 +91,7 @@ describe('DomicilioService', () => {
       service.getDomicilioById(id).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();
-        }
+        },
       });
       const req = httpMock.expectOne(`${baseUrl}/search?id=${id}`);
       req.error(new ErrorEvent('API error'));
@@ -99,7 +104,7 @@ describe('DomicilioService', () => {
       const newDomicilio = mockDomicilioBody;
       const mockResponse = mockDomicilioRespone;
 
-      service.createDomicilio(newDomicilio).subscribe(response => {
+      service.createDomicilio(newDomicilio).subscribe((response) => {
         expect(response).toEqual(mockResponse);
       });
 
@@ -113,7 +118,7 @@ describe('DomicilioService', () => {
       service.createDomicilio(mockDomicilioBody).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();
-        }
+        },
       });
       const req = httpMock.expectOne(baseUrl);
       req.error(new ErrorEvent('API error'));
@@ -127,7 +132,7 @@ describe('DomicilioService', () => {
       const updatedData: Partial<Domicilio> = { entregado: true };
       const mockResponse = mockDomicilioRespone;
 
-      service.updateDomicilio(id, updatedData).subscribe(response => {
+      service.updateDomicilio(id, updatedData).subscribe((response) => {
         expect(response).toEqual(mockResponse);
       });
 
@@ -143,7 +148,7 @@ describe('DomicilioService', () => {
       service.updateDomicilio(id, updatedData).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();
-        }
+        },
       });
       const req = httpMock.expectOne(`${baseUrl}?id=${id}`);
       req.error(new ErrorEvent('API error'));
@@ -157,10 +162,10 @@ describe('DomicilioService', () => {
       const mockResponse: ApiResponse<any> = {
         code: 200,
         message: 'Deleted',
-        data: null
+        data: null,
       };
 
-      service.deleteDomicilio(id).subscribe(response => {
+      service.deleteDomicilio(id).subscribe((response) => {
         expect(response).toEqual(mockResponse);
       });
 
@@ -174,7 +179,7 @@ describe('DomicilioService', () => {
       service.deleteDomicilio(id).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();
-        }
+        },
       });
       const req = httpMock.expectOne(`${baseUrl}?id=${id}`);
       req.error(new ErrorEvent('API error'));
@@ -188,7 +193,7 @@ describe('DomicilioService', () => {
       const trabajadorId = 2;
       const mockResponse = mockDomicilioRespone;
 
-      service.asignarDomiciliario(domicilioId, trabajadorId).subscribe(response => {
+      service.asignarDomiciliario(domicilioId, trabajadorId).subscribe((response) => {
         expect(response).toEqual(mockResponse);
       });
 
@@ -205,7 +210,7 @@ describe('DomicilioService', () => {
       service.asignarDomiciliario(domicilioId, trabajadorId).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();
-        }
+        },
       });
       const expectedUrl = `${baseUrl}/asignar?domicilio_id=${domicilioId}&trabajador_id=${trabajadorId}`;
       const req = httpMock.expectOne(expectedUrl);

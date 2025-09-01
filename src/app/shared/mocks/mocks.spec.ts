@@ -1,18 +1,48 @@
-import { mockResponseCliente, mockClienteBody, mockClienteRegisterResponse } from './cliente.mock';
-import { mockDomicilioRespone, mockDomiciliosRespone, mockDomicilioBody } from './domicilio.mock';
-import { mockHttpError500, mockHttpError400 } from './error.mock';
+import { mockClienteBody, mockClienteRegisterResponse, mockResponseCliente } from './cliente.mock';
+import { mockDomicilioBody, mockDomicilioRespone, mockDomiciliosRespone } from './domicilio.mock';
+import { mockHttpError400, mockHttpError500 } from './error.mock';
 import { mockLogin, mockLoginResponse } from './login.mock';
-import { mockMetodoPagoRespone, mockMetodosPagoRespone, mockMetodoPagoBody } from './metodo-pago.mock';
-import { mockNominaTrabajadorResponse, mockNominaTrabajadorMes } from './nomina-trabajador.mock';
-import { mockNominaResponse, mockNominaFecha, mockNominaBody, mockNominaPagaResponse } from './nomina.mock';
-import { mockPagosResponse, mockPagoResponse, mockPagoBody } from './pago.mock';
+import {
+  mockMetodoPagoBody,
+  mockMetodoPagoRespone,
+  mockMetodosPagoRespone,
+} from './metodo-pago.mock';
+import { mockNominaTrabajadorMes, mockNominaTrabajadorResponse } from './nomina-trabajador.mock';
+import {
+  mockNominaBody,
+  mockNominaFecha,
+  mockNominaPagaResponse,
+  mockNominaResponse,
+} from './nomina.mock';
+import { mockPagoBody, mockPagoResponse, mockPagosResponse } from './pago.mock';
 import { mockPedidoClienteResponse } from './pedido-cliente.mocks';
-import { mockPedidosResponse, mockPedidoBody, mockPedidoDetalle } from './pedido.mock';
-import { mockProductoResponse, mockProductosResponse, mockProductosSinImagenResponse } from './producto.mock';
+import { mockPedidoBody, mockPedidoDetalle, mockPedidosResponse } from './pedido.mock';
 import { mockProductoPedidoResponse } from './producto-pedido.mock';
-import { mockReserva, mockReservaResponse, mockReservasDelDiaResponse, mockReservaUpdateResponse, mockReservasUnordered, mockReservaBody } from './reserva.mocks';
-import { mockRestaurantesResponse, mockRestauranteResponse, mockCambioHorarioResponse, mockCambioHorarioAbiertoResponse, mockCambioHorarioBody } from './restaurante.mock';
-import { mockTrabajadorResponse, mockTrabajadorBody, mockTrabajadorRegisterResponse } from './trabajador.mock';
+import {
+  mockProductoResponse,
+  mockProductosResponse,
+  mockProductosSinImagenResponse,
+} from './producto.mock';
+import {
+  mockReserva,
+  mockReservaBody,
+  mockReservaResponse,
+  mockReservasDelDiaResponse,
+  mockReservasUnordered,
+  mockReservaUpdateResponse,
+} from './reserva.mocks';
+import {
+  mockCambioHorarioAbiertoResponse,
+  mockCambioHorarioBody,
+  mockCambioHorarioResponse,
+  mockRestauranteResponse,
+  mockRestaurantesResponse,
+} from './restaurante.mock';
+import {
+  mockTrabajadorBody,
+  mockTrabajadorRegisterResponse,
+  mockTrabajadorResponse,
+} from './trabajador.mock';
 
 // simple tests to ensure mocks are loaded correctly
 
