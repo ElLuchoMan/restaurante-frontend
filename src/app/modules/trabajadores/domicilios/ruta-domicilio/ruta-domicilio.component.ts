@@ -178,7 +178,7 @@ export class RutaDomicilioComponent implements OnInit {
       console.error('No se encontró el ID del domicilio.');
       return;
     }
-    this.domicilioService.updateDomicilio(this.domicilioId, { entregado: true }).subscribe({
+    this.domicilioService.updateDomicilio(this.domicilioId, {}).subscribe({
       next: (response) => {
         this.toastrService.success('Domicilio marcado como finalizado');
         this.logger.log(LogLevel.INFO, 'Domicilio marcado como finalizado', response);
@@ -225,9 +225,6 @@ export class RutaDomicilioComponent implements OnInit {
                   horaPago: horaHHMMSS_Bogota(ahora),
                   metodoPagoId: this.devolverMetodoPago(metodoPagoSeleccionado),
                   monto: this.totalPedido,
-                  pagoId: 0,
-                  updatedAt: fechaHoraDDMMYYYY_HHMMSS_Bogota(ahora),
-                  updatedBy: `${this.userService.getUserRole()} - ${this.userService.getUserId()}`,
                 })
                 .subscribe({
                   next: (response) => {

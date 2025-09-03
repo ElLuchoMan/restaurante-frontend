@@ -54,7 +54,9 @@ describe('PedidoClienteService', () => {
   it('gets pedido cliente', () => {
     const mock = { code: 200, message: 'ok', data: {} };
     service.getPedidoCliente(3, 4).subscribe((res) => expect(res).toEqual(mock));
-    const req = http.expectOne(`${baseUrl}/3/4`);
+    const req = http.expectOne(
+      `${baseUrl}?pedido_id=3&cliente_id=4`,
+    );
     expect(req.request.method).toBe('GET');
     req.flush(mock);
   });
@@ -64,7 +66,7 @@ describe('PedidoClienteService', () => {
       next: () => fail('should have failed'),
       error: (err) => expect(err).toBeTruthy(),
     });
-    const req = http.expectOne(`${baseUrl}/3/4`);
+    const req = http.expectOne(`${baseUrl}?pedido_id=3&cliente_id=4`);
     req.error(new ErrorEvent('Network error'));
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });

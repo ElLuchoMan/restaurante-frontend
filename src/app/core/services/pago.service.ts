@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Pago } from '../../shared/models/pago.model';
+import { Pago, PagoCreate, PagoUpdate } from '../../shared/models/pago.model';
 import { HandleErrorService } from './handle-error.service';
 
 @Injectable({ providedIn: 'root' })
@@ -12,7 +12,7 @@ export class PagoService {
 
   constructor(private http: HttpClient, private handleError: HandleErrorService) {}
 
-  createPago(payload: Pago): Observable<ApiResponse<Pago>> {
+  createPago(payload: PagoCreate): Observable<ApiResponse<Pago>> {
     console.log('Creating pago with payload:', payload);
     return this.http
       .post<ApiResponse<Pago>>(this.baseUrl, payload)
@@ -31,7 +31,7 @@ export class PagoService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  updatePago(id: number, payload: Partial<Pago>): Observable<ApiResponse<Pago>> {
+  updatePago(id: number, payload: PagoUpdate): Observable<ApiResponse<Pago>> {
     return this.http
       .put<ApiResponse<Pago>>(`${this.baseUrl}?id=${id}`, payload)
       .pipe(catchError(this.handleError.handleError));

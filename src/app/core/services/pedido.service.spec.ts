@@ -31,7 +31,7 @@ describe('PedidoService', () => {
   });
 
   it('creates pedido', () => {
-    const pedido = { total: 100 } as any;
+    const pedido = { delivery: true } as any;
     const mock = { code: 200, message: 'ok', data: {} };
     service.createPedido(pedido).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(baseUrl);
@@ -41,7 +41,7 @@ describe('PedidoService', () => {
   });
 
   it('handles error on createPedido', () => {
-    const pedido = { total: 100 } as any;
+    const pedido = { delivery: true } as any;
     service.createPedido(pedido).subscribe({
       next: () => fail('should have failed'),
       error: (err) => expect(err).toBeTruthy(),

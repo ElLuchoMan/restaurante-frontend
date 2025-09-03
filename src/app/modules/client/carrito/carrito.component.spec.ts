@@ -279,8 +279,6 @@ describe('CarritoComponent', () => {
     await (component as any).finalizeOrder(1, null);
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: false,
-      pagoId: 1,
-      estadoPedido: 'PENDIENTE',
     });
     expect(pedidoServiceMock.assignPago).not.toHaveBeenCalled();
     expect(pedidoServiceMock.assignDomicilio).not.toHaveBeenCalled();
@@ -301,8 +299,6 @@ describe('CarritoComponent', () => {
     await (component as any).finalizeOrder(2, 7);
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: true,
-      pagoId: 2,
-      estadoPedido: 'PENDIENTE',
     });
     expect(pedidoServiceMock.assignPago).not.toHaveBeenCalled();
     expect(pedidoServiceMock.assignDomicilio).toHaveBeenCalledWith(50, 7);

@@ -2,7 +2,10 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Domicilio } from '../../shared/models/domicilio.model';
+import {
+  Domicilio,
+  DomicilioRequest,
+} from '../../shared/models/domicilio.model';
 import {
   mockDomicilioBody,
   mockDomicilioRespone,
@@ -129,7 +132,10 @@ describe('DomicilioService', () => {
   describe('updateDomicilio', () => {
     it('should PUT updated domicilio', () => {
       const id = 1;
-      const updatedData: Partial<Domicilio> = { entregado: true };
+      const updatedData: DomicilioRequest = {
+        ...mockDomicilioBody,
+        direccion: 'Nueva Direccion',
+      };
       const mockResponse = mockDomicilioRespone;
 
       service.updateDomicilio(id, updatedData).subscribe((response) => {
@@ -144,7 +150,7 @@ describe('DomicilioService', () => {
 
     it('should handle error when PUT domicilio', () => {
       const id = 1;
-      const updatedData: Partial<Domicilio> = { entregado: true };
+      const updatedData: Partial<DomicilioRequest> = { direccion: 'Dir' };
       service.updateDomicilio(id, updatedData).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();

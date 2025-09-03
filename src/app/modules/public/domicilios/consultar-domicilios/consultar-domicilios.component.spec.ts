@@ -316,7 +316,7 @@ describe('ConsultarDomicilioComponent', () => {
 
       component.marcarEntregado(domicilio);
 
-      expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, { entregado: true });
+      expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, {});
       expect(domicilio.entregado).toBe(true);
     });
 

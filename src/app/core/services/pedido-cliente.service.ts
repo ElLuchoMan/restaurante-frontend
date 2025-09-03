@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -19,9 +19,15 @@ export class PedidoClienteService {
       .pipe(catchError(this.handleError.handleError));
   }
   /** Obtiene los pedidos de un cliente */
-  getPedidoCliente(pedidoId: number, clienteId: number): Observable<ApiResponse<PedidoCliente>> {
+  getPedidoCliente(
+    pedidoId: number,
+    clienteId: number,
+  ): Observable<ApiResponse<PedidoCliente>> {
+    const params = new HttpParams()
+      .set('pedido_id', pedidoId.toString())
+      .set('cliente_id', clienteId.toString());
     return this.http
-      .get<ApiResponse<PedidoCliente>>(`${this.baseUrl}/${pedidoId}/${clienteId}`)
+      .get<ApiResponse<PedidoCliente>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

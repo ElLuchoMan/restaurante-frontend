@@ -1,6 +1,6 @@
 import { estadoReserva } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
-import { Reserva } from '../models/reserva.model';
+import { Reserva, ReservaCreate } from '../models/reserva.model';
 
 export const mockReserva: Reserva = {
   reservaId: 1,
@@ -115,17 +115,13 @@ export const mockReservasUnordered: Reserva[] = [
   },
 ];
 
-export const mockReservaBody: Reserva = {
+export const mockReservaBody: ReservaCreate = {
   documentoCliente: 1015466494,
   telefono: '3042449339',
   fechaReserva: '2025-02-06',
   horaReserva: '10:00:00',
   personas: 3,
   estadoReserva: estadoReserva.PENDIENTE,
-  createdAt: '2025-02-06T12:00:00.000Z',
-  createdBy: 'Administrador - Bryan Luis',
   indicaciones: 'Reserva de prueba',
   nombreCompleto: 'Bryan Luis',
-  updatedAt: '2025-02-06T12:00:00.000Z',
-  updatedBy: 'Administrador - Bryan Luis',
 };

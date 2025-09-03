@@ -10,3 +10,6 @@ export interface Pago {
   updatedAt?: string;
   updatedBy?: string;
 }
+
+export type PagoCreate = Omit<Pago, 'pagoId' | 'updatedAt' | 'updatedBy'>;
+export type PagoUpdate = Partial<PagoCreate>;
