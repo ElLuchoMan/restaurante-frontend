@@ -31,36 +31,26 @@ describe('ProductoPedidoService', () => {
   });
 
   it('creates producto pedido', () => {
-    const payload: any = {
-      pedidoId: 1,
-      DETALLES_PRODUCTOS: [
-        { PK_ID_PRODUCTO: 1, NOMBRE: 'A', CANTIDAD: 1, PRECIO_UNITARIO: 10, SUBTOTAL: 10 },
-      ],
-    };
+    const detalles = [
+      { PK_ID_PRODUCTO: 1, NOMBRE: 'A', CANTIDAD: 1, PRECIO_UNITARIO: 10, SUBTOTAL: 10 },
+    ];
     const mock = { code: 200, message: 'ok', data: {} };
-    service.create(payload).subscribe((res) => expect(res).toEqual(mock));
-    const req = http.expectOne(baseUrl);
+    service.create(1, detalles).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?pedido_id=1`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({
-      pedidoId: undefined,
-      detallesProductos: payload.DETALLES_PRODUCTOS,
-    });
-    expect(Array.isArray(req.request.body.DETALLES_PRODUCTOS)).toBe(false);
+    expect(req.request.body).toEqual({ detallesProductos: detalles });
     req.flush(mock);
   });
 
   it('handles error on create', () => {
-    const payload: any = {
-      pedidoId: 1,
-      DETALLES_PRODUCTOS: [
-        { PK_ID_PRODUCTO: 1, NOMBRE: 'A', CANTIDAD: 1, PRECIO_UNITARIO: 10, SUBTOTAL: 10 },
-      ],
-    };
-    service.create(payload).subscribe({
+    const detalles = [
+      { PK_ID_PRODUCTO: 1, NOMBRE: 'A', CANTIDAD: 1, PRECIO_UNITARIO: 10, SUBTOTAL: 10 },
+    ];
+    service.create(1, detalles).subscribe({
       next: () => fail('should have failed'),
       error: (err) => expect(err).toBeTruthy(),
     });
-    const req = http.expectOne(baseUrl);
+    const req = http.expectOne(`${baseUrl}?pedido_id=1`);
     req.error(new ErrorEvent('Network error'));
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });

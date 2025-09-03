@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { HandleErrorService } from '../../core/services/handle-error.service';
 import { UserService } from '../../core/services/user.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Reserva } from '../../shared/models/reserva.model';
+import { Reserva, ReservaCreate, ReservaUpdate } from '../../shared/models/reserva.model';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +19,7 @@ export class ReservaService {
     private handleError: HandleErrorService,
   ) {}
 
-  crearReserva(reserva: Reserva): Observable<ApiResponse<Reserva>> {
+  crearReserva(reserva: ReservaCreate): Observable<ApiResponse<Reserva>> {
     return this.http
       .post<ApiResponse<Reserva>>(`${this.baseUrl}/reservas`, reserva)
       .pipe(catchError(this.handleError.handleError));
@@ -31,7 +31,10 @@ export class ReservaService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  actualizarReserva(reservaId: number, reserva: Reserva): Observable<ApiResponse<Reserva>> {
+  actualizarReserva(
+    reservaId: number,
+    reserva: ReservaUpdate,
+  ): Observable<ApiResponse<Reserva>> {
     return this.http
       .put<ApiResponse<Reserva>>(`${this.baseUrl}/reservas?id=${reservaId}`, reserva)
       .pipe(catchError(this.handleError.handleError));

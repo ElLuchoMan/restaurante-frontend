@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -24,13 +24,15 @@ export class ProductoPedidoService {
 
   constructor(private http: HttpClient, private handleError: HandleErrorService) {}
 
-  create(data: { PK_ID_PEDIDO: number; DETALLES_PRODUCTOS: any[] }) {
-    const body = {
-      pedidoId: data.PK_ID_PEDIDO,
-      detallesProductos: data.DETALLES_PRODUCTOS,
-    };
+  create(pedidoId: number, detallesProductos: any[]) {
+    const params = new HttpParams().set('pedido_id', pedidoId.toString());
+    const body = { detallesProductos };
     return this.http
-      .post<ApiResponse<any>>(`${this.baseUrl}/producto_pedido`, body)
+      .post<ApiResponse<any>>(
+        `${this.baseUrl}/producto_pedido`,
+        body,
+        { params },
+      )
       .pipe(catchError(this.handleError.handleError));
   }
 }

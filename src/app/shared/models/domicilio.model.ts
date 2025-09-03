@@ -16,6 +16,16 @@ export interface Domicilio {
   trabajadorNombre?: string;
 }
 
+export type DomicilioRequest = Omit<
+  Domicilio,
+  | 'entregado'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'domicilioId'
+  | 'trabajadorAsignado'
+  | 'trabajadorNombre'
+>;
+
 export interface DomicilioDetalle {
   cliente: {
     documento: number;

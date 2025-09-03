@@ -19,7 +19,10 @@ import { UserService } from '../../../core/services/user.service';
 
 import { estadoPago } from '../../../shared/constants';
 import { Cliente } from '../../../shared/models/cliente.model';
-import { Domicilio } from '../../../shared/models/domicilio.model';
+import {
+  Domicilio,
+  DomicilioRequest,
+} from '../../../shared/models/domicilio.model';
 import { MetodosPago } from '../../../shared/models/metodo-pago.model';
 import { Producto } from '../../../shared/models/producto.model';
 
@@ -169,11 +172,10 @@ export class CarritoComponent implements OnInit, OnDestroy {
       observacion || 'Sin observaciones'
     }`;
 
-    const nuevoDomicilio: Domicilio = {
+    const nuevoDomicilio: DomicilioRequest = {
       direccion: cliente.direccion,
       telefono: cliente.telefono,
       estadoPago: estadoPago.PENDIENTE,
-      entregado: false,
       fechaDomicilio: fechaHoy,
       observaciones: obs,
       createdBy: `Usuario ${clienteId}`,
@@ -194,11 +196,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
     try {
       const pedidoRes = await firstValueFrom(
         this.pedidoService
-          .createPedido({
-            delivery: domicilioId !== null,
-            pagoId: methodId,
-            estadoPedido: estadoPago.PENDIENTE,
-          })
+          .createPedido({ delivery: domicilioId !== null })
           .pipe(takeUntil(this.destroy$)),
       );
       const pedidoId = pedidoRes.data.pedidoId!;
@@ -213,7 +211,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
 
       await firstValueFrom(
         this.productoPedidoService
-          .create({ PK_ID_PEDIDO: pedidoId, DETALLES_PRODUCTOS: detalles })
+          .create(pedidoId, detalles)
           .pipe(takeUntil(this.destroy$)),
       );
 

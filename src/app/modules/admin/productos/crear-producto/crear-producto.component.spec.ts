@@ -63,8 +63,17 @@ describe('CrearProductoComponent', () => {
   it('seleccionarImagen should set image', () => {
     const file = new File([''], 'test.png', { type: 'image/png' });
     const event = { target: { files: [file] } };
+    const readerMock: any = {
+      readAsDataURL: jest.fn(function () {
+        this.result = 'data:image/png;base64,AAA';
+        this.onload();
+      }),
+      onload: () => {},
+      result: '',
+    };
+    jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
     component.seleccionarImagen(event as any);
-    expect(component.imagenSeleccionada).toBe(file);
+    expect(component.producto.imagenBase64).toBe('data:image/png;base64,AAA');
   });
 
   it('crearProducto should validate required fields', () => {
@@ -87,7 +96,6 @@ describe('CrearProductoComponent', () => {
       categoria: 'cat',
       subcategoria: 'sub',
     };
-    component.imagenSeleccionada = null;
     productoServiceMock.createProducto.mockReturnValue(of({ code: 201 }));
     const navigateSpy = jest.spyOn(router, 'navigate');
 
@@ -112,14 +120,24 @@ describe('CrearProductoComponent', () => {
       subcategoria: 'sub',
     };
     const file = new File(['data'], 'image.jpg');
-    component.imagenSeleccionada = file;
+    const event = { target: { files: [file] } } as any;
+    const readerMock: any = {
+      readAsDataURL: jest.fn(function () {
+        this.result = 'base64data';
+        this.onload();
+      }),
+      onload: () => {},
+      result: '',
+    };
+    jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
+    component.seleccionarImagen(event);
     productoServiceMock.createProducto.mockReturnValue(of({ code: 201 }));
-    const appendSpy = jest.spyOn(FormData.prototype, 'append');
 
     component.crearProducto();
 
-    expect(appendSpy).toHaveBeenCalledWith('IMAGEN', file);
-    appendSpy.mockRestore();
+    expect(productoServiceMock.createProducto).toHaveBeenCalledWith(
+      expect.objectContaining({ imagenBase64: 'base64data' }),
+    );
   });
 
   it('crearProducto should not navigate on error response and use defaults for optional fields', () => {
@@ -128,22 +146,14 @@ describe('CrearProductoComponent', () => {
       precio: 20,
       cantidad: 1,
     } as any;
-    component.imagenSeleccionada = null;
     productoServiceMock.createProducto.mockReturnValue(of({ code: 500 }));
     const navigateSpy = jest.spyOn(router, 'navigate');
-    const appendSpy = jest.spyOn(FormData.prototype, 'append');
 
     component.crearProducto();
 
     expect(productoServiceMock.createProducto).toHaveBeenCalled();
     expect(component.mensaje).toBe('');
     expect(navigateSpy).not.toHaveBeenCalled();
-    expect(appendSpy).toHaveBeenCalledWith('CALORIAS', '');
-    expect(appendSpy).toHaveBeenCalledWith('DESCRIPCION', '');
-    expect(appendSpy).toHaveBeenCalledWith('ESTADO_PRODUCTO', 'DISPONIBLE');
-    expect(appendSpy).toHaveBeenCalledWith('CATEGORIA', '');
-    expect(appendSpy).toHaveBeenCalledWith('SUBCATEGORIA', '');
-    appendSpy.mockRestore();
   });
 
   it('cargarProducto should set product when data exists', () => {
@@ -194,7 +204,7 @@ describe('CrearProductoComponent', () => {
 
     component.actualizarProducto();
 
-    expect(productoServiceMock.updateProducto).toHaveBeenCalledWith(2, expect.any(FormData));
+    expect(productoServiceMock.updateProducto).toHaveBeenCalledWith(2, component.producto);
     expect(component.mensaje).toBe('Producto actualizado con éxito');
     jest.runAllTimers();
     expect(navigateSpy).toHaveBeenCalledWith(['/admin/productos']);
@@ -213,14 +223,25 @@ describe('CrearProductoComponent', () => {
       subcategoria: 'sub',
     };
     const file = new File(['data'], 'img.png');
-    component.imagenSeleccionada = file;
+    const event = { target: { files: [file] } } as any;
+    const readerMock: any = {
+      readAsDataURL: jest.fn(function () {
+        this.result = 'imgdata';
+        this.onload();
+      }),
+      onload: () => {},
+      result: '',
+    };
+    jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
+    component.seleccionarImagen(event);
     productoServiceMock.updateProducto.mockReturnValue(of({ code: 200 }));
-    const appendSpy = jest.spyOn(FormData.prototype, 'append');
 
     component.actualizarProducto();
 
-    expect(appendSpy).toHaveBeenCalledWith('IMAGEN', file);
-    appendSpy.mockRestore();
+    expect(productoServiceMock.updateProducto).toHaveBeenCalledWith(
+      3,
+      expect.objectContaining({ imagenBase64: 'imgdata' }),
+    );
   });
 
   it('actualizarProducto should not navigate on error response and use defaults for optional fields', () => {
@@ -230,21 +251,13 @@ describe('CrearProductoComponent', () => {
       precio: 20,
       cantidad: 1,
     } as any;
-    component.imagenSeleccionada = null;
     productoServiceMock.updateProducto.mockReturnValue(of({ code: 500 }));
     const navigateSpy = jest.spyOn(router, 'navigate');
-    const appendSpy = jest.spyOn(FormData.prototype, 'append');
 
     component.actualizarProducto();
 
     expect(productoServiceMock.updateProducto).toHaveBeenCalled();
     expect(component.mensaje).toBe('');
     expect(navigateSpy).not.toHaveBeenCalled();
-    expect(appendSpy).toHaveBeenCalledWith('CALORIAS', '');
-    expect(appendSpy).toHaveBeenCalledWith('DESCRIPCION', '');
-    expect(appendSpy).toHaveBeenCalledWith('ESTADO_PRODUCTO', 'DISPONIBLE');
-    expect(appendSpy).toHaveBeenCalledWith('CATEGORIA', '');
-    expect(appendSpy).toHaveBeenCalledWith('SUBCATEGORIA', '');
-    appendSpy.mockRestore();
   });
 });

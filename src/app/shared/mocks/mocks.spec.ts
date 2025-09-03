@@ -56,7 +56,7 @@ describe('shared mocks', () => {
   it('domicilio mocks', () => {
     expect(mockDomicilioRespone.data.telefono).toBe('3042449339');
     expect(mockDomiciliosRespone.data).toHaveLength(2);
-    expect(mockDomicilioBody.entregado).toBe(false);
+    expect(mockDomicilioBody.direccion).toBe('Carrera 45 #10-20');
   });
 
   it('error mocks', () => {

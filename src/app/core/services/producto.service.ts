@@ -27,12 +27,10 @@ export class ProductoService {
 
   /**
    * Crea un nuevo producto
-   * @param formData FormData con los datos del producto
-   * @returns
    */
-  createProducto(formData: FormData): Observable<ApiResponse<Producto>> {
+  createProducto(producto: Producto): Observable<ApiResponse<Producto>> {
     return this.http
-      .post<ApiResponse<Producto>>(`${this.baseUrl}`, formData)
+      .post<ApiResponse<Producto>>(`${this.baseUrl}`, producto)
       .pipe(catchError(this.handleError.handleError));
   }
 
@@ -50,11 +48,15 @@ export class ProductoService {
   /**
    * Actualiza un producto por ID
    */
-  updateProducto(id: number, formData: FormData): Observable<ApiResponse<Producto>> {
+  updateProducto(id: number, producto: Producto): Observable<ApiResponse<Producto>> {
     return this.http
-      .put<ApiResponse<Producto>>(`${this.baseUrl}`, formData, {
-        params: { id: id.toString() },
-      })
+      .put<ApiResponse<Producto>>(
+        `${this.baseUrl}`,
+        producto,
+        {
+          params: { id: id.toString() },
+        },
+      )
       .pipe(catchError(this.handleError.handleError));
   }
 }

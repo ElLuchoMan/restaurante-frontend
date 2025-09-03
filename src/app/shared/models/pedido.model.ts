@@ -12,6 +12,10 @@ export interface Pedido {
   updatedBy?: string;
 }
 
+export interface PedidoCreate {
+  delivery: boolean;
+}
+
 export interface PedidoDetalle {
   pedidoId: number;
   fechaPedido: string;

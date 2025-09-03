@@ -1,6 +1,6 @@
 import { estadoPago } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
-import { Domicilio } from '../models/domicilio.model';
+import { Domicilio, DomicilioRequest } from '../models/domicilio.model';
 
 export const mockDomicilioRespone: ApiResponse<Domicilio> = {
   code: 200,
@@ -53,12 +53,11 @@ export const mockDomiciliosRespone: ApiResponse<Domicilio[]> = {
   ],
 };
 
-export const mockDomicilioBody: Domicilio = {
+export const mockDomicilioBody: DomicilioRequest = {
   fechaDomicilio: '2024-12-30',
   direccion: 'Carrera 45 #10-20',
   telefono: '3006543210',
   estadoPago: estadoPago.PENDIENTE,
-  entregado: false,
   observaciones: 'Requiere cambio',
   createdBy: 'Administrador - Bryan Luis',
 };

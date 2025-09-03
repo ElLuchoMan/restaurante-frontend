@@ -24,7 +24,6 @@ export class CrearProductoComponent {
     categoria: '',
     subcategoria: '',
   };
-  imagenSeleccionada: File | null = null;
   mensaje: string = '';
   estadoProducto = estadoProducto;
   productoId: string | null = null;
@@ -46,7 +45,14 @@ export class CrearProductoComponent {
   }
   seleccionarImagen(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.imagenSeleccionada = input.files?.[0] || null;
+    const file = input.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.producto.imagenBase64 = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   crearProducto(): void {
@@ -55,9 +61,7 @@ export class CrearProductoComponent {
       return;
     }
 
-    const formData = this.crearFormData(this.producto);
-
-    this.productoService.createProducto(formData).subscribe((response) => {
+    this.productoService.createProducto(this.producto).subscribe((response) => {
       if (response.code === 201) {
         this.mensaje = 'Producto creado con éxito';
         setTimeout(() => this.router.navigate(['/admin/productos']), 2000);
@@ -74,9 +78,9 @@ export class CrearProductoComponent {
   actualizarProducto(): void {
     if (!this.productoId) return;
 
-    const formData = this.crearFormData(this.producto);
-
-    this.productoService.updateProducto(Number(this.productoId), formData).subscribe((response) => {
+    this.productoService
+      .updateProducto(Number(this.productoId), this.producto)
+      .subscribe((response) => {
       if (response.code === 200) {
         this.mensaje = 'Producto actualizado con éxito';
         setTimeout(() => this.router.navigate(['/admin/productos']), 2000);
@@ -84,23 +88,5 @@ export class CrearProductoComponent {
     });
   }
 
-  private crearFormData(producto: Producto): FormData {
-    const formData = new FormData();
-
-    // Convertimos los nombres de las propiedades a mayúsculas para el backend
-    formData.append('NOMBRE', producto.nombre);
-    formData.append('CALORIAS', producto.calorias?.toString() || '');
-    formData.append('DESCRIPCION', producto.descripcion || '');
-    formData.append('PRECIO', producto.precio.toString());
-    formData.append('ESTADO_PRODUCTO', producto.estadoProducto || 'DISPONIBLE');
-    formData.append('CANTIDAD', producto.cantidad.toString());
-    formData.append('CATEGORIA', producto.categoria || '');
-    formData.append('SUBCATEGORIA', producto.subcategoria || '');
-
-    if (this.imagenSeleccionada) {
-      formData.append('IMAGEN', this.imagenSeleccionada);
-    }
-
-    return formData;
-  }
+  // Ya no se requiere conversión a FormData; el backend acepta JSON con imagenBase64
 }

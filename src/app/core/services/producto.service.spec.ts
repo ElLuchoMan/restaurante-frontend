@@ -40,13 +40,12 @@ describe('ProductoService', () => {
   });
 
   it('creates producto', () => {
-    const form = new FormData();
-    form.append('nombre', 'test');
+    const producto = { nombre: 'test', precio: 1, cantidad: 1 } as any;
     const mock = { code: 200, message: 'ok', data: {} };
-    service.createProducto(form).subscribe((res) => expect(res).toEqual(mock));
+    service.createProducto(producto).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(baseUrl);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toBe(form);
+    expect(req.request.body).toEqual(producto);
     req.flush(mock);
   });
 
@@ -59,12 +58,12 @@ describe('ProductoService', () => {
   });
 
   it('updates producto', () => {
-    const form = new FormData();
+    const producto = { nombre: 't', precio: 1, cantidad: 1 } as any;
     const mock = { code: 200, message: 'ok', data: {} };
-    service.updateProducto(3, form).subscribe((res) => expect(res).toEqual(mock));
+    service.updateProducto(3, producto).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(`${baseUrl}?id=3`);
     expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toBe(form);
+    expect(req.request.body).toEqual(producto);
     req.flush(mock);
   });
 
@@ -79,8 +78,8 @@ describe('ProductoService', () => {
   });
 
   it('handles error on createProducto', () => {
-    const form = new FormData();
-    service.createProducto(form).subscribe({
+    const producto = { nombre: 't', precio: 1, cantidad: 1 } as any;
+    service.createProducto(producto).subscribe({
       next: () => fail('should have failed'),
       error: (err) => expect(err).toBeTruthy(),
     });
@@ -101,8 +100,8 @@ describe('ProductoService', () => {
   });
 
   it('handles error on updateProducto', () => {
-    const form = new FormData();
-    service.updateProducto(3, form).subscribe({
+    const producto = { nombre: 't', precio: 1, cantidad: 1 } as any;
+    service.updateProducto(3, producto).subscribe({
       next: () => fail('should have failed'),
       error: (err) => expect(err).toBeTruthy(),
     });

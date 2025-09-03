@@ -3,7 +3,11 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Domicilio, DomicilioDetalle } from '../../shared/models/domicilio.model';
+import {
+  Domicilio,
+  DomicilioDetalle,
+  DomicilioRequest,
+} from '../../shared/models/domicilio.model';
 import { HandleErrorService } from './handle-error.service';
 
 @Injectable({
@@ -39,7 +43,7 @@ export class DomicilioService {
    * Crea un nuevo domicilio.
    * @param domicilio Datos del domicilio a crear
    */
-  createDomicilio(domicilio: Domicilio): Observable<ApiResponse<Domicilio>> {
+  createDomicilio(domicilio: DomicilioRequest): Observable<ApiResponse<Domicilio>> {
     return this.http
       .post<ApiResponse<Domicilio>>(this.baseUrl, domicilio)
       .pipe(catchError(this.handleError.handleError));
@@ -50,7 +54,10 @@ export class DomicilioService {
    * @param id ID del domicilio
    * @param domicilio Datos actualizados
    */
-  updateDomicilio(id: number, domicilio: Partial<Domicilio>): Observable<ApiResponse<Domicilio>> {
+  updateDomicilio(
+    id: number,
+    domicilio: Partial<DomicilioRequest>,
+  ): Observable<ApiResponse<Domicilio>> {
     return this.http
       .put<ApiResponse<Domicilio>>(`${this.baseUrl}?id=${id}`, domicilio)
       .pipe(catchError(this.handleError.handleError));

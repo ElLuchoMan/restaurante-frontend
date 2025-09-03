@@ -8,7 +8,7 @@ import { ReservaService } from '../../../../core/services/reserva.service';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
-import { Reserva } from '../../../../shared/models/reserva.model';
+import { ReservaCreate } from '../../../../shared/models/reserva.model';
 import { ClienteService } from './../../../../core/services/cliente.service';
 
 @Component({
@@ -107,21 +107,7 @@ export class CrearReservaComponent implements OnInit {
     const [anio, mes, dia] = this.fechaReserva.split('-');
     const fechaReservaFormateada = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
 
-    const reserva: Reserva = {
-      createdAt: timestamp,
-      updatedAt: timestamp,
-      createdBy:
-        userRole === 'Administrador'
-          ? `${this.rol} - ${this.nombreTrabajador}`
-          : userRole
-          ? `Cliente - ${this.nombreCompleto}`
-          : 'Anónimo',
-      updatedBy:
-        userRole === 'Administrador'
-          ? `${this.rol} - ${this.nombreTrabajador}`
-          : userRole
-          ? `Cliente - ${this.nombreCompleto}`
-          : 'Anónimo',
+    const reserva: ReservaCreate = {
       documentoCliente:
         userRole === 'Administrador'
           ? Number(userId)

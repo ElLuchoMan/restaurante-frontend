@@ -4,7 +4,11 @@ import { throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { HandleErrorService } from '../../core/services/handle-error.service';
 import { UserService } from '../../core/services/user.service';
-import { mockReservaBody, mockReservaResponse } from '../../shared/mocks/reserva.mocks';
+import {
+  mockReserva,
+  mockReservaBody,
+  mockReservaResponse,
+} from '../../shared/mocks/reserva.mocks';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Reserva } from '../../shared/models/reserva.model';
 import { ReservaService } from './reserva.service';
@@ -65,12 +69,12 @@ describe('ReservaService', () => {
   });
 
   it('should update a reserva successfully', () => {
-    service.actualizarReserva(mockReservaBody.reservaId!, mockReservaBody).subscribe((response) => {
+    service.actualizarReserva(mockReserva.reservaId!, mockReservaBody).subscribe((response) => {
       expect(response).toEqual(mockReservaResponse);
     });
 
     const req = httpMock.expectOne(
-      `${environment.apiUrl}/reservas?id=${mockReservaBody.reservaId}`,
+      `${environment.apiUrl}/reservas?id=${mockReserva.reservaId}`,
     );
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(mockReservaBody);
@@ -136,14 +140,14 @@ describe('ReservaService', () => {
   });
 
   it('should handle API error when updating a reserva', () => {
-    service.actualizarReserva(mockReservaBody.reservaId!, mockReservaBody).subscribe({
+    service.actualizarReserva(mockReserva.reservaId!, mockReservaBody).subscribe({
       error: (error) => {
         expect(error).toBeTruthy();
       },
     });
 
     const req = httpMock.expectOne(
-      `${environment.apiUrl}/reservas?id=${mockReservaBody.reservaId}`,
+      `${environment.apiUrl}/reservas?id=${mockReserva.reservaId}`,
     );
     req.error(new ErrorEvent('API error'));
     expect(handleErrorService.handleError).toHaveBeenCalled();

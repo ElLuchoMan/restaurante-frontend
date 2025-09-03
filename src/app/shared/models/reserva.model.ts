@@ -15,3 +15,10 @@ export interface Reserva {
   updatedAt: string;
   updatedBy: string;
 }
+
+export type ReservaCreate = Omit<
+  Reserva,
+  'reservaId' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'
+>;
+
+export type ReservaUpdate = ReservaCreate;

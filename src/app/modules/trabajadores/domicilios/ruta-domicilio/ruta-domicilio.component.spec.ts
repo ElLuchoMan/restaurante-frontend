@@ -102,7 +102,7 @@ describe('RutaDomicilioComponent', () => {
   it('should mark domicilio as finalizado when marcarFinalizado is called', () => {
     domicilioService.updateDomicilio.mockReturnValue(of(mockDomicilioRespone));
     component.marcarFinalizado();
-    expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, { entregado: true });
+    expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, {});
     expect(toastrService.success).toHaveBeenCalledWith('Domicilio marcado como finalizado');
   });
 
