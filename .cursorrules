@@ -1,0 +1,10 @@
+# restaurante-front/.cursorrules
+rules:
+  - "Contexto: App de restaurante en Angular (standalone) con vistas de menú, carrito, checkout, perfiles y rutas por rol; estilos SCSS; posible SSR/SSG."
+  - "Estilo y Calidad: ESLint + Prettier; imports ordenados; tipado estricto; evitar any; componentes pequeños y reutilizables; lógica en servicios; manejo de estado simple (o NgRx si ya está definido); tokens de diseño consistentes."
+  - "Accesibilidad y Performance: usar atributos aria-; evitar layout shifts; lazy loading por rutas; dividir bundles; imágenes optimizadas; changeDetection cuando sea viable."
+  - "Pruebas: Jest + @testing-library/angular; tests de componentes (render, eventos, accesibilidad), pipes y servicios; HttpTestingController para APIs; cobertura mínima definida; reutilizar mocks de src/app/shared/mocks y ajustarlos si es necesario, evitando mocks ad-hoc en los tests."
+  - "Seguridad: sanitizar HTML; no almacenar PII; no hardcodear claves/endpoints privados; variables por entorno; validar inputs de formularios."
+  - "Convenciones de Git: Conventional Commits (feat/ui:, fix/ui:, chore/deps:, perf/ui:, refactor/ui:); PRs con capturas o story si hay cambios visuales."
+  - "Ignorar: node_modules/, dist/, .angular/, coverage/, .env*, tmp/."
+  - "Instrucciones IA: priorizar accesibilidad y performance; no introducir librerías nuevas sin justificación; sugerir lazy loading/guards/resolvers; generar tests cuando se propongan componentes/servicios."
