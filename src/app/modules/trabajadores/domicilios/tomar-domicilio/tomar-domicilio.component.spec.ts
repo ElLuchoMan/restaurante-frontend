@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoPago } from '../../../../shared/constants';
+import { createDomicilioServiceMock, createUserServiceMock } from '../../../../shared/mocks/test-doubles';
 import { Domicilio } from '../../../../shared/models/domicilio.model';
 import { TomarDomicilioComponent } from './tomar-domicilio.component';
 
@@ -18,13 +19,8 @@ describe('TomarDomicilioComponent', () => {
   let router: Router;
 
   beforeEach(async () => {
-    domicilioService = {
-      getDomicilios: jest.fn(),
-      asignarDomiciliario: jest.fn(),
-    } as unknown as jest.Mocked<DomicilioService>;
-    userService = {
-      getUserId: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
+    domicilioService = createDomicilioServiceMock() as unknown as jest.Mocked<DomicilioService>;
+    userService = createUserServiceMock() as unknown as jest.Mocked<UserService>;
 
     await TestBed.configureTestingModule({
       imports: [TomarDomicilioComponent, HttpClientTestingModule, RouterTestingModule],

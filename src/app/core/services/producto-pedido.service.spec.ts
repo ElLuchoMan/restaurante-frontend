@@ -2,6 +2,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
+import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { HandleErrorService } from './handle-error.service';
 import { ProductoPedidoService } from './producto-pedido.service';
 
@@ -9,11 +10,7 @@ describe('ProductoPedidoService', () => {
   let service: ProductoPedidoService;
   let http: HttpTestingController;
   const baseUrl = `${environment.apiUrl}/producto_pedido`;
-  const mockHandleErrorService = {
-    handleError: jest.fn((error: any) => {
-      throw error;
-    }),
-  };
+  const mockHandleErrorService = createHandleErrorServiceMock();
 
   beforeEach(() => {
     mockHandleErrorService.handleError.mockReset();

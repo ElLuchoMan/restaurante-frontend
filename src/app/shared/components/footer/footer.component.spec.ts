@@ -5,10 +5,11 @@ import { of, throwError } from 'rxjs';
 import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 import { RestauranteService } from '../../../core/services/restaurante.service';
 import {
-  mockCambioHorarioAbiertoResponse,
-  mockCambioHorarioResponse,
-  mockRestauranteResponse,
+    mockCambioHorarioAbiertoResponse,
+    mockCambioHorarioResponse,
+    mockRestauranteResponse,
 } from '../../mocks/restaurante.mock';
+import { createLoggingServiceMock, createRestauranteServiceMock } from '../../mocks/test-doubles';
 import { FooterComponent } from './footer.component';
 
 beforeEach(() => {
@@ -28,14 +29,8 @@ describe('FooterComponent', () => {
   const mockError = new Error('Test error');
 
   beforeEach(async () => {
-    const restauranteServiceMock = {
-      getRestauranteInfo: jest.fn(),
-      getCambiosHorario: jest.fn(),
-    };
-
-    const loggingServiceMock = {
-      log: jest.fn(),
-    } as unknown as jest.Mocked<LoggingService>;
+    const restauranteServiceMock = createRestauranteServiceMock() as jest.Mocked<RestauranteService>;
+    const loggingServiceMock = createLoggingServiceMock() as unknown as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
       imports: [FooterComponent],

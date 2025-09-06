@@ -4,16 +4,17 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Subject } from 'rxjs';
 
 import { UserService } from '../../../../core/services/user.service';
+import { createUserServiceMock } from '../../../../shared/mocks/test-doubles';
 import { ProductosComponent } from './productos.component';
 
 describe('ProductosComponent', () => {
   let component: ProductosComponent;
   let fixture: ComponentFixture<ProductosComponent>;
   let router: Router;
-  let userService: { getUserRole: jest.Mock };
+  let userService: any;
 
   beforeEach(async () => {
-    userService = { getUserRole: jest.fn() };
+    userService = createUserServiceMock();
 
     await TestBed.configureTestingModule({
       imports: [ProductosComponent, RouterTestingModule],

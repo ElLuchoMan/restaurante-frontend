@@ -10,6 +10,7 @@ import { LoggingService, LogLevel } from '../../../../core/services/logging.serv
 import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
 import { mockResponseCliente } from '../../../../shared/mocks/cliente.mock';
+import { createClienteServiceMock, createLoggingServiceMock, createReservaServiceMock, createRouterMock, createToastrMock, createTrabajadorServiceMock, createUserServiceMock } from '../../../../shared/mocks/test-doubles';
 import { mockTrabajadorResponse } from '../../../../shared/mocks/trabajador.mock';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { TrabajadorService } from './../../../../core/services/trabajador.service';
@@ -27,39 +28,13 @@ describe('CrearReservaComponent', () => {
   let loggingService: jest.Mocked<LoggingService>;
 
   beforeEach(async () => {
-    const reservaServiceMock = {
-      crearReserva: jest.fn(),
-    } as unknown as jest.Mocked<ReservaService>;
-
-    const userServiceMock = {
-      getUserRole: jest.fn(),
-      getUserId: jest.fn(),
-      getTrabajadorId: jest.fn(),
-      getClienteId: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
-
-    const trabajadorServiceMock = {
-      getTrabajadorId: jest.fn(),
-      getTrabajadorById: jest.fn(),
-    } as unknown as jest.Mocked<TrabajadorService>;
-
-    const clienteServiceMock = {
-      getClienteId: jest.fn(),
-      getClienteById: jest.fn(),
-    } as unknown as jest.Mocked<ClienteService>;
-
-    const toastrMock = {
-      success: jest.fn(),
-      error: jest.fn(),
-    } as unknown as jest.Mocked<ToastrService>;
-
-    const routerMock = {
-      navigate: jest.fn(),
-    } as unknown as jest.Mocked<Router>;
-
-    const loggingServiceMock = {
-      log: jest.fn(),
-    } as unknown as jest.Mocked<LoggingService>;
+    const reservaServiceMock = createReservaServiceMock() as jest.Mocked<ReservaService>;
+    const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
+    const trabajadorServiceMock = createTrabajadorServiceMock() as jest.Mocked<TrabajadorService>;
+    const clienteServiceMock = createClienteServiceMock() as jest.Mocked<ClienteService>;
+    const toastrMock = createToastrMock() as jest.Mocked<ToastrService>;
+    const routerMock = createRouterMock();
+    const loggingServiceMock = createLoggingServiceMock() as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
       imports: [CrearReservaComponent, FormsModule, CommonModule],

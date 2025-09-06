@@ -9,10 +9,11 @@ import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import {
-  mockReserva,
-  mockReservasUnordered,
-  mockReservaUpdateResponse,
+    mockReserva,
+    mockReservasUnordered,
+    mockReservaUpdateResponse,
 } from '../../../../shared/mocks/reserva.mocks';
+import { createLoggingServiceMock, createReservaServiceMock, createToastrMock, createUserServiceMock } from '../../../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { ConsultarReservaComponent } from './consultar-reserva.component';
@@ -26,25 +27,12 @@ describe('ConsultarReservaComponent', () => {
   let loggingService: jest.Mocked<LoggingService>;
 
   beforeEach(async () => {
-    const reservaServiceMock = {
-      getReservaByParameter: jest.fn(),
-      actualizarReserva: jest.fn(),
-    } as unknown as jest.Mocked<ReservaService>;
-
-    const toastrMock = {
-      success: jest.fn(),
-      warning: jest.fn(),
-      error: jest.fn(),
-    } as unknown as jest.Mocked<ToastrService>;
-
-    const userServiceMock = {
-      getUserRole: jest.fn().mockReturnValue('Administrador'),
-      getUserId: jest.fn().mockReturnValue(123456),
-    } as unknown as jest.Mocked<UserService>;
-
-    const loggingServiceMock = {
-      log: jest.fn(),
-    } as unknown as jest.Mocked<LoggingService>;
+    const reservaServiceMock = createReservaServiceMock() as jest.Mocked<ReservaService>;
+    const toastrMock = createToastrMock() as jest.Mocked<ToastrService>;
+    const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
+    userServiceMock.getUserRole.mockReturnValue('Administrador');
+    userServiceMock.getUserId.mockReturnValue(123456);
+    const loggingServiceMock = createLoggingServiceMock() as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
       imports: [ConsultarReservaComponent, FormsModule, CommonModule],

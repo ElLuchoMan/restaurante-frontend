@@ -4,6 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { UserService } from '../../../../core/services/user.service';
+import { createRouterWithEventsMock, createUserServiceMock } from '../../../../shared/mocks/test-doubles';
 import { MenuReservasComponent } from './menu-reservas.component';
 
 describe('MenuReservasComponent', () => {
@@ -16,15 +17,8 @@ describe('MenuReservasComponent', () => {
   beforeEach(async () => {
     eventsSubject = new Subject<any>();
 
-    const routerMock = {
-      navigate: jest.fn(),
-      events: eventsSubject.asObservable(),
-      url: '/reservas',
-    } as unknown as jest.Mocked<Router>;
-
-    const userServiceMock = {
-      getUserRole: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
+    const routerMock = createRouterWithEventsMock(eventsSubject.asObservable(), '/reservas');
+    const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
 
     await TestBed.configureTestingModule({
       imports: [MenuReservasComponent, CommonModule],

@@ -4,6 +4,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrService } from 'ngx-toastr';
 
 import { DomicilioService } from '../../../core/services/domicilio.service';
+import { createDomicilioServiceMock, createRouterMock, createToastrMock } from '../../../shared/mocks/test-doubles';
 import { UbicacionRestauranteComponent } from './ubicacion-restaurante.component';
 
 describe('UbicacionRestauranteComponent', () => {
@@ -14,9 +15,9 @@ describe('UbicacionRestauranteComponent', () => {
   let toastr: jest.Mocked<ToastrService>;
 
   beforeEach(async () => {
-    const routerMock = { navigate: jest.fn() };
-    const domicilioServiceMock = { getDomicilios: jest.fn() };
-    const toastrMock = { error: jest.fn() };
+    const routerMock = createRouterMock();
+    const domicilioServiceMock = createDomicilioServiceMock();
+    const toastrMock = createToastrMock();
 
     await TestBed.configureTestingModule({
       imports: [UbicacionRestauranteComponent, RouterTestingModule],

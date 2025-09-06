@@ -1,6 +1,6 @@
 import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { createNextHandlerMock, createUserServiceMock } from '../../shared/mocks/test-doubles';
 
 import { UserService } from '../services/user.service';
 import { authInterceptor } from './auth.interceptor';
@@ -10,9 +10,7 @@ describe('authInterceptor', () => {
   let userService: jest.Mocked<UserService>;
 
   beforeEach(() => {
-    const userServiceMock = {
-      validateTokenAndLogout: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
+    const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
 
     TestBed.configureTestingModule({
       providers: [{ provide: UserService, useValue: userServiceMock }],
@@ -27,7 +25,7 @@ describe('authInterceptor', () => {
     userService.validateTokenAndLogout.mockReturnValue(token);
 
     const request = new HttpRequest('GET', '/api/test');
-    const next = jest.fn((req) => of(req));
+    const next = createNextHandlerMock();
 
     interceptor(request, next);
 
@@ -39,7 +37,7 @@ describe('authInterceptor', () => {
     userService.validateTokenAndLogout.mockReturnValue(null);
 
     const request = new HttpRequest('GET', '/api/test');
-    const next = jest.fn((req) => of(req));
+    const next = createNextHandlerMock();
 
     interceptor(request, next);
 

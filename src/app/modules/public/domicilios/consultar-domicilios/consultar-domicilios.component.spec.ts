@@ -6,6 +6,12 @@ import { ModalService } from '../../../../core/services/modal.service';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoPago } from '../../../../shared/constants';
+import {
+    createDomicilioServiceMock,
+    createModalServiceMock,
+    createTrabajadorServiceMock,
+    createUserServiceMock,
+} from '../../../../shared/mocks/test-doubles';
 import { Domicilio } from '../../../../shared/models/domicilio.model';
 import { ConsultarDomicilioComponent } from './consultar-domicilios.component';
 
@@ -18,23 +24,10 @@ describe('ConsultarDomicilioComponent', () => {
   let modalService: jest.Mocked<ModalService>;
 
   beforeEach(async () => {
-    domicilioService = {
-      getDomicilios: jest.fn(),
-      asignarDomiciliario: jest.fn(),
-      updateDomicilio: jest.fn(),
-    } as any;
-    userService = {
-      getUserId: jest.fn(),
-    } as any;
-    trabajadorService = {
-      searchTrabajador: jest.fn(),
-      getTrabajadores: jest.fn(),
-    } as any;
-    modalService = {
-      openModal: jest.fn(),
-      getModalData: jest.fn(),
-      closeModal: jest.fn(),
-    } as any;
+    domicilioService = createDomicilioServiceMock() as any;
+    userService = createUserServiceMock() as any;
+    trabajadorService = createTrabajadorServiceMock() as any;
+    modalService = createModalServiceMock() as any;
 
     await TestBed.configureTestingModule({
       imports: [ConsultarDomicilioComponent],

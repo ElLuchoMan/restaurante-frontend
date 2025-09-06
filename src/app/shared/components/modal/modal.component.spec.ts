@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
-
 import { ModalService } from '../../../core/services/modal.service';
+import { createModalServiceMock } from '../../mocks/test-doubles';
 import { ModalComponent } from './modal.component';
 
 describe('ModalComponent', () => {
@@ -14,11 +14,10 @@ describe('ModalComponent', () => {
   beforeEach(async () => {
     modalDataSubject = new BehaviorSubject(null);
     isOpenSubject = new BehaviorSubject(false);
-    modalServiceSpy = {
-      modalData$: modalDataSubject.asObservable(),
-      isOpen$: isOpenSubject.asObservable(),
-      closeModal: jest.fn(),
-    };
+    modalServiceSpy = createModalServiceMock();
+    // Sobrescribir observables del mock con nuestros subjects de prueba
+    modalServiceSpy.modalData$ = modalDataSubject.asObservable();
+    modalServiceSpy.isOpen$ = isOpenSubject.asObservable();
 
     await TestBed.configureTestingModule({
       imports: [ModalComponent],

@@ -5,6 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 
 import { UserService } from '../../../core/services/user.service';
+import { createUserServiceMock } from '../../mocks/test-doubles';
 import { HeaderComponent } from './header.component';
 
 describe('HeaderComponent', () => {
@@ -14,11 +15,7 @@ describe('HeaderComponent', () => {
   let router: jest.Mocked<Router>;
 
   beforeEach(async () => {
-    const userServiceMock = {
-      getAuthState: jest.fn(),
-      getUserRole: jest.fn(),
-      logout: jest.fn(),
-    } as Partial<jest.Mocked<UserService>> as jest.Mocked<UserService>;
+    const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
 
     await TestBed.configureTestingModule({
       imports: [HeaderComponent, RouterTestingModule],
@@ -32,8 +29,7 @@ describe('HeaderComponent', () => {
     component = fixture.componentInstance;
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
-
-    router.navigate = jest.fn();
+    jest.spyOn(router, 'navigate');
   });
 
   it('should create', () => {

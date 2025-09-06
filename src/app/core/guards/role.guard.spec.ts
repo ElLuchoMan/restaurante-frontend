@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { createRouterMock, createToastrMock, createUserServiceMock } from '../../shared/mocks/test-doubles';
 
 import { UserService } from '../services/user.service';
 import { RoleGuard } from './role.guard';
@@ -12,17 +13,9 @@ describe('RoleGuard', () => {
   let toastr: jest.Mocked<ToastrService>;
 
   beforeEach(() => {
-    const userServiceMock = {
-      getUserRole: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
-
-    const routerMock = {
-      navigate: jest.fn(),
-    } as unknown as jest.Mocked<Router>;
-
-    const toastrMock = {
-      error: jest.fn(),
-    } as unknown as jest.Mocked<ToastrService>;
+    const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
+    const routerMock = createRouterMock();
+    const toastrMock = createToastrMock() as jest.Mocked<ToastrService>;
 
     TestBed.configureTestingModule({
       providers: [

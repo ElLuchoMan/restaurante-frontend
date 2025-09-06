@@ -8,6 +8,7 @@ import { of, throwError } from 'rxjs';
 import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 import { UserService } from '../../../core/services/user.service';
 import { mockLogin } from '../../../shared/mocks/login.mock';
+import { createLoggingServiceMock, createRouterMock, createToastrMock, createUserServiceMock } from '../../../shared/mocks/test-doubles';
 import { mockLoginResponse } from './../../../shared/mocks/login.mock';
 import { LoginComponent } from './login.component';
 
@@ -20,24 +21,10 @@ describe('LoginComponent', () => {
   let loggingService: jest.Mocked<LoggingService>;
 
   beforeEach(async () => {
-    const userServiceMock = {
-      login: jest.fn(),
-      saveToken: jest.fn(),
-      getUserRole: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
-
-    const routerMock = {
-      navigate: jest.fn(),
-    } as unknown as jest.Mocked<Router>;
-
-    const toastrMock = {
-      success: jest.fn(),
-      error: jest.fn(),
-    } as unknown as jest.Mocked<ToastrService>;
-
-    const loggingServiceMock = {
-      log: jest.fn(),
-    } as unknown as jest.Mocked<LoggingService>;
+    const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
+    const routerMock = createRouterMock();
+    const toastrMock = createToastrMock() as jest.Mocked<ToastrService>;
+    const loggingServiceMock = createLoggingServiceMock() as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent, ReactiveFormsModule, CommonModule],

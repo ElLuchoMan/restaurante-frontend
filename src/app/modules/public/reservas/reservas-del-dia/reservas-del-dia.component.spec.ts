@@ -6,9 +6,10 @@ import { of, throwError } from 'rxjs';
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
 import {
-  mockReservaResponse,
-  mockReservasDelDiaResponse,
+    mockReservaResponse,
+    mockReservasDelDiaResponse,
 } from '../../../../shared/mocks/reserva.mocks';
+import { createLoggingServiceMock, createReservaServiceMock, createToastrMock } from '../../../../shared/mocks/test-doubles';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { ReservasDelDiaComponent } from './reservas-del-dia.component';
 
@@ -20,19 +21,9 @@ describe('ReservasDelDiaComponent', () => {
   let loggingService: jest.Mocked<LoggingService>;
 
   beforeEach(async () => {
-    const reservaServiceMock = {
-      getReservaByParameter: jest.fn(),
-      actualizarReserva: jest.fn(),
-    } as unknown as jest.Mocked<ReservaService>;
-
-    const toastrMock = {
-      success: jest.fn(),
-      error: jest.fn(),
-    } as unknown as jest.Mocked<ToastrService>;
-
-    const loggingServiceMock = {
-      log: jest.fn(),
-    } as unknown as jest.Mocked<LoggingService>;
+    const reservaServiceMock = createReservaServiceMock() as jest.Mocked<ReservaService>;
+    const toastrMock = createToastrMock() as jest.Mocked<ToastrService>;
+    const loggingServiceMock = createLoggingServiceMock() as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
       imports: [ReservasDelDiaComponent, CommonModule],

@@ -3,23 +3,19 @@ import { Observable, of, throwError } from 'rxjs';
 
 import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
+import { createPedidoServiceMock, createSpy, createUserServiceMock } from '../../../shared/mocks/test-doubles';
 import { Pedido } from '../../../shared/models/pedido.model';
 import { MisPedidosComponent } from './mis-pedidos.component';
 
 describe('MisPedidosComponent', () => {
   let component: MisPedidosComponent;
   let fixture: ComponentFixture<MisPedidosComponent>;
-  let pedidoService: { getMisPedidos: jest.Mock; getPedidoDetalles: jest.Mock };
-  let userService: { getUserId: jest.Mock };
+  let pedidoService: any;
+  let userService: any;
 
   beforeEach(async () => {
-    pedidoService = {
-      getMisPedidos: jest.fn(),
-      getPedidoDetalles: jest.fn(),
-    };
-    userService = {
-      getUserId: jest.fn(),
-    };
+    pedidoService = createPedidoServiceMock();
+    userService = createUserServiceMock();
 
     await TestBed.configureTestingModule({
       imports: [MisPedidosComponent],
@@ -39,7 +35,7 @@ describe('MisPedidosComponent', () => {
 
   it('should unsubscribe on destroy', () => {
     userService.getUserId.mockReturnValue(1);
-    const unsub = jest.fn();
+    const unsub = createSpy();
     const observable = new Observable(() => {
       return unsub;
     });

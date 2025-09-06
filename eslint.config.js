@@ -32,6 +32,14 @@ export default [
     files: ['**/*.spec.ts', 'src/__mocks__/**/*.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "CallExpression[callee.object.name='jest'][callee.property.name='fn']",
+          message:
+            'No uses jest.fn directamente en specs. Define los mocks en src/app/shared/mocks y reutilízalos.',
+        },
+      ],
     },
   },
   eslintConfigPrettier,

@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
 import { mockLoginResponse } from '../../shared/mocks/login.mock';
+import { createHandleErrorServiceMock, createLoggingServiceMock } from '../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { HandleErrorService } from './handle-error.service';
 import { LoggingService, LogLevel } from './logging.service';
@@ -12,14 +13,8 @@ describe('UserService', () => {
   let service: UserService;
   let httpTestingController: HttpTestingController;
 
-  const mockHandleErrorService = {
-    handleError: jest.fn((error: any) => {
-      throw error;
-    }),
-  };
-  const mockLoggingService = {
-    log: jest.fn(),
-  };
+  const mockHandleErrorService = createHandleErrorServiceMock();
+  const mockLoggingService = createLoggingServiceMock();
 
   beforeEach(() => {
     TestBed.configureTestingModule({

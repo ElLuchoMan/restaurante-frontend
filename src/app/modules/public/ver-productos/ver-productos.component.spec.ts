@@ -6,6 +6,13 @@ import { CartService } from '../../../core/services/cart.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { ProductoService } from '../../../core/services/producto.service';
 import { UserService } from '../../../core/services/user.service';
+import {
+    createCartServiceMock,
+    createModalServiceMock,
+    createProductoServiceMock,
+    createRouterMock,
+    createUserServiceMock,
+} from '../../../shared/mocks/test-doubles';
 import { Producto } from '../../../shared/models/producto.model';
 import { VerProductosComponent } from './ver-productos.component';
 
@@ -46,11 +53,11 @@ describe('VerProductosComponent', () => {
   ];
 
   beforeEach(async () => {
-    productoService = { getProductos: jest.fn() };
-    userService = { getAuthState: jest.fn(), getUserRole: jest.fn() };
-    modalService = { openModal: jest.fn(), closeModal: jest.fn() };
-    router = { navigate: jest.fn() };
-    cartService = { addToCart: jest.fn() };
+    productoService = createProductoServiceMock();
+    userService = createUserServiceMock();
+    modalService = createModalServiceMock();
+    router = createRouterMock();
+    cartService = createCartServiceMock();
 
     await TestBed.configureTestingModule({
       imports: [VerProductosComponent],

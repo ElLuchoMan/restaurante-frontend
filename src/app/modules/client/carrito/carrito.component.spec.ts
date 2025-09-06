@@ -8,10 +8,23 @@ import { ClienteService } from '../../../core/services/cliente.service';
 import { DomicilioService } from '../../../core/services/domicilio.service';
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
-import { PedidoService } from '../../../core/services/pedido.service';
 import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
+import { PedidoService } from '../../../core/services/pedido.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { UserService } from '../../../core/services/user.service';
+import {
+    createCartServiceMock,
+    createClienteServiceMock,
+    createDomicilioServiceMock,
+    createMetodosPagoServiceMock,
+    createModalServiceMock,
+    createPedidoClienteServiceMock,
+    createPedidoServiceMock,
+    createProductoPedidoServiceMock,
+    createRouterMock,
+    createToastrMock,
+    createUserServiceMock,
+} from '../../../shared/mocks/test-doubles';
 import { Producto } from '../../../shared/models/producto.model';
 import { CarritoComponent } from './carrito.component';
 
@@ -35,32 +48,18 @@ describe('CarritoComponent', () => {
     items = [],
     paymentResp = { data: [] },
   }: { items?: any[]; paymentResp?: any } = {}) {
-    cartServiceMock = {
-      items$: new BehaviorSubject<Producto[]>(items as Producto[]),
-      changeQty: jest.fn(),
-      remove: jest.fn(),
-      clearCart: jest.fn(),
-    };
-    modalServiceMock = {
-      openModal: jest.fn(),
-      closeModal: jest.fn(),
-      getModalData: jest.fn(),
-    };
-    metodosPagoServiceMock = {
-      getAll: jest.fn().mockReturnValue(of(paymentResp)),
-    };
-    domicilioServiceMock = { createDomicilio: jest.fn() };
-    pedidoServiceMock = {
-      createPedido: jest.fn(),
-      assignPago: jest.fn(),
-      assignDomicilio: jest.fn(),
-    };
-    productoPedidoServiceMock = { create: jest.fn() };
-    pedidoClienteServiceMock = { create: jest.fn() };
-    userServiceMock = { getUserId: jest.fn() };
-    clienteServiceMock = { getClienteId: jest.fn() };
-    routerMock = { navigate: jest.fn() };
-    toastrServiceMock = { success: jest.fn(), error: jest.fn() };
+    cartServiceMock = createCartServiceMock();
+    cartServiceMock.items$ = new BehaviorSubject<Producto[]>(items as Producto[]);
+    modalServiceMock = createModalServiceMock();
+    metodosPagoServiceMock = createMetodosPagoServiceMock(paymentResp);
+    domicilioServiceMock = createDomicilioServiceMock();
+    pedidoServiceMock = createPedidoServiceMock();
+    productoPedidoServiceMock = createProductoPedidoServiceMock();
+    pedidoClienteServiceMock = createPedidoClienteServiceMock();
+    userServiceMock = createUserServiceMock();
+    clienteServiceMock = createClienteServiceMock();
+    routerMock = createRouterMock();
+    toastrServiceMock = createToastrMock();
 
     await TestBed.configureTestingModule({
       imports: [CarritoComponent],

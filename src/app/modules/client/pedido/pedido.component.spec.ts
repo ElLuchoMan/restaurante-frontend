@@ -3,15 +3,16 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 import { PedidoService } from '../../../core/services/pedido.service';
+import { createPedidoServiceMock } from '../../../shared/mocks/test-doubles';
 import { PedidoComponent } from './pedido.component';
 
 describe('PedidoComponent', () => {
   let component: PedidoComponent;
   let fixture: ComponentFixture<PedidoComponent>;
-  let pedidoService: { getPedidoDetalles: jest.Mock };
+  let pedidoService: any;
 
   beforeEach(async () => {
-    pedidoService = { getPedidoDetalles: jest.fn() };
+    pedidoService = createPedidoServiceMock();
 
     await TestBed.configureTestingModule({
       imports: [PedidoComponent],

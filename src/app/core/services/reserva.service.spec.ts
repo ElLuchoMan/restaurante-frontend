@@ -1,15 +1,15 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { HandleErrorService } from '../../core/services/handle-error.service';
 import { UserService } from '../../core/services/user.service';
 import {
-  mockReserva,
-  mockReservaBody,
-  mockReservaResponse,
+    mockReserva,
+    mockReservaBody,
+    mockReservaResponse,
 } from '../../shared/mocks/reserva.mocks';
+import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Reserva } from '../../shared/models/reserva.model';
 import { ReservaService } from './reserva.service';
@@ -20,9 +20,7 @@ describe('ReservaService', () => {
   let handleErrorService: jest.Mocked<HandleErrorService>;
 
   beforeEach(() => {
-    const handleErrorMock = {
-      handleError: jest.fn(() => throwError(() => new Error('Error de API'))),
-    } as unknown as jest.Mocked<HandleErrorService>;
+    const handleErrorMock = createHandleErrorServiceMock() as unknown as jest.Mocked<HandleErrorService>;
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],

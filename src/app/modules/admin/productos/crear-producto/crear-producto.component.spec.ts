@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap,Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
+import { createFileReaderMock, createProductoServiceMock } from '../../../../shared/mocks/test-doubles';
 
 import { ProductoService } from '../../../../core/services/producto.service';
 import { estadoProducto } from '../../../../shared/constants';
@@ -15,11 +16,7 @@ describe('CrearProductoComponent', () => {
   let activatedRouteMock: any;
 
   beforeEach(async () => {
-    productoServiceMock = {
-      createProducto: jest.fn(),
-      getProductoById: jest.fn(),
-      updateProducto: jest.fn(),
-    };
+    productoServiceMock = createProductoServiceMock();
     activatedRouteMock = { snapshot: { paramMap: convertToParamMap({}) } };
 
     await TestBed.configureTestingModule({
@@ -63,14 +60,7 @@ describe('CrearProductoComponent', () => {
   it('seleccionarImagen should set image', () => {
     const file = new File([''], 'test.png', { type: 'image/png' });
     const event = { target: { files: [file] } };
-    const readerMock: any = {
-      readAsDataURL: jest.fn(function () {
-        this.result = 'data:image/png;base64,AAA';
-        this.onload();
-      }),
-      onload: () => {},
-      result: '',
-    };
+    const readerMock: any = createFileReaderMock('data:image/png;base64,AAA');
     jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
     component.seleccionarImagen(event as any);
     expect(component.producto.imagenBase64).toBe('data:image/png;base64,AAA');
@@ -121,14 +111,7 @@ describe('CrearProductoComponent', () => {
     };
     const file = new File(['data'], 'image.jpg');
     const event = { target: { files: [file] } } as any;
-    const readerMock: any = {
-      readAsDataURL: jest.fn(function () {
-        this.result = 'base64data';
-        this.onload();
-      }),
-      onload: () => {},
-      result: '',
-    };
+    const readerMock: any = createFileReaderMock('base64data');
     jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
     component.seleccionarImagen(event);
     productoServiceMock.createProducto.mockReturnValue(of({ code: 201 }));
@@ -224,14 +207,7 @@ describe('CrearProductoComponent', () => {
     };
     const file = new File(['data'], 'img.png');
     const event = { target: { files: [file] } } as any;
-    const readerMock: any = {
-      readAsDataURL: jest.fn(function () {
-        this.result = 'imgdata';
-        this.onload();
-      }),
-      onload: () => {},
-      result: '',
-    };
+    const readerMock: any = createFileReaderMock('imgdata');
     jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
     component.seleccionarImagen(event);
     productoServiceMock.updateProducto.mockReturnValue(of({ code: 200 }));

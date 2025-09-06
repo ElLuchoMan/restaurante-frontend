@@ -8,9 +8,10 @@ import { of, throwError } from 'rxjs';
 
 import { UserService } from '../../../core/services/user.service';
 import { mockClienteBody, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
+import { createClienteServiceMock, createRouterMock, createToastrMock, createTrabajadorServiceMock, createUserServiceMock } from '../../../shared/mocks/test-doubles';
 import {
-  mockTrabajadorBody,
-  mockTrabajadorRegisterResponse,
+    mockTrabajadorBody,
+    mockTrabajadorRegisterResponse,
 } from '../../../shared/mocks/trabajador.mock';
 import { Cliente } from '../../../shared/models/cliente.model';
 import { Trabajador } from '../../../shared/models/trabajador.model';
@@ -29,27 +30,11 @@ describe('RegisterComponent', () => {
   let router: jest.Mocked<Router>;
 
   beforeEach(async () => {
-    const userServiceMock = {
-      getUserRole: jest.fn(),
-      registroCliente: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
-
-    const trabajadorServiceMock = {
-      registroTrabajador: jest.fn(),
-    } as unknown as jest.Mocked<TrabajadorService>;
-
-    const clienteServiceMock = {
-      registroCliente: jest.fn().mockImplementation(() => of({})),
-    } as unknown as jest.Mocked<ClienteService>;
-
-    const toastrMock = {
-      success: jest.fn(),
-      error: jest.fn(),
-    } as unknown as jest.Mocked<ToastrService>;
-
-    const routerMock = {
-      navigate: jest.fn(),
-    } as unknown as jest.Mocked<Router>;
+    const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
+    const trabajadorServiceMock = createTrabajadorServiceMock() as jest.Mocked<TrabajadorService>;
+    const clienteServiceMock = createClienteServiceMock() as jest.Mocked<ClienteService>;
+    const toastrMock = createToastrMock() as jest.Mocked<ToastrService>;
+    const routerMock = createRouterMock();
     await TestBed.configureTestingModule({
       imports: [RegisterComponent, ReactiveFormsModule, CommonModule, HttpClientTestingModule],
       providers: [

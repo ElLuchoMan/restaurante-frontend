@@ -2,12 +2,13 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
+import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Domicilio, DomicilioRequest } from '../../shared/models/domicilio.model';
+import { DomicilioRequest } from '../../shared/models/domicilio.model';
 import {
-  mockDomicilioBody,
-  mockDomicilioRespone,
-  mockDomiciliosRespone,
+    mockDomicilioBody,
+    mockDomicilioRespone,
+    mockDomiciliosRespone,
 } from './../../shared/mocks/domicilio.mock';
 import { DomicilioService } from './domicilio.service';
 import { HandleErrorService } from './handle-error.service';
@@ -17,11 +18,7 @@ describe('DomicilioService', () => {
   let httpMock: HttpTestingController;
   const baseUrl = `${environment.apiUrl}/domicilios`;
 
-  const mockHandleErrorService = {
-    handleError: jest.fn((error: any) => {
-      throw error;
-    }),
-  };
+  const mockHandleErrorService = createHandleErrorServiceMock();
 
   beforeEach(() => {
     mockHandleErrorService.handleError.mockReset();
