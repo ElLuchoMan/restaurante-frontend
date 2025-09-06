@@ -123,6 +123,15 @@ Sass variables remain only for build‑time values such as breakpoints.
 - Lazy load de features e imágenes; divide bundles.
 - Preferir detección de cambios OnPush en componentes aptos.
 
+### Imágenes de productos (menú)
+- Dimensión base recomendada: 800×800 px (relación 1:1).
+- Formato: WebP (calidad ~80) con fallback JPEG cuando sea necesario.
+- Peso objetivo: ≤ 150 KB (ideal ≤ 100 KB).
+- Variantes responsivas: genera 400, 800 y 1200 px en `srcset`.
+- `sizes` sugerido: `(max-width: 600px) 50vw, (max-width: 1200px) 33vw, 300px`.
+- Atributos: `loading="lazy"`, `decoding="async"`, y define `width`/`height` para evitar CLS.
+- Fondo transparente (WebP/PNG) si aplica; si no, usa un fondo sólido consistente con el tema.
+
 ## Entornos
 
 - Archivos en `src/environments/` para configuración por entorno.
