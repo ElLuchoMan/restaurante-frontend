@@ -109,4 +109,12 @@ describe('LoginComponent', () => {
       'No hay propiedad "message" en el error.',
     );
   });
+
+  it('should early-return when form is invalid and mark all as touched', () => {
+    const markSpy = jest.spyOn(component.loginForm, 'markAllAsTouched');
+    // Form vacío es inválido
+    component.onSubmit();
+    expect(markSpy).toHaveBeenCalled();
+    expect(userService.login).not.toHaveBeenCalled();
+  });
 });

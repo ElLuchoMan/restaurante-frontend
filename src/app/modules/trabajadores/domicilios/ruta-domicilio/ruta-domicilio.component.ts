@@ -17,6 +17,14 @@ import {
     fechaYYYYMMDD_Bogota,
     horaHHMMSS_Bogota
 } from '../../../../shared/utils/dateHelper';
+import {
+    buildNombreCliente,
+    computeTotal,
+    normalizeProductos,
+    obtenerMetodoPagoDefaultUtil,
+    parseMetodoYObservacionesUtil,
+    shouldGenerateMapsUtil,
+} from './ruta-domicilio.utils';
 
 interface ProductoDetalleVM {
   nombre: string;
@@ -76,46 +84,43 @@ export class RutaDomicilioComponent implements OnInit {
         if (!response?.data) return;
 
         // Nombre cliente
-        const cli = response.data?.cliente;
-        this.nombreCliente = cli ? `${cli.nombre ?? ''} ${cli.apellido ?? ''}`.trim() : '';
+        this.nombreCliente = buildNombreCliente(response.data?.cliente);
 
         // Productos (puede venir como string JSON o como array)
-        const raw = response.data?.pedido?.productos ?? [];
-        const arr: any[] = typeof raw === 'string' ? JSON.parse(raw) : raw;
-
-        // Normalizamos a VM con tipos correctos
-        this.productos = (arr ?? []).map((x: any) => ({
-          nombre: String(x.NOMBRE ?? x.nombre ?? ''),
-          cantidad: Number(x.CANTIDAD ?? x.cantidad ?? 0),
-          precioUnitario: Number(x.PRECIO_UNITARIO ?? x.precioUnitario ?? x.PRECIO ?? 0),
-          subtotal: Number(x.SUBTOTAL ?? x.subtotal ?? 0),
-          productoId: x.PK_ID_PRODUCTO ?? x.productoId,
-        }));
+        this.productos = normalizeProductos(response.data?.pedido?.productos ?? []);
 
         // Total
-        const totalRaw = response.data?.pedido?.total;
-        this.totalPedido = Number(
-          totalRaw ?? this.productos.reduce((s, p) => s + (p.subtotal || 0), 0),
-        );
+        this.totalPedido = computeTotal(response.data?.pedido?.total, this.productos);
         this.pedidoId = Number(response.data?.pedido?.pedidoId ?? 0);
 
         this.logger.log(LogLevel.INFO, 'Detalle domicilio', response);
       });
 
-      this.direccionCliente = params['direccion'] || 'Calle 100 # 13 - 55, Bogotá, Colombia';
+      const direccionParam = params['direccion'];
+      this.direccionCliente = direccionParam || 'Calle 100 # 13 - 55, Bogotá, Colombia';
       this.telefonoCliente = params['telefono'] || 'No disponible';
 
       // Observaciones puede venir como: "Método pago: Daviplata - Observaciones: Test"
       this.observacionesRaw = params['observaciones'] || 'Sin observaciones';
-      const { metodo, observaciones } = this.parseMetodoYObservaciones(this.observacionesRaw);
+      const { metodo, observaciones } = parseMetodoYObservacionesUtil(this.observacionesRaw);
       this.metodoPagoTexto = metodo;
       this.observaciones = observaciones;
 
-      if (this.direccionCliente) {
+      /* istanbul ignore if: la rama false no es alcanzable (se usa default) */
+      if (this.shouldGenerateMaps(direccionParam, this.direccionCliente)) {
         this.generarRuta();
         this.generarUrlGoogleMaps();
       }
     });
+  }
+
+  /**
+   * Determina si se deben generar las URLs de mapas en base a los parámetros originales
+   * y al valor final normalizado. No cambia el comportamiento actual: siempre retorna true
+   * cuando el valor final no está vacío (incluyendo cuando se usa el valor por defecto).
+   */
+  private shouldGenerateMaps(direccionParam: string | undefined, direccionFinal: string): boolean {
+    return shouldGenerateMapsUtil(direccionParam, direccionFinal);
   }
 
   /**
@@ -126,37 +131,7 @@ export class RutaDomicilioComponent implements OnInit {
    *  - o cualquier otra (devuelve todo en observaciones)
    */
   private parseMetodoYObservaciones(s: string): { metodo: string; observaciones: string } {
-    if (!s) return { metodo: '', observaciones: '' };
-
-    // Regex tolerante a acentos, espacios y guiones
-    const re = /m[eé]todo\s*pago\s*:\s*([^-\n\r]+)?(?:\s*-\s*observaciones\s*:\s*(.+))?/i;
-    const m = s.match(re);
-    if (m) {
-      const metodo = (m[1] ?? '').trim();
-      const obs = (m[2] ?? '').trim();
-      return {
-        metodo,
-        observaciones: obs || (!metodo ? s : ''),
-      };
-    }
-
-    // Plan B sencillo: dividir por " - " y " : "
-    if (s.includes(' - ') || s.includes(':')) {
-      const trozos = s.split(' - ');
-      let metodo = '';
-      let obs = '';
-      for (const t of trozos) {
-        const [k, ...v] = t.split(':');
-        const key = (k || '').trim().toLowerCase();
-        const val = v.join(':').trim();
-        if (key.includes('método') || key.includes('metodo')) metodo = val;
-        else if (key.includes('observac')) obs = val;
-      }
-      if (metodo || obs) return { metodo, observaciones: obs };
-    }
-
-    // Si no encaja, lo dejamos entero como observaciones
-    return { metodo: '', observaciones: s };
+    return parseMetodoYObservacionesUtil(s);
   }
 
   public generarRuta(): void {
@@ -270,21 +245,7 @@ export class RutaDomicilioComponent implements OnInit {
    * a uno de los valores válidos del selector: 'NEQUI' | 'DAVIPLATA' | 'EFECTIVO'.
    */
   private obtenerMetodoPagoDefault(): 'NEQUI' | 'DAVIPLATA' | 'EFECTIVO' | null {
-    const raw = (this.metodoPagoTexto || '').toString().trim().toUpperCase();
-    if (!raw) return null;
-
-    // Normalizar posibles variantes (remueve acentos y símbolos)
-    const norm = raw
-      .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '')
-      .replace(/[^A-Z0-9]/g, '')
-      .replace(/\s+/g, '');
-
-    if (norm.includes('NEQUI')) return 'NEQUI';
-    if (norm.includes('DAVIPLATA') || norm.includes('DAVI')) return 'DAVIPLATA';
-    if (norm.includes('EFECTIVO') || norm === 'CASH') return 'EFECTIVO';
-
-    return null;
+    return obtenerMetodoPagoDefaultUtil(this.metodoPagoTexto);
   }
 
   devolverMetodoPago(metodoPagoSeleccionado: string): number {

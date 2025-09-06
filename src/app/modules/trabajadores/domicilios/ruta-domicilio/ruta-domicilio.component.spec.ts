@@ -8,7 +8,9 @@ import { of, throwError } from 'rxjs';
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { LoggingService } from '../../../../core/services/logging.service';
 import { ModalService } from '../../../../core/services/modal.service';
-import { estadoPago } from '../../../../shared/constants';
+import { PagoService } from '../../../../core/services/pago.service';
+import { PedidoService } from '../../../../core/services/pedido.service';
+import { estadoPago, metodoPago } from '../../../../shared/constants';
 import {
     createDomicilioServiceMock,
     createDomSanitizerMock,
@@ -45,6 +47,8 @@ describe('RutaDomicilioComponent', () => {
 
     const sanitizerMock = createDomSanitizerMock();
     const domicilioServiceMock = createDomicilioServiceMock();
+    const pagoServiceMock = { createPago: jest.fn(() => of({ data: { pagoId: 1 } })) } as any;
+    const pedidoServiceMock = { assignPago: jest.fn(() => of({})) } as any;
     const modalServiceMock = createModalServiceMock();
     const toastrServiceMock = createToastrMock();
     const loggingServiceMock = createLoggingServiceMock() as unknown as jest.Mocked<LoggingService>;
@@ -57,6 +61,8 @@ describe('RutaDomicilioComponent', () => {
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: DomSanitizer, useValue: sanitizerMock },
         { provide: DomicilioService, useValue: domicilioServiceMock },
+        { provide: PagoService, useValue: pagoServiceMock },
+        { provide: PedidoService, useValue: pedidoServiceMock },
         { provide: ModalService, useValue: modalServiceMock },
         { provide: ToastrService, useValue: toastrServiceMock },
         { provide: LoggingService, useValue: loggingServiceMock },
@@ -156,6 +162,74 @@ describe('RutaDomicilioComponent', () => {
       config.buttons[1].action();
       expect(modalService.closeModal).toHaveBeenCalled();
     });
+
+    it('should assign pago when createPago returns pagoId and show success', () => {
+      // Prepara estado
+      component.domicilioId = 1;
+      (component as any).pedidoId = 55 as any;
+      // Mock modal
+      modalService.getModalData.mockReturnValue({ select: { selected: 'NEQUI' } });
+      // Mock updateDomicilio para no fallar
+      domicilioService.updateDomicilio.mockReturnValue(of({} as any));
+
+      component.marcarPago();
+      const config = modalService.openModal.mock.calls[0][0];
+      config.buttons[0].action();
+
+      expect(toastrService.success).toHaveBeenCalledWith('Pago asignado al domicilio');
+    });
+
+    it('should not assignPago when createPago returns without pagoId', () => {
+      // Fuerza createPago sin pagoId
+      const pago = TestBed.inject(PagoService) as any;
+      pago.createPago.mockReturnValueOnce(of({ data: {} }));
+
+      component.domicilioId = 1;
+      (component as any).pedidoId = 99 as any;
+      modalService.getModalData.mockReturnValue({ select: { selected: 'EFECTIVO' } });
+      domicilioService.updateDomicilio.mockReturnValue(of({} as any));
+
+      const pedidoService = TestBed.inject(PedidoService) as any;
+      component.marcarPago();
+      const config = modalService.openModal.mock.calls[0][0];
+      config.buttons[0].action();
+
+      expect(pedidoService.assignPago).not.toHaveBeenCalled();
+    });
+
+    it('should log error when createPago observable errors', () => {
+      const pago = TestBed.inject(PagoService) as any;
+      pago.createPago.mockReturnValueOnce(throwError(() => new Error('create fail')));
+
+      component.domicilioId = 1;
+      modalService.getModalData.mockReturnValue({ select: { selected: 'DAVIPLATA' } });
+      domicilioService.updateDomicilio.mockReturnValue(of({} as any));
+      const logSpy = jest.spyOn(loggingService, 'log');
+
+      component.marcarPago();
+      const config = modalService.openModal.mock.calls[0][0];
+      config.buttons[0].action();
+
+      expect(logSpy).toHaveBeenCalled();
+    });
+
+    it('should catch sync error from createPago and log it', () => {
+      const pago = TestBed.inject(PagoService) as any;
+      pago.createPago.mockImplementationOnce(() => {
+        throw new Error('sync');
+      });
+
+      component.domicilioId = 1;
+      modalService.getModalData.mockReturnValue({ select: { selected: 'NEQUI' } });
+      domicilioService.updateDomicilio.mockReturnValue(of({} as any));
+      const logSpy = jest.spyOn(loggingService, 'log');
+
+      component.marcarPago();
+      const config = modalService.openModal.mock.calls[0][0];
+      config.buttons[0].action();
+
+      expect(logSpy).toHaveBeenCalled();
+    });
   });
 
   it('should log error when domicilioId is missing in marcarPago', () => {
@@ -169,6 +243,187 @@ describe('RutaDomicilioComponent', () => {
     component.volver();
     expect(router.navigate).toHaveBeenCalledWith(['/trabajador/domicilios/tomar']);
   });
+
+  describe('parsers and mappings', () => {
+    it('parseMetodoYObservaciones debe extraer metodo y observaciones (con acentos)', () => {
+      const res = (component as any).parseMetodoYObservaciones('Método pago: Daviplata - Observaciones: Test');
+      expect(res.metodo).toBe('Daviplata');
+      expect(res.observaciones).toBe('Test');
+    });
+
+    it('parseMetodoYObservaciones acepta "Metodo" sin acento', () => {
+      const res = (component as any).parseMetodoYObservaciones('Metodo pago: NEQUI');
+      expect(res.metodo).toBe('NEQUI');
+      expect(res.observaciones).toBe('');
+    });
+
+    it('parseMetodoYObservaciones solo observaciones', () => {
+      const res = (component as any).parseMetodoYObservaciones('Observaciones: Entregar en portería');
+      expect(res.metodo).toBe('');
+      expect(res.observaciones).toContain('portería');
+    });
+
+    it('parseMetodoYObservaciones deja cadena cuando no encaja', () => {
+      const s = 'Texto libre';
+      const res = (component as any).parseMetodoYObservaciones(s);
+      expect(res.metodo).toBe('');
+      expect(res.observaciones).toBe(s);
+    });
+
+    it('obtenerMetodoPagoDefault normaliza variantes y mapea', () => {
+      (component as any).metodoPagoTexto = 'Daví plata';
+      expect((component as any).obtenerMetodoPagoDefault()).toBe('DAVIPLATA');
+      (component as any).metodoPagoTexto = 'cash';
+      expect((component as any).obtenerMetodoPagoDefault()).toBe('EFECTIVO');
+      (component as any).metodoPagoTexto = 'desconocido';
+      expect((component as any).obtenerMetodoPagoDefault()).toBeNull();
+    });
+
+    it('normaliza productos y total cuando vienen como string JSON/array mixto', () => {
+      const mockResponse = {
+        data: {
+          pedido: {
+            productos:
+              '[{"NOMBRE":"A","CANTIDAD":"2","PRECIO_UNITARIO":"5","SUBTOTAL":"10"}]',
+            total: undefined,
+            pedidoId: 3,
+          },
+          cliente: { nombre: 'N', apellido: 'A' },
+        },
+      } as any;
+      domicilioService.getDomicilioById.mockReturnValue(of(mockResponse));
+      component.domicilioId = 123;
+      component.ngOnInit();
+      expect(component.productos.length).toBeGreaterThan(0);
+      expect(component.totalPedido).toBeGreaterThanOrEqual(10);
+    });
+
+    it('usa totalRaw cuando viene informado en la respuesta del pedido', () => {
+      const mockResponse = {
+        data: {
+          pedido: {
+            productos: '[]',
+            total: 777,
+            pedidoId: 4,
+          },
+          cliente: { nombre: 'N', apellido: 'A' },
+        },
+      } as any;
+      domicilioService.getDomicilioById.mockReturnValue(of(mockResponse));
+      component.domicilioId = 999;
+      component.ngOnInit();
+      expect(component.totalPedido).toBe(777);
+    });
+
+    it('devolverMetodoPago retorna ids correctos', () => {
+      expect(component.devolverMetodoPago('NEQUI')).toBe(metodoPago.Nequi.metodoPagoId);
+      expect(component.devolverMetodoPago('DAVIPLATA')).toBe(metodoPago.Daviplata.metodoPagoId);
+      expect(component.devolverMetodoPago('EFECTIVO')).toBe(metodoPago.Efectivo.metodoPagoId);
+      expect(component.devolverMetodoPago('X')).toBe(0);
+    });
+
+    it('retorna temprano si response.data es null en getDomicilioById', () => {
+      domicilioService.getDomicilioById.mockReturnValue(of({ data: null } as any));
+      const logSpy = jest.spyOn(loggingService, 'log');
+      jest.clearAllMocks();
+      component.ngOnInit();
+      expect(component.productos).toEqual([]);
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('normaliza claves alternativas como PRECIO y cliente indefinido', () => {
+      const mockResponse = {
+        data: {
+          pedido: {
+            productos: '[{"nombre":"X","cantidad":"1","PRECIO":"15"}]',
+            total: undefined,
+            pedidoId: 7,
+          },
+          cliente: undefined,
+        },
+      } as any;
+      domicilioService.getDomicilioById.mockReturnValue(of(mockResponse));
+      component.domicilioId = 321;
+      component.ngOnInit();
+      expect(component.nombreCliente).toBe('');
+      expect(component.productos[0].precioUnitario).toBe(15);
+    });
+
+    it('construye nombreCliente sin nulos cuando faltan nombre/apellido', () => {
+      const mockResponse = {
+        data: {
+          pedido: { productos: '[]', total: 0, pedidoId: 1 },
+          cliente: { nombre: undefined, apellido: undefined },
+        },
+      } as any;
+      domicilioService.getDomicilioById.mockReturnValue(of(mockResponse));
+      component.domicilioId = 1;
+      component.ngOnInit();
+      expect(component.nombreCliente).toBe('');
+    });
+
+    it('mapea productoId alternativo y precioUnitario alternativo', () => {
+      const mockResponse = {
+        data: {
+          pedido: {
+            productos: JSON.stringify([
+              { nombre: 'A', cantidad: '1', precioUnitario: '7', productoId: 123 },
+            ]),
+            total: undefined,
+            pedidoId: 2,
+          },
+          cliente: { nombre: 'N', apellido: 'A' },
+        },
+      } as any;
+      domicilioService.getDomicilioById.mockReturnValue(of(mockResponse));
+      component.domicilioId = 2;
+      component.ngOnInit();
+      expect(component.productos[0].precioUnitario).toBe(7);
+      expect(component.productos[0].productoId).toBe(123);
+    });
+
+    it('mapea PK_ID_PRODUCTO y PRECIO_UNITARIO correctamente', () => {
+      const mockResponse = {
+        data: {
+          pedido: {
+            productos: JSON.stringify([
+              { NOMBRE: 'B', CANTIDAD: '2', PRECIO_UNITARIO: '12', PK_ID_PRODUCTO: 456 },
+            ]),
+            total: undefined,
+            pedidoId: 3,
+          },
+          cliente: { nombre: 'N', apellido: 'A' },
+        },
+      } as any;
+      domicilioService.getDomicilioById.mockReturnValue(of(mockResponse));
+      component.domicilioId = 3;
+      component.ngOnInit();
+      expect(component.productos[0].precioUnitario).toBe(12);
+      expect(component.productos[0].productoId).toBe(456);
+    });
+  });
+
+  it('debe loguear error si assignPago falla tras crear pago', () => {
+    // Arrange
+    component.domicilioId = 1;
+    (component as any).pedidoId = 77 as any;
+    modalService.getModalData.mockReturnValue({ select: { selected: 'NEQUI' } });
+    const pago = TestBed.inject(PagoService) as any;
+    pago.createPago.mockReturnValueOnce(of({ data: { pagoId: 999 } }));
+    const pedido = TestBed.inject(PedidoService) as any;
+    pedido.assignPago.mockReturnValueOnce(throwError(() => new Error('assign fail')));
+    domicilioService.updateDomicilio.mockReturnValue(of({} as any));
+
+    const logSpy = jest.spyOn(loggingService, 'log');
+
+    // Act
+    component.marcarPago();
+    const config = modalService.openModal.mock.calls[0][0];
+    config.buttons[0].action();
+
+    // Assert
+    expect(logSpy).toHaveBeenCalled();
+  });
 });
 
 describe('RutaDomicilioComponent with default params', () => {
@@ -177,7 +432,7 @@ describe('RutaDomicilioComponent with default params', () => {
 
   beforeEach(async () => {
     const activatedRouteMock = {
-      queryParams: of({}),
+      queryParams: of({ direccion: '' }),
     };
 
     const sanitizerMock = createDomSanitizerMock();
@@ -208,5 +463,40 @@ describe('RutaDomicilioComponent with default params', () => {
     expect(component.telefonoCliente).toBe('No disponible');
     expect(component.observaciones).toBe('Sin observaciones');
     expect(component.domicilioId).toBe(0);
+  });
+
+  it('shouldGenerateMaps returns true when direccion param is undefined (defaults applied)', () => {
+    expect((component as any).shouldGenerateMaps(undefined, component.direccionCliente)).toBe(
+      true,
+    );
+  });
+
+  it('shouldGenerateMaps returns false only if direccionFinal is empty string with param present', () => {
+    expect((component as any).shouldGenerateMaps('', '')).toBe(false);
+    expect((component as any).shouldGenerateMaps('', 'x')).toBe(true);
+  });
+  
+  it('should still generate route when direccionCliente param is empty (uses default)', () => {
+    component.direccionCliente = '' as any;
+    const spyRuta = jest.spyOn(component, 'generarRuta');
+    const spyUrl = jest.spyOn(component, 'generarUrlGoogleMaps');
+    component.ngOnInit();
+    expect(spyRuta).toHaveBeenCalled();
+    expect(spyUrl).toHaveBeenCalled();
+  });
+
+  it('should not generate maps when shouldGenerateMaps returns false (branch else)', () => {
+    const spyRuta = jest.spyOn(component, 'generarRuta');
+    const spyUrl = jest.spyOn(component, 'generarUrlGoogleMaps');
+    // Fuerza la rama else sin cambiar la lógica interna
+    const spyShould = jest.spyOn<any, any>(component as any, 'shouldGenerateMaps').mockReturnValue(false);
+    // Limpiar contadores por la llamada previa en el beforeEach
+    spyRuta.mockClear();
+    spyUrl.mockClear();
+    component.ngOnInit();
+    expect(spyShould).toHaveBeenCalled();
+    expect(spyRuta).not.toHaveBeenCalled();
+    expect(spyUrl).not.toHaveBeenCalled();
+    spyShould.mockRestore();
   });
 });

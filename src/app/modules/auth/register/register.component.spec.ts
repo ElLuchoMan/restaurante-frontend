@@ -285,4 +285,65 @@ describe('RegisterComponent', () => {
 
     expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error', 'Error');
   }));
+
+  it('should use default role "Mesero" when worker rol is empty', fakeAsync(() => {
+    trabajadorService.registroTrabajador.mockReturnValue(of(mockTrabajadorRegisterResponse));
+
+    component.registerForm.patchValue({
+      esTrabajador: true,
+      documento: '11111',
+      nombre: 'T',
+      apellido: 'X',
+      password: 'p',
+      sueldo: 1000,
+      telefono: '123',
+      rol: '',
+      horaEntrada: '08:00',
+      horaSalida: '20:00',
+      fechaNacimiento: '1990-01-01',
+    });
+
+    component.onSubmit();
+    tick();
+
+    expect(trabajadorService.registroTrabajador).toHaveBeenCalledWith(
+      expect.objectContaining({ rol: 'Mesero' }),
+    );
+  }));
+
+  it('should toggle validators when esTrabajador changes', fakeAsync(() => {
+    // Inicialmente no trabajador: direccion y correo requeridos
+    component.registerForm.patchValue({
+      direccion: '',
+      correo: '',
+      fechaNacimiento: '',
+      sueldo: null,
+      rol: '',
+      horaEntrada: '',
+      horaSalida: '',
+    } as any);
+    component.registerForm.updateValueAndValidity();
+    expect(component.registerForm.get('direccion')?.hasError('required')).toBe(true);
+    expect(component.registerForm.get('correo')?.hasError('required')).toBe(true);
+
+    // Cambia a trabajador: direccion/correo dejan de ser requeridos; otros se vuelven requeridos
+    component.registerForm.get('esTrabajador')?.setValue(true);
+    tick();
+    component.registerForm.updateValueAndValidity();
+    expect(component.registerForm.get('direccion')?.hasError('required')).toBe(false);
+    expect(component.registerForm.get('correo')?.hasError('required')).toBe(false);
+    expect(component.registerForm.get('fechaNacimiento')?.hasError('required')).toBe(true);
+    expect(component.registerForm.get('sueldo')?.hasError('required')).toBe(true);
+    expect(component.registerForm.get('rol')?.hasError('required')).toBe(true);
+    expect(component.registerForm.get('horaEntrada')?.hasError('required')).toBe(true);
+    expect(component.registerForm.get('horaSalida')?.hasError('required')).toBe(true);
+
+    // Vuelve a no trabajador: se restauran requeridos
+    component.registerForm.get('esTrabajador')?.setValue(false);
+    tick();
+    component.registerForm.updateValueAndValidity();
+    expect(component.registerForm.get('direccion')?.hasError('required')).toBe(true);
+    expect(component.registerForm.get('correo')?.hasError('required')).toBe(true);
+    expect(component.registerForm.get('fechaNacimiento')?.hasError('required')).toBe(false);
+  }));
 });

@@ -192,6 +192,20 @@ describe('CarritoComponent', () => {
     expect(finalizeSpy).toHaveBeenCalledWith(2, null);
   });
 
+  it('should handle missing method label (option not found)', async () => {
+    await setup();
+    modalServiceMock.getModalData.mockReturnValue({
+      selects: [
+        { selected: 99, options: [{ label: 'M1', value: 1 }] },
+        { selected: false },
+      ],
+      input: { value: '' },
+    });
+    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
+    await (component as any).onCheckoutConfirm();
+    expect(finalizeSpy).toHaveBeenCalledWith(99, null);
+  });
+
   it('should create domicilio and finalize order when delivery is needed', async () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
@@ -240,6 +254,23 @@ describe('CarritoComponent', () => {
     });
     userServiceMock.getUserId.mockReturnValue(10);
     clienteServiceMock.getClienteId.mockReturnValue(throwError(() => new Error('fail')));
+    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+    await (component as any).onCheckoutConfirm().catch(() => {});
+    expect(finalizeSpy).not.toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledTimes(2);
+    errorSpy.mockRestore();
+  });
+
+  it('should handle missing data when getting client returns without data', async () => {
+    await setup();
+    modalServiceMock.getModalData.mockReturnValue({
+      selects: [{ selected: 1, options: [{ label: 'M1', value: 1 }] }, { selected: true }],
+      input: { value: '' },
+    });
+    userServiceMock.getUserId.mockReturnValue(10);
+    // Respuesta sin data para forzar el throw dentro de fetchCliente
+    clienteServiceMock.getClienteId.mockReturnValue(of({ data: null }));
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
     await (component as any).onCheckoutConfirm().catch(() => {});
@@ -301,6 +332,23 @@ describe('CarritoComponent', () => {
     });
     expect(pedidoServiceMock.assignPago).not.toHaveBeenCalled();
     expect(pedidoServiceMock.assignDomicilio).toHaveBeenCalledWith(50, 7);
+  });
+
+  it('should warn when assignDomicilio returns delivery not true', async () => {
+    await setup();
+    component.carrito = [{ productoId: 2, nombre: 'P2', cantidad: 1, precio: 5 }];
+    userServiceMock.getUserId.mockReturnValue(6);
+    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 60 } }));
+    productoPedidoServiceMock.create.mockReturnValue(of({}));
+    pedidoClienteServiceMock.create.mockReturnValue(of({}));
+    pedidoServiceMock.assignDomicilio.mockReturnValue(of({ data: { delivery: false } }));
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    await (component as any).finalizeOrder(2, 8);
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Respuesta inesperada al asignar domicilio',
+      expect.objectContaining({ delivery: false }),
+    );
+    warnSpy.mockRestore();
   });
 
   it('should handle error in finalizeOrder flow', async () => {

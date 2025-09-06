@@ -1,5 +1,4 @@
 const TZ = 'America/Bogota';
-const pad = (n: number) => String(n).padStart(2, '0');
 
 function nowInBogota(): Date {
   return new Date();
