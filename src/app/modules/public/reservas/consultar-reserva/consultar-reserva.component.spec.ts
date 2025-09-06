@@ -10,7 +10,7 @@ import { estadoReserva } from '../../../../shared/constants';
 import {
   mockReserva,
   mockReservasUnordered,
-  mockReservaUpdateResponse
+  mockReservaUpdateResponse,
 } from '../../../../shared/mocks/reserva.mocks';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
 import { Reserva } from '../../../../shared/models/reserva.model';

@@ -126,12 +126,10 @@ export class ConsultarDomicilioComponent implements OnInit {
       .length;
   }
   marcarEntregado(domicilio: Domicilio): void {
-    this.domicilioService
-      .updateDomicilio(domicilio.domicilioId!, {})
-      .subscribe((response) => {
-        if (response.code === 200) {
-          domicilio.entregado = true;
-        }
-      });
+    this.domicilioService.updateDomicilio(domicilio.domicilioId!, {}).subscribe((response) => {
+      if (response.code === 200) {
+        domicilio.entregado = true;
+      }
+    });
   }
 }

@@ -54,9 +54,7 @@ describe('PedidoClienteService', () => {
   it('gets pedido cliente', () => {
     const mock = { code: 200, message: 'ok', data: {} };
     service.getPedidoCliente(3, 4).subscribe((res) => expect(res).toEqual(mock));
-    const req = http.expectOne(
-      `${baseUrl}?pedido_id=3&cliente_id=4`,
-    );
+    const req = http.expectOne(`${baseUrl}?pedido_id=3&cliente_id=4`);
     expect(req.request.method).toBe('GET');
     req.flush(mock);
   });

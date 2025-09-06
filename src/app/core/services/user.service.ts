@@ -81,13 +81,13 @@ export class UserService {
   }
 
   isTokenExpired(): boolean {
-    const token = this.getToken();
-    if (!token) {
-      return false;
+    const decoded: DecodedToken | null = this.decodeToken();
+    if (!decoded) {
+      // Si no hay token en absoluto: no expirado. Si hay token malformado: expirado.
+      const token = this.getToken();
+      return !!token; // true si hay token pero no se pudo decodificar
     }
-
-    const decoded: DecodedToken | null = this.decodeTokenSafely(token);
-    if (!decoded || typeof decoded.exp !== 'number') return true;
+    if (typeof decoded.exp !== 'number') return true;
 
     const currentTime = Math.floor(Date.now() / 1000);
     return decoded.exp < currentTime;

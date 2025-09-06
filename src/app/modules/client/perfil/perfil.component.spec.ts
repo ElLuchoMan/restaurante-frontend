@@ -31,14 +31,12 @@ describe('PerfilComponent', () => {
   it('should load client data successfully', async () => {
     const userServiceMock = {
       getUserId: jest.fn().mockReturnValue(1),
-      decodeToken: jest
-        .fn()
-        .mockReturnValue({
-          nombre: 'Cliente',
-          rol: 'Cliente',
-          documento: 1,
-          exp: Math.floor(Date.now() / 1000) + 1000,
-        }),
+      decodeToken: jest.fn().mockReturnValue({
+        nombre: 'Cliente',
+        rol: 'Cliente',
+        documento: 1,
+        exp: Math.floor(Date.now() / 1000) + 1000,
+      }),
     } as Partial<UserService>;
     const clienteData = {
       direccion: 'Calle 1',
@@ -87,14 +85,12 @@ describe('PerfilComponent', () => {
   it('should handle error when service fails', async () => {
     const userServiceMock = {
       getUserId: jest.fn().mockReturnValue(1),
-      decodeToken: jest
-        .fn()
-        .mockReturnValue({
-          nombre: 'Cliente',
-          rol: 'Cliente',
-          documento: 1,
-          exp: Math.floor(Date.now() / 1000) + 1000,
-        }),
+      decodeToken: jest.fn().mockReturnValue({
+        nombre: 'Cliente',
+        rol: 'Cliente',
+        documento: 1,
+        exp: Math.floor(Date.now() / 1000) + 1000,
+      }),
     } as Partial<UserService>;
     const clienteServiceMock = {
       getClienteId: jest.fn().mockReturnValue(throwError(() => new Error('fail'))),
@@ -115,14 +111,12 @@ describe('PerfilComponent', () => {
   it('should leave observaciones empty when not frequent client', async () => {
     const userServiceMock = {
       getUserId: jest.fn().mockReturnValue(1),
-      decodeToken: jest
-        .fn()
-        .mockReturnValue({
-          nombre: 'Cliente',
-          rol: 'Cliente',
-          documento: 1,
-          exp: Math.floor(Date.now() / 1000) + 1000,
-        }),
+      decodeToken: jest.fn().mockReturnValue({
+        nombre: 'Cliente',
+        rol: 'Cliente',
+        documento: 1,
+        exp: Math.floor(Date.now() / 1000) + 1000,
+      }),
     } as Partial<UserService>;
     const clienteData = {
       direccion: 'Calle 2',

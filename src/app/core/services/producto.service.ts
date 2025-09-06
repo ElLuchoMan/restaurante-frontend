@@ -12,7 +12,10 @@ import { HandleErrorService } from './handle-error.service';
 export class ProductoService {
   private baseUrl = `${environment.apiUrl}/productos`;
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+  constructor(
+    private http: HttpClient,
+    private handleError: HandleErrorService,
+  ) {}
 
   /**
    * Obtiene productos del backend y los mapea con nombres en minúsculas
@@ -50,13 +53,9 @@ export class ProductoService {
    */
   updateProducto(id: number, producto: Producto): Observable<ApiResponse<Producto>> {
     return this.http
-      .put<ApiResponse<Producto>>(
-        `${this.baseUrl}`,
-        producto,
-        {
-          params: { id: id.toString() },
-        },
-      )
+      .put<ApiResponse<Producto>>(`${this.baseUrl}`, producto, {
+        params: { id: id.toString() },
+      })
       .pipe(catchError(this.handleError.handleError));
   }
 }

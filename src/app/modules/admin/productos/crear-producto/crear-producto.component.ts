@@ -81,11 +81,11 @@ export class CrearProductoComponent {
     this.productoService
       .updateProducto(Number(this.productoId), this.producto)
       .subscribe((response) => {
-      if (response.code === 200) {
-        this.mensaje = 'Producto actualizado con éxito';
-        setTimeout(() => this.router.navigate(['/admin/productos']), 2000);
-      }
-    });
+        if (response.code === 200) {
+          this.mensaje = 'Producto actualizado con éxito';
+          setTimeout(() => this.router.navigate(['/admin/productos']), 2000);
+        }
+      });
   }
 
   // Ya no se requiere conversión a FormData; el backend acepta JSON con imagenBase64

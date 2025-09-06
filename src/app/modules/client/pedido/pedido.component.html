@@ -5,78 +5,80 @@
     <h1 class="text-center mb-4">Detalle del pedido</h1>
 
     @if (loading) {
-    <div class="text-center text-muted">Cargando pedido…</div>
-    } @if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
-    } @if (!loading && pedido) {
-    <article class="pedido-card">
-      <header class="pedido-card__header">
-        <div class="pedido-card__title">
-          <h3 class="pedido-card__id">Detalle de tu pedido</h3>
-          <div class="pedido-card__tags">
-            <span
-              class="tag"
-              [ngClass]="{
-                'tag--ok': pedido.estadoPedido === 'TERMINADO',
-                'tag--warn': pedido.estadoPedido === 'INICIADO',
-                'tag--danger': pedido.estadoPedido === 'CANCELADO'
-              }"
-              >{{ pedido.estadoPedido }}</span
-            >
-            <span class="tag" [ngClass]="{ 'tag--muted': !pedido.delivery }">{{
-              pedido.delivery ? 'Domicilio' : 'En restaurante'
-            }}</span>
+      <div class="text-center text-muted">Cargando pedido…</div>
+    }
+    @if (error) {
+      <div class="alert alert-danger">{{ error }}</div>
+    }
+    @if (!loading && pedido) {
+      <article class="pedido-card">
+        <header class="pedido-card__header">
+          <div class="pedido-card__title">
+            <h3 class="pedido-card__id">Detalle de tu pedido</h3>
+            <div class="pedido-card__tags">
+              <span
+                class="tag"
+                [ngClass]="{
+                  'tag--ok': pedido.estadoPedido === 'TERMINADO',
+                  'tag--warn': pedido.estadoPedido === 'INICIADO',
+                  'tag--danger': pedido.estadoPedido === 'CANCELADO',
+                }"
+                >{{ pedido.estadoPedido }}</span
+              >
+              <span class="tag" [ngClass]="{ 'tag--muted': !pedido.delivery }">{{
+                pedido.delivery ? 'Domicilio' : 'En restaurante'
+              }}</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="pedido-card__meta">
+          <div class="meta__item">
+            <span class="meta__label">Fecha</span>
+            <span class="meta__value">{{ pedido.fechaPedido | formatDate: 'date' }}</span>
+          </div>
+          <div class="meta__item">
+            <span class="meta__label">Hora</span>
+            <span class="meta__value">{{ pedido.horaPedido | formatDate: 'time' }}</span>
+          </div>
+          <div class="meta__item">
+            <span class="meta__label">Método de pago</span>
+            <span class="meta__value">{{ pedido.metodoPago }}</span>
           </div>
         </div>
-      </header>
 
-      <div class="pedido-card__meta">
-        <div class="meta__item">
-          <span class="meta__label">Fecha</span>
-          <span class="meta__value">{{ pedido.fechaPedido | formatDate : 'date' }}</span>
+        <div class="pedido-detalle__productos">
+          <h3 class="pedido-detalle__subtitle">Productos</h3>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Cant.</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (prod of pedido.productos; track prod.NOMBRE; let i = $index) {
+                <tr>
+                  <td>{{ prod.NOMBRE || prod.nombre }}</td>
+                  <td>{{ prod.CANTIDAD || prod.cantidad }}</td>
+                  <td>
+                    ${{
+                      prod.SUBTOTAL ??
+                        (prod.PRECIO_UNITARIO || prod.precio || 0) *
+                          (prod.CANTIDAD || prod.cantidad || 1) | number: '1.0-0'
+                    }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
-        <div class="meta__item">
-          <span class="meta__label">Hora</span>
-          <span class="meta__value">{{ pedido.horaPedido | formatDate : 'time' }}</span>
-        </div>
-        <div class="meta__item">
-          <span class="meta__label">Método de pago</span>
-          <span class="meta__value">{{ pedido.metodoPago }}</span>
-        </div>
-      </div>
 
-      <div class="pedido-detalle__productos">
-        <h3 class="pedido-detalle__subtitle">Productos</h3>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Cant.</th>
-              <th>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (prod of pedido.productos; track prod.NOMBRE; let i = $index) {
-            <tr>
-              <td>{{ prod.NOMBRE || prod.nombre }}</td>
-              <td>{{ prod.CANTIDAD || prod.cantidad }}</td>
-              <td>
-                ${{
-                  prod.SUBTOTAL ??
-                    (prod.PRECIO_UNITARIO || prod.precio || 0) *
-                      (prod.CANTIDAD || prod.cantidad || 1) | number : '1.0-0'
-                }}
-              </td>
-            </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <footer class="pedido-card__footer">
-        <span class="pedido-detalle__total">Total: ${{ pedido.total | number : '1.0-0' }}</span>
-      </footer>
-    </article>
+        <footer class="pedido-card__footer">
+          <span class="pedido-detalle__total">Total: ${{ pedido.total | number: '1.0-0' }}</span>
+        </footer>
+      </article>
     }
   </div>
 </div>

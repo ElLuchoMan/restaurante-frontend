@@ -15,7 +15,10 @@ export class MenuReservasComponent implements OnInit {
   rol: string | null = '';
   esAdmin: boolean = false;
 
-  constructor(private router: Router, private userService: UserService) {
+  constructor(
+    private router: Router,
+    private userService: UserService,
+  ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects.split('?')[0];

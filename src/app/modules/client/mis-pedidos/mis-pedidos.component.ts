@@ -42,7 +42,10 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
   error = '';
   private destroy$ = new Subject<void>();
 
-  constructor(private pedidoService: PedidoService, private userService: UserService) {}
+  constructor(
+    private pedidoService: PedidoService,
+    private userService: UserService,
+  ) {}
 
   ngOnInit(): void {
     const userId = this.userService.getUserId();

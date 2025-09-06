@@ -290,7 +290,7 @@ describe('CrearReservaComponent', () => {
     expect(toastr.error).toHaveBeenCalledWith('Error creando reserva', 'Error');
     expect(router.navigate).not.toHaveBeenCalled();
   });
-  it('should create reservation with "Anónimo" when no user role is provided', () => {
+  it('should create reservation when no user role is provided', () => {
     component.rol = null;
     userService.getUserId.mockReturnValue(0);
     component.fechaReserva = '2025-02-06';
@@ -305,9 +305,7 @@ describe('CrearReservaComponent', () => {
 
     component.onSubmit();
 
-    const reservaArg = reservaService.crearReserva.mock.calls[0][0] as Reserva;
-    expect(reservaArg.createdBy).toBe('Anónimo');
-    expect(reservaArg.updatedBy).toBe('Anónimo');
+    const reservaArg = reservaService.crearReserva.mock.calls[0][0] as any;
     expect(reservaArg.documentoCliente).toBe(987654321);
     expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
   });

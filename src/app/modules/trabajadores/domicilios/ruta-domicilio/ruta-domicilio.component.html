@@ -22,15 +22,17 @@
     <p><i class="fas fa-map-marker-alt"></i> Dirección: {{ direccionCliente }}</p>
     <p><i class="fas fa-phone"></i> Teléfono: {{ telefonoCliente }}</p>
     @if (metodoPagoTexto) {
-    <p><i class="fas fa-money-bill-wave"></i> Método de pago: {{ metodoPagoTexto }}</p>
+      <p><i class="fas fa-money-bill-wave"></i> Método de pago: {{ metodoPagoTexto }}</p>
     }
     <p><i class="fas fa-dollar-sign"></i> Total del Pedido: {{ totalPedido }}</p>
 
     @if (productos.length > 0) {
-    <i class="fas fa-cart-shopping"></i> Productos: @for (p of productos; track p) {
-    <div>{{ p.cantidad }}x {{ p.nombre }} – {{ p.subtotal }}</div>
-    } } @else {
-    <small>No hay productos para este pedido.</small>
+      <i class="fas fa-cart-shopping"></i> Productos:
+      @for (p of productos; track p) {
+        <div>{{ p.cantidad }}x {{ p.nombre }} – {{ p.subtotal }}</div>
+      }
+    } @else {
+      <small>No hay productos para este pedido.</small>
     }
     <p>
       <i class="fas fa-sticky-note"></i> Observaciones: {{ observaciones || 'Sin observaciones' }}

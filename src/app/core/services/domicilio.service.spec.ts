@@ -2,10 +2,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import {
-  Domicilio,
-  DomicilioRequest,
-} from '../../shared/models/domicilio.model';
+import { Domicilio, DomicilioRequest } from '../../shared/models/domicilio.model';
 import {
   mockDomicilioBody,
   mockDomicilioRespone,

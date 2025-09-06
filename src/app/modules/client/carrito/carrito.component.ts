@@ -19,10 +19,7 @@ import { UserService } from '../../../core/services/user.service';
 
 import { estadoPago } from '../../../shared/constants';
 import { Cliente } from '../../../shared/models/cliente.model';
-import {
-  Domicilio,
-  DomicilioRequest,
-} from '../../../shared/models/domicilio.model';
+import { Domicilio, DomicilioRequest } from '../../../shared/models/domicilio.model';
 import { MetodosPago } from '../../../shared/models/metodo-pago.model';
 import { Producto } from '../../../shared/models/producto.model';
 
@@ -210,9 +207,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       }));
 
       await firstValueFrom(
-        this.productoPedidoService
-          .create(pedidoId, detalles)
-          .pipe(takeUntil(this.destroy$)),
+        this.productoPedidoService.create(pedidoId, detalles).pipe(takeUntil(this.destroy$)),
       );
 
       await firstValueFrom(

@@ -15,7 +15,7 @@ import { estadoPago, metodoPago } from '../../../../shared/constants';
 import {
   fechaHoraDDMMYYYY_HHMMSS_Bogota,
   fechaYYYYMMDD_Bogota,
-  horaHHMMSS_Bogota
+  horaHHMMSS_Bogota,
 } from '../../../../shared/utils/dateHelper';
 
 interface ProductoDetalleVM {

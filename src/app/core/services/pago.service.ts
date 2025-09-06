@@ -10,7 +10,10 @@ import { HandleErrorService } from './handle-error.service';
 export class PagoService {
   private baseUrl = `${environment.apiUrl}/pagos`;
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+  constructor(
+    private http: HttpClient,
+    private handleError: HandleErrorService,
+  ) {}
 
   createPago(payload: PagoCreate): Observable<ApiResponse<Pago>> {
     console.log('Creating pago with payload:', payload);

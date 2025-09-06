@@ -73,9 +73,7 @@ describe('ReservaService', () => {
       expect(response).toEqual(mockReservaResponse);
     });
 
-    const req = httpMock.expectOne(
-      `${environment.apiUrl}/reservas?id=${mockReserva.reservaId}`,
-    );
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas?id=${mockReserva.reservaId}`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(mockReservaBody);
     req.flush(mockReservaResponse);
@@ -146,9 +144,7 @@ describe('ReservaService', () => {
       },
     });
 
-    const req = httpMock.expectOne(
-      `${environment.apiUrl}/reservas?id=${mockReserva.reservaId}`,
-    );
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas?id=${mockReserva.reservaId}`);
     req.error(new ErrorEvent('API error'));
     expect(handleErrorService.handleError).toHaveBeenCalled();
   });

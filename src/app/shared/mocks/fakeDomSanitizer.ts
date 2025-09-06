@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import {
-    DomSanitizer,
-    SafeHtml,
-    SafeResourceUrl,
-    SafeScript,
-    SafeStyle,
-    SafeUrl,
+  DomSanitizer,
+  SafeHtml,
+  SafeResourceUrl,
+  SafeScript,
+  SafeStyle,
+  SafeUrl,
 } from '@angular/platform-browser';
 
 @Injectable()

@@ -22,17 +22,16 @@ interface CrearProductoPedido {
 export class ProductoPedidoService {
   private baseUrl = `${environment.apiUrl}`;
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+  constructor(
+    private http: HttpClient,
+    private handleError: HandleErrorService,
+  ) {}
 
   create(pedidoId: number, detallesProductos: any[]) {
     const params = new HttpParams().set('pedido_id', pedidoId.toString());
     const body = { detallesProductos };
     return this.http
-      .post<ApiResponse<any>>(
-        `${this.baseUrl}/producto_pedido`,
-        body,
-        { params },
-      )
+      .post<ApiResponse<any>>(`${this.baseUrl}/producto_pedido`, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

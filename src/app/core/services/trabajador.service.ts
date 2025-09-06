@@ -11,7 +11,10 @@ import { HandleErrorService } from './handle-error.service';
 })
 export class TrabajadorService {
   private baseUrl = environment.apiUrl;
-  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+  constructor(
+    private http: HttpClient,
+    private handleError: HandleErrorService,
+  ) {}
 
   registroTrabajador(trabajador: Trabajador): Observable<ApiResponse<Trabajador>> {
     return this.http
@@ -20,9 +23,9 @@ export class TrabajadorService {
   }
   searchTrabajador(documento_trabajador: number): Observable<ApiResponse<Trabajador>> {
     return this.http
-      .get<ApiResponse<Trabajador>>(
-        `${this.baseUrl}/trabajadores/search?id=${documento_trabajador}`,
-      )
+      .get<
+        ApiResponse<Trabajador>
+      >(`${this.baseUrl}/trabajadores/search?id=${documento_trabajador}`)
       .pipe(catchError(this.handleError.handleError));
   }
 

@@ -160,6 +160,7 @@ describe('CarritoComponent', () => {
       input: { value: 'nota' },
     });
 
+    userServiceMock.getUserId.mockReturnValue(42);
     const fetchClienteSpy = jest
       .spyOn(component as any, 'fetchCliente')
       .mockResolvedValue({} as any);

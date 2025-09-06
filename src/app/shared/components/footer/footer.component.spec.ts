@@ -103,7 +103,7 @@ describe('FooterComponent', () => {
       () =>
         ({
           toLocaleTimeString: () => '21:00',
-        } as unknown as Date),
+        }) as unknown as Date,
     );
 
     fixture.detectChanges();
@@ -120,7 +120,7 @@ describe('FooterComponent', () => {
       () =>
         ({
           toLocaleTimeString: () => '12:00',
-        } as unknown as Date),
+        }) as unknown as Date,
     );
 
     fixture.detectChanges();

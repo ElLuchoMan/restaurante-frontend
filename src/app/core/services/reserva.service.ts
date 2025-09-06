@@ -31,10 +31,7 @@ export class ReservaService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  actualizarReserva(
-    reservaId: number,
-    reserva: ReservaUpdate,
-  ): Observable<ApiResponse<Reserva>> {
+  actualizarReserva(reservaId: number, reserva: ReservaUpdate): Observable<ApiResponse<Reserva>> {
     return this.http
       .put<ApiResponse<Reserva>>(`${this.baseUrl}/reservas?id=${reservaId}`, reserva)
       .pipe(catchError(this.handleError.handleError));

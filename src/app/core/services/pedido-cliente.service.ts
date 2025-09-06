@@ -10,7 +10,10 @@ import { HandleErrorService } from './handle-error.service';
 export class PedidoClienteService {
   private baseUrl = `${environment.apiUrl}/pedido_clientes`;
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+  constructor(
+    private http: HttpClient,
+    private handleError: HandleErrorService,
+  ) {}
 
   /** Relaciona un pedido con un cliente */
   create(rel: PedidoCliente): Observable<ApiResponse<any>> {
@@ -19,10 +22,7 @@ export class PedidoClienteService {
       .pipe(catchError(this.handleError.handleError));
   }
   /** Obtiene los pedidos de un cliente */
-  getPedidoCliente(
-    pedidoId: number,
-    clienteId: number,
-  ): Observable<ApiResponse<PedidoCliente>> {
+  getPedidoCliente(pedidoId: number, clienteId: number): Observable<ApiResponse<PedidoCliente>> {
     const params = new HttpParams()
       .set('pedido_id', pedidoId.toString())
       .set('cliente_id', clienteId.toString());

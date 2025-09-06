@@ -3,18 +3,17 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import {
-  Pedido,
-  PedidoDetalle,
-  PedidoCreate,
-} from '../../shared/models/pedido.model';
+import { Pedido, PedidoDetalle, PedidoCreate } from '../../shared/models/pedido.model';
 import { HandleErrorService } from './handle-error.service';
 
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
   private baseUrl = `${environment.apiUrl}/pedidos`;
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+  constructor(
+    private http: HttpClient,
+    private handleError: HandleErrorService,
+  ) {}
 
   createPedido(pedido: PedidoCreate): Observable<ApiResponse<Pedido>> {
     return this.http

@@ -111,7 +111,9 @@
   background: var(--white);
   text-decoration: none;
   color: inherit;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
   cursor: pointer;
 
   &:hover {

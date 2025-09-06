@@ -12,7 +12,10 @@ import { HandleErrorService } from './handle-error.service';
 export class ClienteService {
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+  constructor(
+    private http: HttpClient,
+    private handleError: HandleErrorService,
+  ) {}
 
   getClienteId(documento: number): Observable<ApiResponse<Cliente>> {
     return this.http

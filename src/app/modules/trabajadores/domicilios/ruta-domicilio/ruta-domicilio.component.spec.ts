@@ -1,3 +1,4 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -47,6 +48,7 @@ describe('RutaDomicilioComponent', () => {
 
     const domicilioServiceMock = {
       updateDomicilio: jest.fn(),
+      getDomicilioById: jest.fn().mockReturnValue(of({ data: { pedido: { productos: [], total: 0 }, cliente: { nombre: 'N', apellido: 'A' } } })),
     };
 
     const modalServiceMock = {
@@ -70,7 +72,7 @@ describe('RutaDomicilioComponent', () => {
 
     await TestBed.configureTestingModule({
       // IMPORTANTE: Importamos el componente standalone en "imports"
-      imports: [RutaDomicilioComponent],
+      imports: [HttpClientTestingModule, RutaDomicilioComponent],
       providers: [
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: DomSanitizer, useValue: sanitizerMock },
@@ -211,11 +213,11 @@ describe('RutaDomicilioComponent with default params', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [RutaDomicilioComponent],
+      imports: [HttpClientTestingModule, RutaDomicilioComponent],
       providers: [
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: DomSanitizer, useValue: sanitizerMock },
-        { provide: DomicilioService, useValue: { updateDomicilio: jest.fn() } },
+        { provide: DomicilioService, useValue: { updateDomicilio: jest.fn(), getDomicilioById: jest.fn().mockReturnValue(of({ data: { pedido: { productos: [], total: 0 }, cliente: { nombre: 'N', apellido: 'A' } } })) } },
         {
           provide: ModalService,
           useValue: { openModal: jest.fn(), getModalData: jest.fn(), closeModal: jest.fn() },

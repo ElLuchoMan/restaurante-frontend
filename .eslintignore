@@ -1,8 +1,0 @@
-node_modules/
-dist/
-build/
-coverage/
-+lib/*/.js
-+dist/*/.js
-+*.d.ts
-+*/.config.js

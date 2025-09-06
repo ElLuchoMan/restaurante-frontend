@@ -1,7 +1,8 @@
 @use 'variables' as *;
 
 .text-monospace {
-  font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
+  font-family:
+    SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
 }
 
 .text-justify {
@@ -539,7 +540,9 @@ h3 {
 }
 
 .page-header {
-  background: linear-gradient(rgb(0 0 0 / 30%), rgb(0 0 0 / 30%)), url('./img/header.jpg'),
+  background:
+    linear-gradient(rgb(0 0 0 / 30%), rgb(0 0 0 / 30%)),
+    url('./img/header.jpg'),
     no-repeat center center;
   background-size: cover;
 }
@@ -984,7 +987,9 @@ label {
   font-weight: bold;
   gap: 8px;
   padding: 5px 10px;
-  transition: color 0.3s ease, transform 0.2s ease;
+  transition:
+    color 0.3s ease,
+    transform 0.2s ease;
   user-select: none;
 
   &:hover {

@@ -11,9 +11,8 @@ describe('AppComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         {
-          provide:
-            ActivatedRoute,
-          useValue: { snapshot: { data: { title: 'Home' } } }
+          provide: ActivatedRoute,
+          useValue: { snapshot: { data: { title: 'Home' } } },
         },
         HttpClient,
         HttpHandler,

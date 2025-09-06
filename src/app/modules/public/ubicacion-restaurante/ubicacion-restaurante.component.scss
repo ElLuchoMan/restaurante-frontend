@@ -23,7 +23,9 @@
   padding: 20px;
   text-align: center;
   transform: translateY(20px);
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transition:
+    transform 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
 }
 
 .info-card h2 {

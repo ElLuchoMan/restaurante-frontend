@@ -17,7 +17,10 @@ export class PedidoComponent implements OnInit {
   loading = true;
   error = '';
 
-  constructor(private route: ActivatedRoute, private pedidoService: PedidoService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private pedidoService: PedidoService,
+  ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));

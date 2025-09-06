@@ -3,11 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import {
-  Domicilio,
-  DomicilioDetalle,
-  DomicilioRequest,
-} from '../../shared/models/domicilio.model';
+import { Domicilio, DomicilioDetalle, DomicilioRequest } from '../../shared/models/domicilio.model';
 import { HandleErrorService } from './handle-error.service';
 
 @Injectable({
@@ -16,7 +12,10 @@ import { HandleErrorService } from './handle-error.service';
 export class DomicilioService {
   private baseUrl = `${environment.apiUrl}/domicilios`;
 
-  constructor(private http: HttpClient, private handleError: HandleErrorService) {}
+  constructor(
+    private http: HttpClient,
+    private handleError: HandleErrorService,
+  ) {}
 
   /**
    * Obtiene todos los domicilios según filtros

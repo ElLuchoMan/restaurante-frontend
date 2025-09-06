@@ -3,85 +3,97 @@
     <h1 class="text-center mb-4">Mis pedidos</h1>
 
     @if (loading) {
-    <div class="text-center text-muted">Cargando pedidos…</div>
-    } @if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
-    } @if (!loading && !error && (!pedidos || pedidos.length === 0)) {
-    <div class="alert alert-info">Aún no tienes pedidos.</div>
-    } @if (!loading && pedidos.length) {
-    <div class="cards">
-      @for (p of pedidos; track p.pedidoId; let i = $index) {
-      <article class="pedido-card pedido-card--compact">
-        <header class="pedido-card__header">
-          <div class="pedido-card__icon" [attr.aria-label]="p.delivery ? 'Domicilio' : 'En sitio'">
-            {{ p.delivery ? '🚚' : '🍽️' }}
-          </div>
-
-          <div class="pedido-card__title">
-            <h3 class="pedido-card__id">Pedido #{{ i + 1 }}</h3>
-
-            <div class="pedido-card__tags">
-              <span
-                class="tag"
-                [ngClass]="{
-                  'tag--ok': p.estadoPedido === 'TERMINADO',
-                  'tag--warn': p.estadoPedido === 'INICIADO',
-                  'tag--danger': p.estadoPedido === 'CANCELADO'
-                }"
+      <div class="text-center text-muted">Cargando pedidos…</div>
+    }
+    @if (error) {
+      <div class="alert alert-danger">{{ error }}</div>
+    }
+    @if (!loading && !error && (!pedidos || pedidos.length === 0)) {
+      <div class="alert alert-info">Aún no tienes pedidos.</div>
+    }
+    @if (!loading && pedidos.length) {
+      <div class="cards">
+        @for (p of pedidos; track p.pedidoId; let i = $index) {
+          <article class="pedido-card pedido-card--compact">
+            <header class="pedido-card__header">
+              <div
+                class="pedido-card__icon"
+                [attr.aria-label]="p.delivery ? 'Domicilio' : 'En sitio'"
               >
-                {{ p.estadoPedido }}
-              </span>
+                {{ p.delivery ? '🚚' : '🍽️' }}
+              </div>
 
-              @if (p.delivery) {
-              <span class="tag">Domicilio</span>
-              } @else {
-              <span class="tag tag--muted">En restaurante</span>
+              <div class="pedido-card__title">
+                <h3 class="pedido-card__id">Pedido #{{ i + 1 }}</h3>
+
+                <div class="pedido-card__tags">
+                  <span
+                    class="tag"
+                    [ngClass]="{
+                      'tag--ok': p.estadoPedido === 'TERMINADO',
+                      'tag--warn': p.estadoPedido === 'INICIADO',
+                      'tag--danger': p.estadoPedido === 'CANCELADO',
+                    }"
+                  >
+                    {{ p.estadoPedido }}
+                  </span>
+
+                  @if (p.delivery) {
+                    <span class="tag">Domicilio</span>
+                  } @else {
+                    <span class="tag tag--muted">En restaurante</span>
+                  }
+                </div>
+              </div>
+            </header>
+
+            <!-- META SIMPLIFICADA -->
+            <div class="pedido-card__meta meta--simple">
+              <div class="meta__item">
+                <span class="meta__label">Fecha</span>
+                <span class="meta__value">{{ p.fechaPedido | formatDate: 'date' }}</span>
+              </div>
+
+              <div class="meta__item">
+                <span class="meta__label">Hora</span>
+                <span class="meta__value">{{ p.horaPedido | formatDate: 'time' }}</span>
+              </div>
+
+              <div class="meta__item">
+                <span class="meta__label">Estado del pago</span>
+                <span class="meta__value">
+                  {{ p.pagoId ? 'Sí' : 'Sin pago' }}
+                  @if (p.estadoPago) {
+                    <small class="muted">({{ p.estadoPago }})</small>
+                  }
+                </span>
+              </div>
+
+              @if (p.metodoPago) {
+                <div class="meta__item">
+                  <span class="meta__label">Método de pago</span>
+                  <span class="meta__value">{{ p.metodoPago }}</span>
+                </div>
               }
+
+              <div class="meta__item">
+                <span class="meta__label">Total</span>
+                <span class="meta__value">
+                  @if (p.total !== undefined) {
+                    $ {{ p.total | number: '1.0-0' }}
+                  } @else {
+                    —
+                  }
+                </span>
+              </div>
             </div>
-          </div>
-        </header>
 
-        <!-- META SIMPLIFICADA -->
-        <div class="pedido-card__meta meta--simple">
-          <div class="meta__item">
-            <span class="meta__label">Fecha</span>
-            <span class="meta__value">{{ p.fechaPedido | formatDate : 'date' }}</span>
-          </div>
-
-          <div class="meta__item">
-            <span class="meta__label">Hora</span>
-            <span class="meta__value">{{ p.horaPedido | formatDate : 'time' }}</span>
-          </div>
-
-          <div class="meta__item">
-            <span class="meta__label">Estado del pago</span>
-            <span class="meta__value">
-              {{ p.pagoId ? 'Sí' : 'Sin pago' }}
-              @if (p.estadoPago) { <small class="muted">({{ p.estadoPago }})</small> }
-            </span>
-          </div>
-
-          @if (p.metodoPago) {
-          <div class="meta__item">
-            <span class="meta__label">Método de pago</span>
-            <span class="meta__value">{{ p.metodoPago }}</span>
-          </div>
-          }
-
-          <div class="meta__item">
-            <span class="meta__label">Total</span>
-            <span class="meta__value">
-              @if (p.total !== undefined) { $ {{ p.total | number : '1.0-0' }} } @else { — }
-            </span>
-          </div>
-        </div>
-
-        <footer class="pedido-card__footer">
-          <a class="btn-link" [routerLink]="['/cliente/pedido', p.pedidoId]">Ver detalle</a>
-        </footer>
-      </article>
-      }
-    </div>
+            <footer class="pedido-card__footer">
+              <a class="btn-link" [routerLink]="['/cliente/pedido', p.pedidoId]">Ver detalle</a>
+            </footer>
+          </article>
+        }
+      </div>
     }
   </div>
 </div>
