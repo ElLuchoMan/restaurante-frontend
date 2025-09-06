@@ -43,6 +43,10 @@ export function parseMetodoYObservacionesUtil(s: string): { metodo: string; obse
 
 export function normalizeProductos(raw: unknown): ProductoDetalleVM[] {
   const arr: any[] = typeof raw === 'string' ? safeParseArray(raw) : (Array.isArray(raw) ? raw : []);
+  // `arr` siempre es un arreglo; se usa `?? []` por seguridad pero la rama derecha
+  // no es alcanzable en la práctica.
+  //
+  // istanbul ignore next
   return (arr ?? []).map((x: any) => ({
     nombre: String(x?.NOMBRE ?? x?.nombre ?? ''),
     cantidad: Number(x?.CANTIDAD ?? x?.cantidad ?? 0),
