@@ -106,7 +106,6 @@ export class RutaDomicilioComponent implements OnInit {
       this.metodoPagoTexto = metodo;
       this.observaciones = observaciones;
 
-      /* istanbul ignore if: la rama false no es alcanzable (se usa default) */
       if (this.shouldGenerateMaps(direccionParam, this.direccionCliente)) {
         this.generarRuta();
         this.generarUrlGoogleMaps();
