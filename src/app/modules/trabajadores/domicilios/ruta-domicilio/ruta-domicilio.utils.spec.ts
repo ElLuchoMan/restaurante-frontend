@@ -73,6 +73,12 @@ describe('ruta-domicilio.utils', () => {
       const r = parseMetodoYObservacionesUtil('Método pago:  - Observaciones: Hola');
       expect(r).toEqual({ metodo: '', observaciones: 'Hola' });
     });
+
+    it('plan B con clave vacía devuelve original', () => {
+      const s = ': valor';
+      const r = parseMetodoYObservacionesUtil(s);
+      expect(r).toEqual({ metodo: '', observaciones: s });
+    });
   });
 
   describe('normalizeProductos', () => {

@@ -401,6 +401,19 @@ describe('RutaDomicilioComponent', () => {
       expect(component.productos[0].precioUnitario).toBe(12);
       expect(component.productos[0].productoId).toBe(456);
     });
+
+    it('usa arreglo vacío si productos es undefined', () => {
+      const mockResponse = {
+        data: {
+          pedido: { productos: undefined, total: undefined, pedidoId: 10 },
+          cliente: { nombre: 'N', apellido: 'A' },
+        },
+      } as any;
+      domicilioService.getDomicilioById.mockReturnValue(of(mockResponse));
+      component.domicilioId = 10;
+      component.ngOnInit();
+      expect(component.productos).toEqual([]);
+    });
   });
 
   it('debe loguear error si assignPago falla tras crear pago', () => {
