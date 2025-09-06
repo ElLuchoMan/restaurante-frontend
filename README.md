@@ -56,9 +56,31 @@ Use them in components with the `var(--token)` syntax (e.g., `var(--primary)`).
 Sass variables remain only for build‑time values such as breakpoints.
 
 ## Testing
-- `npm test` – run Jest unit tests with coverage
-- `npm run e2e` – execute Angular end-to-end tests
-- `npm run lint` – static analysis
+- `npm test` – ejecuta unit tests con Jest y genera cobertura
+- `npm run e2e` – pruebas end‑to‑end
+- `npm run lint` – análisis estático
+
+### Cobertura (Coverage)
+- Umbral global configurado en `jest.config.ts`:
+  - branches: 98
+  - functions: 98
+  - lines: 98
+  - statements: 98
+- Reportes generados en `coverage/` (HTML, lcov, text-summary, json-summary).
+- Para inspección rápida, abre `coverage/index.html` en el navegador.
+
+### Reglas y exclusiones de cobertura
+- El proyecto prioriza pruebas de unidades de negocio. Algunas ramas poco valiosas o no demostrables pueden excluirse con directivas Istanbul, por ejemplo:
+  - `/* istanbul ignore if */`
+  - `/* istanbul ignore else */`
+  - `/* istanbul ignore next */`
+- Usa estas directivas con moderación y justifica el motivo en un comentario adyacente.
+- No se excluyen archivos completos por configuración; se prefieren exclusiones quirúrgicas en ramas específicas.
+
+### Consejos
+- Refactoriza a funciones puras cuando sea posible para facilitar el testeo.
+- Evita introducir dependencias nuevas para testeo sin justificación.
+- Revisa `coverage-summary.json` y `lcov.info` para encontrar huecos específicos.
 
 ## Production
 - `npm run build` – generate production build in `dist/`
