@@ -6,13 +6,13 @@ export interface ModalButton {
 
 export interface ModalSelectOption {
   label: string;
-  value: any;
+  value: string | number | boolean;
 }
 
 export interface ModalSelect {
   label: string;
   options: ModalSelectOption[];
-  selected: any;
+  selected: string | number | boolean | null;
 }
 
 export interface ModalInput {

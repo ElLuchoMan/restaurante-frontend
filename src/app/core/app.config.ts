@@ -1,16 +1,16 @@
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
   importProvidersFrom,
   isDevMode,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
-
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideToastr, ToastrModule } from 'ngx-toastr';
+
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
 

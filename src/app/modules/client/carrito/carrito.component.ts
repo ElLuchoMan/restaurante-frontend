@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { CartService } from '../../../core/services/cart.service';
@@ -16,7 +16,6 @@ import { PedidoClienteService } from '../../../core/services/pedido-cliente.serv
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { UserService } from '../../../core/services/user.service';
-
 import { estadoPago } from '../../../shared/constants';
 import { Cliente } from '../../../shared/models/cliente.model';
 import { Domicilio, DomicilioRequest } from '../../../shared/models/domicilio.model';
@@ -234,7 +233,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
     }
   }
 
-  private handleError(error: any, message: string): void {
+  private handleError(error: unknown, message: string): void {
     console.error(message, error);
     this.toastr.error(message, 'Error');
   }

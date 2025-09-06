@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { ModalService } from '../../../../core/services/modal.service';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
@@ -91,8 +92,8 @@ export class ConsultarDomicilioComponent implements OnInit {
             class: 'btn btn-success',
             action: () => {
               const modalData = this.modalService.getModalData();
-              if (modalData.select?.selected) {
-                this.confirmarAsignacion(domicilio, modalData.select.selected);
+              if (modalData.select?.selected != null) {
+                this.confirmarAsignacion(domicilio, Number(modalData.select.selected));
                 this.modalService.closeModal();
               }
             },

@@ -38,7 +38,19 @@ export interface DomicilioDetalle {
     pedidoId: number;
     subtotalProductos: number;
     total: number;
-    productos: any[];
+    productos: Array<{
+      PK_ID_PRODUCTO?: number;
+      productoId?: number;
+      NOMBRE?: string;
+      nombre?: string;
+      CANTIDAD?: number;
+      cantidad?: number;
+      PRECIO_UNITARIO?: number;
+      precioUnitario?: number;
+      PRECIO?: number;
+      SUBTOTAL?: number;
+      subtotal?: number;
+    }>;
   };
   domicilio: Domicilio;
 }

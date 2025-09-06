@@ -6,6 +6,7 @@ import {
   SafeStyle,
   SafeUrl,
 } from '@angular/platform-browser';
+
 import { SafePipe } from './safe.pipe';
 
 describe('SafePipe', () => {

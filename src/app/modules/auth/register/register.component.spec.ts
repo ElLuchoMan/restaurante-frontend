@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
+
 import { UserService } from '../../../core/services/user.service';
 import { mockClienteBody, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
 import {

@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-
 import { forkJoin, of, Subject } from 'rxjs';
 import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
+
 import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
 import { Pedido } from '../../../shared/models/pedido.model';

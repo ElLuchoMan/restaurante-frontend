@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 
+import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';

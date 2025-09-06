@@ -15,7 +15,6 @@
     "deps:unused": "npx depcheck",
     "updates": "npm-check-updates -u && npm install",
     "lint:scss": "stylelint src/**/*.scss --fix",
-    "prepare": "husky",
     "serve:ssr:restaurante-frontend": "node dist/restaurante-frontend/server/server.mjs",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
@@ -71,7 +70,7 @@
     "cypress": "latest",
     "eslint": "*",
     "eslint-config-prettier": "^10.1.8",
-    "husky": "^9.1.7",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "jest": "29.7.0",
     "jest-preset-angular": "14.6.1",
     "prettier": "^3.6.2",

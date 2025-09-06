@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
 import { BehaviorSubject, catchError, Observable } from 'rxjs';
+
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Login, LoginResponse } from '../../shared/models/login.model';
@@ -12,7 +13,7 @@ export interface DecodedToken {
   rol: string;
   documento: number;
   exp: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 @Injectable({
@@ -59,8 +60,8 @@ export class UserService {
   private decodeTokenSafely(token: string): DecodedToken | null {
     try {
       return jwtDecode<DecodedToken>(token);
-    } catch (error) {
-      this.logger.log(LogLevel.ERROR, 'Error al decodificar el token', error);
+    } catch (error: unknown) {
+      this.logger.log(LogLevel.ERROR, 'Error al decodificar el token', error as Error);
       return null;
     }
   }

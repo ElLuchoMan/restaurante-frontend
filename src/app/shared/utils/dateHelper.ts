@@ -13,8 +13,15 @@ export function fechaYYYYMMDD_Bogota(d = nowInBogota()): string {
     day: '2-digit',
   })
     .formatToParts(d)
-    .reduce((acc, p) => ((acc[p.type] = p.value), acc), {} as any);
-  return `${parts.year}-${parts.month}-${parts.day}`;
+    .reduce((acc, p) => ((acc[p.type as keyof typeof acc] = p.value), acc), {
+      year: '',
+      month: '',
+      day: '',
+      hour: '',
+      minute: '',
+      second: '',
+    } as Record<string, string>);
+  return `${parts['year']}-${parts['month']}-${parts['day']}`;
 }
 
 export function fechaDDMMYYYY_Bogota(d = nowInBogota()): string {
@@ -25,8 +32,15 @@ export function fechaDDMMYYYY_Bogota(d = nowInBogota()): string {
     day: '2-digit',
   })
     .formatToParts(d)
-    .reduce((acc, p) => ((acc[p.type] = p.value), acc), {} as any);
-  return `${parts.day}-${parts.month}-${parts.year}`;
+    .reduce((acc, p) => ((acc[p.type as keyof typeof acc] = p.value), acc), {
+      year: '',
+      month: '',
+      day: '',
+      hour: '',
+      minute: '',
+      second: '',
+    } as Record<string, string>);
+  return `${parts['day']}-${parts['month']}-${parts['year']}`;
 }
 
 export function horaHHMMSS_Bogota(d = nowInBogota()): string {
@@ -38,8 +52,15 @@ export function horaHHMMSS_Bogota(d = nowInBogota()): string {
     hour12: false,
   })
     .formatToParts(d)
-    .reduce((acc, p) => ((acc[p.type] = p.value), acc), {} as any);
-  return `${parts.hour}:${parts.minute}:${parts.second}`;
+    .reduce((acc, p) => ((acc[p.type as keyof typeof acc] = p.value), acc), {
+      year: '',
+      month: '',
+      day: '',
+      hour: '',
+      minute: '',
+      second: '',
+    } as Record<string, string>);
+  return `${parts['hour']}:${parts['minute']}:${parts['second']}`;
 }
 
 export function fechaHoraDDMMYYYY_HHMMSS_Bogota(d = nowInBogota()): string {

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError } from 'rxjs';
+import { catchError,Observable } from 'rxjs';
+
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Pago, PagoCreate, PagoUpdate } from '../../shared/models/pago.model';

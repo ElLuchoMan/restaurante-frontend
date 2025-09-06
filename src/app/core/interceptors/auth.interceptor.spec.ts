@@ -1,6 +1,7 @@
 import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+
 import { UserService } from '../services/user.service';
 import { authInterceptor } from './auth.interceptor';
 

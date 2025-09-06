@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+
 import { ProductoService } from '../../../../core/services/producto.service';
 import { estadoProducto } from '../../../../shared/constants';
 import { Producto } from '../../../../shared/models/producto.model';

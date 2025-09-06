@@ -4,6 +4,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
+
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { LoggingService } from '../../../../core/services/logging.service';
 import { ModalService } from '../../../../core/services/modal.service';

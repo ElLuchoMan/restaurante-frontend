@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+
 import { environment } from '../../../../../environments/environment';
 import { ClienteService } from '../../../../core/services/cliente.service';
 import { DomicilioService } from '../../../../core/services/domicilio.service';
@@ -13,9 +14,8 @@ import { PedidoService } from '../../../../core/services/pedido.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoPago, metodoPago } from '../../../../shared/constants';
 import {
-  fechaHoraDDMMYYYY_HHMMSS_Bogota,
-  fechaYYYYMMDD_Bogota,
-  horaHHMMSS_Bogota,
+    fechaYYYYMMDD_Bogota,
+    horaHHMMSS_Bogota
 } from '../../../../shared/utils/dateHelper';
 
 interface ProductoDetalleVM {
@@ -213,7 +213,7 @@ export class RutaDomicilioComponent implements OnInit {
               console.error('No se ha seleccionado un método de pago.');
               return;
             }
-            const metodoPagoSeleccionado: string = modalData.select.selected;
+            const metodoPagoSeleccionado: string = String(modalData.select.selected);
             this.logger.log(LogLevel.INFO, 'Método de pago seleccionado:', metodoPagoSeleccionado);
 
             try {

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
 import { CartService } from '../../../core/services/cart.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { ProductoService } from '../../../core/services/producto.service';
@@ -157,7 +158,9 @@ export class VerProductosComponent implements OnInit, OnDestroy {
     this.modalService.openModal({
       title: producto.nombre,
       image:
-        typeof producto.imagen === 'string' ? producto.imagen : '../../../../assets/img/logo2.png',
+        typeof (producto as any).imagen === 'string'
+          ? (producto as any).imagen
+          : '../../../../assets/img/logo2.png',
       details: {
         precio: producto.precio,
         calorias: producto.calorias,

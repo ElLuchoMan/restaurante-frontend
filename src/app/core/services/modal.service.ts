@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+
 import { ModalData } from '../../shared/models/modal.model';
 import { LoggingService, LogLevel } from './logging.service';
 

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
-import { Router } from '@angular/router';
 import { CartService } from '../../../core/services/cart.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { ProductoService } from '../../../core/services/producto.service';

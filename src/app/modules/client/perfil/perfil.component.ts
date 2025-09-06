@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+
 import { ClienteService } from '../../../core/services/cliente.service';
 import { UserService } from '../../../core/services/user.service';
 
@@ -43,7 +44,10 @@ export class PerfilComponent implements OnInit {
 
     // Nombre desde el JWT (mostrado en el encabezado)
     const tokenDecoded = this.userService.decodeToken();
-    this.nombre = tokenDecoded?.['nombre'] ?? 'Cliente';
+    const nombreDecodificado = tokenDecoded && typeof tokenDecoded['nombre'] === 'string'
+      ? (tokenDecoded['nombre'] as string)
+      : null;
+    this.nombre = nombreDecodificado ?? 'Cliente';
 
     // Traer datos del cliente desde el API
     this.clienteService.getClienteId(this.documento).subscribe({

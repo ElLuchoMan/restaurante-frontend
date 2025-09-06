@@ -1,20 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
-import { Router } from '@angular/router';
 import { CartService } from '../../../core/services/cart.service';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { DomicilioService } from '../../../core/services/domicilio.service';
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
-import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
 import { PedidoService } from '../../../core/services/pedido.service';
+import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { UserService } from '../../../core/services/user.service';
-import { CarritoComponent } from './carrito.component';
-
-import { ToastrService } from 'ngx-toastr';
 import { Producto } from '../../../shared/models/producto.model';
+import { CarritoComponent } from './carrito.component';
 
 describe('CarritoComponent', () => {
   let component: CarritoComponent;

@@ -1,6 +1,7 @@
 import { HttpClient, HttpHandler } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+
 import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 import { RestauranteService } from '../../../core/services/restaurante.service';
 import {

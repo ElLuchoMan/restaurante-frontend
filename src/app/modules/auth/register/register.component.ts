@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+
 import { TrabajadorService } from '../../../core/services/trabajador.service';
 import { UserService } from '../../../core/services/user.service';
 import { Roles } from '../../../shared/constants';
