@@ -18,7 +18,9 @@
     "validate:mocks": "node tools/validate-mocks.mjs",
     "serve:ssr:restaurante-frontend": "node dist/restaurante-frontend/server/server.mjs",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "lint:fix": "eslint \"src/**/*.{ts,js}\" --fix",
+    "lint:fix:imports": "eslint \"src/**/*.{ts,js}\" --fix --rule \"simple-import-sort/imports:error\" --rule \"simple-import-sort/exports:error\""
   },
   "private": true,
   "dependencies": {

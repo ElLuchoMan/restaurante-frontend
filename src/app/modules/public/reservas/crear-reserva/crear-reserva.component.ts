@@ -81,6 +81,7 @@ export class CrearReservaComponent implements OnInit {
         },
         error: () => {
           this.nombreCompleto = 'Cliente Desconocido';
+          this.toastr.warning('No se pudo cargar la información del cliente', 'Error');
           this.crearReserva(timestamp, userRole, userId);
         },
       });

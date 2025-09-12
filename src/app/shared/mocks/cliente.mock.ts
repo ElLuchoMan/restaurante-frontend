@@ -38,3 +38,41 @@ export const mockClienteRegisterResponse: ApiResponse<Cliente> = {
     password: '12345',
   },
 };
+
+export const mockClientesResponse: ApiResponse<Cliente[]> = {
+  code: 200,
+  message: 'Clientes obtenidos exitosamente',
+  data: [
+    {
+      documentoCliente: 1015466495,
+      nombre: 'Carlos',
+      apellido: 'Perez',
+      direccion: 'Carrera 50 #20-30',
+      telefono: '3216549870',
+      observaciones: 'Cliente frecuente',
+      password: '12345',
+      correo: 'carlos.perez@example.com',
+    },
+  ],
+};
+
+export const mockClienteUpdateResponse: ApiResponse<Cliente> = {
+  code: 200,
+  message: 'Cliente actualizado',
+  data: {
+    documentoCliente: 1015466495,
+    nombre: 'Carlos',
+    apellido: 'Perez',
+    direccion: 'Carrera 50 #20-30',
+    telefono: '3001112233',
+    observaciones: 'Cliente frecuente',
+    password: '12345',
+    correo: 'carlos.perez@example.com',
+  },
+};
+
+export const mockClienteDeleteResponse: ApiResponse<unknown> = {
+  code: 200,
+  message: 'Cliente eliminado',
+  data: {},
+};

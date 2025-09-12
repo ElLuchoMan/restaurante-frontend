@@ -93,7 +93,13 @@ export function createPedidoClienteServiceMock() {
 }
 
 export function createClienteServiceMock() {
-  return { getClienteId: jest.fn(), getClienteById: jest.fn(), registroCliente: jest.fn() } as any;
+  return {
+    getClienteId: jest.fn(),
+    getClientes: jest.fn(),
+    registroCliente: jest.fn(),
+    actualizarCliente: jest.fn(),
+    eliminarCliente: jest.fn(),
+  } as any;
 }
 
 export function createDomSanitizerMock(): Partial<DomSanitizer> {
