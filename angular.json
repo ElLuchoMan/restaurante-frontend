@@ -33,12 +33,12 @@
             "styles": [
               "src/assets/styles.scss",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
-              "node_modules/owl.carousel/dist/assets/owl.carousel.min.css",
-              "node_modules/owl.carousel/dist/assets/owl.theme.default.min.css",
-              "node_modules/lightbox2/dist/css/lightbox.min.css",
-              "node_modules/ngx-toastr/toastr.css"
+              "node_modules/ngx-toastr/toastr.css",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
-            "scripts": [],
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ],
             "server": "src/main.server.ts",
             "prerender": true,
             "ssr": {
@@ -101,64 +101,20 @@
             "styles": [
               "src/assets/styles.scss",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
-              "node_modules/owl.carousel/dist/assets/owl.carousel.min.css",
-              "node_modules/owl.carousel/dist/assets/owl.theme.default.min.css",
-              "node_modules/lightbox2/dist/css/lightbox.min.css",
-              "node_modules/ngx-toastr/toastr.css"
+              "node_modules/ngx-toastr/toastr.css",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ]
           }
         },
-        "cypress-run": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "devServerTarget": "restaurante-frontend:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "restaurante-frontend:serve:production"
-            }
-          }
-        },
-        "cypress-open": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "watch": true,
-            "headless": false
-          }
-        },
-        "ct": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "devServerTarget": "restaurante-frontend:serve",
-            "watch": true,
-            "headless": false,
-            "testingType": "component"
-          },
-          "configurations": {
-            "development": {
-              "devServerTarget": "restaurante-frontend:serve:development"
-            }
-          }
-        },
-        "e2e": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "devServerTarget": "restaurante-frontend:serve",
-            "watch": true,
-            "headless": false
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "restaurante-frontend:serve:production"
-            }
-          }
-        }
+
       }
     }
   },
   "cli": {
     "analytics": "fc42fbe0-e221-473c-a387-71072dac16a3",
-    "schematicCollections": ["@cypress/schematic", "@schematics/angular"]
+    "schematicCollections": ["@schematics/angular"]
   }
 }
