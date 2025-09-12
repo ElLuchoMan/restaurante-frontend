@@ -1,0 +1,91 @@
+<div class="container mt-3">
+  <h2>Telemetría (local)</h2>
+  <div class="mb-3">
+    <button class="btn btn-sm btn-primary me-2" (click)="refresh()">Refrescar</button>
+    <button class="btn btn-sm btn-outline-danger" (click)="clear()">Limpiar eventos</button>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Inicios de sesión</h5>
+          <p class="mb-1">Intentos: {{ metrics().login.attempts }}</p>
+          <p class="mb-1 text-success">Éxitos: {{ metrics().login.successes }}</p>
+          <p class="mb-0 text-danger">Fallos: {{ metrics().login.failures }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Compras por método de pago</h5>
+          <ul class="mb-0">
+            <li *ngFor="let kv of metrics().purchasesByPaymentMethod | keyvalue">
+              {{ kv.key }}: {{ kv.value }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Productos más/menos pedidos</h5>
+          <ul class="mb-0">
+            <li *ngFor="let kv of metrics().productsCount | keyvalue">
+              {{ kv.key }}: {{ kv.value }} uds
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Usuarios por número de compras</h5>
+          <ul class="mb-0">
+            <li *ngFor="let kv of metrics().usersByPurchases | keyvalue">
+              {{ kv.key }}: {{ kv.value }} compras
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Ventas por hora y día</h5>
+          <div class="row">
+            <div class="col-6">
+              <h6>Por hora</h6>
+              <ul>
+                <li *ngFor="let kv of metrics().salesByHour | keyvalue">
+                  {{ kv.key }}:00 → {{ kv.value }}
+                </li>
+              </ul>
+            </div>
+            <div class="col-6">
+              <h6>Por día (0=Dom)</h6>
+              <ul>
+                <li *ngFor="let kv of metrics().salesByWeekday | keyvalue">
+                  {{ kv.key }}: {{ kv.value }}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-body">
+      <h5 class="card-title">Eventos recientes</h5>
+      <pre class="small" style="max-height: 300px; overflow: auto">{{ events() | json }}</pre>
+    </div>
+  </div>
+</div>

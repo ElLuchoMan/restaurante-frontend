@@ -5,9 +5,9 @@ import { environment } from '../../../environments/environment';
 import { HandleErrorService } from '../../core/services/handle-error.service';
 import { UserService } from '../../core/services/user.service';
 import {
-    mockReserva,
-    mockReservaBody,
-    mockReservaResponse,
+  mockReserva,
+  mockReservaBody,
+  mockReservaResponse,
 } from '../../shared/mocks/reserva.mocks';
 import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../shared/models/api-response.model';
@@ -20,7 +20,8 @@ describe('ReservaService', () => {
   let handleErrorService: jest.Mocked<HandleErrorService>;
 
   beforeEach(() => {
-    const handleErrorMock = createHandleErrorServiceMock() as unknown as jest.Mocked<HandleErrorService>;
+    const handleErrorMock =
+      createHandleErrorServiceMock() as unknown as jest.Mocked<HandleErrorService>;
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],

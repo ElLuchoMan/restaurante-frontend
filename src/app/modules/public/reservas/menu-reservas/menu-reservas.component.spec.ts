@@ -4,7 +4,10 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { UserService } from '../../../../core/services/user.service';
-import { createRouterWithEventsMock, createUserServiceMock } from '../../../../shared/mocks/test-doubles';
+import {
+  createRouterWithEventsMock,
+  createUserServiceMock,
+} from '../../../../shared/mocks/test-doubles';
 import { MenuReservasComponent } from './menu-reservas.component';
 
 describe('MenuReservasComponent', () => {

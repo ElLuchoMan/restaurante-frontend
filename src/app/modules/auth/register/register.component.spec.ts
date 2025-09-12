@@ -8,10 +8,16 @@ import { of, throwError } from 'rxjs';
 
 import { UserService } from '../../../core/services/user.service';
 import { mockClienteBody, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
-import { createClienteServiceMock, createRouterMock, createToastrMock, createTrabajadorServiceMock, createUserServiceMock } from '../../../shared/mocks/test-doubles';
 import {
-    mockTrabajadorBody,
-    mockTrabajadorRegisterResponse,
+  createClienteServiceMock,
+  createRouterMock,
+  createToastrMock,
+  createTrabajadorServiceMock,
+  createUserServiceMock,
+} from '../../../shared/mocks/test-doubles';
+import {
+  mockTrabajadorBody,
+  mockTrabajadorRegisterResponse,
 } from '../../../shared/mocks/trabajador.mock';
 import { Cliente } from '../../../shared/models/cliente.model';
 import { Trabajador } from '../../../shared/models/trabajador.model';

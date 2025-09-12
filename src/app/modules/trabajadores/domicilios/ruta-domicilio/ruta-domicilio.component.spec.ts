@@ -12,12 +12,14 @@ import { PagoService } from '../../../../core/services/pago.service';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { estadoPago, metodoPago } from '../../../../shared/constants';
 import {
-    createDomicilioServiceMock,
-    createDomSanitizerMock,
-    createLoggingServiceMock,
-    createModalServiceMock,
-    createRouterMock,
-    createToastrMock,
+  createDomicilioServiceMock,
+  createDomSanitizerMock,
+  createLoggingServiceMock,
+  createModalServiceMock,
+  createPagoServiceMock,
+  createPedidoServiceMock,
+  createRouterMock,
+  createToastrMock,
 } from '../../../../shared/mocks/test-doubles';
 import { mockDomicilioRespone } from './../../../../shared/mocks/domicilio.mock';
 import { RutaDomicilioComponent } from './ruta-domicilio.component';
@@ -47,8 +49,8 @@ describe('RutaDomicilioComponent', () => {
 
     const sanitizerMock = createDomSanitizerMock();
     const domicilioServiceMock = createDomicilioServiceMock();
-    const pagoServiceMock = { createPago: jest.fn(() => of({ data: { pagoId: 1 } })) } as any;
-    const pedidoServiceMock = { assignPago: jest.fn(() => of({})) } as any;
+    const pagoServiceMock = createPagoServiceMock({ data: { pagoId: 1 } });
+    const pedidoServiceMock = createPedidoServiceMock();
     const modalServiceMock = createModalServiceMock();
     const toastrServiceMock = createToastrMock();
     const loggingServiceMock = createLoggingServiceMock() as unknown as jest.Mocked<LoggingService>;
@@ -176,7 +178,7 @@ describe('RutaDomicilioComponent', () => {
       const config = modalService.openModal.mock.calls[0][0];
       config.buttons[0].action();
 
-      expect(toastrService.success).toHaveBeenCalledWith('Pago asignado al domicilio');
+      expect(toastrService.success).toHaveBeenCalledWith('Domicilio marcado como pagado');
     });
 
     it('should not assignPago when createPago returns without pagoId', () => {
@@ -246,7 +248,9 @@ describe('RutaDomicilioComponent', () => {
 
   describe('parsers and mappings', () => {
     it('parseMetodoYObservaciones debe extraer metodo y observaciones (con acentos)', () => {
-      const res = (component as any).parseMetodoYObservaciones('Método pago: Daviplata - Observaciones: Test');
+      const res = (component as any).parseMetodoYObservaciones(
+        'Método pago: Daviplata - Observaciones: Test',
+      );
       expect(res.metodo).toBe('Daviplata');
       expect(res.observaciones).toBe('Test');
     });
@@ -258,7 +262,9 @@ describe('RutaDomicilioComponent', () => {
     });
 
     it('parseMetodoYObservaciones solo observaciones', () => {
-      const res = (component as any).parseMetodoYObservaciones('Observaciones: Entregar en portería');
+      const res = (component as any).parseMetodoYObservaciones(
+        'Observaciones: Entregar en portería',
+      );
       expect(res.metodo).toBe('');
       expect(res.observaciones).toContain('portería');
     });
@@ -283,8 +289,7 @@ describe('RutaDomicilioComponent', () => {
       const mockResponse = {
         data: {
           pedido: {
-            productos:
-              '[{"NOMBRE":"A","CANTIDAD":"2","PRECIO_UNITARIO":"5","SUBTOTAL":"10"}]',
+            productos: '[{"NOMBRE":"A","CANTIDAD":"2","PRECIO_UNITARIO":"5","SUBTOTAL":"10"}]',
             total: undefined,
             pedidoId: 3,
           },
@@ -479,16 +484,14 @@ describe('RutaDomicilioComponent with default params', () => {
   });
 
   it('shouldGenerateMaps returns true when direccion param is undefined (defaults applied)', () => {
-    expect((component as any).shouldGenerateMaps(undefined, component.direccionCliente)).toBe(
-      true,
-    );
+    expect((component as any).shouldGenerateMaps(undefined, component.direccionCliente)).toBe(true);
   });
 
   it('shouldGenerateMaps returns false only if direccionFinal is empty string with param present', () => {
     expect((component as any).shouldGenerateMaps('', '')).toBe(false);
     expect((component as any).shouldGenerateMaps('', 'x')).toBe(true);
   });
-  
+
   it('should still generate route when direccionCliente param is empty (uses default)', () => {
     component.direccionCliente = '' as any;
     const spyRuta = jest.spyOn(component, 'generarRuta');
@@ -502,7 +505,9 @@ describe('RutaDomicilioComponent with default params', () => {
     const spyRuta = jest.spyOn(component, 'generarRuta');
     const spyUrl = jest.spyOn(component, 'generarUrlGoogleMaps');
     // Fuerza la rama else sin cambiar la lógica interna
-    const spyShould = jest.spyOn<any, any>(component as any, 'shouldGenerateMaps').mockReturnValue(false);
+    const spyShould = jest
+      .spyOn<any, any>(component as any, 'shouldGenerateMaps')
+      .mockReturnValue(false);
     // Limpiar contadores por la llamada previa en el beforeEach
     spyRuta.mockClear();
     spyUrl.mockClear();

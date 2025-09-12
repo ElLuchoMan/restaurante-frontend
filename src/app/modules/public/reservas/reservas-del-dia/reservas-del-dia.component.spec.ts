@@ -6,10 +6,14 @@ import { of, throwError } from 'rxjs';
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
 import {
-    mockReservaResponse,
-    mockReservasDelDiaResponse,
+  mockReservaResponse,
+  mockReservasDelDiaResponse,
 } from '../../../../shared/mocks/reserva.mocks';
-import { createLoggingServiceMock, createReservaServiceMock, createToastrMock } from '../../../../shared/mocks/test-doubles';
+import {
+  createLoggingServiceMock,
+  createReservaServiceMock,
+  createToastrMock,
+} from '../../../../shared/mocks/test-doubles';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { ReservasDelDiaComponent } from './reservas-del-dia.component';
 

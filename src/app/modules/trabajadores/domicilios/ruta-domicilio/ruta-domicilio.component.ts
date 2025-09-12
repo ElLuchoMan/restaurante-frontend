@@ -13,17 +13,14 @@ import { PagoService } from '../../../../core/services/pago.service';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoPago, metodoPago } from '../../../../shared/constants';
+import { fechaYYYYMMDD_Bogota, horaHHMMSS_Bogota } from '../../../../shared/utils/dateHelper';
 import {
-    fechaYYYYMMDD_Bogota,
-    horaHHMMSS_Bogota
-} from '../../../../shared/utils/dateHelper';
-import {
-    buildNombreCliente,
-    computeTotal,
-    normalizeProductos,
-    obtenerMetodoPagoDefaultUtil,
-    parseMetodoYObservacionesUtil,
-    shouldGenerateMapsUtil,
+  buildNombreCliente,
+  computeTotal,
+  normalizeProductos,
+  obtenerMetodoPagoDefaultUtil,
+  parseMetodoYObservacionesUtil,
+  shouldGenerateMapsUtil,
 } from './ruta-domicilio.utils';
 
 interface ProductoDetalleVM {

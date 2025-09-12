@@ -1,12 +1,12 @@
 @use '../../../../assets/styles.scss' as *;
 
 .producto-card {
-  position: relative;
   border-radius: 20px;
-  overflow: hidden;
-  transition: transform 0.3s ease-in-out;
+  box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s ease-in-out;
 
   &:hover {
     transform: translateY(-5px);
@@ -17,23 +17,23 @@
   }
 
   .producto-img {
-    width: 100%;
     height: 200px;
     overflow: hidden;
+    width: 100%;
 
     img {
-      width: 100%;
       height: 100%;
       object-fit: cover;
       transition: transform 0.3s ease;
+      width: 100%;
     }
   }
 
   // Información del producto
   .producto-info {
+    background: white;
     padding: 10px;
     text-align: center;
-    background: white;
 
     .producto-nombre {
       font-size: 1.2rem;
@@ -42,29 +42,29 @@
     }
 
     .producto-precio {
-      font-size: 1rem;
       color: var(--green);
+      font-size: 1rem;
       font-weight: bold;
     }
   }
 
   // Información oculta en desktop, visible en hover
   .producto-hover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    align-items: center;
+    background: rgb(0 0 0 / 80%);
     color: white;
     display: flex;
     flex-direction: column;
+    height: 100%;
     justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 10px;
+    left: 0;
     opacity: 0;
+    padding: 10px;
+    position: absolute;
+    text-align: center;
+    top: 0;
     transition: opacity 0.3s ease-in-out;
+    width: 100%;
 
     p {
       margin: 5px 0;
@@ -80,26 +80,26 @@
 @media (max-width: $breakpoint-md) {
   .producto-card {
     .producto-hover {
-      position: relative;
-      opacity: 1;
       background: white;
       color: black;
+      opacity: 1;
       padding: 15px;
+      position: relative;
     }
   }
 }
 
 .categoria-badge {
+  font-size: 0.75rem;
+  left: 10px;
   position: absolute;
   top: 10px;
-  left: 10px;
-  font-size: 0.75rem;
 }
 
 .form-group {
   label {
-    margin-bottom: 4px;
     color: var(--dark);
+    margin-bottom: 4px;
   }
 
   input,
@@ -109,18 +109,18 @@
 }
 
 .filtros-card {
-  border: 1px solid var(--gray);
   background-color: var(--white);
+  border: 1px solid var(--gray);
   border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 5%);
 }
 
 .btn-icon {
   background: none;
   border: none;
-  padding: 0.25rem 0.5rem;
-  font-size: 1.25rem;
   cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.25rem 0.5rem;
 
   &:disabled {
     cursor: not-allowed;

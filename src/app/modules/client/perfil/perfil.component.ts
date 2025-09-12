@@ -44,9 +44,10 @@ export class PerfilComponent implements OnInit {
 
     // Nombre desde el JWT (mostrado en el encabezado)
     const tokenDecoded = this.userService.decodeToken();
-    const nombreDecodificado = tokenDecoded && typeof tokenDecoded['nombre'] === 'string'
-      ? (tokenDecoded['nombre'] as string)
-      : null;
+    const nombreDecodificado =
+      tokenDecoded && typeof tokenDecoded['nombre'] === 'string'
+        ? (tokenDecoded['nombre'] as string)
+        : null;
     this.nombre = nombreDecodificado ?? 'Cliente';
 
     // Traer datos del cliente desde el API

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
@@ -75,14 +75,11 @@ describe('PedidoComponent', () => {
     expect(component.pedido.productos.length).toBe(4);
 
     // Ahora como array
-    pedidoService.getPedidoDetalles.mockReturnValue(
-      of({ data: { PK_ID_PEDIDO: 7, productos } }),
-    );
+    pedidoService.getPedidoDetalles.mockReturnValue(of({ data: { PK_ID_PEDIDO: 7, productos } }));
     fixture.detectChanges();
     expect(Array.isArray(component.pedido.productos)).toBe(true);
     expect(component.pedido.productos.length).toBe(4);
   }));
-
 
   it('should ignore NaN subtotal values when computing total', fakeAsync(() => {
     const productos = [
@@ -141,9 +138,7 @@ describe('PedidoComponent', () => {
   });
 
   it('should handle missing productos field as empty array', () => {
-    pedidoService.getPedidoDetalles.mockReturnValue(
-      of({ data: { PK_ID_PEDIDO: 13 } }),
-    );
+    pedidoService.getPedidoDetalles.mockReturnValue(of({ data: { PK_ID_PEDIDO: 13 } }));
     fixture.detectChanges();
     expect(component.pedido.productos).toEqual([]);
     expect(component.pedido.total).toBe(0);

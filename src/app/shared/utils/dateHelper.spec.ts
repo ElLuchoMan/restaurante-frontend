@@ -1,8 +1,8 @@
 import {
-    fechaDDMMYYYY_Bogota,
-    fechaHoraDDMMYYYY_HHMMSS_Bogota,
-    fechaYYYYMMDD_Bogota,
-    horaHHMMSS_Bogota,
+  fechaDDMMYYYY_Bogota,
+  fechaHoraDDMMYYYY_HHMMSS_Bogota,
+  fechaYYYYMMDD_Bogota,
+  horaHHMMSS_Bogota,
 } from './dateHelper';
 
 describe('dateHelper', () => {
@@ -36,5 +36,3 @@ describe('dateHelper', () => {
     expect(() => fechaHoraDDMMYYYY_HHMMSS_Bogota()).not.toThrow();
   });
 });
-
-

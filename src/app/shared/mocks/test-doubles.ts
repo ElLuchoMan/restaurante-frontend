@@ -70,7 +70,11 @@ export function createDomicilioServiceMock() {
     updateDomicilio: jest.fn(),
     getDomicilios: jest.fn(),
     asignarDomiciliario: jest.fn(),
-    getDomicilioById: jest.fn().mockReturnValue(of({ data: { pedido: { productos: [], total: 0 }, cliente: { nombre: 'N', apellido: 'A' } } })),
+    getDomicilioById: jest.fn().mockReturnValue(
+      of({
+        data: { pedido: { productos: [], total: 0 }, cliente: { nombre: 'N', apellido: 'A' } },
+      }),
+    ),
   } as any;
 }
 
@@ -81,6 +85,12 @@ export function createPedidoServiceMock() {
     assignDomicilio: jest.fn(),
     getMisPedidos: jest.fn(),
     getPedidoDetalles: jest.fn(),
+  } as any;
+}
+
+export function createPagoServiceMock(resp: any = { data: { pagoId: 1 } }) {
+  return {
+    createPago: jest.fn().mockReturnValue(of(resp)),
   } as any;
 }
 
@@ -158,7 +168,11 @@ export function createTrabajadorServiceMock() {
 }
 
 export function createReservaServiceMock() {
-  return { getReservaByParameter: jest.fn(), actualizarReserva: jest.fn(), crearReserva: jest.fn() } as any;
+  return {
+    getReservaByParameter: jest.fn(),
+    actualizarReserva: jest.fn(),
+    crearReserva: jest.fn(),
+  } as any;
 }
 
 export function createFileReaderMock(resultData = 'base64data') {
@@ -175,4 +189,25 @@ export function createFileReaderMock(resultData = 'base64data') {
 export function createSpy() {
   return jest.fn();
 }
- 
+
+export function createTelemetryServiceMock() {
+  return {
+    logEvent: jest.fn(),
+    logLoginAttempt: jest.fn(),
+    logLoginSuccess: jest.fn(),
+    logLoginFailure: jest.fn(),
+    logPurchase: jest.fn(),
+    logHttp: jest.fn(),
+    logError: jest.fn(),
+    getEvents: jest.fn().mockReturnValue([]),
+    clear: jest.fn(),
+    getAggregatedMetrics: jest.fn().mockReturnValue({
+      login: { attempts: 0, successes: 0, failures: 0 },
+      purchasesByPaymentMethod: {},
+      productsCount: {},
+      usersByPurchases: {},
+      salesByHour: {},
+      salesByWeekday: {},
+    }),
+  } as any;
+}

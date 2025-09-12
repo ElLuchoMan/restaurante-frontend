@@ -4,7 +4,11 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrService } from 'ngx-toastr';
 
 import { DomicilioService } from '../../../core/services/domicilio.service';
-import { createDomicilioServiceMock, createRouterMock, createToastrMock } from '../../../shared/mocks/test-doubles';
+import {
+  createDomicilioServiceMock,
+  createRouterMock,
+  createToastrMock,
+} from '../../../shared/mocks/test-doubles';
 import { UbicacionRestauranteComponent } from './ubicacion-restaurante.component';
 
 describe('UbicacionRestauranteComponent', () => {

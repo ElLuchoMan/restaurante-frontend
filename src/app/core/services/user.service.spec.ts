@@ -3,7 +3,10 @@ import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
 import { mockLoginResponse } from '../../shared/mocks/login.mock';
-import { createHandleErrorServiceMock, createLoggingServiceMock } from '../../shared/mocks/test-doubles';
+import {
+  createHandleErrorServiceMock,
+  createLoggingServiceMock,
+} from '../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { HandleErrorService } from './handle-error.service';
 import { LoggingService, LogLevel } from './logging.service';

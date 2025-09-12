@@ -33,6 +33,7 @@
 
   &_plus {
     @extend .btn-icon;
+
     color: var(--primary);
   }
 
@@ -50,7 +51,7 @@
   }
 }
 
-@media (max-width: 400px) {
+@media (width <= 400px) {
   .carrito-card {
     border-radius: 10px;
     max-height: none;

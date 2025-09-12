@@ -7,7 +7,10 @@ import { of } from 'rxjs';
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoPago } from '../../../../shared/constants';
-import { createDomicilioServiceMock, createUserServiceMock } from '../../../../shared/mocks/test-doubles';
+import {
+  createDomicilioServiceMock,
+  createUserServiceMock,
+} from '../../../../shared/mocks/test-doubles';
 import { Domicilio } from '../../../../shared/models/domicilio.model';
 import { TomarDomicilioComponent } from './tomar-domicilio.component';
 

@@ -30,9 +30,11 @@ export class ClienteService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getClientes(
-    options?: { limit?: number; offset?: number; fields?: string },
-  ): Observable<ApiResponse<Cliente[]>> {
+  getClientes(options?: {
+    limit?: number;
+    offset?: number;
+    fields?: string;
+  }): Observable<ApiResponse<Cliente[]>> {
     const params = new URLSearchParams();
     if (options?.limit !== undefined) params.set('limit', String(options.limit));
     if (options?.offset !== undefined) params.set('offset', String(options.offset));

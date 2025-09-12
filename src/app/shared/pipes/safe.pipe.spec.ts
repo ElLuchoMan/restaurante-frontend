@@ -1,6 +1,6 @@
 import { DomSanitizer } from '@angular/platform-browser';
-import { createFullDomSanitizerMock } from '../mocks/test-doubles';
 
+import { createFullDomSanitizerMock } from '../mocks/test-doubles';
 import { SafePipe } from './safe.pipe';
 
 describe('SafePipe', () => {

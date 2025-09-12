@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
+
 import { ModalService } from '../../../core/services/modal.service';
 import { createModalServiceMock } from '../../mocks/test-doubles';
 import { ModalComponent } from './modal.component';

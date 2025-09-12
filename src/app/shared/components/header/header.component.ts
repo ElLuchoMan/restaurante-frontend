@@ -94,6 +94,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         menuItems = menuItems.filter((item) => item.label !== 'Ubicación');
         menuItems.unshift({ label: 'Domicilios', route: '/domicilios/consultar', priority: 3 });
         menuItems.unshift({ label: 'Productos', route: '/admin/productos/', priority: 3 });
+        menuItems.unshift({ label: 'Telemetría', route: '/admin/telemetria/', priority: 3 });
       } else if (this.userRole === 'Mesero') {
         menuItems.push({ label: 'Pedidos', route: '/pedidos', priority: 8 });
       } else if (this.userRole === 'Domiciliario') {

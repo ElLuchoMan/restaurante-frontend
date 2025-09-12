@@ -1,8 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { createRouterMock, createToastrMock, createUserServiceMock } from '../../shared/mocks/test-doubles';
 
+import {
+  createRouterMock,
+  createToastrMock,
+  createUserServiceMock,
+} from '../../shared/mocks/test-doubles';
 import { UserService } from '../services/user.service';
 import { AuthGuard } from './auth.guard';
 

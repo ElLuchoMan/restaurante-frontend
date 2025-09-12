@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -11,19 +12,21 @@ import { ModalService } from '../../../core/services/modal.service';
 import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
+import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
 import {
-    createCartServiceMock,
-    createClienteServiceMock,
-    createDomicilioServiceMock,
-    createMetodosPagoServiceMock,
-    createModalServiceMock,
-    createPedidoClienteServiceMock,
-    createPedidoServiceMock,
-    createProductoPedidoServiceMock,
-    createRouterMock,
-    createToastrMock,
-    createUserServiceMock,
+  createCartServiceMock,
+  createClienteServiceMock,
+  createDomicilioServiceMock,
+  createMetodosPagoServiceMock,
+  createModalServiceMock,
+  createPedidoClienteServiceMock,
+  createPedidoServiceMock,
+  createProductoPedidoServiceMock,
+  createRouterMock,
+  createTelemetryServiceMock,
+  createToastrMock,
+  createUserServiceMock,
 } from '../../../shared/mocks/test-doubles';
 import { Producto } from '../../../shared/models/producto.model';
 import { CarritoComponent } from './carrito.component';
@@ -43,6 +46,7 @@ describe('CarritoComponent', () => {
   let clienteServiceMock: any;
   let routerMock: any;
   let toastrServiceMock: any;
+  let telemetryMock: any;
 
   async function setup({
     items = [],
@@ -60,9 +64,10 @@ describe('CarritoComponent', () => {
     clienteServiceMock = createClienteServiceMock();
     routerMock = createRouterMock();
     toastrServiceMock = createToastrMock();
+    telemetryMock = createTelemetryServiceMock();
 
     await TestBed.configureTestingModule({
-      imports: [CarritoComponent],
+      imports: [CarritoComponent, CommonModule],
       providers: [
         { provide: CartService, useValue: cartServiceMock },
         { provide: ModalService, useValue: modalServiceMock },
@@ -75,6 +80,7 @@ describe('CarritoComponent', () => {
         { provide: ClienteService, useValue: clienteServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: ToastrService, useValue: toastrServiceMock },
+        { provide: TelemetryService, useValue: telemetryMock },
       ],
     }).compileComponents();
 
@@ -195,10 +201,7 @@ describe('CarritoComponent', () => {
   it('should handle missing method label (option not found)', async () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
-      selects: [
-        { selected: 99, options: [{ label: 'M1', value: 1 }] },
-        { selected: false },
-      ],
+      selects: [{ selected: 99, options: [{ label: 'M1', value: 1 }] }, { selected: false }],
       input: { value: '' },
     });
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
@@ -360,5 +363,33 @@ describe('CarritoComponent', () => {
     expect(errorSpy).toHaveBeenCalled();
     expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
     errorSpy.mockRestore();
+  });
+
+  it('should log purchase on finalize order without delivery', async () => {
+    await setup({ paymentResp: { data: [{ metodoPagoId: 2, tipo: 'Nequi' }] } });
+
+    // Prepara carrito y métodos de pago
+    (component as any).carrito = [
+      { productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 },
+      { productoId: 2, nombre: 'P2', cantidad: 2, precio: 5 },
+    ];
+    (component as any).paymentMethods = [{ metodoPagoId: 2, tipo: 'Nequi' }];
+    userServiceMock.getUserId.mockReturnValue(42);
+
+    // Mock flujo de API para que finalizeOrder complete OK
+    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 123 } }));
+    productoPedidoServiceMock.create.mockReturnValue(of({}));
+    pedidoClienteServiceMock.create.mockReturnValue(of({}));
+
+    await (component as any).finalizeOrder(2, null);
+
+    expect(telemetryMock.logPurchase).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 42,
+        paymentMethodId: 2,
+        paymentMethodLabel: 'Nequi',
+        requiresDelivery: false,
+      }),
+    );
   });
 });

@@ -7,11 +7,11 @@ import { ModalService } from '../../../core/services/modal.service';
 import { ProductoService } from '../../../core/services/producto.service';
 import { UserService } from '../../../core/services/user.service';
 import {
-    createCartServiceMock,
-    createModalServiceMock,
-    createProductoServiceMock,
-    createRouterMock,
-    createUserServiceMock,
+  createCartServiceMock,
+  createModalServiceMock,
+  createProductoServiceMock,
+  createRouterMock,
+  createUserServiceMock,
 } from '../../../shared/mocks/test-doubles';
 import { Producto } from '../../../shared/models/producto.model';
 import { VerProductosComponent } from './ver-productos.component';

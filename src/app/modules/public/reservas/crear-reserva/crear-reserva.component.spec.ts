@@ -10,7 +10,15 @@ import { LoggingService, LogLevel } from '../../../../core/services/logging.serv
 import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
 import { mockResponseCliente } from '../../../../shared/mocks/cliente.mock';
-import { createClienteServiceMock, createLoggingServiceMock, createReservaServiceMock, createRouterMock, createToastrMock, createTrabajadorServiceMock, createUserServiceMock } from '../../../../shared/mocks/test-doubles';
+import {
+  createClienteServiceMock,
+  createLoggingServiceMock,
+  createReservaServiceMock,
+  createRouterMock,
+  createToastrMock,
+  createTrabajadorServiceMock,
+  createUserServiceMock,
+} from '../../../../shared/mocks/test-doubles';
 import { mockTrabajadorResponse } from '../../../../shared/mocks/trabajador.mock';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { TrabajadorService } from './../../../../core/services/trabajador.service';

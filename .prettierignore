@@ -1,0 +1,16 @@
+# Build outputs
+/dist
+/.angular
+/coverage
+
+# Dependencies
+/node_modules
+
+# Generated
+/tmp
+
+# Vendor assets
+/src/assets/lib
+
+# Logs
+*.log

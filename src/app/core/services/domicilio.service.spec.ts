@@ -6,9 +6,9 @@ import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { DomicilioRequest } from '../../shared/models/domicilio.model';
 import {
-    mockDomicilioBody,
-    mockDomicilioRespone,
-    mockDomiciliosRespone,
+  mockDomicilioBody,
+  mockDomicilioRespone,
+  mockDomiciliosRespone,
 } from './../../shared/mocks/domicilio.mock';
 import { DomicilioService } from './domicilio.service';
 import { HandleErrorService } from './handle-error.service';

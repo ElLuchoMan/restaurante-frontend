@@ -5,6 +5,7 @@ import { RoleGuard } from '../../core/guards/role.guard';
 import { RegisterComponent } from '../auth/register/register.component';
 import { CrearProductoComponent } from './productos/crear-producto/crear-producto.component';
 import { ProductosComponent } from './productos/menu-productos/productos.component';
+import { TelemetryDashboardComponent } from './telemetry/telemetry-dashboard.component';
 
 export const adminRoutes: Routes = [
   //   {
@@ -24,6 +25,13 @@ export const adminRoutes: Routes = [
     component: ProductosComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Administrador'] },
+  },
+  {
+    path: 'telemetria',
+    component: TelemetryDashboardComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Administrador'] },
+    title: 'Telemetría',
   },
   {
     path: 'productos/crear',

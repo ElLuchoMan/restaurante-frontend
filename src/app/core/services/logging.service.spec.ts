@@ -48,5 +48,3 @@ describe('LoggingService', () => {
     expect(errorSpy).toHaveBeenCalledWith('si-debe-verse');
   });
 });
-
-

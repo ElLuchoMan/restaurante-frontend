@@ -15,6 +15,7 @@ import { ModalService } from '../../../core/services/modal.service';
 import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
+import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
 import { estadoPago } from '../../../shared/constants';
 import { Cliente } from '../../../shared/models/cliente.model';
@@ -49,6 +50,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
     private clienteService: ClienteService,
     private router: Router,
     private toastr: ToastrService,
+    private telemetry: TelemetryService,
   ) {}
 
   ngOnInit(): void {
@@ -224,6 +226,26 @@ export class CarritoComponent implements OnInit, OnDestroy {
           console.warn('Respuesta inesperada al asignar domicilio', resp.data);
         }
       }
+
+      // Telemetría de compra completada
+      const itemsSnapshot = this.carrito.map((p) => ({
+        productId: p.productoId!,
+        name: p.nombre,
+        quantity: p.cantidad!,
+        unitPrice: p.precio,
+      }));
+      const subtotal = itemsSnapshot.reduce((acc, it) => acc + it.unitPrice * it.quantity, 0);
+      // Obtener label del método desde paymentMethods
+      const methodLabel =
+        this.paymentMethods.find((m) => m.metodoPagoId === methodId)?.tipo ?? String(methodId);
+      this.telemetry.logPurchase({
+        userId: this.userService.getUserId?.() ?? null,
+        paymentMethodId: methodId,
+        paymentMethodLabel: methodLabel,
+        requiresDelivery: domicilioId !== null,
+        items: itemsSnapshot,
+        subtotal,
+      });
 
       this.cart.clearCart();
       this.router.navigate(['/cliente/mis-pedidos']);

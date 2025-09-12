@@ -9,11 +9,16 @@ import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import {
-    mockReserva,
-    mockReservasUnordered,
-    mockReservaUpdateResponse,
+  mockReserva,
+  mockReservasUnordered,
+  mockReservaUpdateResponse,
 } from '../../../../shared/mocks/reserva.mocks';
-import { createLoggingServiceMock, createReservaServiceMock, createToastrMock, createUserServiceMock } from '../../../../shared/mocks/test-doubles';
+import {
+  createLoggingServiceMock,
+  createReservaServiceMock,
+  createToastrMock,
+  createUserServiceMock,
+} from '../../../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
 import { Reserva } from '../../../../shared/models/reserva.model';
 import { ConsultarReservaComponent } from './consultar-reserva.component';

@@ -1,10 +1,10 @@
 import {
-    buildNombreCliente,
-    computeTotal,
-    normalizeProductos,
-    obtenerMetodoPagoDefaultUtil,
-    parseMetodoYObservacionesUtil,
-    shouldGenerateMapsUtil,
+  buildNombreCliente,
+  computeTotal,
+  normalizeProductos,
+  obtenerMetodoPagoDefaultUtil,
+  parseMetodoYObservacionesUtil,
+  shouldGenerateMapsUtil,
 } from './ruta-domicilio.utils';
 
 describe('ruta-domicilio.utils', () => {
@@ -86,10 +86,22 @@ describe('ruta-domicilio.utils', () => {
       const arr = normalizeProductos([
         { NOMBRE: 'A', CANTIDAD: '2', PRECIO: '5', SUBTOTAL: '10', PK_ID_PRODUCTO: 1 },
       ]);
-      expect(arr[0]).toEqual({ nombre: 'A', cantidad: 2, precioUnitario: 5, subtotal: 10, productoId: 1 });
+      expect(arr[0]).toEqual({
+        nombre: 'A',
+        cantidad: 2,
+        precioUnitario: 5,
+        subtotal: 10,
+        productoId: 1,
+      });
 
       const fromStr = normalizeProductos('[{"nombre":"B","cantidad":"3","precioUnitario":"2"}]');
-      expect(fromStr[0]).toEqual({ nombre: 'B', cantidad: 3, precioUnitario: 2, subtotal: 0, productoId: undefined });
+      expect(fromStr[0]).toEqual({
+        nombre: 'B',
+        cantidad: 3,
+        precioUnitario: 2,
+        subtotal: 0,
+        productoId: undefined,
+      });
     });
 
     it('devuelve [] para JSON inválido o no array', () => {
@@ -99,7 +111,13 @@ describe('ruta-domicilio.utils', () => {
 
     it('usa valores por defecto cuando faltan claves', () => {
       const res = normalizeProductos([{}]);
-      expect(res[0]).toEqual({ nombre: '', cantidad: 0, precioUnitario: 0, subtotal: 0, productoId: undefined });
+      expect(res[0]).toEqual({
+        nombre: '',
+        cantidad: 0,
+        precioUnitario: 0,
+        subtotal: 0,
+        productoId: undefined,
+      });
     });
 
     it('toma productoId alternativo incluso si es 0', () => {
@@ -112,8 +130,16 @@ describe('ruta-domicilio.utils', () => {
     });
 
     it('usa PRECIO_UNITARIO y subtotal (segunda clave)', () => {
-      const res = normalizeProductos([{ NOMBRE: 'Z', CANTIDAD: '1', PRECIO_UNITARIO: '7', subtotal: '9', PK_ID_PRODUCTO: 5 }]);
-      expect(res[0]).toEqual({ nombre: 'Z', cantidad: 1, precioUnitario: 7, subtotal: 9, productoId: 5 });
+      const res = normalizeProductos([
+        { NOMBRE: 'Z', CANTIDAD: '1', PRECIO_UNITARIO: '7', subtotal: '9', PK_ID_PRODUCTO: 5 },
+      ]);
+      expect(res[0]).toEqual({
+        nombre: 'Z',
+        cantidad: 1,
+        precioUnitario: 7,
+        subtotal: 9,
+        productoId: 5,
+      });
     });
   });
 
@@ -189,5 +215,3 @@ describe('ruta-domicilio.utils', () => {
     });
   });
 });
-
-

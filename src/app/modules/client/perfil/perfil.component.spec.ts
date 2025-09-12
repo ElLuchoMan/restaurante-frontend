@@ -6,7 +6,11 @@ import { of, throwError } from 'rxjs';
 
 import { ClienteService } from '../../../core/services/cliente.service';
 import { UserService } from '../../../core/services/user.service';
-import { createClienteServiceMock, createToastrMock, createUserServiceMock } from '../../../shared/mocks/test-doubles';
+import {
+  createClienteServiceMock,
+  createToastrMock,
+  createUserServiceMock,
+} from '../../../shared/mocks/test-doubles';
 import { PerfilComponent } from './perfil.component';
 
 describe('PerfilComponent', () => {

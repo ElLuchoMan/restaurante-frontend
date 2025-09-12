@@ -1743,8 +1743,8 @@
       event.touches && event.touches.length
         ? event.touches[0]
         : event.changedTouches && event.changedTouches.length
-        ? event.changedTouches[0]
-        : event;
+          ? event.changedTouches[0]
+          : event;
 
     if (event.pageX) {
       result.x = event.pageX;
@@ -3145,7 +3145,7 @@
           if (Math.min(maximum, i - lower) === maximum) {
             break;
           }
-          (j = 0), ++k;
+          ((j = 0), ++k);
         }
         j += this._core.mergers(this._core.relative(i));
       }

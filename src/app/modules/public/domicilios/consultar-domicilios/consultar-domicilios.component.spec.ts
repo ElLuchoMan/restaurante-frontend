@@ -7,10 +7,10 @@ import { TrabajadorService } from '../../../../core/services/trabajador.service'
 import { UserService } from '../../../../core/services/user.service';
 import { estadoPago } from '../../../../shared/constants';
 import {
-    createDomicilioServiceMock,
-    createModalServiceMock,
-    createTrabajadorServiceMock,
-    createUserServiceMock,
+  createDomicilioServiceMock,
+  createModalServiceMock,
+  createTrabajadorServiceMock,
+  createUserServiceMock,
 } from '../../../../shared/mocks/test-doubles';
 import { Domicilio } from '../../../../shared/models/domicilio.model';
 import { ConsultarDomicilioComponent } from './consultar-domicilios.component';

@@ -2,10 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
-import { createFileReaderMock, createProductoServiceMock } from '../../../../shared/mocks/test-doubles';
 
 import { ProductoService } from '../../../../core/services/producto.service';
 import { estadoProducto } from '../../../../shared/constants';
+import {
+  createFileReaderMock,
+  createProductoServiceMock,
+} from '../../../../shared/mocks/test-doubles';
 import { CrearProductoComponent } from './crear-producto.component';
 
 describe('CrearProductoComponent', () => {

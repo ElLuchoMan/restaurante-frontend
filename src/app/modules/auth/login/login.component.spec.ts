@@ -6,9 +6,16 @@ import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 
 import { LoggingService, LogLevel } from '../../../core/services/logging.service';
+import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
 import { mockLogin } from '../../../shared/mocks/login.mock';
-import { createLoggingServiceMock, createRouterMock, createToastrMock, createUserServiceMock } from '../../../shared/mocks/test-doubles';
+import {
+  createLoggingServiceMock,
+  createRouterMock,
+  createTelemetryServiceMock,
+  createToastrMock,
+  createUserServiceMock,
+} from '../../../shared/mocks/test-doubles';
 import { mockLoginResponse } from './../../../shared/mocks/login.mock';
 import { LoginComponent } from './login.component';
 
@@ -19,12 +26,14 @@ describe('LoginComponent', () => {
   let router: jest.Mocked<Router>;
   let toastr: jest.Mocked<ToastrService>;
   let loggingService: jest.Mocked<LoggingService>;
+  let telemetry: jest.Mocked<TelemetryService>;
 
   beforeEach(async () => {
     const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
     const routerMock = createRouterMock();
     const toastrMock = createToastrMock() as jest.Mocked<ToastrService>;
     const loggingServiceMock = createLoggingServiceMock() as jest.Mocked<LoggingService>;
+    const telemetryMock = createTelemetryServiceMock() as jest.Mocked<TelemetryService>;
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent, ReactiveFormsModule, CommonModule],
@@ -33,6 +42,7 @@ describe('LoginComponent', () => {
         { provide: Router, useValue: routerMock },
         { provide: ToastrService, useValue: toastrMock },
         { provide: LoggingService, useValue: loggingServiceMock },
+        { provide: TelemetryService, useValue: telemetryMock },
       ],
     }).compileComponents();
 
@@ -42,6 +52,7 @@ describe('LoginComponent', () => {
     router = TestBed.inject(Router) as jest.Mocked<Router>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
+    telemetry = TestBed.inject(TelemetryService) as jest.Mocked<TelemetryService>;
 
     fixture.detectChanges();
   });
@@ -50,15 +61,17 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call login service with correct credentials', () => {
+  it('should call login service with correct credentials and log telemetry success', () => {
     userService.login.mockReturnValue(of(mockLoginResponse));
 
     component.loginForm.setValue(mockLogin);
     component.onSubmit();
 
+    expect(telemetry.logLoginAttempt).toHaveBeenCalled();
     expect(userService.login).toHaveBeenCalledWith(mockLogin);
     expect(userService.saveToken).toHaveBeenCalledWith('testToken');
     expect(toastr.success).toHaveBeenCalledWith('Inicio de sesión exitoso', 'Bienvenido Test User');
+    expect(telemetry.logLoginSuccess).toHaveBeenCalled();
   });
 
   it('should navigate to admin route when user role is Administrador', () => {
@@ -108,6 +121,16 @@ describe('LoginComponent', () => {
       LogLevel.ERROR,
       'No hay propiedad "message" en el error.',
     );
+  });
+
+  it('should log telemetry failure on login error', () => {
+    userService.login.mockReturnValue(throwError(() => ({ message: 'e' })) as any);
+
+    component.loginForm.setValue(mockLogin);
+    component.onSubmit();
+
+    expect(telemetry.logLoginAttempt).toHaveBeenCalled();
+    expect(telemetry.logLoginFailure).toHaveBeenCalled();
   });
 
   it('should early-return when form is invalid and mark all as touched', () => {

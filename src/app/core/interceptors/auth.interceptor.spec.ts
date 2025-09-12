@@ -1,7 +1,7 @@
 import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { createNextHandlerMock, createUserServiceMock } from '../../shared/mocks/test-doubles';
 
+import { createNextHandlerMock, createUserServiceMock } from '../../shared/mocks/test-doubles';
 import { UserService } from '../services/user.service';
 import { authInterceptor } from './auth.interceptor';
 

@@ -1,17 +1,23 @@
 {
-  "extends": "stylelint-config-standard-scss",
-  "plugins": ["stylelint-order"],
+  "extends": [
+    "stylelint-config-standard-scss"
+  ],
+  "plugins": [
+    "stylelint-order"
+  ],
   "rules": {
-    "indentation": 2,
-    "max-nesting-depth": 4,
-    "color-hex-case": "lower",
-    "block-no-empty": null,
-    "selector-max-id": 1,
-    "selector-max-compound-selectors": 4,
-    "property-no-unknown": null,
-    "declaration-block-semicolon-newline-after": "always",
-    "scss/at-rule-no-unknown": true,
-    "scss/dollar-variable-pattern": null,
-    "order/properties-alphabetical-order": true
-  }
+    "order/properties-alphabetical-order": true,
+    "selector-class-pattern": "^[a-z0-9\\_-]+$",
+    "no-descending-specificity": null,
+    "no-duplicate-selectors": true,
+    "number-max-precision": null,
+    "scss/at-extend-no-missing-placeholder": null
+  },
+  "ignoreFiles": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "src/assets/lib/**",
+    "public/**"
+  ]
 }

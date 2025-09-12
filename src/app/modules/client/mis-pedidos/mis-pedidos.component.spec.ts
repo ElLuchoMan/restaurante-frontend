@@ -3,7 +3,11 @@ import { Observable, of, throwError } from 'rxjs';
 
 import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
-import { createPedidoServiceMock, createSpy, createUserServiceMock } from '../../../shared/mocks/test-doubles';
+import {
+  createPedidoServiceMock,
+  createSpy,
+  createUserServiceMock,
+} from '../../../shared/mocks/test-doubles';
 import { Pedido } from '../../../shared/models/pedido.model';
 import { MisPedidosComponent } from './mis-pedidos.component';
 

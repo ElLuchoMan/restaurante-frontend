@@ -6,11 +6,17 @@ export interface ProductoDetalleVM {
   productoId?: number;
 }
 
-export function buildNombreCliente(cli?: { nombre?: string | null; apellido?: string | null }): string {
+export function buildNombreCliente(cli?: {
+  nombre?: string | null;
+  apellido?: string | null;
+}): string {
   return cli ? `${cli.nombre ?? ''} ${cli.apellido ?? ''}`.trim() : '';
 }
 
-export function parseMetodoYObservacionesUtil(s: string): { metodo: string; observaciones: string } {
+export function parseMetodoYObservacionesUtil(s: string): {
+  metodo: string;
+  observaciones: string;
+} {
   if (!s) return { metodo: '', observaciones: '' };
 
   const re = /m[eé]todo\s*pago\s*:\s*([^-\n\r]+)?(?:\s*-\s*observaciones\s*:\s*(.+))?/i;
@@ -42,7 +48,7 @@ export function parseMetodoYObservacionesUtil(s: string): { metodo: string; obse
 }
 
 export function normalizeProductos(raw: unknown): ProductoDetalleVM[] {
-  const arr: any[] = typeof raw === 'string' ? safeParseArray(raw) : (Array.isArray(raw) ? raw : []);
+  const arr: any[] = typeof raw === 'string' ? safeParseArray(raw) : Array.isArray(raw) ? raw : [];
   return arr.map((x: any) => ({
     nombre: String(x?.NOMBRE ?? x?.nombre ?? ''),
     cantidad: Number(x?.CANTIDAD ?? x?.cantidad ?? 0),
@@ -58,7 +64,9 @@ export function computeTotal(totalRaw: unknown, productos: ProductoDetalleVM[]):
   return productos.reduce((s, p) => s + (Number(p.subtotal) || 0), 0);
 }
 
-export function obtenerMetodoPagoDefaultUtil(texto: string): 'NEQUI' | 'DAVIPLATA' | 'EFECTIVO' | null {
+export function obtenerMetodoPagoDefaultUtil(
+  texto: string,
+): 'NEQUI' | 'DAVIPLATA' | 'EFECTIVO' | null {
   const raw = (texto || '').toString().trim().toUpperCase();
   if (!raw) return null;
   const norm = raw
@@ -88,5 +96,3 @@ function safeParseArray(s: string): any[] {
     return [];
   }
 }
-
-

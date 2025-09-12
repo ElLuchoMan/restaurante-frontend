@@ -1,0 +1,94 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+        args:
+          - "--fix=auto"
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.19.0
+    hooks:
+      - id: pyupgrade
+        args:
+          - "--py310-plus"
+        stages:
+          - manual
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        files: '(\.ya?ml)$'
+
+  - repo: https://github.com/zricethezav/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+        args:
+          - "detect"
+          - "--no-banner"
+          - "--redact"
+        stages:
+          - pre-commit
+          - pre-push
+
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        language: system
+        entry: npx prettier --write
+        files: '^(src|cypress|tools|public)/.*\.(ts|js|html|scss|md|json|ya?ml|css)$'
+        exclude: 'src/assets/lib/'
+
+      - id: eslint
+        name: eslint
+        language: system
+        entry: npx eslint --fix --quiet --max-warnings=100
+        files: '^src/.*\.(ts|js)$'
+
+      - id: stylelint
+        name: stylelint
+        language: system
+        entry: npx stylelint --fix
+        files: '^src/app/.*\.scss$'
+        exclude: ''
+
+      - id: jest
+        name: jest (affected)
+        language: system
+        entry: npx jest -c jest.config.ts --bail --findRelatedTests
+        files: '^src/.*\.(ts|html|scss)$'
+        pass_filenames: true
+        stages:
+          - manual
+
+      - id: validate-mocks
+        name: validate mocks
+        language: system
+        entry: npm run validate:mocks --silent
+        files: '^src/.*\.(ts)$'
+        stages:
+          - manual
+
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.20.0
+    hooks:
+      - id: commitlint
+        additional_dependencies:
+          - "@commitlint/cli@^19.8.1"
+          - "@commitlint/config-conventional@^19.8.1"
+        stages:
+          - commit-msg
+
+ci:
+  autofix_prs: false
+  skip:
+    - pyupgrade
+    - jest
+    - validate-mocks
