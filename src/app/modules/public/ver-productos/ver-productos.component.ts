@@ -1,5 +1,5 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, TransferState, makeStateKey } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -20,6 +20,7 @@ import { ProductoFiltroPipe } from '../../../shared/pipes/producto-filtro.pipe';
   imports: [CommonModule, FormsModule, ProductoFiltroPipe, NgOptimizedImage],
 })
 export class VerProductosComponent implements OnInit, OnDestroy {
+  private staticStateKey = makeStateKey<Producto[]>('ver_productos_initial');
   productos: Producto[] = [];
   mensaje: string = '';
   categorias: string[] = [];
@@ -42,6 +43,7 @@ export class VerProductosComponent implements OnInit, OnDestroy {
     private router: Router,
     private cartService: CartService,
     private live: LiveAnnouncerService,
+    private ts: TransferState,
   ) {}
 
   ngOnInit(): void {
@@ -61,28 +63,33 @@ export class VerProductosComponent implements OnInit, OnDestroy {
   }
 
   obtenerProductos(): void {
+    const cached = this.ts.get(this.staticStateKey, [] as Producto[]);
+    if (cached.length) {
+      this.setProductos(cached);
+      return;
+    }
     this.productoService
       .getProductos({ onlyActive: true, includeImage: true })
       .pipe(takeUntil(this.destroy$))
       .subscribe((response) => {
         if (response.data) {
-          this.productos = response.data;
-
-          // Extraer categorías y subcategorías únicas
-          const categoriasSet = new Set<string>();
-          const subcategoriasSet = new Set<string>();
-
-          this.productos.forEach((p) => {
-            if (p.categoria) categoriasSet.add(p.categoria);
-            if (p.subcategoria) subcategoriasSet.add(p.subcategoria);
-          });
-
-          this.categorias = Array.from(categoriasSet);
-          this.subcategorias = Array.from(subcategoriasSet);
+          this.setProductos(response.data);
+          this.ts.set(this.staticStateKey, response.data);
         } else {
           this.mensaje = response.message;
         }
       });
+  }
+  private setProductos(list: Producto[]): void {
+    this.productos = list;
+    const categoriasSet = new Set<string>();
+    const subcategoriasSet = new Set<string>();
+    this.productos.forEach((p) => {
+      if (p.categoria) categoriasSet.add(p.categoria);
+      if (p.subcategoria) subcategoriasSet.add(p.subcategoria);
+    });
+    this.categorias = Array.from(categoriasSet);
+    this.subcategorias = Array.from(subcategoriasSet);
   }
   actualizarSubcategorias(): void {
     const set = new Set<string>();

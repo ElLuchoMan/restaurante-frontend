@@ -1,6 +1,15 @@
 import { NgOptimizedImage, isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, Component, Inject, PLATFORM_ID } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Inject,
+  PLATFORM_ID,
+  TransferState,
+  makeStateKey,
+} from '@angular/core';
 import { RouterModule } from '@angular/router';
+
+const HOME_STATE = makeStateKey<string>('home_bootstrap');
 
 @Component({
   selector: 'app-home',
@@ -9,10 +18,19 @@ import { RouterModule } from '@angular/router';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements AfterViewInit {
-  constructor(@Inject(PLATFORM_ID) private platformId: object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: object,
+    private ts: TransferState,
+  ) {}
 
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
+    // Marcar que el carrusel ya fue inicializado en SSR y evitar doble trabajo en hidratación
+    if (!this.ts.hasKey(HOME_STATE)) {
+      this.ts.set(HOME_STATE, 'init');
+    } else {
+      return;
+    }
     const el = document.getElementById('header-carousel');
     if (!el) return;
     const Bootstrap = (window as any).bootstrap;
