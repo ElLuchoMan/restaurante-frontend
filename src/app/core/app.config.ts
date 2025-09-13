@@ -11,18 +11,27 @@ import { provideRouter } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideToastr, ToastrModule } from 'ngx-toastr';
 
-import { ErrorHandler } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler } from '@angular/core';
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { correlationInterceptor } from './interceptors/correlation.interceptor';
 import { telemetryInterceptor } from './interceptors/telemetry.interceptor';
+import { AppConfigService } from './services/app-config.service';
 import { GlobalErrorHandler } from './services/global-error.handler';
+
+function loadAppConfig(cfg: AppConfigService): () => Promise<void> {
+  return () => cfg.load();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor, telemetryInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([authInterceptor, correlationInterceptor, telemetryInterceptor]),
+    ),
     provideAnimations(),
     BrowserAnimationsModule,
     provideToastr(),
@@ -42,5 +51,6 @@ export const appConfig: ApplicationConfig = {
       registrationStrategy: 'registerWhenStable:30000',
     }),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    { provide: APP_INITIALIZER, useFactory: loadAppConfig, deps: [AppConfigService], multi: true },
   ],
 };
