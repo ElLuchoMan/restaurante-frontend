@@ -13,6 +13,7 @@
     "format": "prettier \"src/**/*.{ts,html,scss,md}\" --write",
     "format:check": "prettier \"src/**/*.{ts,html,scss,md}\" --check",
     "images:generate": "node tools/generate-images.mjs",
+    "images:png2webp": "node tools/png-to-webp.mjs",
     "limpieza": "npx rimraf node_modules package-lock.json .angular/cache && npm install --prefer-online",
     "deps:unused": "npx depcheck",
     "updates": "npm-check-updates -u && npm install",

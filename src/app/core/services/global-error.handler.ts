@@ -9,10 +9,11 @@ export class GlobalErrorHandler implements ErrorHandler {
   handleError(error: unknown): void {
     const message = this.extractMessage(error);
     const stack = this.extractStack(error);
-    this.telemetry.logError(message, stack, /* handled */ false);
+    const requestId = (globalThis as any).__lastCorrelationId as string | undefined;
+    this.telemetry.logError(message, stack, /* handled */ false, requestId);
     // Re-lanza para no ocultar en consola en desarrollo
     // eslint-disable-next-line no-console
-    console.error(error);
+    console.error(`[Error]${requestId ? ' reqId=' + requestId : ''}`, error);
   }
 
   private extractMessage(error: unknown): string {

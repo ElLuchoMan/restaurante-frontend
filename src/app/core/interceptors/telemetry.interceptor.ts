@@ -1,4 +1,4 @@
-import { HttpEvent, HttpHandlerFn, HttpRequest } from '@angular/common/http';
+import { HttpEvent, HttpHandlerFn, HttpRequest, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
@@ -10,23 +10,37 @@ export function telemetryInterceptor(
 ): Observable<HttpEvent<unknown>> {
   const telemetry = inject(TelemetryService);
   const start = performance.now();
+  const corrId = (req as any).correlationId as string | undefined;
 
   return next(req).pipe(
     tap({
       next: (event) => {
-        // Sólo medimos al completar mediante HttpResponse en un interceptor más elaborado.
-        // Aquí registramos cada paso ok con status 200 si aplica vía finalize en un interceptor extendido.
+        if (event instanceof HttpResponse) {
+          const durationMs = Math.round(performance.now() - start);
+          (globalThis as any).__lastCorrelationId = corrId;
+          telemetry.logHttp({
+            method: req.method,
+            url: req.url,
+            ok: true,
+            status: event.status,
+            durationMs,
+            requestId: corrId,
+          });
+        }
       },
       error: (err: any) => {
         const durationMs = Math.round(performance.now() - start);
         const status = err?.status ?? 0;
-        telemetry.logHttp({ method: req.method, url: req.url, ok: false, status, durationMs });
+        telemetry.logHttp({
+          method: req.method,
+          url: req.url,
+          ok: false,
+          status,
+          durationMs,
+          requestId: corrId,
+        });
       },
-      complete: () => {
-        const durationMs = Math.round(performance.now() - start);
-        // No tenemos fácil el status al completar sin HttpResponse, asumimos ok= true, status 200.
-        telemetry.logHttp({ method: req.method, url: req.url, ok: true, status: 200, durationMs });
-      },
+      complete: () => {},
     }),
   );
 }

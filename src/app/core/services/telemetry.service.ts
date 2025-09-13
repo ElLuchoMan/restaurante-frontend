@@ -43,6 +43,7 @@ export interface HttpEvent extends TelemetryBaseEvent {
   ok: boolean;
   status: number;
   durationMs?: number;
+  requestId?: string;
 }
 
 export interface ErrorEvent extends TelemetryBaseEvent {
@@ -50,6 +51,7 @@ export interface ErrorEvent extends TelemetryBaseEvent {
   message: string;
   stack?: string;
   handled: boolean;
+  requestId?: string;
 }
 
 export type TelemetryEvent = LoginEvent | PurchaseEvent | HttpEvent | ErrorEvent;
@@ -124,7 +126,7 @@ export class TelemetryService {
     this.logEvent({ id: this.uid(), type: 'http_request', timestamp: Date.now(), ...data });
   }
 
-  logError(message: string, stack?: string, handled = true): void {
+  logError(message: string, stack?: string, handled = true, requestId?: string): void {
     this.logEvent({
       id: this.uid(),
       type: 'error',
@@ -132,6 +134,7 @@ export class TelemetryService {
       message,
       stack,
       handled,
+      requestId,
     });
   }
 
