@@ -130,10 +130,22 @@ Sass variables remain only for build‑time values such as breakpoints.
 
 - Archivos en `src/environments/` para configuración por entorno.
 - No hardcodear claves o endpoints; usa variables de entorno/Angular environments.
+ - Configuración runtime adicional en `public/app-config.json` (evita rebuild al cambiar `apiBase` y claves).
+
+### Runtime config (`app-config.json`)
+
+Por defecto:
+
+```json
+{ "apiBase": "/restaurante/v1" }
+```
+
+En CI (deploy a Netlify) se genera con secrets `APP_API_BASE` y `GMAPS_API_KEY`.
 
 ## Production
-- `npm run build` – generate production build in `dist/`
-- `npm run serve:ssr:restaurante-frontend` – run the server-side rendered build
+- `npm run build` – build de producción en `dist/` (SSR habilitado y prerender por Angular)
+- `npx serve dist/restaurante-frontend/browser` – servir estático local
+- `netlify dev` – servir con proxy `/restaurante/v1/*` → backend local
 
 ## How to make a PR
 1. Create a feature branch from `develop`.
@@ -144,6 +156,11 @@ Sass variables remain only for build‑time values such as breakpoints.
 ## Convenciones
 - Commits: Conventional Commits (por ejemplo, `feat/ui: ...`, `fix/ui: ...`, `chore/deps: ...`).
 - Estilo de código: ESLint + Prettier; imports ordenados; SCSS con Stylelint.
+
+## CI/CD
+
+- CI (`.github/workflows/ci.yml`): lint + test + build en PR y `master`.
+- Deploy (`.github/workflows/deploy.yml`): solo `master` → Netlify (secrets `NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID`, `APP_API_BASE`, opcional `GMAPS_API_KEY`).
 
 ## Mocks y pruebas
 - Mocks reutilizables en `src/app/shared/mocks`. Úsalos en tests para evitar mocks ad‑hoc.

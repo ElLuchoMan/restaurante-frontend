@@ -11,6 +11,17 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+      - name: Generate runtime app-config.json from secrets
+        run: |
+          API="${{ secrets.APP_API_BASE }}"
+          GMAPS="${{ secrets.GMAPS_API_KEY }}"
+          if [ -z "$API" ]; then API="/restaurante/v1"; fi
+          echo '{' > public/app-config.json
+          echo "  \"apiBase\": \"${API}\"" >> public/app-config.json
+          if [ -n "$GMAPS" ]; then
+            echo "  ,\"googleMapsApiKey\": \"${GMAPS}\"" >> public/app-config.json
+          fi
+          echo '}' >> public/app-config.json
       - run: npm ci
       - run: npm run build
       - name: Deploy to Netlify

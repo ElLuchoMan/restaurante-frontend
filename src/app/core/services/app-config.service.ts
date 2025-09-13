@@ -11,6 +11,13 @@ export class AppConfigService {
 
   async load(): Promise<void> {
     try {
+      // 1) Intentar override local (no versionado)
+      const local = await fetch('/app-config.local.json', { cache: 'no-store' });
+      if (local.ok) {
+        const json = (await local.json()) as Partial<RuntimeAppConfig>;
+        this.config = { ...this.config, ...json } as RuntimeAppConfig;
+      }
+      // 2) Config global por entorno
       const response = await fetch('/app-config.json', { cache: 'no-store' });
       if (response.ok) {
         const json = (await response.json()) as Partial<RuntimeAppConfig>;

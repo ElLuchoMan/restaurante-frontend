@@ -134,11 +134,14 @@ export class RutaDomicilioComponent implements OnInit {
     const apiKey = getGoogleMapsApiKey();
     const origen = encodeURIComponent(this.restauranteDireccion);
     const destino = encodeURIComponent(this.direccionCliente);
-    const base = `https://www.google.com/maps/embed/v1/directions`;
-    const url = apiKey
-      ? `${base}?key=${apiKey}&origin=${origen}&destination=${destino}&mode=driving&avoid=tolls|highways`
-      : `${base}?origin=${origen}&destination=${destino}&mode=driving&avoid=tolls|highways`;
-    this.ubicacionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    if (apiKey) {
+      const base = `https://www.google.com/maps/embed/v1/directions`;
+      const url = `${base}?key=${apiKey}&origin=${origen}&destination=${destino}&mode=driving&avoid=tolls|highways`;
+      this.ubicacionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    } else {
+      const url = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d0!2d0!3d0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1`;
+      this.ubicacionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
   }
 
   public generarUrlGoogleMaps(): void {

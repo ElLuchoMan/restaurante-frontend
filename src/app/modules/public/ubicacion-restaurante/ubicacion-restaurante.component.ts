@@ -27,7 +27,9 @@ export class UbicacionRestauranteComponent implements AfterViewInit {
     const apiKey = getGoogleMapsApiKey();
     const address = encodeURIComponent('Calle 78a # 62 - 48, Bogotá, Colombia');
     const base = `https://www.google.com/maps/embed/v1/place`;
-    const url = apiKey ? `${base}?key=${apiKey}&q=${address}` : `${base}?q=${address}`;
+    const url = apiKey
+      ? `${base}?key=${apiKey}&q=${address}`
+      : `https://www.google.com/maps?q=${address}&output=embed`;
     this.ubicacionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
   ngAfterViewInit(): void {
