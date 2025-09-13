@@ -26,7 +26,7 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), camera=(), microphone=()"
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https: http://localhost:8080; base-uri 'self'; form-action 'self'; frame-ancestors 'self';"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https: http://localhost:8080; frame-src 'self' https://www.google.com https://maps.google.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self';"
 
 # HSTS solo para producción
 [context.production.headers]
