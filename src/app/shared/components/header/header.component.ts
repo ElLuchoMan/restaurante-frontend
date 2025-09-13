@@ -23,6 +23,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   imagenVisible: boolean = true;
   cartCount = 0;
   private destroy$ = new Subject<void>();
+  private firstFocusableSelector = '.navbar-nav .nav-link';
 
   constructor(
     private userService: UserService,
@@ -47,6 +48,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
     if (this.isBrowser) {
       this.checkScreenSize();
+      this.bindMenuA11yHandlers();
     }
   }
 
@@ -55,6 +57,43 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.isBrowser) {
       this.checkScreenSize();
     }
+  }
+
+  private bindMenuA11yHandlers(): void {
+    const toggler = document.querySelector<HTMLButtonElement>('.navbar-toggler');
+    const collapse = document.getElementById('navbarCollapse');
+    if (!toggler || !collapse) return;
+
+    // Alterna aria-expanded
+    const updateExpanded = () => {
+      const expanded = collapse.classList.contains('show');
+      toggler.setAttribute('aria-expanded', String(expanded));
+    };
+
+    // Enfoca primer link al abrir
+    const focusFirst = () => {
+      const first = collapse.querySelector<HTMLAnchorElement>(this.firstFocusableSelector);
+      if (first) setTimeout(() => first.focus(), 0);
+    };
+
+    toggler.addEventListener('click', () => {
+      setTimeout(() => {
+        updateExpanded();
+        if (collapse.classList.contains('show')) {
+          focusFirst();
+        }
+      }, 0);
+    });
+
+    // Cierre con Escape dentro del menú
+    collapse.addEventListener('keydown', (ev: KeyboardEvent) => {
+      if (ev.key === 'Escape') {
+        ev.stopPropagation();
+        this.cerrarMenu();
+        toggler.focus();
+        updateExpanded();
+      }
+    });
   }
 
   checkScreenSize(): void {

@@ -81,12 +81,6 @@ $header-height: 84px; /* acercamos el pill al top */
 
 /* Ajustes mobile */
 @media (max-width: 991.98px) {
-  .navbar {
-    height: 56px;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-    border-radius: 10px;
-  }
   .navbar .navbar-toggler {
     padding: 0.25rem 0.5rem;
   }
@@ -105,14 +99,10 @@ $header-height: 84px; /* acercamos el pill al top */
   }
   .navbar-collapse.collapse.show,
   .navbar-collapse.collapsing {
-    margin-top: 6%;
     position: fixed;
-    top: 56px; /* altura de la barra en mobile */
+    top: 55px; /* altura de la barra en mobile */
     left: 0;
     right: 0;
-    transform: translateZ(0);
-    border-radius: 20px;
-    padding: 10px;
     transition: height 200ms ease-out;
   }
   /* Alinear todos los ítems del menú a la izquierda en mobile */
