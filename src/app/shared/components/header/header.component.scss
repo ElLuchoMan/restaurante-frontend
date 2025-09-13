@@ -79,6 +79,22 @@ $header-height: 84px; /* acercamos el pill al top */
   overflow: visible;
 }
 
+/* Accesibilidad: foco visible sin cambiar layout */
+.nav-bar a:focus-visible,
+.navbar a:focus-visible,
+.navbar .nav-link:focus-visible,
+.navbar-toggler:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.nav-bar a:hover,
+.navbar .nav-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* Ajustes mobile */
 @media (max-width: 991.98px) {
   .navbar .navbar-toggler {

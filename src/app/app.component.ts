@@ -6,11 +6,12 @@ import { NetworkService } from './core/services/network.service';
 import { SeoService } from './core/services/seo.service';
 
 import { ModalComponent } from './shared/components/modal/modal.component';
+import { UpdateBannerComponent } from './shared/components/update-banner/update-banner.component';
 import { SharedModule } from './shared/shared.module';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SharedModule, ModalComponent],
+  imports: [RouterOutlet, SharedModule, ModalComponent, UpdateBannerComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
