@@ -4,7 +4,6 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
-import { environment } from '../../../../../environments/environment';
 import { ClienteService } from '../../../../core/services/cliente.service';
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
@@ -13,6 +12,7 @@ import { PagoService } from '../../../../core/services/pago.service';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoPago, metodoPago } from '../../../../shared/constants';
+import { getGoogleMapsApiKey } from '../../../../shared/utils/config';
 import { fechaYYYYMMDD_Bogota, horaHHMMSS_Bogota } from '../../../../shared/utils/dateHelper';
 import {
   buildNombreCliente,
@@ -131,10 +131,13 @@ export class RutaDomicilioComponent implements OnInit {
   }
 
   public generarRuta(): void {
-    const apiKey = environment.googleMapsApiKey;
+    const apiKey = getGoogleMapsApiKey();
     const origen = encodeURIComponent(this.restauranteDireccion);
     const destino = encodeURIComponent(this.direccionCliente);
-    const url = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${origen}&destination=${destino}&mode=driving&avoid=tolls|highways`;
+    const base = `https://www.google.com/maps/embed/v1/directions`;
+    const url = apiKey
+      ? `${base}?key=${apiKey}&origin=${origen}&destination=${destino}&mode=driving&avoid=tolls|highways`
+      : `${base}?origin=${origen}&destination=${destino}&mode=driving&avoid=tolls|highways`;
     this.ubicacionUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
