@@ -1,5 +1,20 @@
 @use '../../../../assets/styles.scss' as *;
 
+// Evita flash blanco entre slides forzando crossfade
+#header-carousel .carousel-item {
+  transition: opacity 0.8s ease-in-out;
+}
+#header-carousel .carousel-item {
+  display: block;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+#header-carousel .carousel-item.active {
+  position: relative;
+  opacity: 1;
+}
+
 .img-responsive {
   height: auto;
   max-width: 100%;

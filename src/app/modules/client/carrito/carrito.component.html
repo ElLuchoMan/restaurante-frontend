@@ -9,6 +9,10 @@
             [src]="p.imagen || 'assets/img/logo2.png'"
             class="card-img-top"
             alt="{{ p.nombre }}"
+            loading="lazy"
+            decoding="async"
+            width="300"
+            height="200"
           />
           <div class="card-body d-flex flex-column">
             <h5 class="card-title">{{ p.nombre }}</h5>
