@@ -32,16 +32,25 @@ async function ensureWebpVariants(file) {
   const buf = fs.readFileSync(inputPath);
   await Promise.all(
     targets.map(async ({ suffix, width }) => {
-      const out = path.join(root, `${base}-${suffix}.webp`);
-      if (fs.existsSync(out)) return;
+      const outWebp = path.join(root, `${base}-${suffix}.webp`);
+      const outAvif = path.join(root, `${base}-${suffix}.avif`);
       const image = sharp(buf, { limitInputPixels: false });
       const meta = await image.metadata();
       const targetWidth = Math.min(width, meta.width ?? width);
-      await image
-        .resize({ width: targetWidth, withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toFile(out);
-      console.log(`[images:generate] ✔ ${path.basename(out)} (${targetWidth}px)`);
+      if (!fs.existsSync(outWebp)) {
+        await image
+          .resize({ width: targetWidth, withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toFile(outWebp);
+        console.log(`[images:generate] ✔ ${path.basename(outWebp)} (${targetWidth}px)`);
+      }
+      if (!fs.existsSync(outAvif)) {
+        await sharp(buf)
+          .resize({ width: targetWidth, withoutEnlargement: true })
+          .avif({ quality: 50 })
+          .toFile(outAvif);
+        console.log(`[images:generate] ✔ ${path.basename(outAvif)} (${targetWidth}px)`);
+      }
     }),
   );
 }

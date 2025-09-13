@@ -170,7 +170,7 @@ export class VerProductosComponent implements OnInit, OnDestroy {
       image:
         typeof (producto as any).imagen === 'string'
           ? (producto as any).imagen
-          : '../../../../assets/img/logo2.png',
+          : '../../../../assets/img/logo2.webp',
       details: {
         precio: producto.precio,
         calorias: producto.calorias,

@@ -2,6 +2,7 @@ import { HttpClient, HttpHandler } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { SwUpdate } from '@angular/service-worker';
 
 import { AppComponent } from './app.component';
 
@@ -14,6 +15,13 @@ describe('AppComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { data: { title: 'Home' } } },
+        },
+        {
+          provide: SwUpdate,
+          useValue: {
+            isEnabled: false,
+            versionUpdates: { subscribe: () => ({ unsubscribe: () => {} }) },
+          },
         },
         HttpClient,
         HttpHandler,

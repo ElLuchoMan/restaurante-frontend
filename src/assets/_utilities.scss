@@ -540,10 +540,9 @@ h3 {
 }
 
 .page-header {
-  background:
-    linear-gradient(rgb(0 0 0 / 30%), rgb(0 0 0 / 30%)),
-    url('./img/header.jpg'),
-    no-repeat center center;
+  background: linear-gradient(rgb(0 0 0 / 30%), rgb(0 0 0 / 30%)), url('./img/header.webp');
+  background-repeat: no-repeat;
+  background-position: center center;
   background-size: cover;
 }
 

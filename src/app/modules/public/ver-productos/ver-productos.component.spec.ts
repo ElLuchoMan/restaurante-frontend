@@ -197,7 +197,7 @@ describe('VerProductosComponent', () => {
 
     expect(modalService.openModal).toHaveBeenCalled();
     const args = modalService.openModal.mock.calls[0][0];
-    expect(args.image).toBe('../../../../assets/img/logo2.png');
+    expect(args.image).toBe('../../../../assets/img/logo2.webp');
     expect(args.buttons[0].label).toContain('Agregar al carrito');
     args.buttons[0].action();
     expect(cartService.addToCart).toHaveBeenCalledWith(producto);

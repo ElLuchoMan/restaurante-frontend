@@ -56,12 +56,13 @@ describe('UbicacionRestauranteComponent', () => {
     fixture.detectChanges();
     expect(component.ubicacionUrl).toBeTruthy();
     const safeUrl = component.ubicacionUrl as any;
-    expect(safeUrl.changingThisBreaksApplicationSecurity).toContain(
-      'https://www.google.com/maps/embed/v1/place',
-    );
-    expect(safeUrl.changingThisBreaksApplicationSecurity).toContain(
-      encodeURIComponent('Calle 78a # 62 - 48, Bogotá, Colombia'),
-    );
+    const val = safeUrl.changingThisBreaksApplicationSecurity as string;
+    // Aceptar tanto embed API (cuando hay API key) como fallback público sin key
+    expect(
+      val.includes('https://www.google.com/maps/embed/v1/place') ||
+        val.includes('https://www.google.com/maps?q='),
+    ).toBe(true);
+    expect(val).toContain(encodeURIComponent('Calle 78a # 62 - 48, Bogotá, Colombia'));
   });
   it('should set mostrarInfo to true after 500ms in ngAfterViewInit', fakeAsync(() => {
     component.ngAfterViewInit();

@@ -1,9 +1,9 @@
 import { ErrorHandler } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { createTelemetryServiceMock } from '../../shared/mocks/test-doubles';
 import { GlobalErrorHandler } from './global-error.handler';
 import { TelemetryService } from './telemetry.service';
-import { createTelemetryServiceMock } from '../../shared/mocks/test-doubles';
 
 describe('GlobalErrorHandler', () => {
   let handler: ErrorHandler;
@@ -25,7 +25,7 @@ describe('GlobalErrorHandler', () => {
     // Evitar ruido en consola del re-lanzamiento
     jest.spyOn(console, 'error').mockImplementation(() => {});
     handler.handleError(err);
-    expect(telemetry.logError).toHaveBeenCalledWith('boom', expect.any(String), false);
+    expect(telemetry.logError).toHaveBeenCalledWith('boom', expect.any(String), false, undefined);
   });
 });
 
