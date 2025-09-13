@@ -14,10 +14,18 @@
                 formControlName="documento"
                 placeholder="1000000000"
                 autocomplete="document"
+                [attr.aria-invalid]="
+                  loginForm.get('documento')?.invalid && loginForm.get('documento')?.touched
+                    ? 'true'
+                    : null
+                "
+                aria-describedby="documento-error"
               />
               <div
                 *ngIf="loginForm.get('documento')?.invalid && loginForm.get('documento')?.touched"
+                id="documento-error"
                 class="text-danger"
+                role="alert"
               >
                 El documento es obligatorio.
               </div>
@@ -31,10 +39,18 @@
                 autocomplete="current-password"
                 formControlName="password"
                 placeholder="*****"
+                [attr.aria-invalid]="
+                  loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+                    ? 'true'
+                    : null
+                "
+                aria-describedby="password-error"
               />
               <div
                 *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                id="password-error"
                 class="text-danger"
+                role="alert"
               >
                 La contraseña es obligatoria y debe tener al menos 5 caracteres.
               </div>

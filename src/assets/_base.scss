@@ -181,6 +181,13 @@ a {
   }
 }
 
+/* Hint de webfonts para evitar FOIT si se agregan fuentes propias */
+@font-face {
+  font-family: 'Poppins';
+  src: local('Poppins');
+  font-display: swap;
+}
+
 pre,
 code,
 kbd,

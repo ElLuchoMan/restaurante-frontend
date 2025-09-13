@@ -25,12 +25,20 @@
                 formControlName="documento"
                 class="form-control"
                 placeholder="0000000000"
+                [attr.aria-invalid]="
+                  registerForm.get('documento')?.invalid && registerForm.get('documento')?.touched
+                    ? 'true'
+                    : null
+                "
+                aria-describedby="reg-documento-error"
               />
               <div
                 *ngIf="
                   registerForm.get('documento')?.invalid && registerForm.get('documento')?.touched
                 "
+                id="reg-documento-error"
                 class="text-danger"
+                role="alert"
               >
                 El documento es obligatorio.
               </div>
@@ -43,10 +51,18 @@
                 formControlName="nombre"
                 class="form-control"
                 placeholder="Juan"
+                [attr.aria-invalid]="
+                  registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched
+                    ? 'true'
+                    : null
+                "
+                aria-describedby="reg-nombre-error"
               />
               <div
                 *ngIf="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched"
+                id="reg-nombre-error"
                 class="text-danger"
+                role="alert"
               >
                 El nombre es obligatorio.
               </div>
@@ -69,12 +85,20 @@
                 formControlName="telefono"
                 class="form-control"
                 placeholder="3100000000"
+                [attr.aria-invalid]="
+                  registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched
+                    ? 'true'
+                    : null
+                "
+                aria-describedby="reg-telefono-error"
               />
               <div
                 *ngIf="
                   registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched
                 "
+                id="reg-telefono-error"
                 class="text-danger"
+                role="alert"
               >
                 El teléfono es obligatorio.
               </div>
@@ -98,13 +122,21 @@
                   formControlName="direccion"
                   class="form-control"
                   placeholder="Calle 1 # 2 - 3"
+                  [attr.aria-invalid]="
+                    registerForm.get('direccion')?.invalid && registerForm.get('direccion')?.touched
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="reg-direccion-error"
                 />
               </div>
               <div
                 *ngIf="
                   registerForm.get('direccion')?.invalid && registerForm.get('direccion')?.touched
                 "
+                id="reg-direccion-error"
                 class="text-danger"
+                role="alert"
               >
                 El dirección es obligatoria.
               </div>
@@ -116,11 +148,19 @@
                   formControlName="correo"
                   class="form-control"
                   placeholder="ejemplo@correo.com"
+                  [attr.aria-invalid]="
+                    registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="reg-correo-error"
                 />
               </div>
               <div
                 *ngIf="registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched"
+                id="reg-correo-error"
                 class="text-danger"
+                role="alert"
               >
                 El correo es obligatorio.
               </div>
