@@ -17,6 +17,7 @@ import { routes } from './app.routes';
 import { apiBaseInterceptor } from './interceptors/api-base.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { correlationInterceptor } from './interceptors/correlation.interceptor';
+import { retryInterceptor } from './interceptors/retry.interceptor';
 import { telemetryInterceptor } from './interceptors/telemetry.interceptor';
 import { AppConfigService } from './services/app-config.service';
 import { GlobalErrorHandler } from './services/global-error.handler';
@@ -45,6 +46,7 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([
         apiBaseInterceptor,
+        retryInterceptor,
         authInterceptor,
         correlationInterceptor,
         telemetryInterceptor,
