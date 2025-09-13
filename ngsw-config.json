@@ -38,9 +38,5 @@
         "timeout": "5s"
       }
     }
-  ],
-  "navigationUrls": [
-    "/**",
-    { "positive": true, "regex": "/(home|menu|ubicacion|login|registro-cliente|not-found)" }
   ]
 }

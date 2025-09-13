@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 
 export interface RuntimeAppConfig {
   apiBase: string;
@@ -8,8 +9,17 @@ export interface RuntimeAppConfig {
 @Injectable({ providedIn: 'root' })
 export class AppConfigService {
   private config: RuntimeAppConfig = { apiBase: '/restaurante/v1' };
+  private readonly isBrowser: boolean;
+
+  constructor(@Inject(PLATFORM_ID) platformId: object) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   async load(): Promise<void> {
+    if (!this.isBrowser) {
+      // En SSR/Prerender no hacemos llamadas fetch relativas
+      return;
+    }
     try {
       // 1) Intentar override local (no versionado)
       const local = await fetch('/app-config.local.json', { cache: 'no-store' });

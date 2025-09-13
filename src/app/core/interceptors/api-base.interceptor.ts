@@ -1,5 +1,6 @@
+import { isPlatformBrowser } from '@angular/common';
 import { HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
 
 import { AppConfigService } from '../services/app-config.service';
 
@@ -14,26 +15,51 @@ export const apiBaseInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
 ) => {
+  // Evitar reescritura de URLs en SSR/Prerender
+  const platformId = inject(PLATFORM_ID);
+  if (!isPlatformBrowser(platformId)) {
+    // Log mínimo para detectar origen si vuelve a fallar durante prerender
+    try {
+      // eslint-disable-next-line no-console
+      console.warn('api-base: SSR request url type', typeof (req as any).url);
+    } catch {}
+    return next(req);
+  }
   const cfg = inject(AppConfigService);
   const configuredBase = normalizeBase(cfg.apiBase || API_BASE_SEGMENT);
 
-  let newUrl = req.url;
+  let rawUrl: string;
+  try {
+    rawUrl =
+      typeof (req as any).url === 'string'
+        ? ((req as any).url as string)
+        : String((req as any).url);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('api-base: url not readable', e);
+    return next(req);
+  }
+
+  let newUrl = rawUrl;
 
   // Caso 1: URL absoluta con host (http/https) que contiene el segmento base
-  if (/^https?:\/\//i.test(req.url) && req.url.includes(API_BASE_SEGMENT)) {
-    const [, tail = ''] = req.url.split(API_BASE_SEGMENT);
+  if (/^https?:\/\//i.test(rawUrl) && rawUrl.indexOf(API_BASE_SEGMENT) !== -1) {
+    const [, tail = ''] = rawUrl.split(API_BASE_SEGMENT);
     newUrl = `${configuredBase}${tail}`;
   }
 
   // Caso 2: URL que comienza con el segmento base relativo
-  if (!/^https?:\/\//i.test(req.url) && req.url.startsWith(API_BASE_SEGMENT)) {
-    const tail = req.url.slice(API_BASE_SEGMENT.length);
+  if (
+    !/^https?:\/\//i.test(rawUrl) &&
+    rawUrl.slice(0, API_BASE_SEGMENT.length) === API_BASE_SEGMENT
+  ) {
+    const tail = rawUrl.slice(API_BASE_SEGMENT.length);
     newUrl = `${configuredBase}${tail}`;
   }
 
   // Si no coincide ningún caso, dejar pasar sin cambios
-  if (newUrl !== req.url) {
-    return next(req.clone({ url: newUrl }));
+  if (newUrl !== rawUrl) {
+    return next(req.clone({ url: newUrl } as any));
   }
 
   return next(req);
