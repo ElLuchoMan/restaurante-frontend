@@ -44,6 +44,7 @@ export const appConfig: ApplicationConfig = {
         progressAnimation: 'decreasing',
         progressBar: true,
         enableHtml: true,
+        disableTimeOut: false,
       }),
     ),
     provideServiceWorker('ngsw-worker.js', {
