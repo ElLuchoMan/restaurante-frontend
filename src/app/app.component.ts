@@ -1,8 +1,9 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Subject, filter, takeUntil } from 'rxjs';
 import { NetworkService } from './core/services/network.service';
+import { SeoService } from './core/services/seo.service';
 
 import { ModalComponent } from './shared/components/modal/modal.component';
 import { SharedModule } from './shared/shared.module';
@@ -20,6 +21,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: object,
     private network: NetworkService,
+    private route: ActivatedRoute,
+    private seo: SeoService,
   ) {}
 
   ngOnInit(): void {
@@ -32,6 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         const main = document.getElementById('main');
         main?.focus();
+        this.seo.applyForRoute(this.route.snapshot);
       });
 
     this.network.isOnline$.pipe(takeUntil(this.destroy$)).subscribe((online) => {

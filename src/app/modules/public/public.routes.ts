@@ -14,14 +14,35 @@ import { UbicacionRestauranteComponent } from './ubicacion-restaurante/ubicacion
 import { VerProductosComponent } from './ver-productos/ver-productos.component';
 
 const publicRoutes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'home', component: HomeComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'registro-cliente', component: RegisterComponent },
+  {
+    path: '',
+    component: HomeComponent,
+    title: 'Inicio',
+    data: { description: 'Innovación con sabor colombiano. Conoce nuestro menú y reservas.' },
+  },
+  {
+    path: 'home',
+    component: HomeComponent,
+    title: 'Inicio',
+    data: { description: 'Innovación con sabor colombiano. Conoce nuestro menú y reservas.' },
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
+    title: 'Login',
+    data: { description: 'Accede para gestionar tus pedidos y reservas.' },
+  },
+  {
+    path: 'registro-cliente',
+    component: RegisterComponent,
+    title: 'Registro',
+    data: { description: 'Crea tu cuenta para disfrutar de promociones y llevar tu historial.' },
+  },
   {
     path: 'menu',
     component: VerProductosComponent,
     title: 'Ver Productos',
+    data: { description: 'Explora nuestros platos: tradición colombiana y opciones reinventadas.' },
   },
   {
     path: 'reservas',
@@ -56,7 +77,12 @@ const publicRoutes: Routes = [
       },
     ],
   },
-  { path: 'ubicacion', component: UbicacionRestauranteComponent },
+  {
+    path: 'ubicacion',
+    component: UbicacionRestauranteComponent,
+    title: 'Ubicación',
+    data: { description: 'Encuéntranos y visítanos. Estamos listos para atenderte.' },
+  },
 ];
 
 export default publicRoutes;

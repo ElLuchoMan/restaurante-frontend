@@ -1,6 +1,6 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
-import { provideClientHydration } from '@angular/platform-browser';
+import { provideClientHydration, Title } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import {
   PreloadAllModules,
@@ -13,6 +13,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideToastr } from 'ngx-toastr';
 
 import { APP_INITIALIZER, ErrorHandler } from '@angular/core';
+import { TitleStrategy } from '@angular/router';
 import { routes } from './app.routes';
 import { apiBaseInterceptor } from './interceptors/api-base.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';
@@ -21,6 +22,8 @@ import { retryInterceptor } from './interceptors/retry.interceptor';
 import { telemetryInterceptor } from './interceptors/telemetry.interceptor';
 import { AppConfigService } from './services/app-config.service';
 import { GlobalErrorHandler } from './services/global-error.handler';
+import { SeoService } from './services/seo.service';
+import { AppTitleStrategy } from './services/title.strategy';
 
 function loadAppConfig(cfg: AppConfigService): () => Promise<void> {
   return () => cfg.load();
@@ -69,5 +72,8 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     { provide: APP_INITIALIZER, useFactory: loadAppConfig, deps: [AppConfigService], multi: true },
+    Title,
+    { provide: TitleStrategy, useClass: AppTitleStrategy },
+    SeoService,
   ],
 };
