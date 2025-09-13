@@ -1,18 +1,14 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import {
-  ApplicationConfig,
-  importProvidersFrom,
-  isDevMode,
-  provideZoneChangeDetection,
-} from '@angular/core';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
+import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
+import { provideClientHydration } from '@angular/platform-browser';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
-import { provideToastr, ToastrModule } from 'ngx-toastr';
+import { provideToastr } from 'ngx-toastr';
 
 import { APP_INITIALIZER, ErrorHandler } from '@angular/core';
 import { routes } from './app.routes';
+import { apiBaseInterceptor } from './interceptors/api-base.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { correlationInterceptor } from './interceptors/correlation.interceptor';
 import { telemetryInterceptor } from './interceptors/telemetry.interceptor';
@@ -27,26 +23,27 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideClientHydration(withEventReplay()),
+    provideClientHydration(),
     provideHttpClient(
       withFetch(),
-      withInterceptors([authInterceptor, correlationInterceptor, telemetryInterceptor]),
+      withInterceptors([
+        apiBaseInterceptor,
+        authInterceptor,
+        correlationInterceptor,
+        telemetryInterceptor,
+      ]),
     ),
     provideAnimations(),
-    BrowserAnimationsModule,
-    provideToastr(),
-    importProvidersFrom(
-      ToastrModule.forRoot({
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
-        preventDuplicates: true,
-        closeButton: true,
-        progressAnimation: 'decreasing',
-        progressBar: true,
-        enableHtml: true,
-        disableTimeOut: false,
-      }),
-    ),
+    provideToastr({
+      timeOut: 3000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true,
+      closeButton: true,
+      progressAnimation: 'decreasing',
+      progressBar: true,
+      enableHtml: true,
+      disableTimeOut: false,
+    }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
