@@ -52,6 +52,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.cartCount = count;
     });
     this.network.isOnline$.pipe(takeUntil(this.destroy$)).subscribe((o) => (this.online = o));
+    // Anuncio cuando vuelve la red
+    this.network.isOnline$.pipe(takeUntil(this.destroy$)).subscribe((o) => {
+      if (o) {
+        this.live.announce('Conexión restablecida');
+      }
+    });
     if (this.isBrowser) {
       this.checkScreenSize();
       this.bindMenuA11yHandlers();
