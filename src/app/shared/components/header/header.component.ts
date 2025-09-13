@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { CartService } from '../../../core/services/cart.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { UserService } from '../../../core/services/user.service';
 import { MenuItem } from '../../models/menu-item.model';
 
@@ -30,6 +31,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: any,
     private router: Router,
     private cartService: CartService,
+    private live: LiveAnnouncerService,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -157,6 +159,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userService.logout();
     this.cerrarMenu();
     this.router.navigate(['/home']);
+    this.live.announce('Sesión cerrada');
   }
   cerrarMenu(): void {
     if (this.isBrowser) {

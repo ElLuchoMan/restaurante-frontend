@@ -10,6 +10,7 @@ import { takeUntil } from 'rxjs/operators';
 import { CartService } from '../../../core/services/cart.service';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { DomicilioService } from '../../../core/services/domicilio.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
@@ -51,6 +52,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
     private router: Router,
     private toastr: ToastrService,
     private telemetry: TelemetryService,
+    private live: LiveAnnouncerService,
   ) {}
 
   ngOnInit(): void {
@@ -79,6 +81,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
   eliminar(p: Producto) {
     this.cart.remove(p.productoId!);
+    this.live.announce(`${p.nombre} eliminado del carrito`);
   }
 
   crearOrden() {
@@ -248,6 +251,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       });
 
       this.cart.clearCart();
+      this.live.announce('Carrito vaciado');
       this.router.navigate(['/cliente/mis-pedidos']);
     } catch (err) {
       this.handleError(err, 'Error en el flujo de finalización del pedido');

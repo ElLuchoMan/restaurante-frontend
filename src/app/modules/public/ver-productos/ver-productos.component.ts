@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { CartService } from '../../../core/services/cart.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { ProductoService } from '../../../core/services/producto.service';
 import { UserService } from '../../../core/services/user.service';
@@ -40,6 +41,7 @@ export class VerProductosComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private router: Router,
     private cartService: CartService,
+    private live: LiveAnnouncerService,
   ) {}
 
   ngOnInit(): void {
@@ -139,6 +141,7 @@ export class VerProductosComponent implements OnInit, OnDestroy {
         class: 'btn btn-primary',
         action: () => {
           this.cartService.addToCart(producto);
+          this.live.announce(`${producto.nombre} añadido al carrito`);
           this.modalService.closeModal();
         },
       });

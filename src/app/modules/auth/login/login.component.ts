@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { take } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
@@ -27,6 +28,7 @@ export class LoginComponent {
     private userService: UserService,
     private logger: LoggingService,
     private telemetry: TelemetryService,
+    private live: LiveAnnouncerService,
   ) {
     this.loginForm = this.fb.group({
       documento: ['', Validators.required],
@@ -47,6 +49,7 @@ export class LoginComponent {
       .subscribe({
         next: (response) => {
           this.userService.saveToken(response.data.token);
+          this.live.announce('Sesión iniciada');
           this.toastr.success('Inicio de sesión exitoso', `Bienvenido ${response.data.nombre}`);
           this.telemetry.logLoginSuccess(this.userService.getUserId?.() ?? null);
           this.router.navigate(['/home']);
