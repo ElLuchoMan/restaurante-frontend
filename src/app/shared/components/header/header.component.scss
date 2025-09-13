@@ -1,39 +1,40 @@
 @use '../../../../assets/styles.scss' as *;
+$header-height: 84px; /* acercamos el pill al top */
 
 .navbar {
-  .logo-container {
-    align-items: center;
-    display: flex;
-    flex-grow: 0;
-    justify-content: center;
-    position: relative;
-
-    .logo-img {
-      left: 50%;
-      position: absolute;
-      transform: translateX(-50%) rotate(-5deg);
-      transition: transform 0.3s ease;
-      width: clamp(120px, 20vw, 200px);
-    }
-
-    .logo-text {
-      display: block;
-      user-select: none;
-    }
-  }
-
-  .d-none {
-    display: none !important;
-  }
+  position: relative;
+  height: $header-height;
+  align-items: center;
 }
 
-@media (max-width: $breakpoint-lg) {
-  .logo-container {
-    .logo-img {
-      width: clamp(100px, 25vw, 150px);
-    }
-  }
+.logo-container {
+  align-items: center;
+  display: flex;
+  flex-grow: 0;
+  justify-content: center;
+  position: relative;
 }
+
+.logo-container .logo-img {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) rotate(-5deg);
+  transition: transform 0.3s ease;
+  width: auto;
+  height: 210px; /* tamaño prod */
+  top: calc((#{$header-height} - 217px) / 2); /* centra vertical respecto al header */
+  z-index: 10;
+  pointer-events: none;
+  margin-top: -20px;
+}
+
+.logo-container .logo-text {
+  display: block;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Sin cambios en breakpoints: mantenemos tamaño natural */
 
 @media (max-width: $breakpoint-xl) {
   .logo-container {
@@ -69,4 +70,72 @@
       }
     }
   }
+}
+
+/* Evitar que el contenedor redondeado recorte el logo superpuesto */
+.nav-bar,
+.nav-bar .container-lg,
+.nav-bar .navbar {
+  overflow: visible;
+}
+
+/* Ajustes mobile */
+@media (max-width: 991.98px) {
+  .navbar {
+    height: 56px;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    border-radius: 10px;
+  }
+  .navbar .navbar-toggler {
+    padding: 0.25rem 0.5rem;
+  }
+  .logo-container {
+    display: flex;
+  }
+  .logo-container .logo-text {
+    display: none;
+  }
+  .logo-container .logo-img {
+    height: 200px;
+  }
+  .navbar,
+  .navbar-collapse {
+    background-color: #ffffff !important;
+  }
+  .navbar-collapse.collapse.show,
+  .navbar-collapse.collapsing {
+    margin-top: 6%;
+    position: fixed;
+    top: 56px; /* altura de la barra en mobile */
+    left: 0;
+    right: 0;
+    transform: translateZ(0);
+    border-radius: 20px;
+    padding: 10px;
+    transition: height 200ms ease-out;
+  }
+  /* Alinear todos los ítems del menú a la izquierda en mobile */
+  .navbar-collapse {
+    text-align: left;
+  }
+  .navbar-collapse .navbar-nav {
+    width: 100%;
+  }
+  .navbar-collapse .navbar-nav .nav-link {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+  }
+  .menu-left,
+  .menu-right {
+    margin: 0 !important;
+  }
+}
+
+/* Radio para la barra superior (solo desktop, se mantiene oculta en mobile) */
+.top-bar {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  overflow: hidden;
 }

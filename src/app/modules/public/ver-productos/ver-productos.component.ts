@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,7 +16,7 @@ import { ProductoFiltroPipe } from '../../../shared/pipes/producto-filtro.pipe';
   selector: 'app-ver-productos',
   templateUrl: './ver-productos.component.html',
   styleUrls: ['./ver-productos.component.scss'],
-  imports: [CommonModule, FormsModule, ProductoFiltroPipe],
+  imports: [CommonModule, FormsModule, ProductoFiltroPipe, NgOptimizedImage],
 })
 export class VerProductosComponent implements OnInit, OnDestroy {
   productos: Producto[] = [];
