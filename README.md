@@ -12,7 +12,6 @@ A modular Angular web application for restaurant operations, featuring administr
 - Bootstrap 5.3.7
 - Jest 29.7.0
 - Stylelint 16.21.1
-- Netlify Angular Runtime 2.4.0
 
 ## Project Structure
 ```
@@ -35,7 +34,7 @@ restaurante-frontend/
 │   ├── server.ts            # Express server for SSR
 │   └── setup-jest.ts        # Jest test setup
 ├── angular.json             # Angular workspace config
-├── jest.config.ts           # Jest configuration
+├── jest.config.cjs          # Jest configuration
 ├── netlify.toml             # Netlify deployment config
 └── tsconfig*.json           # TypeScript configs
 ```
@@ -46,7 +45,7 @@ restaurante-frontend/
 
 ## Installation
 1. `npm install`
-2. Archivos de configuración en la raíz (`angular.json`, `jest.config.ts`, `netlify.toml`, `.stylelintrc.json`, etc.).
+2. Archivos de configuración en la raíz (`angular.json`, `jest.config.cjs`, `netlify.toml`, `.stylelintrc.json`, etc.).
 
 ## Development
 - `npm run start` – start local dev server on http://localhost:4200
@@ -61,14 +60,12 @@ Sass variables remain only for build‑time values such as breakpoints.
 
 ## Testing
 - `npm test` – ejecuta unit tests con Jest y genera cobertura
-- `npm run e2e` – pruebas end‑to‑end con Cypress
-- `npm run cypress:open` / `npm run cypress:run` – UI/CLI de Cypress
 - `npm run lint` – análisis estático (ESLint)
 - `npm run lint:scss` – lint de estilos (Stylelint)
 - `npm run format` / `npm run format:check` – formateo con Prettier
 
 ### Cobertura (Coverage)
-- Umbral global configurado en `jest.config.ts`:
+- Umbral global configurado en `jest.config.cjs`:
   - branches: 98
   - functions: 98
   - lines: 98
@@ -97,9 +94,6 @@ Sass variables remain only for build‑time values such as breakpoints.
 | `npm run build` | Build de producción en `dist/` |
 | `npm run watch` | Build en modo watch |
 | `npm test` | Ejecuta tests con cobertura |
-| `npm run e2e` | Ejecuta E2E con Cypress (según config del proyecto) |
-| `npm run cypress:open` | Abre la UI de Cypress |
-| `npm run cypress:run` | Corre Cypress en modo headless |
 | `npm run lint` | Lint de código (ESLint) |
 | `npm run lint:scss` | Lint de estilos (Stylelint) |
 | `npm run format` | Formatea archivos soportados con Prettier |
@@ -149,7 +143,6 @@ Sass variables remain only for build‑time values such as breakpoints.
 
 ## Convenciones
 - Commits: Conventional Commits (por ejemplo, `feat/ui: ...`, `fix/ui: ...`, `chore/deps: ...`).
-- Commitlint: configuración en `commitlint.config.cjs` para validar mensajes.
 - Estilo de código: ESLint + Prettier; imports ordenados; SCSS con Stylelint.
 
 ## Mocks y pruebas

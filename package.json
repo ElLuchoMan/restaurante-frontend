@@ -33,7 +33,6 @@
     "@angular/service-worker": "20.1.6",
     "@angular/ssr": "^20.3.1",
     "@fortawesome/fontawesome-free": "^7.0.1",
-    "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
     "express": "^5.1.0",
     "jwt-decode": "^4.0.0",
@@ -45,17 +44,8 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^20.3.1",
-    "@angular-eslint/builder": "*",
-    "@angular-eslint/eslint-plugin": "*",
-    "@angular-eslint/eslint-plugin-template": "*",
-    "@angular-eslint/schematics": "*",
-    "@angular-eslint/template-parser": "*",
     "@angular/cli": "20.1.6",
     "@angular/compiler-cli": "20.1.6",
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
-    "@netlify/angular-runtime": "^2.4.0",
-    "@testing-library/angular": "^18.0.0",
     "@testing-library/jest-dom": "^6.8.0",
     "@types/express": "^5.0.3",
     "@types/jest": "29.5.12",
@@ -70,8 +60,7 @@
     "jest-preset-angular": "14.6.1",
     "prettier": "^3.6.2",
     "stylelint": "^16.21.1",
-    "stylelint-config-standard-scss": "^15.0.1",
-    "stylelint-order": "^7.0.0",
+    "postcss-scss": "^4.0.9",
     "ts-jest": "29.4.1"
   }
 }

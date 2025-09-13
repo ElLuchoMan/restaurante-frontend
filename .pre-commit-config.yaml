@@ -43,7 +43,7 @@ repos:
         name: prettier
         language: system
         entry: npx prettier --write
-        files: '^(src|cypress|tools|public)/.*\.(ts|js|html|scss|md|json|ya?ml|css)$'
+        files: '^(src|tools|public)/.*\.(ts|js|html|scss|md|json|ya?ml|css)$'
         exclude: 'src/assets/lib/'
 
       - id: eslint
@@ -62,7 +62,7 @@ repos:
       - id: jest
         name: jest (affected)
         language: system
-        entry: npx jest -c jest.config.ts --bail --findRelatedTests
+        entry: npx jest -c jest.config.cjs --bail --findRelatedTests
         files: '^src/.*\.(ts|html|scss)$'
         pass_filenames: true
         stages:
@@ -75,17 +75,6 @@ repos:
         files: '^src/.*\.(ts)$'
         stages:
           - manual
-
-  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.20.0
-    hooks:
-      - id: commitlint
-        additional_dependencies:
-          - "@commitlint/cli@^19.8.1"
-          - "@commitlint/config-conventional@^19.8.1"
-        stages:
-          - commit-msg
-
 ci:
   autofix_prs: false
   skip:
