@@ -2,6 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Subject, filter, takeUntil } from 'rxjs';
+import { NetworkService } from './core/services/network.service';
 
 import { ModalComponent } from './shared/components/modal/modal.component';
 import { SharedModule } from './shared/shared.module';
@@ -18,6 +19,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: object,
+    private network: NetworkService,
   ) {}
 
   ngOnInit(): void {
@@ -31,6 +33,12 @@ export class AppComponent implements OnInit, OnDestroy {
         const main = document.getElementById('main');
         main?.focus();
       });
+
+    this.network.isOnline$.pipe(takeUntil(this.destroy$)).subscribe((online) => {
+      if (!online) {
+        this.router.navigate(['/not-found']);
+      }
+    });
   }
 
   ngOnDestroy(): void {

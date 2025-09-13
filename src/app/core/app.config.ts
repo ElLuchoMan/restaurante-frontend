@@ -2,7 +2,13 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideRouter } from '@angular/router';
+import {
+  PreloadAllModules,
+  provideRouter,
+  withInMemoryScrolling,
+  withPreloading,
+  withRouterConfig,
+} from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideToastr } from 'ngx-toastr';
 
@@ -22,7 +28,18 @@ function loadAppConfig(cfg: AppConfigService): () => Promise<void> {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withPreloading(PreloadAllModules),
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'enabled',
+        anchorScrolling: 'enabled',
+      }),
+      withRouterConfig({
+        onSameUrlNavigation: 'ignore',
+        paramsInheritanceStrategy: 'always',
+      }),
+    ),
     ...(!isDevMode() ? [provideClientHydration()] : []),
     provideHttpClient(
       withFetch(),

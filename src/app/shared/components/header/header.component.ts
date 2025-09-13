@@ -6,6 +6,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { CartService } from '../../../core/services/cart.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
+import { NetworkService } from '../../../core/services/network.service';
 import { UserService } from '../../../core/services/user.service';
 import { MenuItem } from '../../models/menu-item.model';
 
@@ -23,6 +24,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isBrowser: boolean;
   imagenVisible: boolean = true;
   cartCount = 0;
+  online = true;
   private destroy$ = new Subject<void>();
   private firstFocusableSelector = '.navbar-nav .nav-link';
 
@@ -32,6 +34,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private router: Router,
     private cartService: CartService,
     private live: LiveAnnouncerService,
+    private network: NetworkService,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -48,6 +51,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.cartService.count$.pipe(takeUntil(this.destroy$)).subscribe((count) => {
       this.cartCount = count;
     });
+    this.network.isOnline$.pipe(takeUntil(this.destroy$)).subscribe((o) => (this.online = o));
     if (this.isBrowser) {
       this.checkScreenSize();
       this.bindMenuA11yHandlers();
