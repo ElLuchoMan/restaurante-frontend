@@ -21,7 +21,7 @@ $header-height: 84px; /* acercamos el pill al top */
   transform: translateX(-50%) rotate(-5deg);
   transition: transform 0.3s ease;
   width: auto;
-  height: 210px; /* tamaño prod */
+  height: 200px;
   top: calc((#{$header-height} - 217px) / 2); /* centra vertical respecto al header */
   z-index: 10;
   pointer-events: none;

@@ -11,7 +11,9 @@
       <div class="carousel-item active">
         <img
           class="w-100 img-responsive"
-          ngSrc="assets/img/carousel-1.webp"
+          ngSrc="assets/img/carousel-1-1200.webp"
+          rawSrcset="assets/img/carousel-1-768.webp 768w, assets/img/carousel-1-1200.webp 1200w"
+          sizes="100vw"
           alt="Carrusel 1"
           priority
           width="1200"
@@ -28,9 +30,12 @@
       <div class="carousel-item">
         <img
           class="w-100 img-responsive"
-          ngSrc="assets/img/carousel-2.webp"
+          ngSrc="assets/img/carousel-2-1200.webp"
+          rawSrcset="assets/img/carousel-2-768.webp 768w, assets/img/carousel-2-1200.webp 1200w"
+          sizes="100vw"
           alt="Carrusel 2"
-          priority
+          loading="lazy"
+          decoding="async"
           width="1200"
           height="686"
         />
@@ -45,9 +50,12 @@
       <div class="carousel-item">
         <img
           class="w-100 img-responsive"
-          ngSrc="assets/img/carousel-3.webp"
+          ngSrc="assets/img/carousel-3-1200.webp"
+          rawSrcset="assets/img/carousel-3-768.webp 768w, assets/img/carousel-3-1200.webp 1200w"
+          sizes="100vw"
           alt="Carrusel 3"
-          priority
+          loading="lazy"
+          decoding="async"
           width="1200"
           height="686"
         />
@@ -101,10 +109,12 @@
         <div class="position-relative h-100 rounded overflow-hidden">
           <img
             class="position-absolute w-100 h-100"
-            src="../../../../assets/img/about2.png"
+            ngSrc="assets/img/about2.png"
             alt="descriptive image"
             style="object-fit: cover"
             loading="lazy"
+            decoding="async"
+            fill
           />
         </div>
       </div>

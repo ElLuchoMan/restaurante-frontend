@@ -25,12 +25,19 @@
 <div class="container-fluid position-relative nav-bar p-0" style="margin-top: -10px">
   <div class="container-lg position-relative p-0 px-lg-3" style="z-index: 9">
     <!-- Logo superpuesto, fuera del flujo del navbar para evitar recortes/ajustes de flex -->
-    <nav class="navbar navbar-expand-lg bg-white navbar-light shadow p-lg-0">
+    <nav
+      class="navbar navbar-expand-lg bg-white navbar-light shadow p-lg-0"
+      role="navigation"
+      aria-label="Navegación principal"
+    >
       <button
         type="button"
         class="navbar-toggler"
         data-bs-toggle="collapse"
         data-bs-target="#navbarCollapse"
+        aria-controls="navbarCollapse"
+        aria-expanded="false"
+        aria-label="Abrir menú"
       >
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -40,6 +47,10 @@
             *ngFor="let item of menuLeft"
             [routerLink]="item.route"
             class="nav-item nav-link"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            #rlaLeft="routerLinkActive"
+            [attr.aria-current]="rlaLeft.isActive ? 'page' : null"
             (click)="cerrarMenu()"
           >
             {{ item.label }}
@@ -55,7 +66,7 @@
             alt="Logo"
             class="logo-img"
             [ngClass]="{ 'd-none': !imagenVisible }"
-            loading="lazy"
+            loading="eager"
             decoding="async"
             width="120"
             height="40"
@@ -67,6 +78,10 @@
             *ngFor="let item of menuRight"
             [routerLink]="item.route"
             class="nav-item nav-link position-relative"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            #rlaRight="routerLinkActive"
+            [attr.aria-current]="rlaRight.isActive ? 'page' : null"
             (click)="item.label === 'Logout' ? logout() : cerrarMenu()"
           >
             <!-- Carrito: icono + badge -->
