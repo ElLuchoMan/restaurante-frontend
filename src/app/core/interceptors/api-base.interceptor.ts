@@ -20,7 +20,8 @@ export const apiBaseInterceptor: HttpInterceptorFn = (
   if (!isPlatformBrowser(platformId)) {
     // Log mínimo para detectar origen si vuelve a fallar durante prerender
     try {
-      console.warn('api-base: SSR request url type', typeof (req as any).url);
+      const urlType = typeof (req as unknown as { url?: unknown }).url;
+      console.warn('api-base: SSR request url type', urlType);
     } catch {}
     return next(req);
   }
@@ -29,10 +30,8 @@ export const apiBaseInterceptor: HttpInterceptorFn = (
 
   let rawUrl: string;
   try {
-    rawUrl =
-      typeof (req as any).url === 'string'
-        ? ((req as any).url as string)
-        : String((req as any).url);
+    const candidate = (req as unknown as { url?: unknown }).url;
+    rawUrl = typeof candidate === 'string' ? candidate : String(candidate ?? req.url);
   } catch (e) {
     console.warn('api-base: url not readable', e);
     return next(req);
@@ -57,7 +56,7 @@ export const apiBaseInterceptor: HttpInterceptorFn = (
 
   // Si no coincide ningún caso, dejar pasar sin cambios
   if (newUrl !== rawUrl) {
-    return next(req.clone({ url: newUrl } as any));
+    return next(req.clone({ url: newUrl }));
   }
 
   return next(req);

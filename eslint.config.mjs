@@ -29,7 +29,7 @@ export default [
     },
   },
   {
-    files: ['**/*.spec.ts', 'src/__mocks__/**/*.ts'],
+    files: ['**/*.spec.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'no-restricted-syntax': [
@@ -40,6 +40,13 @@ export default [
             'No uses jest.fn directamente en specs. Define los mocks en src/app/shared/mocks y reutilízalos.',
         },
       ],
+    },
+  },
+  {
+    files: ['src/__mocks__/**/*.ts', 'src/app/shared/mocks/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-restricted-syntax': 'off',
     },
   },
   eslintConfigPrettier,

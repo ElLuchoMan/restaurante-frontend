@@ -33,7 +33,11 @@ export class HomeComponent implements AfterViewInit {
     }
     const el = document.getElementById('header-carousel');
     if (!el) return;
-    const Bootstrap = (window as any).bootstrap;
+    const Bootstrap = (
+      window as unknown as {
+        bootstrap?: { Carousel?: new (...args: unknown[]) => { cycle: () => void } };
+      }
+    ).bootstrap;
     const Carousel = Bootstrap?.Carousel;
     if (Carousel) {
       const instance = new Carousel(el, {

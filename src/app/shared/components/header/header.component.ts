@@ -30,7 +30,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   constructor(
     private userService: UserService,
-    @Inject(PLATFORM_ID) private platformId: any,
+    @Inject(PLATFORM_ID) private platformId: object,
     private router: Router,
     private cartService: CartService,
     private live: LiveAnnouncerService,
@@ -84,7 +84,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     // Enfoca primer link al abrir
     const focusFirst = () => {
-      const first = collapse.querySelector<HTMLAnchorElement>(this.firstFocusableSelector);
+      const first = collapse.querySelector(this.firstFocusableSelector) as HTMLAnchorElement | null;
       if (first) setTimeout(() => first.focus(), 0);
     };
 

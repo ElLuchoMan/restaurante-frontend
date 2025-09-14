@@ -10,14 +10,14 @@ export function telemetryInterceptor(
 ): Observable<HttpEvent<unknown>> {
   const telemetry = inject(TelemetryService);
   const start = performance.now();
-  const corrId = (req as any).correlationId as string | undefined;
+  const corrId = (req as unknown as { correlationId?: string }).correlationId;
 
   return next(req).pipe(
     tap({
       next: (event) => {
         if (event instanceof HttpResponse) {
           const durationMs = Math.round(performance.now() - start);
-          (globalThis as any).__lastCorrelationId = corrId;
+          (globalThis as unknown as { __lastCorrelationId?: string }).__lastCorrelationId = corrId;
           telemetry.logHttp({
             method: req.method,
             url: req.url,
@@ -28,9 +28,9 @@ export function telemetryInterceptor(
           });
         }
       },
-      error: (err: any) => {
+      error: (err) => {
         const durationMs = Math.round(performance.now() - start);
-        const status = err?.status ?? 0;
+        const status = (err as { status?: number })?.status ?? 0;
         telemetry.logHttp({
           method: req.method,
           url: req.url,

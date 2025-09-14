@@ -168,9 +168,7 @@ export class VerProductosComponent implements OnInit, OnDestroy {
     this.modalService.openModal({
       title: producto.nombre,
       image:
-        typeof (producto as any).imagen === 'string'
-          ? (producto as any).imagen
-          : '../../../../assets/img/logo2.webp',
+        typeof producto.imagen === 'string' ? producto.imagen : '../../../../assets/img/logo2.webp',
       details: {
         precio: producto.precio,
         calorias: producto.calorias,

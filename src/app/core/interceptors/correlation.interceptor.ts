@@ -14,6 +14,6 @@ export const correlationInterceptor: HttpInterceptorFn = (
   // Propagar el ID también a la respuesta via headers clonados no es posible desde aquí,
   // así que adjuntamos el ID en la petición para que otros interceptores/handlers puedan leerlo.
   const cloned = req.clone({ setHeaders: { 'x-correlation-id': id } });
-  (cloned as any).correlationId = id;
+  (cloned as unknown as { correlationId?: string }).correlationId = id;
   return next(cloned);
 };

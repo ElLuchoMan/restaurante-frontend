@@ -54,15 +54,15 @@ export class UpdateBannerComponent implements OnInit, OnDestroy {
     if (!this.isBrowser || !this.swUpdate.isEnabled) return;
 
     // Angular >=16: versionUpdates
-    (this.swUpdate.versionUpdates as any)
+    (this.swUpdate.versionUpdates as unknown as import('rxjs').Observable<VersionEvent>)
       ?.pipe(
-        filter((e: VersionEvent) => (e as any).type === 'VERSION_READY'),
+        filter((e: VersionEvent) => (e as unknown as { type?: string }).type === 'VERSION_READY'),
         takeUntil(this.destroyed$),
       )
       .subscribe(() => (this.updateAvailable = true));
 
     // Compat: available observable
-    (this.swUpdate as any).available
+    (this.swUpdate as unknown as { available?: import('rxjs').Observable<unknown> }).available
       ?.pipe(takeUntil(this.destroyed$))
       .subscribe(() => (this.updateAvailable = true));
   }
