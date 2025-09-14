@@ -20,7 +20,6 @@ export const apiBaseInterceptor: HttpInterceptorFn = (
   if (!isPlatformBrowser(platformId)) {
     // Log mínimo para detectar origen si vuelve a fallar durante prerender
     try {
-      // eslint-disable-next-line no-console
       console.warn('api-base: SSR request url type', typeof (req as any).url);
     } catch {}
     return next(req);
@@ -35,7 +34,6 @@ export const apiBaseInterceptor: HttpInterceptorFn = (
         ? ((req as any).url as string)
         : String((req as any).url);
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.warn('api-base: url not readable', e);
     return next(req);
   }

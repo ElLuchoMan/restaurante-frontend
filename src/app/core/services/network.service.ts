@@ -6,6 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 export class NetworkService {
   private isBrowser: boolean;
   private online$ = new BehaviorSubject<boolean>(true);
+  private lastOnlinePath: string | null = null;
 
   constructor(@Inject(PLATFORM_ID) platformId: object) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -24,5 +25,15 @@ export class NetworkService {
 
   get current(): boolean {
     return this.online$.value;
+  }
+
+  setLastOnlinePath(path: string): void {
+    this.lastOnlinePath = path;
+  }
+
+  consumeLastOnlinePath(): string | null {
+    const p = this.lastOnlinePath;
+    this.lastOnlinePath = null;
+    return p;
   }
 }

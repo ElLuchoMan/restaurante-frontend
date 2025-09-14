@@ -14,8 +14,21 @@
           required
           #campoNombreCompleto="ngModel"
           placeholder="María Torres"
+          [attr.aria-invalid]="
+            campoNombreCompleto.invalid && campoNombreCompleto.touched ? 'true' : null
+          "
+          [attr.aria-describedby]="
+            campoNombreCompleto.invalid && campoNombreCompleto.touched
+              ? 'nombreCompleto-error'
+              : null
+          "
         />
-        <div *ngIf="campoNombreCompleto.invalid && campoNombreCompleto.touched" class="text-danger">
+        <div
+          *ngIf="campoNombreCompleto.invalid && campoNombreCompleto.touched"
+          class="text-danger"
+          id="nombreCompleto-error"
+          role="alert"
+        >
           El nombre es obligatorio.
         </div>
       </div>
@@ -32,8 +45,17 @@
           required
           #campoTelefono="ngModel"
           placeholder="3000000000"
+          [attr.aria-invalid]="campoTelefono.invalid && campoTelefono.touched ? 'true' : null"
+          [attr.aria-describedby]="
+            campoTelefono.invalid && campoTelefono.touched ? 'telefono-error' : null
+          "
         />
-        <div *ngIf="campoTelefono.invalid && campoTelefono.touched" class="text-danger">
+        <div
+          *ngIf="campoTelefono.invalid && campoTelefono.touched"
+          class="text-danger"
+          id="telefono-error"
+          role="alert"
+        >
           El teléfono es obligatorio.
         </div>
       </div>
@@ -50,10 +72,20 @@
           #campoDocumentoCliente="ngModel"
           placeholder="1000000000"
           autocomplete="document"
+          [attr.aria-invalid]="
+            campoDocumentoCliente.invalid && campoDocumentoCliente.touched ? 'true' : null
+          "
+          [attr.aria-describedby]="
+            campoDocumentoCliente.invalid && campoDocumentoCliente.touched
+              ? 'documentoCliente-error'
+              : null
+          "
         />
         <div
           *ngIf="campoDocumentoCliente.invalid && campoDocumentoCliente.touched"
           class="text-danger"
+          id="documentoCliente-error"
+          role="alert"
         >
           El documento es obligatorio.
         </div>
@@ -72,8 +104,17 @@
               class="form-control"
               required
               #campoFecha="ngModel"
+              [attr.aria-invalid]="campoFecha.invalid && campoFecha.touched ? 'true' : null"
+              [attr.aria-describedby]="
+                campoFecha.invalid && campoFecha.touched ? 'fechaReserva-error' : null
+              "
             />
-            <div *ngIf="campoFecha.invalid && campoFecha.touched" class="text-danger">
+            <div
+              *ngIf="campoFecha.invalid && campoFecha.touched"
+              class="text-danger"
+              id="fechaReserva-error"
+              role="alert"
+            >
               La fecha es obligatoria.
             </div>
           </div>
@@ -90,8 +131,17 @@
               class="form-control"
               required
               #campoHora="ngModel"
+              [attr.aria-invalid]="campoHora.invalid && campoHora.touched ? 'true' : null"
+              [attr.aria-describedby]="
+                campoHora.invalid && campoHora.touched ? 'horaReserva-error' : null
+              "
             />
-            <div *ngIf="campoHora.invalid && campoHora.touched" class="text-danger">
+            <div
+              *ngIf="campoHora.invalid && campoHora.touched"
+              class="text-danger"
+              id="horaReserva-error"
+              role="alert"
+            >
               La hora es obligatoria.
             </div>
           </div>
@@ -107,6 +157,11 @@
           (change)="checkPersonas()"
           required
           class="form-control"
+          #campoPersonas="ngModel"
+          [attr.aria-invalid]="campoPersonas.invalid && campoPersonas.touched ? 'true' : null"
+          [attr.aria-describedby]="
+            campoPersonas.invalid && campoPersonas.touched ? 'personas-error' : null
+          "
         >
           <option [value]="1">1</option>
           <option [value]="2">2</option>
@@ -114,6 +169,14 @@
           <option [value]="4">4</option>
           <option value="5+">5 o más</option>
         </select>
+        <div
+          *ngIf="campoPersonas.invalid && campoPersonas.touched"
+          class="text-danger"
+          id="personas-error"
+          role="alert"
+        >
+          Selecciona el número de personas.
+        </div>
       </div>
 
       <div class="form-group" *ngIf="mostrarInputPersonas">
@@ -125,7 +188,22 @@
           [(ngModel)]="personasExtra"
           min="5"
           class="form-control"
+          #campoPersonasExtra="ngModel"
+          [attr.aria-invalid]="
+            campoPersonasExtra.invalid && campoPersonasExtra.touched ? 'true' : null
+          "
+          [attr.aria-describedby]="
+            campoPersonasExtra.invalid && campoPersonasExtra.touched ? 'personasExtra-error' : null
+          "
         />
+        <div
+          *ngIf="campoPersonasExtra.invalid && campoPersonasExtra.touched"
+          class="text-danger"
+          id="personasExtra-error"
+          role="alert"
+        >
+          Debe ser 5 o más.
+        </div>
       </div>
 
       <div class="text-info mb-4" *ngIf="mostrarInfoEvento">

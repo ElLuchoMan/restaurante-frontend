@@ -6,6 +6,7 @@ import { LoginComponent } from '../auth/login/login.component';
 import { RegisterComponent } from '../auth/register/register.component';
 import { ConsultarDomicilioComponent } from './domicilios/consultar-domicilios/consultar-domicilios.component';
 import { HomeComponent } from './home/home.component';
+import { OfflineComponent } from './offline/offline.component';
 import { ConsultarReservaComponent } from './reservas/consultar-reserva/consultar-reserva.component';
 import { CrearReservaComponent } from './reservas/crear-reserva/crear-reserva.component';
 import { MenuReservasComponent } from './reservas/menu-reservas/menu-reservas.component';
@@ -83,6 +84,7 @@ const publicRoutes: Routes = [
     title: 'Ubicación',
     data: { description: 'Encuéntranos y visítanos. Estamos listos para atenderte.' },
   },
+  { path: 'offline', component: OfflineComponent, title: 'Sin conexión' },
 ];
 
 export default publicRoutes;

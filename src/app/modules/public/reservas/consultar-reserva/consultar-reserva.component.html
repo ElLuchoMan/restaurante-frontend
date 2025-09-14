@@ -39,7 +39,20 @@
           class="form-control"
           [(ngModel)]="documentoCliente"
           placeholder="1000000000"
+          #campoDocumento="ngModel"
+          [attr.aria-invalid]="campoDocumento.invalid && campoDocumento.touched ? 'true' : null"
+          [attr.aria-describedby]="
+            campoDocumento.invalid && campoDocumento.touched ? 'documentoCliente-error' : null
+          "
         />
+        <div
+          *ngIf="campoDocumento.invalid && campoDocumento.touched"
+          class="text-danger"
+          id="documentoCliente-error"
+          role="alert"
+        >
+          Documento inválido.
+        </div>
       </div>
 
       <div class="form-group flex-grow-1 mr-2" *ngIf="buscarPorFecha">
@@ -49,7 +62,20 @@
           name="fechaReserva"
           class="form-control"
           [(ngModel)]="fechaReserva"
+          #campoFecha="ngModel"
+          [attr.aria-invalid]="campoFecha.invalid && campoFecha.touched ? 'true' : null"
+          [attr.aria-describedby]="
+            campoFecha.invalid && campoFecha.touched ? 'fechaReserva-error' : null
+          "
         />
+        <div
+          *ngIf="campoFecha.invalid && campoFecha.touched"
+          class="text-danger"
+          id="fechaReserva-error"
+          role="alert"
+        >
+          Fecha inválida.
+        </div>
       </div>
 
       <button

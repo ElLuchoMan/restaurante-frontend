@@ -1,10 +1,10 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { Subject, filter, takeUntil } from 'rxjs';
+import { filter, Subject, takeUntil } from 'rxjs';
+
 import { NetworkService } from './core/services/network.service';
 import { SeoService } from './core/services/seo.service';
-
 import { ModalComponent } from './shared/components/modal/modal.component';
 import { UpdateBannerComponent } from './shared/components/update-banner/update-banner.component';
 import { SharedModule } from './shared/shared.module';
@@ -37,11 +37,22 @@ export class AppComponent implements OnInit, OnDestroy {
         const main = document.getElementById('main');
         main?.focus();
         this.seo.applyForRoute(this.route.snapshot);
+        // Recordar última ruta válida cuando estamos online
+        if (this.network.current) {
+          this.network.setLastOnlinePath(this.router.url);
+        }
       });
 
     this.network.isOnline$.pipe(takeUntil(this.destroy$)).subscribe((online) => {
       if (!online) {
-        this.router.navigate(['/not-found']);
+        this.router.navigate(['/offline']);
+      } else {
+        const prev = this.network.consumeLastOnlinePath();
+        if (prev && prev !== '/offline') {
+          this.router.navigateByUrl(prev);
+        } else {
+          this.router.navigate(['/home']);
+        }
       }
     });
   }

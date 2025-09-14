@@ -1,11 +1,11 @@
-import { NgOptimizedImage, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import {
   AfterViewInit,
   Component,
   Inject,
+  makeStateKey,
   PLATFORM_ID,
   TransferState,
-  makeStateKey,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 

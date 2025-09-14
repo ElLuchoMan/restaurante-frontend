@@ -50,5 +50,15 @@
         "timeout": "5s"
       }
     }
+  ],
+  "navigationUrls": [
+    "/",
+    "/home",
+    "/menu",
+    "/ubicacion",
+    "/login",
+    "/registro-cliente",
+    "/not-found",
+    "/offline"
   ]
 }

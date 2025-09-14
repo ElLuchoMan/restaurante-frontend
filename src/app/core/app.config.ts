@@ -1,5 +1,6 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler } from '@angular/core';
 import { provideClientHydration, Title } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import {
@@ -9,11 +10,10 @@ import {
   withPreloading,
   withRouterConfig,
 } from '@angular/router';
+import { TitleStrategy } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideToastr } from 'ngx-toastr';
 
-import { APP_INITIALIZER, ErrorHandler } from '@angular/core';
-import { TitleStrategy } from '@angular/router';
 import { routes } from './app.routes';
 import { apiBaseInterceptor } from './interceptors/api-base.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';

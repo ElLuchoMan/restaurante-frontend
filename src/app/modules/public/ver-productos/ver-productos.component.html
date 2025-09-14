@@ -94,6 +94,10 @@
             class="card-img-top"
             loading="lazy"
             decoding="async"
+            fetchpriority="low"
+            [attr.sizes]="
+              '(min-width: 992px) 25vw, (min-width: 768px) 33vw, (min-width: 576px) 50vw, 100vw'
+            "
             width="300"
             height="200"
             [alt]="producto.nombre"

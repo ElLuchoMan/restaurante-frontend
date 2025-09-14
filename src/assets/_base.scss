@@ -80,6 +80,31 @@ body {
   outline: 0 !important;
 }
 
+/* A11y: enfoque visible accesible en inputs y botones */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgb(0 0 0 / 8%);
+}
+
+/* A11y: estados inválidos con atributos aria-invalid */
+input[aria-invalid='true'],
+select[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+/* A11y: mensajes de error */
+[role='alert'] {
+  margin-top: 4px;
+  font-size: 0.9rem;
+}
+
 hr {
   box-sizing: content-box;
   height: 0;

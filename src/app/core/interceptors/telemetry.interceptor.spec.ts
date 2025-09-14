@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { TelemetryService } from '../services/telemetry.service';
 import { createTelemetryServiceMock } from '../../shared/mocks/test-doubles';
+import { TelemetryService } from '../services/telemetry.service';
 import { telemetryInterceptor } from './telemetry.interceptor';
 
 describe('telemetryInterceptor', () => {

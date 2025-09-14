@@ -12,7 +12,7 @@ export class GlobalErrorHandler implements ErrorHandler {
     const requestId = (globalThis as any).__lastCorrelationId as string | undefined;
     this.telemetry.logError(message, stack, /* handled */ false, requestId);
     // Re-lanza para no ocultar en consola en desarrollo
-    // eslint-disable-next-line no-console
+
     console.error(`[Error]${requestId ? ' reqId=' + requestId : ''}`, error);
   }
 
