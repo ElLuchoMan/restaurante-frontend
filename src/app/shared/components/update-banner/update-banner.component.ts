@@ -18,6 +18,14 @@ import { filter, takeUntil } from 'rxjs/operators';
         </div>
       </div>
     </div>
+    <div *ngIf="unrecoverable" class="update-banner error" role="alert" aria-live="assertive">
+      <div class="container d-flex justify-content-between align-items-center">
+        <span>Se produjo un error con la versión actual. Recarga para continuar.</span>
+        <div class="actions">
+          <button class="btn btn-light btn-sm" (click)="reload()">Recargar</button>
+        </div>
+      </div>
+    </div>
   `,
   styles: [
     `
@@ -35,11 +43,15 @@ import { filter, takeUntil } from 'rxjs/operators';
       .actions .btn {
         min-width: 90px;
       }
+      .update-banner.error {
+        background: #dc3545;
+      }
     `,
   ],
 })
 export class UpdateBannerComponent implements OnInit, OnDestroy {
   updateAvailable = false;
+  unrecoverable = false;
   private destroyed$ = new Subject<void>();
   private isBrowser: boolean;
 
@@ -65,6 +77,11 @@ export class UpdateBannerComponent implements OnInit, OnDestroy {
     (this.swUpdate as unknown as { available?: import('rxjs').Observable<unknown> }).available
       ?.pipe(takeUntil(this.destroyed$))
       .subscribe(() => (this.updateAvailable = true));
+
+    // Errores irrecuperables (assets faltantes, manifiesto corrupto, etc.)
+    this.swUpdate.unrecoverable.pipe(takeUntil(this.destroyed$)).subscribe(() => {
+      this.unrecoverable = true;
+    });
   }
 
   reload(): void {

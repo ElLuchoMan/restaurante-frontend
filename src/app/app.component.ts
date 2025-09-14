@@ -36,17 +36,22 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         const main = document.getElementById('main');
         main?.focus();
-        this.seo.applyForRoute(this.route.snapshot);
+        this.seo.applyForRoute(this.route.snapshot, this.router.url);
+        this.seo.updateCanonical(this.router.url);
         // Recordar última ruta válida cuando estamos online
         if (this.network.current) {
           this.network.setLastOnlinePath(this.router.url);
         }
       });
 
+    let wasOffline = false;
     this.network.isOnline$.pipe(takeUntil(this.destroy$)).subscribe((online) => {
       if (!online) {
+        wasOffline = true;
         this.router.navigate(['/offline']);
-      } else {
+      } else if (wasOffline) {
+        // Solo redirigir cuando se recupera de estar offline
+        wasOffline = false;
         const prev = this.network.consumeLastOnlinePath();
         if (prev && prev !== '/offline') {
           this.router.navigateByUrl(prev);

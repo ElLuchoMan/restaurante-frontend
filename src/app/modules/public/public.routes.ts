@@ -84,7 +84,12 @@ const publicRoutes: Routes = [
     title: 'Ubicación',
     data: { description: 'Encuéntranos y visítanos. Estamos listos para atenderte.' },
   },
-  { path: 'offline', component: OfflineComponent, title: 'Sin conexión' },
+  {
+    path: 'offline',
+    component: OfflineComponent,
+    title: 'Sin conexión',
+    data: { robots: 'noindex, nofollow', description: 'Estás sin conexión. Intenta nuevamente.' },
+  },
 ];
 
 export default publicRoutes;

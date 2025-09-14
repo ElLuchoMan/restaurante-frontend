@@ -20,6 +20,16 @@ export const routes: Routes = [
     path: 'cliente',
     loadChildren: () => import('../modules/client/client.module').then((m) => m.ClientModule),
   },
-  { path: 'not-found', component: PageNotFoundComponent },
-  { path: '**', component: PageNotFoundComponent },
+  {
+    path: 'not-found',
+    component: PageNotFoundComponent,
+    title: 'Página no encontrada',
+    data: { description: 'La página que buscas no existe.', robots: 'noindex, nofollow' },
+  },
+  {
+    path: '**',
+    component: PageNotFoundComponent,
+    title: 'Página no encontrada',
+    data: { description: 'La página que buscas no existe.', robots: 'noindex, nofollow' },
+  },
 ];

@@ -1,11 +1,15 @@
 {
   "name": "La Cocina de María",
   "short_name": "Cocina María",
+  "description": "Restaurante colombiano: tradición e innovación en cada plato",
   "theme_color": "#fdf3e7",
   "background_color": "#d4a017",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "scope": "./",
   "start_url": "./",
+  "categories": ["food", "restaurant", "business"],
+  "lang": "es-CO",
   "icons": [
     {
       "src": "icons/web-app-manifest-192x192.png",
@@ -22,7 +26,46 @@
     {
       "src": "icons/apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ver Menú",
+      "short_name": "Menú",
+      "description": "Explora nuestros platos",
+      "url": "./menu",
+      "icons": [
+        {
+          "src": "icons/web-app-manifest-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Hacer Reserva",
+      "short_name": "Reservar",
+      "description": "Reserva tu mesa",
+      "url": "./reservas/crear",
+      "icons": [
+        {
+          "src": "icons/web-app-manifest-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Ubicación",
+      "short_name": "Ubicación",
+      "description": "Encuéntranos",
+      "url": "./ubicacion",
+      "icons": [
+        {
+          "src": "icons/web-app-manifest-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

@@ -75,7 +75,23 @@
                 formControlName="apellido"
                 class="form-control"
                 placeholder="Pérez"
+                [attr.aria-invalid]="
+                  registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched
+                    ? 'true'
+                    : null
+                "
+                aria-describedby="reg-apellido-error"
               />
+              <div
+                *ngIf="
+                  registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched
+                "
+                id="reg-apellido-error"
+                class="text-danger"
+                role="alert"
+              >
+                El apellido es obligatorio.
+              </div>
             </div>
             <div class="form-group">
               <label for="telefono">Teléfono</label>
@@ -206,13 +222,21 @@
                     'is-invalid':
                       registerForm.get('rol')?.invalid && registerForm.get('rol')?.touched,
                   }"
+                  [attr.aria-invalid]="
+                    registerForm.get('rol')?.invalid && registerForm.get('rol')?.touched
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="reg-rol-error"
                 >
                   <option value="" disabled selected>Seleccione un rol</option>
                   <option *ngFor="let rol of roles" [value]="rol">{{ rol }}</option>
                 </select>
                 <div
                   *ngIf="registerForm.get('rol')?.invalid && registerForm.get('rol')?.touched"
-                  class="invalid-feedback"
+                  id="reg-rol-error"
+                  class="text-danger"
+                  role="alert"
                 >
                   Por favor selecciona un rol.
                 </div>
@@ -280,7 +304,23 @@
                 formControlName="password"
                 class="form-control"
                 placeholder="******"
+                [attr.aria-invalid]="
+                  registerForm.get('password')?.invalid && registerForm.get('password')?.touched
+                    ? 'true'
+                    : null
+                "
+                aria-describedby="reg-password-error"
               />
+              <div
+                *ngIf="
+                  registerForm.get('password')?.invalid && registerForm.get('password')?.touched
+                "
+                id="reg-password-error"
+                class="text-danger"
+                role="alert"
+              >
+                La contraseña es obligatoria.
+              </div>
             </div>
             <button
               type="submit"
