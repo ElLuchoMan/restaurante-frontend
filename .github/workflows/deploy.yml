@@ -26,9 +26,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Deploy to Netlify
-        uses: netlify/actions/cli@v4
-        with:
-          args: deploy --dir=dist/restaurante-frontend/browser --prod
+        run: npx --yes netlify-cli deploy --dir=dist/restaurante-frontend/browser --prod --site $NETLIFY_SITE_ID
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
