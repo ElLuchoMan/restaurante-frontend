@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">La Cocina de María</string>
+    <string name="title_activity_main">La Cocina de María</string>
+    <string name="package_name">cocina.maria.app</string>
+    <string name="custom_url_scheme">cocina.maria.app</string>
+</resources>

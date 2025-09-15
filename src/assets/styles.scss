@@ -1,3 +1,38 @@
 @forward 'variables';
 @forward 'base';
 @forward 'utilities';
+
+/* Safe areas para webview (iOS notch, barras de sistema) */
+:root {
+  /* Custom properties para facilitar uso en componentes */
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-right: env(safe-area-inset-right);
+  --safe-area-bottom: env(safe-area-inset-bottom);
+  --safe-area-left: env(safe-area-inset-left);
+}
+
+html,
+body {
+  /* Evitar rubber-band en iOS dentro de WebView */
+  overscroll-behavior: none;
+
+  /* Compat iOS 11 */
+  padding-top: constant(safe-area-inset-top);
+  padding-right: constant(safe-area-inset-right);
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-left: constant(safe-area-inset-left);
+
+  /* Navegadores modernos */
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+}
+
+/* Utilidades opcionales */
+.safe-top-inset {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom-inset {
+  padding-bottom: env(safe-area-inset-bottom);
+}

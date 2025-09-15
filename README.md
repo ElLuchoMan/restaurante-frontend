@@ -147,6 +147,36 @@ En CI (deploy a Netlify) se genera con secrets `APP_API_BASE` y `GMAPS_API_KEY`.
 - `npx serve dist/restaurante-frontend/browser` – servir estático local
 - `netlify dev` – servir con proxy `/restaurante/v1/*` → backend local
 
+## Ejecutar en WebView (Android/iOS)
+
+### Requisitos del contenedor
+- Android (WebView/Chromium): si el backend corre en `http://localhost:8080`, habilita tráfico cleartext:
+  - `AndroidManifest.xml`: `<application android:usesCleartextTraffic="true" ...>`
+  - Opcional: `networkSecurityConfig` permitiendo `localhost`.
+- iOS (WKWebView): añade excepciones ATS para `http://localhost` en `Info.plist` (`NSAppTransportSecurity` → `NSAllowsArbitraryLoadsInWebContent` o dominio específico).
+
+### Cabeceras/CSP en Netlify
+- `netlify.toml` ya incluye:
+  - `connect-src` con `http://localhost:8080` para permitir llamadas desde WebView.
+  - Directivas de producción sin `upgrade-insecure-requests` ni `block-all-mixed-content` mientras se pruebe contra HTTP local.
+- Ajusta `frame-src` si embebes pasarelas de pago/mapas adicionales.
+
+### Enlaces externos
+- Abrir externos fuera del WebView: se añadieron `target="_blank" rel="noopener"` en cabecera y pie.
+- En el contenedor nativo, intercepta `window.open`/navegación y abre en el navegador del sistema si es necesario.
+
+### Estilos específicos para WebView
+- Safe areas: definido `:root` con `env(safe-area-inset-*)` y aplicado en `html, body`.
+- Rebote iOS: `overscroll-behavior: none` en `html, body` para evitar rubber-band.
+
+### Service Worker
+- Algunas versiones de WebView tienen soporte limitado. Si observas issues de caché, sirve una variante sin SW o desactívalo según `user-agent` desde el contenedor.
+
+### Comandos útiles
+- Build prod: `npm run build`
+- Servir SSR local: `npm run serve:ssr:restaurante-frontend`
+- Netlify local con proxy: `netlify dev`
+
 ## How to make a PR
 1. Create a feature branch from `develop`.
 2. Commit your changes and push.
