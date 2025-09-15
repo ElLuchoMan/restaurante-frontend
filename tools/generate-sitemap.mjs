@@ -5,7 +5,8 @@ const distDir = path.resolve('dist/restaurante-frontend/browser');
 const out = path.join(distDir, 'sitemap.xml');
 
 // Rutas públicas prerenderadas por ahora
-const routes = ['/', '/home', '/menu', '/ubicacion', '/login', '/registro-cliente', '/not-found'];
+const routes = ['/', '/home', '/menu', '/ubicacion', '/login', '/
+  ', '/not-found'];
 
 // Base URL desde variables de Netlify o fallback relativo
 const base = process.env.URL || process.env.DEPLOY_PRIME_URL || '';

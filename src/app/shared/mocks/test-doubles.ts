@@ -211,3 +211,36 @@ export function createTelemetryServiceMock() {
     }),
   } as any;
 }
+
+// Additional UI/core doubles
+export function createNetworkServiceMock(initialOnline = true) {
+  const online$ = new BehaviorSubject<boolean>(initialOnline);
+  return {
+    isOnline$: online$.asObservable(),
+    current: initialOnline,
+    setLastOnlinePath: jest.fn(),
+    consumeLastOnlinePath: jest.fn(),
+  } as any;
+}
+
+export function createSeoServiceMock() {
+  return {
+    applyForRoute: jest.fn(),
+    updateCanonical: jest.fn(),
+  } as any;
+}
+
+export function createSwUpdateMock(opts?: {
+  isEnabled?: boolean;
+  versionUpdates$?: any;
+  available$?: any;
+  unrecoverable$?: any;
+}) {
+  return {
+    isEnabled: opts?.isEnabled ?? true,
+    versionUpdates: opts?.versionUpdates$,
+    available: opts?.available$,
+    unrecoverable: opts?.unrecoverable$,
+    activateUpdate: jest.fn().mockResolvedValue(true),
+  } as any;
+}

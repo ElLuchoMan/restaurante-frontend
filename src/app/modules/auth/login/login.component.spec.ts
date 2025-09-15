@@ -40,7 +40,6 @@ describe('LoginComponent', () => {
       imports: [LoginComponent, ReactiveFormsModule, CommonModule, RouterTestingModule],
       providers: [
         { provide: UserService, useValue: userServiceMock },
-        { provide: Router, useValue: routerMock },
         { provide: ToastrService, useValue: toastrMock },
         { provide: LoggingService, useValue: loggingServiceMock },
         { provide: TelemetryService, useValue: telemetryMock },
@@ -50,10 +49,13 @@ describe('LoginComponent', () => {
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
-    router = TestBed.inject(Router) as jest.Mocked<Router>;
+    router = TestBed.inject(Router);
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
     telemetry = TestBed.inject(TelemetryService) as jest.Mocked<TelemetryService>;
+
+    // Spy on router navigate method
+    jest.spyOn(router, 'navigate').mockResolvedValue(true);
 
     fixture.detectChanges();
   });

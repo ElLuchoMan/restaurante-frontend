@@ -4,7 +4,7 @@ import { LoginComponent } from '../auth/login/login.component';
 import { RegisterComponent } from '../auth/register/register.component';
 import { ConsultarDomicilioComponent } from './domicilios/consultar-domicilios/consultar-domicilios.component';
 import { HomeComponent } from './home/home.component';
-import publicRoutes from './public.routes';
+import { publicRoutes } from './public.routes';
 import { ConsultarReservaComponent } from './reservas/consultar-reserva/consultar-reserva.component';
 import { CrearReservaComponent } from './reservas/crear-reserva/crear-reserva.component';
 import { MenuReservasComponent } from './reservas/menu-reservas/menu-reservas.component';
@@ -33,10 +33,16 @@ describe('Public Routes', () => {
     expect(route?.component).toBe(RegisterComponent);
   });
 
-  it('should map "menu" to VerProductosComponent with title', () => {
+  it('should map "menu" to VerProductosComponent with title', async () => {
     const route = publicRoutes.find((r) => r.path === 'menu');
-    expect(route?.component).toBe(VerProductosComponent);
+    expect(route?.loadComponent).toBeDefined();
     expect(route?.title).toBe('Ver Productos');
+
+    // Test lazy loading
+    if (route?.loadComponent) {
+      const component = await route.loadComponent();
+      expect(component).toBe(VerProductosComponent);
+    }
   });
 
   it('should configure reservas child routes', () => {
@@ -64,8 +70,15 @@ describe('Public Routes', () => {
     expect(consultar?.data).toEqual({ roles: ['Administrador', 'Domiciliario'] });
   });
 
-  it('should map "ubicacion" to UbicacionRestauranteComponent', () => {
+  it('should map "ubicacion" to UbicacionRestauranteComponent', async () => {
     const route = publicRoutes.find((r) => r.path === 'ubicacion');
-    expect(route?.component).toBe(UbicacionRestauranteComponent);
+    expect(route?.loadComponent).toBeDefined();
+    expect(route?.title).toBe('Ubicación');
+
+    // Test lazy loading
+    if (route?.loadComponent) {
+      const component = await route.loadComponent();
+      expect(component).toBe(UbicacionRestauranteComponent);
+    }
   });
 });
