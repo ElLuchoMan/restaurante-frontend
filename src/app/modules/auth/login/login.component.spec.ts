@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 
@@ -36,7 +37,7 @@ describe('LoginComponent', () => {
     const telemetryMock = createTelemetryServiceMock() as jest.Mocked<TelemetryService>;
 
     await TestBed.configureTestingModule({
-      imports: [LoginComponent, ReactiveFormsModule, CommonModule],
+      imports: [LoginComponent, ReactiveFormsModule, CommonModule, RouterTestingModule],
       providers: [
         { provide: UserService, useValue: userServiceMock },
         { provide: Router, useValue: routerMock },

@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
+import { PerformanceService } from '../../../core/services/performance.service';
+
 import { TelemetryService } from '../../../core/services/telemetry.service';
 
 @Component({
@@ -54,7 +56,38 @@ import { TelemetryService } from '../../../core/services/telemetry.service';
       </div>
 
       <div class="row g-3 mt-1">
-        <div class="col-md-6">
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">Core Web Vitals</h5>
+              <div class="vitals-grid">
+                <div class="vital-item">
+                  <span class="vital-label">LCP:</span>
+                  <span class="vital-value" [class]="'vital-' + getCoreWebVitalsStatus().lcp">
+                    {{
+                      getCoreWebVitals().lcp
+                        ? (getCoreWebVitals().lcp! / 1000).toFixed(2) + 's'
+                        : 'N/A'
+                    }}
+                  </span>
+                </div>
+                <div class="vital-item">
+                  <span class="vital-label">FID:</span>
+                  <span class="vital-value" [class]="'vital-' + getCoreWebVitalsStatus().fid">
+                    {{ getCoreWebVitals().fid ? getCoreWebVitals().fid!.toFixed(0) + 'ms' : 'N/A' }}
+                  </span>
+                </div>
+                <div class="vital-item">
+                  <span class="vital-label">CLS:</span>
+                  <span class="vital-value" [class]="'vital-' + getCoreWebVitalsStatus().cls">
+                    {{ getCoreWebVitals().cls ? getCoreWebVitals().cls!.toFixed(3) : 'N/A' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
           <div class="card h-100">
             <div class="card-body">
               <h5 class="card-title">Usuarios por número de compras</h5>
@@ -66,7 +99,7 @@ import { TelemetryService } from '../../../core/services/telemetry.service';
             </div>
           </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
           <div class="card h-100">
             <div class="card-body">
               <h5 class="card-title">Ventas por hora y día</h5>
@@ -109,6 +142,42 @@ import { TelemetryService } from '../../../core/services/telemetry.service';
       ul {
         padding-left: 1.25rem;
       }
+      .vitals-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .vital-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .vital-label {
+        font-weight: 500;
+        color: #6c757d;
+      }
+      .vital-value {
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+      }
+      .vital-good {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .vital-needs-improvement {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      .vital-poor {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .vital-unknown {
+        background-color: #e2e3e5;
+        color: #6c757d;
+      }
     `,
   ],
 })
@@ -123,7 +192,10 @@ export class TelemetryDashboardComponent {
     return this.telemetry.getEvents(200);
   });
 
-  constructor(private telemetry: TelemetryService) {}
+  constructor(
+    private telemetry: TelemetryService,
+    private performance: PerformanceService,
+  ) {}
 
   refresh(): void {
     this.refreshTick.update((v) => v + 1);
@@ -132,5 +204,13 @@ export class TelemetryDashboardComponent {
   clear(): void {
     this.telemetry.clear();
     this.refresh();
+  }
+
+  getCoreWebVitals() {
+    return this.performance.getCoreWebVitals();
+  }
+
+  getCoreWebVitalsStatus() {
+    return this.performance.getCoreWebVitalsStatus();
   }
 }

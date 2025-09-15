@@ -11,10 +11,8 @@ import { ConsultarReservaComponent } from './reservas/consultar-reserva/consulta
 import { CrearReservaComponent } from './reservas/crear-reserva/crear-reserva.component';
 import { MenuReservasComponent } from './reservas/menu-reservas/menu-reservas.component';
 import { ReservasDelDiaComponent } from './reservas/reservas-del-dia/reservas-del-dia.component';
-import { UbicacionRestauranteComponent } from './ubicacion-restaurante/ubicacion-restaurante.component';
-import { VerProductosComponent } from './ver-productos/ver-productos.component';
 
-const publicRoutes: Routes = [
+export const publicRoutes: Routes = [
   {
     path: '',
     component: HomeComponent,
@@ -41,7 +39,8 @@ const publicRoutes: Routes = [
   },
   {
     path: 'menu',
-    component: VerProductosComponent,
+    loadComponent: () =>
+      import('./ver-productos/ver-productos.component').then((c) => c.VerProductosComponent),
     title: 'Ver Productos',
     data: { description: 'Explora nuestros platos: tradición colombiana y opciones reinventadas.' },
   },
@@ -80,7 +79,10 @@ const publicRoutes: Routes = [
   },
   {
     path: 'ubicacion',
-    component: UbicacionRestauranteComponent,
+    loadComponent: () =>
+      import('./ubicacion-restaurante/ubicacion-restaurante.component').then(
+        (c) => c.UbicacionRestauranteComponent,
+      ),
     title: 'Ubicación',
     data: { description: 'Encuéntranos y visítanos. Estamos listos para atenderte.' },
   },
@@ -92,4 +94,4 @@ const publicRoutes: Routes = [
   },
 ];
 
-export default publicRoutes;
+// Removed default export - using named export instead

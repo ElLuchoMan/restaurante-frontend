@@ -1,6 +1,7 @@
 import { isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   Inject,
   makeStateKey,
@@ -16,6 +17,7 @@ const HOME_STATE = makeStateKey<string>('home_bootstrap');
   imports: [RouterModule, NgOptimizedImage],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements AfterViewInit {
   constructor(

@@ -21,7 +21,9 @@
     "lint:scss": "stylelint src/**/*.scss --fix",
     "validate:mocks": "node tools/validate-mocks.mjs",
     "lint:fix": "eslint \"src/**/*.{ts,js}\" --fix",
-    "lint:fix:imports": "eslint \"src/**/*.{ts,js}\" --fix --rule \"simple-import-sort/imports:error\" --rule \"simple-import-sort/exports:error\""
+    "lint:fix:imports": "eslint \"src/**/*.{ts,js}\" --fix --rule \"simple-import-sort/imports:error\" --rule \"simple-import-sort/exports:error\"",
+    "security:audit": "node tools/security-audit.mjs",
+    "smoke:test": "node tools/smoke-tests.mjs"
   },
   "private": true,
   "dependencies": {
@@ -60,6 +62,7 @@
     "eslint": "*",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "glob": "^11.0.3",
     "jest": "29.7.0",
     "jest-preset-angular": "14.6.1",
     "postcss-scss": "^4.0.9",

@@ -1,16 +1,21 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
-import { APP_INITIALIZER, ErrorHandler } from '@angular/core';
+import {
+  APP_INITIALIZER,
+  ApplicationConfig,
+  ErrorHandler,
+  isDevMode,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { provideClientHydration, Title } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import {
   PreloadAllModules,
   provideRouter,
+  TitleStrategy,
   withInMemoryScrolling,
   withPreloading,
   withRouterConfig,
 } from '@angular/router';
-import { TitleStrategy } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideToastr } from 'ngx-toastr';
 
@@ -22,6 +27,7 @@ import { retryInterceptor } from './interceptors/retry.interceptor';
 import { telemetryInterceptor } from './interceptors/telemetry.interceptor';
 import { AppConfigService } from './services/app-config.service';
 import { GlobalErrorHandler } from './services/global-error.handler';
+import { PerformanceService } from './services/performance.service';
 import { SeoService } from './services/seo.service';
 import { AppTitleStrategy } from './services/title.strategy';
 
@@ -75,5 +81,6 @@ export const appConfig: ApplicationConfig = {
     Title,
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     SeoService,
+    PerformanceService,
   ],
 };

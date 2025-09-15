@@ -5,20 +5,20 @@ import { PageNotFoundComponent } from '../modules/public/page-not-found/page-not
 export const routes: Routes = [
   {
     path: '',
-    loadChildren: () => import('../modules/public/public.module').then((m) => m.PublicModule),
+    loadChildren: () => import('../modules/public/public.routes').then((m) => m.publicRoutes),
   },
   {
     path: 'admin',
-    loadChildren: () => import('../modules/admin/admin.module').then((m) => m.AdminModule),
+    loadChildren: () => import('../modules/admin/admin.routes').then((m) => m.adminRoutes),
   },
   {
     path: 'trabajador',
     loadChildren: () =>
-      import('../modules/trabajadores/trabajadores.module').then((m) => m.TrabajadoresModule),
+      import('../modules/trabajadores/trabajadores.routes').then((m) => m.trabajadoresRoutes),
   },
   {
     path: 'cliente',
-    loadChildren: () => import('../modules/client/client.module').then((m) => m.ClientModule),
+    loadChildren: () => import('../modules/client/client.routes').then((m) => m.clientRoutes),
   },
   {
     path: 'not-found',

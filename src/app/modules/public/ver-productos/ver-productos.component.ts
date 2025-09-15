@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { CartService } from '../../../core/services/cart.service';
+import { ErrorBoundaryService } from '../../../core/services/error-boundary.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { ProductoService } from '../../../core/services/producto.service';
@@ -44,6 +45,7 @@ export class VerProductosComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private live: LiveAnnouncerService,
     private ts: TransferState,
+    private errorBoundary: ErrorBoundaryService,
   ) {}
 
   ngOnInit(): void {
@@ -63,22 +65,42 @@ export class VerProductosComponent implements OnInit, OnDestroy {
   }
 
   obtenerProductos(): void {
-    const cached = this.ts.get(this.staticStateKey, [] as Producto[]);
-    if (cached.length) {
-      this.setProductos(cached);
-      return;
-    }
-    this.productoService
-      .getProductos({ onlyActive: true, includeImage: true })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((response) => {
-        if (response.data) {
-          this.setProductos(response.data);
-          this.ts.set(this.staticStateKey, response.data);
-        } else {
-          this.mensaje = response.message;
+    this.errorBoundary.safeExecute(
+      () => {
+        const cached = this.ts.get(this.staticStateKey, [] as Producto[]);
+        if (cached.length) {
+          this.setProductos(cached);
+          return;
         }
-      });
+
+        this.productoService
+          .getProductos({ onlyActive: true, includeImage: true })
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (response) => {
+              if (response.data) {
+                this.setProductos(response.data);
+                this.ts.set(this.staticStateKey, response.data);
+              } else {
+                this.mensaje = response.message;
+              }
+            },
+            error: (error) => {
+              this.errorBoundary.captureError(
+                error,
+                'VerProductosComponent',
+                'Error loading products',
+              );
+              this.mensaje = 'Error al cargar productos. Por favor, intenta nuevamente.';
+            },
+          });
+      },
+      'VerProductosComponent',
+      undefined,
+      (error) => {
+        this.mensaje = 'Error al cargar productos. Por favor, intenta nuevamente.';
+      },
+    );
   }
   private setProductos(list: Producto[]): void {
     this.productos = list;
