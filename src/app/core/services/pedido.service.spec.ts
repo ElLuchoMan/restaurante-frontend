@@ -2,6 +2,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
+import { mockPedidosFiltroResponse } from '../../shared/mocks/pedido.mock';
 import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { HandleErrorService } from './handle-error.service';
 import { PedidoService } from './pedido.service';
@@ -120,5 +121,30 @@ describe('PedidoService', () => {
     const req = http.expectOne(`${baseUrl}/detalles?pedido_id=7`);
     req.error(new ErrorEvent('Network error'));
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+  });
+
+  it('gets pedidos with filters', () => {
+    service
+      .getPedidos({ fecha: '2025-09-15', cliente: 101, domicilio: true, metodo_pago: 'NEQUI' })
+      .subscribe((res) => expect(res).toEqual(mockPedidosFiltroResponse));
+
+    const req = http.expectOne(
+      (r) =>
+        r.url === `${baseUrl}` &&
+        r.params.get('fecha') === '2025-09-15' &&
+        r.params.get('cliente') === '101' &&
+        r.params.get('domicilio') === 'true' &&
+        r.params.get('metodo_pago') === 'NEQUI',
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockPedidosFiltroResponse);
+  });
+
+  it('updates estado of pedido', () => {
+    service.updateEstado(77, 'TERMINADO').subscribe((res) => expect(res).toEqual({ code: 200 }));
+    const req = http.expectOne(`${baseUrl}/actualizar-estado?pedido_id=77&estado=TERMINADO`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toBeNull();
+    req.flush({ code: 200 });
   });
 });

@@ -1,7 +1,7 @@
 import { ApiResponse } from '../models/api-response.model';
-import { metodosPago } from '../models/metodo-pago.model';
+import { MetodosPago } from '../models/metodo-pago.model';
 
-export const mockMetodoPagoRespone: ApiResponse<metodosPago> = {
+export const mockMetodoPagoRespone: ApiResponse<MetodosPago> = {
   code: 200,
   message: 'Metodo de pago encontrado',
   data: {
@@ -10,7 +10,7 @@ export const mockMetodoPagoRespone: ApiResponse<metodosPago> = {
     detalle: '3042449339',
   },
 };
-export const mockMetodosPagoRespone: ApiResponse<metodosPago[]> = {
+export const mockMetodosPagoRespone: ApiResponse<MetodosPago[]> = {
   code: 200,
   message: 'Metodos de pago obtenidos exitosamente',
   data: [
@@ -31,7 +31,7 @@ export const mockMetodosPagoRespone: ApiResponse<metodosPago[]> = {
     },
   ],
 };
-export const mockMetodoPagoBody: metodosPago = {
+export const mockMetodoPagoBody: MetodosPago = {
   tipo: 'Nequi',
   detalle: '3042449339',
 };

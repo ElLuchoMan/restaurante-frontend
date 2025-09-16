@@ -22,7 +22,7 @@ export class ConsultarReservaComponent implements OnInit {
   mostrarFiltros: boolean = true;
   esAdmin: boolean = false;
 
-  documentoCliente: string = '';
+  contactoId: string = '';
   fechaReserva: string = '';
   buscarPorDocumento: boolean = false;
   buscarPorFecha: boolean = false;
@@ -41,7 +41,7 @@ export class ConsultarReservaComponent implements OnInit {
     if (!this.esAdmin) {
       this.mostrarFiltros = false;
       const doc = this.userService.getUserId();
-      this.documentoCliente = doc ? String(doc) : '';
+      this.contactoId = doc ? String(doc) : '';
       this.buscarPorDocumento = true;
       this.buscarPorFecha = false;
       this.buscarReserva();
@@ -67,16 +67,16 @@ export class ConsultarReservaComponent implements OnInit {
       return;
     }
 
-    let documentoNumerico: number | undefined;
+    let contactoNumerico: number | undefined;
     let fechaISO: string | undefined;
 
     if (this.buscarPorDocumento) {
-      if (!this.documentoCliente) {
+      if (!this.contactoId) {
         this.toastr.warning('Por favor ingresa un documento', 'Atención');
         return;
       }
-      documentoNumerico = Number(this.documentoCliente);
-      if (isNaN(documentoNumerico)) {
+      contactoNumerico = Number(this.contactoId);
+      if (isNaN(contactoNumerico)) {
         this.toastr.error('El documento debe ser un número válido', 'Error');
         return;
       }
@@ -90,30 +90,108 @@ export class ConsultarReservaComponent implements OnInit {
       fechaISO = this.convertirFechaISO(this.fechaReserva);
     }
 
-    if (!this.esAdmin && !documentoNumerico) {
-      const doc = this.userService.getUserId();
-      if (doc) documentoNumerico = Number(doc);
+    // Estrategia de resolución:
+    // 1) Si hay documento ingresado → resolver contactoId desde ese documento
+    // 2) Si NO hay documento ingresado y NO es admin → resolver contactoId desde el userId
+    // 3) Si es admin y no hay documento → no resolver (se buscará por fecha solamente)
+    let maybeResolveContacto$: any = null;
+    if (this.buscarPorDocumento && contactoNumerico) {
+      maybeResolveContacto$ = this.reservaService.getContactoIdByDocumento(contactoNumerico);
+    } else if (!this.esAdmin && !contactoNumerico) {
+      maybeResolveContacto$ = this.reservaService.getContactoIdByDocumento(
+        this.userService.getUserId(),
+      );
     }
 
-    this.reservaService.getReservaByParameter(documentoNumerico, fechaISO).subscribe({
-      next: (response) => {
-        this.reservas = response.data.sort((a: Reserva, b: Reserva) => {
-          const fechaA = new Date(a.fechaReserva.split('-').reverse().join('-'));
-          const fechaB = new Date(b.fechaReserva.split('-').reverse().join('-'));
-          if (fechaA.getTime() !== fechaB.getTime()) {
-            return fechaB.getTime() - fechaA.getTime();
-          }
-          const horaA = new Date(`1970-01-01T${a.horaReserva}`);
-          const horaB = new Date(`1970-01-01T${b.horaReserva}`);
-          return horaB.getTime() - horaA.getTime();
-        });
+    const handleSearch = (resolvedContactoId?: number | null) => {
+      // Usar SIEMPRE el contactoId resuelto cuando exista; si no, caer al número ingresado
+      const cid =
+        (resolvedContactoId ?? undefined) !== undefined
+          ? (resolvedContactoId ?? undefined)
+          : (contactoNumerico ?? undefined);
+      console.log('[Reservas] Buscar con parametros:', {
+        contactoId: cid,
+        fecha: fechaISO,
+        contactoNumerico,
+        resolvedContactoId,
+      });
+      this.reservaService.getReservaByParameter(cid, fechaISO).subscribe({
+        next: (response) => {
+          console.log('[Reservas] Respuesta RAW /reservas/parameter:', response);
+          const normalizados: Reserva[] = (response.data || []).map((r: any) => ({ ...r })) as any;
+          console.log('[Reservas] Normalizados (pre-enriquecidos):', normalizados);
 
-        this.mostrarMensaje = true;
-      },
-      error: () => {
-        this.toastr.error('Ocurrió un error al buscar la reserva', 'Error');
-      },
-    });
+          // Si falta nombre/telefono y tenemos contactoId numérico, enriquecer desde /reserva_contacto/search
+          const needsEnrich = normalizados.some(
+            (r: any) =>
+              !r?.nombreCompleto ||
+              r?.nombreCompleto.trim() === '' ||
+              !r?.telefono ||
+              r?.telefono.trim() === '',
+          );
+
+          const finish = (items: Reserva[]) => {
+            this.reservas = items.sort((a: Reserva, b: Reserva) => {
+              const fechaA = new Date(a.fechaReserva.split('-').reverse().join('-'));
+              const fechaB = new Date(b.fechaReserva.split('-').reverse().join('-'));
+              if (fechaA.getTime() !== fechaB.getTime()) {
+                return fechaB.getTime() - fechaA.getTime();
+              }
+              const horaA = new Date(`1970-01-01T${a.horaReserva}`);
+              const horaB = new Date(`1970-01-01T${b.horaReserva}`);
+              return horaB.getTime() - horaA.getTime();
+            });
+            this.mostrarMensaje = true;
+          };
+
+          if (!needsEnrich) {
+            finish(normalizados);
+            return;
+          }
+
+          // Enriquecer en paralelo por cada contactoId
+          const subs = normalizados.map(async (r: any) => {
+            const cidVal =
+              typeof r?.contactoId === 'number' ? r.contactoId : r?.contactoId?.contactoId;
+            if (!cidVal) return r as Reserva;
+            try {
+              const info = await this.reservaService.getContactoById(cidVal).toPromise();
+              if (info) {
+                r.nombreCompleto =
+                  r?.nombreCompleto && r.nombreCompleto.trim() !== ''
+                    ? r.nombreCompleto
+                    : info.nombreCompleto || '';
+                r.telefono =
+                  r?.telefono && r.telefono.trim() !== '' ? r.telefono : info.telefono || '';
+                r.documentoCliente =
+                  r?.documentoCliente ?? info?.documentoCliente?.documentoCliente ?? null;
+              }
+            } catch {}
+            return r as Reserva;
+          });
+
+          Promise.all(subs).then((enriched) => finish(enriched as Reserva[]));
+        },
+        error: () => {
+          this.toastr.error('Ocurrió un error al buscar la reserva', 'Error');
+        },
+      });
+    };
+
+    if (maybeResolveContacto$ && typeof maybeResolveContacto$.subscribe === 'function') {
+      maybeResolveContacto$.subscribe({
+        next: (cid: number | null) => {
+          console.log('[Reservas] Resuelto contactoId desde documento:', cid);
+          handleSearch(cid ?? undefined);
+        },
+        error: (e: any) => {
+          console.log('[Reservas] Error resolviendo contactoId, se continúa sin contactoId', e);
+          handleSearch(undefined);
+        },
+      });
+    } else {
+      handleSearch(undefined);
+    }
   }
 
   private convertirFechaISO(fecha: string): string {
@@ -142,12 +220,36 @@ export class ConsultarReservaComponent implements OnInit {
     }
 
     const [dia, mes, anio] = reserva.fechaReserva.split('-');
-    reserva.fechaReserva = `${anio}-${mes}-${dia}`;
-    reserva.estadoReserva = nuevoEstado;
+    const fechaISO = `${anio}-${mes}-${dia}`;
 
-    this.reservaService.actualizarReserva(reserva.reservaId, reserva).subscribe({
+    const payload: any = {
+      estadoReserva: nuevoEstado,
+      fechaReserva: fechaISO,
+      horaReserva: reserva.horaReserva,
+      indicaciones: reserva.indicaciones,
+      personas: reserva.personas,
+      restauranteId:
+        typeof (reserva as any)?.restauranteId === 'number'
+          ? (reserva as any).restauranteId
+          : ((reserva as any)?.restauranteId?.restauranteId ?? 1),
+      contactoId:
+        typeof (reserva as any)?.contactoId === 'number'
+          ? (reserva as any).contactoId
+          : ((reserva as any)?.contactoId?.contactoId ?? undefined),
+    };
+
+    this.reservaService.actualizarReserva(reserva.reservaId, payload).subscribe({
       next: () => {
         this.toastr.success(`Reserva marcada como ${nuevoEstado}`, 'Actualización Exitosa');
+        const idx = this.reservas.findIndex((r) => r.reservaId === reserva.reservaId);
+        if (idx > -1) {
+          const updated = { ...this.reservas[idx], estadoReserva: nuevoEstado } as Reserva;
+          this.reservas = [
+            ...this.reservas.slice(0, idx),
+            updated,
+            ...this.reservas.slice(idx + 1),
+          ];
+        }
       },
       error: (error) => {
         this.logger.log(LogLevel.ERROR, 'Error:', error);

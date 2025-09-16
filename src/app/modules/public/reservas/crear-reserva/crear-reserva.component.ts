@@ -85,9 +85,10 @@ export class CrearReservaComponent implements OnInit {
           this.crearReserva(timestamp, userRole, userId);
         },
       });
-      this.crearReserva(timestamp, userRole, userId);
+      // La reserva se crea dentro del callback anterior; evitar doble invocación
     } else {
-      this.crearReserva(timestamp, userRole, userId);
+      // Rol distinto a Cliente (incluye Administrador): pedir documento manual
+      this.crearReserva(timestamp, null, null);
     }
   }
 
@@ -109,13 +110,7 @@ export class CrearReservaComponent implements OnInit {
     const [anio, mes, dia] = this.fechaReserva.split('-');
     const fechaReservaFormateada = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
 
-    const reserva: ReservaCreate = {
-      documentoCliente:
-        userRole === 'Administrador'
-          ? Number(userId)
-          : userRole === 'Cliente'
-            ? Number(userId)
-            : Number(this.documentoCliente),
+    const base: ReservaCreate & { restauranteId?: number } = {
       estadoReserva: estadoReserva.PENDIENTE,
       fechaReserva: fechaReservaFormateada,
       horaReserva: this.horaReserva,
@@ -124,6 +119,14 @@ export class CrearReservaComponent implements OnInit {
       personas: this.personas === '5+' ? this.personasExtra : Number(this.personas),
       telefono: this.telefono,
     };
+    // Alinear con backend: requiere restauranteId (según error). Fijamos 1 por contexto/Datos.sql
+    base.restauranteId = 1;
+    const isLoggedIn = userRole === 'Cliente';
+    const reserva: ReservaCreate & { documentoCliente?: number } = { ...base } as any;
+    if (!isLoggedIn) {
+      const doc = Number(this.documentoCliente);
+      if (!isNaN(doc)) (reserva as any).documentoCliente = doc;
+    }
     this.reservaService.crearReserva(reserva).subscribe({
       next: (response) => {
         this.toastr.success('Reserva creada exitosamente', 'Éxito');

@@ -89,19 +89,33 @@
       <div class="card producto-card">
         <span class="badge bg-primary categoria-badge">{{ producto.categoria }}</span>
         <div class="producto-img">
-          <img
-            [ngSrc]="producto.imagen || '../../../../assets/img/logo2.webp'"
-            class="card-img-top"
-            loading="lazy"
-            decoding="async"
-            fetchpriority="low"
-            [attr.sizes]="
-              '(min-width: 992px) 25vw, (min-width: 768px) 33vw, (min-width: 576px) 50vw, 100vw'
-            "
-            width="300"
-            height="200"
-            [alt]="producto.nombre"
-          />
+          <ng-container *ngIf="producto.imagen?.startsWith('data:'); else optimImg">
+            <img
+              [src]="producto.imagen || '../../../../assets/img/logo2.webp'"
+              class="card-img-top"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+              width="300"
+              height="200"
+              [alt]="producto.nombre"
+            />
+          </ng-container>
+          <ng-template #optimImg>
+            <img
+              [ngSrc]="producto.imagen || '../../../../assets/img/logo2.webp'"
+              class="card-img-top"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+              [attr.sizes]="
+                '(min-width: 992px) 25vw, (min-width: 768px) 33vw, (min-width: 576px) 50vw, 100vw'
+              "
+              width="300"
+              height="200"
+              [alt]="producto.nombre"
+            />
+          </ng-template>
         </div>
         <div class="producto-info">
           <h5 class="producto-nombre">{{ producto.nombre }}</h5>

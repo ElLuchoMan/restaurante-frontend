@@ -1,4 +1,4 @@
-import { estadoPago } from '../constants';
+import { estadoDomicilio } from '../constants';
 
 export interface Domicilio {
   fechaDomicilio: string;
@@ -7,7 +7,7 @@ export interface Domicilio {
   domicilioId?: number;
   direccion: string;
   telefono: string;
-  estadoPago: estadoPago;
+  estadoDomicilio: estadoDomicilio;
   entregado: boolean;
   observaciones: string;
   createdBy: string;

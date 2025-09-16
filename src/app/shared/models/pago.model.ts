@@ -12,4 +12,5 @@ export interface Pago {
 }
 
 export type PagoCreate = Omit<Pago, 'pagoId' | 'updatedAt' | 'updatedBy'>;
-export type PagoUpdate = Partial<PagoCreate>;
+// El backend permite actualizar estadoPago, fecha, hora, metodoPagoId, monto y updatedBy
+export type PagoUpdate = Partial<PagoCreate> & { updatedBy?: string };

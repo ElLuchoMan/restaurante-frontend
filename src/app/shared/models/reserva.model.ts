@@ -4,6 +4,17 @@ export interface Reserva {
   createdAt: string;
   createdBy: string;
   documentoCliente?: number | null;
+  contactoId?:
+    | number
+    | {
+        contactoId: number;
+        nombreCompleto?: string;
+        telefono?: string;
+        documentoCliente?: { documentoCliente: number };
+      };
+  restauranteId?:
+    | number
+    | { restauranteId: number; nombreRestaurante?: string; horaApertura?: string };
   estadoReserva: estadoReserva;
   fechaReserva: string;
   horaReserva: string;
@@ -19,6 +30,13 @@ export interface Reserva {
 export type ReservaCreate = Omit<
   Reserva,
   'reservaId' | 'createdAt' | 'createdBy' | 'updatedAt' | 'updatedBy'
->;
+> & {
+  contactoId?: number;
+  restauranteId?: number;
+};
 
-export type ReservaUpdate = ReservaCreate;
+export type ReservaUpdate = Partial<Reserva> & {
+  contactoId?: number;
+  restauranteId?: number;
+  updatedBy?: string;
+};

@@ -10,7 +10,7 @@ import { LoggingService } from '../../../../core/services/logging.service';
 import { ModalService } from '../../../../core/services/modal.service';
 import { PagoService } from '../../../../core/services/pago.service';
 import { PedidoService } from '../../../../core/services/pedido.service';
-import { estadoPago, metodoPago } from '../../../../shared/constants';
+import { metodoPago } from '../../../../shared/constants';
 import {
   createDomicilioServiceMock,
   createDomSanitizerMock,
@@ -125,9 +125,7 @@ describe('RutaDomicilioComponent', () => {
       const config = modalService.openModal.mock.calls[0][0];
       config.buttons[0].action();
 
-      expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, {
-        estadoPago: estadoPago.PAGADO,
-      });
+      expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, { updatedBy: 'Sistema' });
       expect(toastrService.success).toHaveBeenCalledWith('Domicilio marcado como pagado');
       expect(modalService.closeModal).toHaveBeenCalled();
     });

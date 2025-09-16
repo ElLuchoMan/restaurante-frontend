@@ -79,20 +79,18 @@ describe('ReservaService', () => {
     req.flush(mockReservaResponse);
   });
 
-  it('should get reserva by parameters (documentoCliente)', () => {
+  it('should get reserva by parameters (contactoId)', () => {
     const mockResponse: ApiResponse<Reserva[]> = {
       code: 200,
       message: 'Reserva encontrada',
       data: [mockReservaBody],
     };
 
-    service.getReservaByParameter(1015466494).subscribe((response) => {
+    service.getReservaByParameter(1).subscribe((response) => {
       expect(response).toEqual(mockResponse);
     });
 
-    const req = httpMock.expectOne(
-      `${environment.apiUrl}/reservas/parameter?documentoCliente=1015466494`,
-    );
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter?contactoId=1`);
     expect(req.request.method).toBe('GET');
     req.flush(mockResponse);
   });
@@ -150,15 +148,13 @@ describe('ReservaService', () => {
   });
 
   it('should handle API error when getting reserva by parameters', () => {
-    service.getReservaByParameter(1015466494).subscribe({
+    service.getReservaByParameter(1).subscribe({
       error: (error) => {
         expect(error).toBeTruthy();
       },
     });
 
-    const req = httpMock.expectOne(
-      `${environment.apiUrl}/reservas/parameter?documentoCliente=1015466494`,
-    );
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter?contactoId=1`);
     req.error(new ErrorEvent('API error'));
     expect(handleErrorService.handleError).toHaveBeenCalled();
   });

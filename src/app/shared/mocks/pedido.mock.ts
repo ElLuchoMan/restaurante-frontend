@@ -70,3 +70,23 @@ export const mockPedidoDetalle: ApiResponse<PedidoDetalle> = {
       '[{"NOMBRE": "Coca Cola 500ml", "CANTIDAD": 1, "SUBTOTAL": 2000, "PK_ID_PRODUCTO": 1, "PRECIO_UNITARIO": 2000}]',
   },
 };
+
+export const mockPedidosFiltroResponse: ApiResponse<Pedido[]> = {
+  code: 200,
+  message: 'Filtrado ok',
+  data: [
+    {
+      fechaPedido: '15-09-2025',
+      createdAt: '',
+      updatedAt: '',
+      pedidoId: 9,
+      horaPedido: '21:00:00',
+      delivery: true,
+      estadoPedido: 'PENDIENTE',
+      domicilioId: 1,
+      pagoId: 1,
+      restauranteId: 1,
+      updatedBy: '',
+    },
+  ],
+};

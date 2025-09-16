@@ -7,7 +7,7 @@ export const mockPagosResponse: ApiResponse<Pago[]> = {
   message: 'Pago encontrado',
   data: [
     {
-      fechaPago: '24-12-2024',
+      fechaPago: '2024-12-24',
       updatedAt: '31-12-0000 19:03:44',
       pagoId: 1,
       horaPago: '12:05:00',
@@ -17,7 +17,7 @@ export const mockPagosResponse: ApiResponse<Pago[]> = {
       updatedBy: 'Administrador - Bryan Luis',
     },
     {
-      fechaPago: '29-12-2024',
+      fechaPago: '2024-12-29',
       updatedAt: '31-12-0000 19:03:44',
       pagoId: 2,
       horaPago: '14:15:00',
@@ -32,7 +32,7 @@ export const mockPagoResponse: ApiResponse<Pago> = {
   code: 200,
   message: 'Pago creado exitosamente',
   data: {
-    fechaPago: '24-12-2024',
+    fechaPago: '2024-12-24',
     updatedAt: '31-12-0000 19:03:44',
     pagoId: 1,
     horaPago: '12:05:00',

@@ -12,6 +12,7 @@ export const mockResponseCliente: ApiResponse<Cliente> = {
     telefono: '3216549870',
     observaciones: 'Cliente frecuente',
     password: '12345',
+    correo: 'carlos.perez@example.com',
   },
 };
 
@@ -23,6 +24,7 @@ export const mockClienteBody: Cliente = {
   telefono: '3216549870',
   observaciones: 'Cliente frecuente',
   password: '12345',
+  correo: 'carlos.perez@example.com',
 };
 
 export const mockClienteRegisterResponse: ApiResponse<Cliente> = {

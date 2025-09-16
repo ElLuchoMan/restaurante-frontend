@@ -17,3 +17,16 @@ export const mockProductoPedidoResponse: ApiResponse<ProductoPedido> = {
     pedidoId: 1,
   },
 };
+
+export const mockProductoPedidoUpdateBody = [
+  { productoId: 1, cantidad: 2 },
+  { productoId: 3, cantidad: 1 },
+];
+
+export const mockProductoPedidoCreateBody = {
+  pedidoId: 99,
+  detalles: [
+    { productoId: 2, cantidad: 1 },
+    { productoId: 3, cantidad: 2 },
+  ],
+};

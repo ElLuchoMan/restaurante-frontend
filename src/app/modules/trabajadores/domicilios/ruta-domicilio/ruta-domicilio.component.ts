@@ -223,7 +223,7 @@ export class RutaDomicilioComponent implements OnInit {
 
             this.domicilioService
               .updateDomicilio(this.domicilioId, {
-                estadoPago: estadoPago.PAGADO,
+                updatedBy: 'Sistema',
               })
               .subscribe(
                 () => this.toastrService.success('Domicilio marcado como pagado'),

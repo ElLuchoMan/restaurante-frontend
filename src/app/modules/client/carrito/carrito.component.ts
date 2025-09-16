@@ -13,12 +13,12 @@ import { DomicilioService } from '../../../core/services/domicilio.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
-import { PedidoService } from '../../../core/services/pedido.service';
 import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
+import { PedidoService } from '../../../core/services/pedido.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
-import { estadoPago } from '../../../shared/constants';
+import { estadoDomicilio } from '../../../shared/constants';
 import { Cliente } from '../../../shared/models/cliente.model';
 import { Domicilio, DomicilioRequest } from '../../../shared/models/domicilio.model';
 import { MetodosPago } from '../../../shared/models/metodo-pago.model';
@@ -176,7 +176,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
     const nuevoDomicilio: DomicilioRequest = {
       direccion: cliente.direccion,
       telefono: cliente.telefono,
-      estadoPago: estadoPago.PENDIENTE,
+      estadoDomicilio: estadoDomicilio.PENDIENTE,
       fechaDomicilio: fechaHoy,
       observaciones: obs,
       createdBy: `Usuario ${clienteId}`,
@@ -203,15 +203,12 @@ export class CarritoComponent implements OnInit, OnDestroy {
       const pedidoId = pedidoRes.data.pedidoId!;
 
       const detalles = this.carrito.map((p) => ({
-        PK_ID_PRODUCTO: p.productoId!,
-        NOMBRE: p.nombre,
-        CANTIDAD: p.cantidad!,
-        PRECIO_UNITARIO: p.precio,
-        SUBTOTAL: p.precio * p.cantidad!,
+        productoId: p.productoId!,
+        cantidad: p.cantidad!,
       }));
 
       await firstValueFrom(
-        this.productoPedidoService.create(pedidoId, detalles).pipe(takeUntil(this.destroy$)),
+        this.productoPedidoService.create(pedidoId, detalles as any).pipe(takeUntil(this.destroy$)),
       );
 
       await firstValueFrom(

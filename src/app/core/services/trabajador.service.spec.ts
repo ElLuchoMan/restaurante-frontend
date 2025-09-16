@@ -83,6 +83,36 @@ describe('TrabajadorService', () => {
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);
     });
+
+    it('should pass filter params to GET', () => {
+      const mockResponse = {
+        code: 200,
+        message: 'Success',
+        data: [mockTrabajadorResponse.data],
+      };
+
+      service
+        .getTrabajadores({
+          fecha_ingreso: '2025-02-01',
+          rol: 'Mesero',
+          incluir_retirados: true,
+          solo_retirados: false,
+        })
+        .subscribe((trabajadores) => {
+          expect(trabajadores).toEqual([mockTrabajadorResponse.data]);
+        });
+
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url === `${baseUrl}/trabajadores` &&
+          r.params.get('fecha_ingreso') === '2025-02-01' &&
+          r.params.get('rol') === 'Mesero' &&
+          r.params.get('incluir_retirados') === 'true' &&
+          r.params.get('solo_retirados') === 'false',
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockResponse);
+    });
   });
 
   describe('getTrabajadorId', () => {
@@ -95,6 +125,20 @@ describe('TrabajadorService', () => {
       const req = httpMock.expectOne(`${baseUrl}/trabajadores/search?id=${documento}`);
       expect(req.request.method).toBe('GET');
       req.flush(mockTrabajadorResponse);
+    });
+  });
+
+  describe('updateTrabajador', () => {
+    it('should PUT partial trabajador', () => {
+      const documento = mockTrabajadorResponse.data.documentoTrabajador;
+      const partial = { telefono: '3000000000' } as any;
+      service.updateTrabajador(documento, partial).subscribe((res) => {
+        expect(res).toBeTruthy();
+      });
+      const req = httpMock.expectOne(`${baseUrl}/trabajadores?id=${documento}`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual(partial);
+      req.flush({ code: 200, message: 'ok', data: mockTrabajadorResponse.data });
     });
   });
 });

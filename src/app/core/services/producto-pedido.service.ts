@@ -6,17 +6,9 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { HandleErrorService } from './handle-error.service';
 
-interface DetalleProducto {
-  PK_ID_PRODUCTO: number;
-  NOMBRE: string;
-  CANTIDAD: number;
-  PRECIO_UNITARIO: number;
-  SUBTOTAL: number;
-}
-
-interface CrearProductoPedido {
-  PK_ID_PEDIDO: number;
-  DETALLES_PRODUCTOS: DetalleProducto[];
+interface ProductoPedidoItemInput {
+  productoId: number;
+  cantidad: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -28,11 +20,24 @@ export class ProductoPedidoService {
     private handleError: HandleErrorService,
   ) {}
 
-  create(pedidoId: number, detallesProductos: any[]) {
-    const params = new HttpParams().set('pedido_id', pedidoId.toString());
-    const body = { detallesProductos };
+  create(pedidoId: number, detalles: ProductoPedidoItemInput[]) {
+    const body = { pedidoId, detalles };
     return this.http
-      .post<ApiResponse<any>>(`${this.baseUrl}/producto_pedido`, body, { params })
+      .post<ApiResponse<any>>(`${this.baseUrl}/producto_pedido`, body)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  getByPedido(pedidoId: number) {
+    const params = new HttpParams().set('pedido_id', String(pedidoId));
+    return this.http
+      .get<ApiResponse<any>>(`${this.baseUrl}/producto_pedido`, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  update(pedidoId: number, detalles: ProductoPedidoItemInput[]) {
+    const params = new HttpParams().set('pedido_id', String(pedidoId));
+    return this.http
+      .put<ApiResponse<any>>(`${this.baseUrl}/producto_pedido`, detalles, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

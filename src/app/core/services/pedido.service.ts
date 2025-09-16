@@ -53,4 +53,33 @@ export class PedidoService {
       .get<ApiResponse<PedidoDetalle>>(`${this.baseUrl}/detalles`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
+
+  // Adicionales según swagger: actualizar estado y listado con filtros
+  getPedidos(params?: {
+    fecha?: string;
+    desde?: string;
+    hasta?: string;
+    mes?: number;
+    anio?: number;
+    cliente?: number;
+    metodo_pago?: string;
+    domicilio?: boolean;
+  }): Observable<ApiResponse<Pedido[]>> {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) httpParams = httpParams.set(k, String(v));
+      });
+    }
+    return this.http
+      .get<ApiResponse<Pedido[]>>(`${this.baseUrl}`, { params: httpParams })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  updateEstado(pedidoId: number, estado: string): Observable<ApiResponse<any>> {
+    const params = new HttpParams().set('pedido_id', String(pedidoId)).set('estado', estado);
+    return this.http
+      .put<ApiResponse<any>>(`${this.baseUrl}/actualizar-estado`, null, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
 }

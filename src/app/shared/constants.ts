@@ -22,6 +22,11 @@ export enum estadoPago {
   PENDIENTE = 'PENDIENTE',
   NO_PAGADO = 'NO_PAGO',
 }
+export enum estadoDomicilio {
+  PENDIENTE = 'PENDIENTE',
+  EN_CAMINO = 'EN_CAMINO',
+  ENTREGADO = 'ENTREGADO',
+}
 export enum estadoProducto {
   DISPONIBLE = 'DISPONIBLE',
   NO_DISPONIBLE = 'NO_DISPONIBLE',
