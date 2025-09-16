@@ -35,4 +35,37 @@ describe('NetworkService', () => {
       done();
     }, 0);
   });
+
+  it('emite estado inicial offline cuando navigator.onLine=false', (done) => {
+    Object.defineProperty(global, 'navigator', { value: { onLine: false }, configurable: true });
+    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'browser' }] });
+    const svc = TestBed.inject(NetworkService);
+    svc.isOnline$.pipe(take(1)).subscribe((v) => {
+      expect(v).toBe(false);
+      done();
+    });
+  });
+
+  it('gestiona last online path (set y consume) y getter current', () => {
+    Object.defineProperty(global, 'navigator', { value: { onLine: true }, configurable: true });
+    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'browser' }] });
+    const svc = TestBed.inject(NetworkService);
+
+    expect(svc.current).toBe(true);
+    svc.setLastOnlinePath('/menu');
+    expect(svc.consumeLastOnlinePath()).toBe('/menu');
+    expect(svc.consumeLastOnlinePath()).toBeNull();
+  });
+
+  it('emite true por defecto cuando navigator.onLine no existe', (done) => {
+    // navigator sin propiedad onLine
+    Object.defineProperty(global, 'navigator', { value: {}, configurable: true });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'browser' }] });
+    const svc = TestBed.inject(NetworkService);
+    svc.isOnline$.pipe(take(1)).subscribe((v) => {
+      expect(v).toBe(true);
+      done();
+    });
+  });
 });

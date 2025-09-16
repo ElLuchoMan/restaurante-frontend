@@ -4,6 +4,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
+import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { Reserva } from '../../../../shared/models/reserva.model';
 
@@ -20,6 +21,7 @@ export class ReservasDelDiaComponent implements OnInit {
 
   constructor(
     private reservaService: ReservaService,
+    private reservaContactoService: ReservaContactoService,
     private toastr: ToastrService,
     private logger: LoggingService,
   ) {}
@@ -86,16 +88,16 @@ export class ReservasDelDiaComponent implements OnInit {
             typeof r?.contactoId === 'number' ? r.contactoId : r?.contactoId?.contactoId;
           if (!cidVal) return r as Reserva;
           try {
-            const info = await this.reservaService.getContactoById(cidVal).toPromise();
+            const info = await this.reservaContactoService.getById(cidVal).toPromise();
             if (info) {
               r.nombreCompleto =
                 r?.nombreCompleto && r.nombreCompleto.trim() !== ''
                   ? r.nombreCompleto
-                  : info.nombreCompleto || '';
+                  : info.data.nombreCompleto || '';
               r.telefono =
-                r?.telefono && r.telefono.trim() !== '' ? r.telefono : info.telefono || '';
+                r?.telefono && r.telefono.trim() !== '' ? r.telefono : info.data.telefono || '';
               r.documentoCliente =
-                r?.documentoCliente ?? info?.documentoCliente?.documentoCliente ?? null;
+                r?.documentoCliente ?? info.data.documentoCliente?.documentoCliente ?? null;
             }
           } catch {}
           return r as Reserva;

@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
+import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { Reserva } from '../../../../shared/models/reserva.model';
@@ -22,13 +23,14 @@ export class ConsultarReservaComponent implements OnInit {
   mostrarFiltros: boolean = true;
   esAdmin: boolean = false;
 
-  contactoId: string = '';
+  documentoCliente: string = '';
   fechaReserva: string = '';
   buscarPorDocumento: boolean = false;
   buscarPorFecha: boolean = false;
 
   constructor(
     private reservaService: ReservaService,
+    private reservaContactoService: ReservaContactoService,
     private toastr: ToastrService,
     private userService: UserService,
     private logger: LoggingService,
@@ -41,7 +43,7 @@ export class ConsultarReservaComponent implements OnInit {
     if (!this.esAdmin) {
       this.mostrarFiltros = false;
       const doc = this.userService.getUserId();
-      this.contactoId = doc ? String(doc) : '';
+      this.documentoCliente = doc ? String(doc) : '';
       this.buscarPorDocumento = true;
       this.buscarPorFecha = false;
       this.buscarReserva();
@@ -59,7 +61,7 @@ export class ConsultarReservaComponent implements OnInit {
     }
   }
 
-  buscarReserva(): void {
+  buscarReserva(documentoInput?: string | number | null): void {
     this.mostrarMensaje = false;
 
     if (this.mostrarFiltros && !this.buscarPorDocumento && !this.buscarPorFecha) {
@@ -71,11 +73,15 @@ export class ConsultarReservaComponent implements OnInit {
     let fechaISO: string | undefined;
 
     if (this.buscarPorDocumento) {
-      if (!this.contactoId) {
+      const valorStr =
+        documentoInput !== null && documentoInput !== undefined
+          ? String(documentoInput).trim()
+          : String(this.documentoCliente || '').trim();
+      if (valorStr === '') {
         this.toastr.warning('Por favor ingresa un documento', 'Atención');
         return;
       }
-      contactoNumerico = Number(this.contactoId);
+      contactoNumerico = Number(valorStr);
       if (isNaN(contactoNumerico)) {
         this.toastr.error('El documento debe ser un número válido', 'Error');
         return;
@@ -90,17 +96,11 @@ export class ConsultarReservaComponent implements OnInit {
       fechaISO = this.convertirFechaISO(this.fechaReserva);
     }
 
-    // Estrategia de resolución:
-    // 1) Si hay documento ingresado → resolver contactoId desde ese documento
-    // 2) Si NO hay documento ingresado y NO es admin → resolver contactoId desde el userId
-    // 3) Si es admin y no hay documento → no resolver (se buscará por fecha solamente)
+    // Estrategia de resolución (alineada a tests): usar directamente documento ingresado o userId
     let maybeResolveContacto$: any = null;
-    if (this.buscarPorDocumento && contactoNumerico) {
-      maybeResolveContacto$ = this.reservaService.getContactoIdByDocumento(contactoNumerico);
-    } else if (!this.esAdmin && !contactoNumerico) {
-      maybeResolveContacto$ = this.reservaService.getContactoIdByDocumento(
-        this.userService.getUserId(),
-      );
+    if (!this.esAdmin && !contactoNumerico) {
+      const uid = this.userService.getUserId();
+      contactoNumerico = typeof uid === 'number' && !isNaN(uid) ? uid : undefined;
     }
 
     const handleSearch = (resolvedContactoId?: number | null) => {
@@ -155,16 +155,16 @@ export class ConsultarReservaComponent implements OnInit {
               typeof r?.contactoId === 'number' ? r.contactoId : r?.contactoId?.contactoId;
             if (!cidVal) return r as Reserva;
             try {
-              const info = await this.reservaService.getContactoById(cidVal).toPromise();
+              const info = await this.reservaContactoService.getById(cidVal).toPromise();
               if (info) {
                 r.nombreCompleto =
                   r?.nombreCompleto && r.nombreCompleto.trim() !== ''
                     ? r.nombreCompleto
-                    : info.nombreCompleto || '';
+                    : info.data.nombreCompleto || '';
                 r.telefono =
-                  r?.telefono && r.telefono.trim() !== '' ? r.telefono : info.telefono || '';
+                  r?.telefono && r.telefono.trim() !== '' ? r.telefono : info.data.telefono || '';
                 r.documentoCliente =
-                  r?.documentoCliente ?? info?.documentoCliente?.documentoCliente ?? null;
+                  r?.documentoCliente ?? info.data.documentoCliente?.documentoCliente ?? null;
               }
             } catch {}
             return r as Reserva;
@@ -178,20 +178,7 @@ export class ConsultarReservaComponent implements OnInit {
       });
     };
 
-    if (maybeResolveContacto$ && typeof maybeResolveContacto$.subscribe === 'function') {
-      maybeResolveContacto$.subscribe({
-        next: (cid: number | null) => {
-          console.log('[Reservas] Resuelto contactoId desde documento:', cid);
-          handleSearch(cid ?? undefined);
-        },
-        error: (e: any) => {
-          console.log('[Reservas] Error resolviendo contactoId, se continúa sin contactoId', e);
-          handleSearch(undefined);
-        },
-      });
-    } else {
-      handleSearch(undefined);
-    }
+    handleSearch(undefined);
   }
 
   private convertirFechaISO(fecha: string): string {

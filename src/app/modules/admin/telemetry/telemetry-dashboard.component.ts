@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { PerformanceService } from '../../../core/services/performance.service';
-
 import { TelemetryService } from '../../../core/services/telemetry.service';
 
 @Component({

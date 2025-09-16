@@ -12,6 +12,7 @@ import {
   createNetworkServiceMock,
   createRouterWithEventsMock,
   createSeoServiceMock,
+  createSpy,
 } from './shared/mocks/test-doubles';
 
 describe('AppComponent', () => {
@@ -33,6 +34,9 @@ describe('AppComponent', () => {
     mockRouter = createRouterWithEventsMock(routerEventsSubject.asObservable(), '/home');
 
     mockNetworkService = createNetworkServiceMock(true) as any;
+    // Conectar el subject del test con el mock para emitir estados online/offline
+    (mockNetworkService as any).isOnline$ = routerEventsSubject as any; // temp placeholder
+    (mockNetworkService as any).isOnline$ = networkOnlineSubject.asObservable();
 
     mockSeoService = createSeoServiceMock() as any;
 
@@ -102,9 +106,7 @@ describe('AppComponent', () => {
   describe('ngOnInit', () => {
     beforeEach(() => {
       // Mock document.getElementById
-      const mockMainElement = {
-        focus: () => {},
-      } as any;
+      const mockMainElement = { focus: createSpy() } as any;
       jest.spyOn(document, 'getElementById').mockReturnValue(mockMainElement as any);
     });
 

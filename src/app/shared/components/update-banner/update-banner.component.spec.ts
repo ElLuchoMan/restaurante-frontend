@@ -2,9 +2,9 @@ import { PLATFORM_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SwUpdate, VersionEvent } from '@angular/service-worker';
-import { createSwUpdateMock } from '../../../shared/mocks/test-doubles';
 import { Subject } from 'rxjs';
 
+import { createSwUpdateMock } from '../../../shared/mocks/test-doubles';
 import { UpdateBannerComponent } from './update-banner.component';
 
 describe('UpdateBannerComponent', () => {

@@ -13,11 +13,16 @@ export function createModalServiceMock() {
 }
 
 export function createRouterMock(): jest.Mocked<Router> {
-  return { navigate: jest.fn() } as unknown as jest.Mocked<Router>;
+  return { navigate: jest.fn(), navigateByUrl: jest.fn() } as unknown as jest.Mocked<Router>;
 }
 
 export function createRouterWithEventsMock(events$: any, url = '/'): jest.Mocked<Router> {
-  return { navigate: jest.fn(), events: events$, url } as unknown as jest.Mocked<Router>;
+  return {
+    navigate: jest.fn(),
+    navigateByUrl: jest.fn(),
+    events: events$,
+    url,
+  } as unknown as jest.Mocked<Router>;
 }
 
 export function createToastrMock() {
@@ -150,7 +155,7 @@ export function createHandleErrorServiceMock() {
 }
 
 export function createNextHandlerMock() {
-  return jest.fn((req: any) => of(req));
+  return jest.fn((req: any) => req as any);
 }
 
 export function createRestauranteServiceMock() {
@@ -172,6 +177,8 @@ export function createReservaServiceMock() {
     getReservaByParameter: jest.fn(),
     actualizarReserva: jest.fn(),
     crearReserva: jest.fn(),
+    getContactoIdByDocumento: jest.fn(),
+    getContactoById: jest.fn(),
   } as any;
 }
 
@@ -216,7 +223,7 @@ export function createTelemetryServiceMock() {
 export function createNetworkServiceMock(initialOnline = true) {
   const online$ = new BehaviorSubject<boolean>(initialOnline);
   return {
-    isOnline$: online$.asObservable(),
+    isOnline$: online$,
     current: initialOnline,
     setLastOnlinePath: jest.fn(),
     consumeLastOnlinePath: jest.fn(),

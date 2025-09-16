@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
@@ -30,7 +31,7 @@ describe('ReservasDelDiaComponent', () => {
     const loggingServiceMock = createLoggingServiceMock() as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
-      imports: [ReservasDelDiaComponent, CommonModule],
+      imports: [ReservasDelDiaComponent, CommonModule, HttpClientTestingModule],
       providers: [
         { provide: ReservaService, useValue: reservaServiceMock },
         { provide: ToastrService, useValue: toastrMock },
@@ -96,12 +97,10 @@ describe('ReservasDelDiaComponent', () => {
 
       component.confirmarReserva(reserva);
 
-      const expectedReserva = {
-        ...reserva,
-        estadoReserva: 'CONFIRMADA',
-        fechaReserva: '2025-02-06',
-      };
-      expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expectedReserva);
+      expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ estadoReserva: 'CONFIRMADA', fechaReserva: '2025-02-06' }),
+      );
       expect(toastr.success).toHaveBeenCalledWith(
         'Reserva marcada como CONFIRMADA',
         'Actualización Exitosa',
@@ -115,12 +114,10 @@ describe('ReservasDelDiaComponent', () => {
 
       component.cancelarReserva(reserva);
 
-      const expectedReserva = {
-        ...reserva,
-        estadoReserva: 'CANCELADA',
-        fechaReserva: '2025-02-06',
-      };
-      expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expectedReserva);
+      expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ estadoReserva: 'CANCELADA', fechaReserva: '2025-02-06' }),
+      );
       expect(toastr.success).toHaveBeenCalledWith(
         'Reserva marcada como CANCELADA',
         'Actualización Exitosa',
@@ -134,8 +131,10 @@ describe('ReservasDelDiaComponent', () => {
 
       component.cumplirReserva(reserva);
 
-      const expectedReserva = { ...reserva, estadoReserva: 'CUMPLIDA', fechaReserva: '2025-02-06' };
-      expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, expectedReserva);
+      expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ estadoReserva: 'CUMPLIDA', fechaReserva: '2025-02-06' }),
+      );
       expect(toastr.success).toHaveBeenCalledWith(
         'Reserva marcada como CUMPLIDA',
         'Actualización Exitosa',

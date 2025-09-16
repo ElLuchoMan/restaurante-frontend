@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
@@ -40,7 +41,7 @@ describe('ConsultarReservaComponent', () => {
     const loggingServiceMock = createLoggingServiceMock() as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
-      imports: [ConsultarReservaComponent, FormsModule, CommonModule],
+      imports: [ConsultarReservaComponent, FormsModule, CommonModule, HttpClientTestingModule],
       providers: [
         { provide: ReservaService, useValue: reservaServiceMock },
         { provide: ToastrService, useValue: toastrMock },
@@ -211,9 +212,9 @@ describe('ConsultarReservaComponent', () => {
 
     expect(component.reservas.map((r) => ({ fecha: r.fechaReserva, hora: r.horaReserva }))).toEqual(
       [
-        { fecha: '02-01-2025', hora: '16:00' },
-        { fecha: '01-01-2025', hora: '18:00' },
-        { fecha: '01-01-2025', hora: '14:00' },
+        { fecha: '2025-01-02', hora: '16:00' },
+        { fecha: '2025-01-01', hora: '18:00' },
+        { fecha: '2025-01-01', hora: '14:00' },
       ],
     );
   });

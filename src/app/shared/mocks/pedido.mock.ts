@@ -6,9 +6,9 @@ export const mockPedidosResponse: ApiResponse<Pedido[]> = {
   message: 'Pedidos encontrados.',
   data: [
     {
-      fechaPedido: '25-12-2024',
+      fechaPedido: '2024-12-25',
       createdAt: '',
-      updatedAt: '01-01-0001 00:00:00',
+      updatedAt: '0001-01-01 00:00:00',
       pedidoId: 1,
       horaPedido: '0000-01-01 12:00:00 +0000 UTC',
       delivery: true,
@@ -19,9 +19,9 @@ export const mockPedidosResponse: ApiResponse<Pedido[]> = {
       updatedBy: '',
     },
     {
-      fechaPedido: '30-12-2024',
+      fechaPedido: '2024-12-30',
       createdAt: '',
-      updatedAt: '01-01-0001 00:00:00',
+      updatedAt: '0001-01-01 00:00:00',
       pedidoId: 2,
       horaPedido: '0000-01-01 14:10:00 +0000 UTC',
       delivery: false,
@@ -31,9 +31,9 @@ export const mockPedidosResponse: ApiResponse<Pedido[]> = {
       updatedBy: '',
     },
     {
-      fechaPedido: '30-12-2024',
+      fechaPedido: '2024-12-30',
       createdAt: '',
-      updatedAt: '01-01-0001 00:00:00',
+      updatedAt: '0001-01-01 00:00:00',
       pedidoId: 3,
       horaPedido: '0000-01-01 14:30:00 +0000 UTC',
       delivery: true,
@@ -46,7 +46,7 @@ export const mockPedidosResponse: ApiResponse<Pedido[]> = {
   ],
 };
 export const mockPedidoBody: Pedido = {
-  fechaPedido: '30-12-2024',
+  fechaPedido: '2024-12-30',
   horaPedido: '14:30',
   delivery: true,
   estadoPedido: 'INICIADO',
@@ -76,7 +76,7 @@ export const mockPedidosFiltroResponse: ApiResponse<Pedido[]> = {
   message: 'Filtrado ok',
   data: [
     {
-      fechaPedido: '15-09-2025',
+      fechaPedido: '2025-09-15',
       createdAt: '',
       updatedAt: '',
       pedidoId: 9,

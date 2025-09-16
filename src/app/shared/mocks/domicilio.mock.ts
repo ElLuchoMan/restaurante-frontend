@@ -7,8 +7,8 @@ export const mockDomicilioRespone: ApiResponse<Domicilio> = {
   message: 'Domicilio encontrado',
   data: {
     fechaDomicilio: '2024-12-25',
-    createdAt: '16-01-2025 02:15:05',
-    updatedAt: '16-01-2025 02:15:05',
+    createdAt: '2025-01-16 02:15:05',
+    updatedAt: '2025-01-16 02:15:05',
     domicilioId: 1,
     direccion: 'Carrera 110 # 75 -16',
     telefono: '3042449339',
@@ -26,8 +26,8 @@ export const mockDomiciliosRespone: ApiResponse<Domicilio[]> = {
   data: [
     {
       fechaDomicilio: '2024-12-25',
-      createdAt: '16-01-2025 02:15:05',
-      updatedAt: '16-01-2025 02:15:05',
+      createdAt: '2025-01-16 02:15:05',
+      updatedAt: '2025-01-16 02:15:05',
       domicilioId: 1,
       direccion: 'Carrera 110 # 75 -16',
       telefono: '3042449339',
@@ -39,8 +39,8 @@ export const mockDomiciliosRespone: ApiResponse<Domicilio[]> = {
     },
     {
       fechaDomicilio: '2024-12-30',
-      createdAt: '16-01-2025 02:15:05',
-      updatedAt: '16-01-2025 02:15:05',
+      createdAt: '2025-01-16 02:15:05',
+      updatedAt: '2025-01-16 02:15:05',
       domicilioId: 2,
       direccion: 'Carrera 45 #10-20',
       telefono: '3006543210',

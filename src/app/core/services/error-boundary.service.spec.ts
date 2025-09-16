@@ -94,4 +94,35 @@ describe('ErrorBoundaryService', () => {
     expect(result).toBe('async fallback');
     expect(errorCaught).toBe(testError);
   });
+
+  it('safeExecute convierte error no-Error en Error usando String(error)', () => {
+    let captured: Error | undefined;
+    const res = service.safeExecute(
+      () => {
+        // lanzar string en lugar de Error
+        throw 'boom';
+      },
+      'TestComponent',
+      'fallback',
+      (e) => (captured = e),
+    );
+    expect(res).toBe('fallback');
+    expect(captured).toBeInstanceOf(Error);
+    expect((captured as Error).message).toBe('boom');
+  });
+
+  it('safeExecuteAsync convierte error no-Error en Error usando String(error)', async () => {
+    let captured: Error | undefined;
+    const res = await service.safeExecuteAsync(
+      async () => {
+        throw 123; // número en lugar de Error
+      },
+      'TestComponent',
+      'async-fallback',
+      (e) => (captured = e),
+    );
+    expect(res).toBe('async-fallback');
+    expect(captured).toBeInstanceOf(Error);
+    expect((captured as Error).message).toBe('123');
+  });
 });

@@ -9,7 +9,7 @@ export const mockTrabajadorResponse: ApiResponse<Trabajador> = {
   code: 200,
   message: 'Trabajador encontrado',
   data: {
-    fechaNacimiento: '01-01-1990',
+    fechaNacimiento: '1990-01-01',
     fechaIngreso: fechaActual,
     documentoTrabajador: 1015466494,
     nombre: 'Bryan',
@@ -43,7 +43,7 @@ export const mockTrabajadorRegisterResponse: ApiResponse<Trabajador> = {
   code: 201,
   message: 'Trabajador registrado con éxito',
   data: {
-    fechaNacimiento: '01-01-1990',
+    fechaNacimiento: '1990-01-01',
     fechaIngreso: fechaActual,
     documentoTrabajador: 1015466494,
     nombre: 'Bryan',

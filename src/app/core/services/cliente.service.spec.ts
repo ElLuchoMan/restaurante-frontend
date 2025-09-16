@@ -107,6 +107,21 @@ describe('ClienteService', () => {
       expect(req.request.method).toBe('GET');
       req.flush(mockClientesResponse);
     });
+
+    it('should list clientes without options (no query string)', () => {
+      service.getClientes().subscribe((res) => {
+        expect(res).toEqual(mockClientesResponse);
+      });
+      const req = httpMock.expectOne(`${baseUrl}/clientes`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockClientesResponse);
+    });
+
+    it('should handle error on list clientes', () => {
+      service.getClientes().subscribe({ error: (e) => expect(e).toBeTruthy() });
+      const req = httpMock.expectOne(`${baseUrl}/clientes`);
+      req.error(new ErrorEvent('API error'));
+    });
   });
 
   describe('actualizarCliente', () => {
@@ -123,6 +138,15 @@ describe('ClienteService', () => {
       expect(req.request.body).toEqual(partial);
       req.flush(mockClienteUpdateResponse);
     });
+
+    it('should handle error when updating cliente', () => {
+      const documento = mockResponseCliente.data.documentoCliente;
+      service
+        .actualizarCliente(documento, { telefono: 'x' })
+        .subscribe({ error: (e) => expect(e).toBeTruthy() });
+      const req = httpMock.expectOne(`${baseUrl}/clientes?id=${documento}`);
+      req.error(new ErrorEvent('API error'));
+    });
   });
 
   describe('eliminarCliente', () => {
@@ -136,6 +160,13 @@ describe('ClienteService', () => {
       const req = httpMock.expectOne(`${baseUrl}/clientes?id=${documento}`);
       expect(req.request.method).toBe('DELETE');
       req.flush(mockClienteDeleteResponse);
+    });
+
+    it('should handle error when deleting cliente', () => {
+      const documento = mockResponseCliente.data.documentoCliente;
+      service.eliminarCliente(documento).subscribe({ error: (e) => expect(e).toBeTruthy() });
+      const req = httpMock.expectOne(`${baseUrl}/clientes?id=${documento}`);
+      req.error(new ErrorEvent('API error'));
     });
   });
 });

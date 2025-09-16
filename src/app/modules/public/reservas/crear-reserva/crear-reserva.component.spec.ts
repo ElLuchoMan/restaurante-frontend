@@ -163,7 +163,7 @@ describe('CrearReservaComponent', () => {
       expect(clienteService.getClienteId).toHaveBeenCalledWith(2);
       expect(component.nombreCompleto).toBe('Carlos Perez');
       expect(component.telefono).toBe('3216549870');
-      expect(reservaService.crearReserva).toHaveBeenCalledTimes(2);
+      expect(reservaService.crearReserva).toHaveBeenCalledTimes(1);
       expect(toastr.success).toHaveBeenCalledWith('Reserva creada exitosamente', 'Éxito');
       expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
     });
@@ -186,7 +186,7 @@ describe('CrearReservaComponent', () => {
 
       expect(clienteService.getClienteId).toHaveBeenCalledWith(2);
       expect(component.nombreCompleto).toBe('Cliente Desconocido');
-      expect(reservaService.crearReserva).toHaveBeenCalledTimes(2);
+      expect(reservaService.crearReserva).toHaveBeenCalledTimes(1);
       expect(toastr.success).toHaveBeenCalledWith('Reserva creada exitosamente', 'Éxito');
       expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
     });

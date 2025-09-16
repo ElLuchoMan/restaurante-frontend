@@ -24,7 +24,7 @@ describe('authInterceptor', () => {
     const token = 'test-token';
     userService.validateTokenAndLogout.mockReturnValue(token);
 
-    const request = new HttpRequest('GET', '/api/test');
+    const request = new HttpRequest('GET', '/restaurante/v1/test');
     const next = createNextHandlerMock();
 
     interceptor(request, next);

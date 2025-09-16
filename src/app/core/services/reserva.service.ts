@@ -1,12 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, map, Observable, switchMap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { HandleErrorService } from '../../core/services/handle-error.service';
 import { UserService } from '../../core/services/user.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Reserva, ReservaCreate, ReservaUpdate } from '../../shared/models/reserva.model';
+import { ReservaContactoService } from './reserva-contacto.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,7 @@ export class ReservaService {
     private http: HttpClient,
     private userService: UserService,
     private handleError: HandleErrorService,
+    private reservaContactoService: ReservaContactoService,
   ) {}
 
   crearReserva(
@@ -34,9 +36,10 @@ export class ReservaService {
 
     // Cliente autenticado: resolver contactoId real a partir del documento
     if (role === 'Cliente' && typeof userId === 'number' && !isNaN(userId)) {
-      const params = new HttpParams().set('documento_cliente', String(userId));
-      return this.http.get<ApiResponse<any>>(`${this.baseUrl}/reserva_contacto`, { params }).pipe(
-        map((r) => (Array.isArray(r?.data) && r.data.length > 0 ? r.data[0]?.contactoId : null)),
+      return this.reservaContactoService.getContactos({ documento_cliente: userId }).pipe(
+        map((r) =>
+          Array.isArray(r?.data) && r.data.length > 0 ? (r.data[0] as any)?.contactoId : null,
+        ),
         switchMap((contactoId) => {
           const finalPayload = { ...payload };
           if (contactoId) {
@@ -88,31 +91,5 @@ export class ReservaService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  // Helper: resolver contactoId a partir de documento del cliente
-  getContactoIdByDocumento(documentoCliente: number): Observable<number | null> {
-    if (documentoCliente == null || isNaN(documentoCliente)) return of(null);
-    const params = new HttpParams().set('documento_cliente', String(documentoCliente));
-    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/reserva_contacto`, { params }).pipe(
-      map((r) =>
-        Array.isArray(r?.data) && r.data.length > 0 ? (r.data[0]?.contactoId ?? null) : null,
-      ),
-      catchError(() => of(null)),
-    );
-  }
-
-  getContactoById(contactoId: number): Observable<{
-    contactoId: number;
-    nombreCompleto?: string;
-    telefono?: string;
-    documentoCliente?: { documentoCliente: number };
-  } | null> {
-    if (contactoId == null || isNaN(contactoId)) return of(null);
-    const params = new HttpParams().set('id', String(contactoId));
-    return this.http
-      .get<ApiResponse<any>>(`${this.baseUrl}/reserva_contacto/search`, { params })
-      .pipe(
-        map((r) => (r?.data ? r.data : null)),
-        catchError(() => of(null)),
-      );
-  }
+  // Métodos de contacto fueron trasladados a ReservaContactoService para SRP
 }
