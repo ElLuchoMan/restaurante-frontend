@@ -141,6 +141,16 @@ describe('ProductoService', () => {
     req.flush(mock);
   });
 
+  it('maps null list responses to an empty array', () => {
+    const mock = { code: 200, message: 'ok', data: null } as any;
+    service.getProductos().subscribe((res) => {
+      expect(Array.isArray(res.data)).toBe(true);
+      expect(res.data).toHaveLength(0);
+    });
+    const req = http.expectOne(`${baseUrl}`);
+    req.flush(mock);
+  });
+
   it('does not re-prefix data URL in getById', () => {
     const mock = {
       code: 200,

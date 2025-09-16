@@ -316,4 +316,30 @@ describe('TelemetryService', () => {
     expect(() => svc.getEvents()).not.toThrow(); // readAll -> catch -> return []
     (localStorage as any).getItem = originalGet;
   });
+
+  it('readAll regresa [] cuando el valor almacenado no es un arreglo', () => {
+    const spy = jest.spyOn(Storage.prototype, 'getItem').mockReturnValue('{"foo":1}');
+    try {
+      const result = (svc as any).readAll();
+      expect(Array.isArray(result)).toBe(true);
+      expect(result).toHaveLength(0);
+      expect(spy).toHaveBeenCalledWith('app_telemetry_events');
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('readAll captura excepciones de localStorage.getItem y devuelve []', () => {
+    const spy = jest
+      .spyOn(Storage.prototype, 'getItem')
+      .mockImplementation(() => {
+        throw new Error('get-fail');
+      });
+    try {
+      expect((svc as any).readAll()).toEqual([]);
+      expect(spy).toHaveBeenCalledWith('app_telemetry_events');
+    } finally {
+      spy.mockRestore();
+    }
+  });
 });
