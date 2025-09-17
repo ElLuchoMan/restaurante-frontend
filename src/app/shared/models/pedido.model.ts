@@ -1,3 +1,5 @@
+import { EstadoPedido } from '../constants';
+
 export interface Pedido {
   fechaPedido: string;
   createdAt: string;
@@ -5,7 +7,7 @@ export interface Pedido {
   pedidoId?: number;
   horaPedido: string;
   delivery: boolean;
-  estadoPedido: string;
+  estadoPedido: EstadoPedido;
   domicilioId?: number;
   pagoId: number;
   documentoCliente?: number;
@@ -15,6 +17,8 @@ export interface Pedido {
 
 export interface PedidoCreate {
   delivery: boolean;
+  clienteId?: number;
+  restauranteId?: number;
 }
 
 export interface PedidoDetalle {
@@ -22,7 +26,7 @@ export interface PedidoDetalle {
   fechaPedido: string;
   horaPedido: string;
   delivery: boolean;
-  estadoPedido: string;
+  estadoPedido: EstadoPedido;
   metodoPago: string;
   productos: string;
   pagoId: number;

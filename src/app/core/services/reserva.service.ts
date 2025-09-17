@@ -6,7 +6,12 @@ import { environment } from '../../../environments/environment';
 import { HandleErrorService } from '../../core/services/handle-error.service';
 import { UserService } from '../../core/services/user.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Reserva, ReservaCreate, ReservaUpdate } from '../../shared/models/reserva.model';
+import {
+  ReservaBase,
+  ReservaCreate,
+  ReservaPopulada,
+  ReservaUpdate,
+} from '../../shared/models/reserva.model';
 import { ReservaContactoService } from './reserva-contacto.service';
 
 @Injectable({
@@ -24,14 +29,14 @@ export class ReservaService {
 
   crearReserva(
     reserva: ReservaCreate & { documentoCliente?: number | null },
-  ): Observable<ApiResponse<Reserva>> {
+  ): Observable<ApiResponse<ReservaPopulada>> {
     const userId = this.userService.getUserId?.();
     const role = this.userService.getUserRole?.();
     const payload: any = { ...reserva };
 
     const postReserva = (body: any) =>
       this.http
-        .post<ApiResponse<Reserva>>(`${this.baseUrl}/reservas`, body)
+        .post<ApiResponse<ReservaPopulada>>(`${this.baseUrl}/reservas`, body)
         .pipe(catchError(this.handleError.handleError));
 
     // Cliente autenticado: resolver contactoId real a partir del documento
@@ -60,20 +65,25 @@ export class ReservaService {
     if (payload.documentoCliente == null || isNaN(Number(payload.documentoCliente))) {
       delete payload.documentoCliente;
     }
-    delete payload.contactoId;
+    if (payload.contactoId == null || isNaN(Number(payload.contactoId))) {
+      delete payload.contactoId;
+    }
 
     return postReserva(payload);
   }
 
-  obtenerReservas(): Observable<ApiResponse<Reserva[]>> {
+  obtenerReservas(): Observable<ApiResponse<ReservaPopulada[]>> {
     return this.http
-      .get<ApiResponse<Reserva[]>>(`${this.baseUrl}/reservas`)
+      .get<ApiResponse<ReservaPopulada[]>>(`${this.baseUrl}/reservas`)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  actualizarReserva(reservaId: number, reserva: ReservaUpdate): Observable<ApiResponse<Reserva>> {
+  actualizarReserva(
+    reservaId: number,
+    reserva: ReservaUpdate,
+  ): Observable<ApiResponse<ReservaPopulada>> {
     return this.http
-      .put<ApiResponse<Reserva>>(`${this.baseUrl}/reservas?id=${reservaId}`, reserva)
+      .put<ApiResponse<ReservaPopulada>>(`${this.baseUrl}/reservas?id=${reservaId}`, reserva)
       .pipe(catchError(this.handleError.handleError));
   }
 
@@ -82,7 +92,7 @@ export class ReservaService {
     fecha?: string,
     restauranteId?: number,
     dia?: string,
-  ): Observable<ApiResponse<Reserva[]>> {
+  ): Observable<ApiResponse<ReservaPopulada[]>> {
     let params = new HttpParams();
 
     if (contactoId !== undefined && !isNaN(contactoId)) {
@@ -98,14 +108,14 @@ export class ReservaService {
     if (dia) params = params.set('dia', dia);
 
     return this.http
-      .get<ApiResponse<Reserva[]>>(`${this.baseUrl}/reservas/parameter`, { params })
+      .get<ApiResponse<ReservaPopulada[]>>(`${this.baseUrl}/reservas/parameter`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getReservaById(id: number): Observable<ApiResponse<Reserva>> {
+  getReservaById(id: number): Observable<ApiResponse<ReservaPopulada>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .get<ApiResponse<Reserva>>(`${this.baseUrl}/reservas/search`, { params })
+      .get<ApiResponse<ReservaPopulada>>(`${this.baseUrl}/reservas/search`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 

@@ -37,4 +37,31 @@ export class MetodosPagoService {
       })
       .pipe(catchError(this.handleError.handleError));
   }
+
+  /**
+   * Crea un método de pago
+   */
+  create(body: MetodosPago): Observable<ApiResponse<MetodosPago>> {
+    return this.http
+      .post<ApiResponse<MetodosPago>>(this.baseUrl, body)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Actualiza un método de pago por ID
+   */
+  update(id: number, body: Partial<MetodosPago>): Observable<ApiResponse<MetodosPago>> {
+    return this.http
+      .put<ApiResponse<MetodosPago>>(`${this.baseUrl}?id=${id}`, body)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Elimina un método de pago por ID
+   */
+  delete(id: number): Observable<ApiResponse<unknown>> {
+    return this.http
+      .delete<ApiResponse<unknown>>(`${this.baseUrl}?id=${id}`)
+      .pipe(catchError(this.handleError.handleError));
+  }
 }

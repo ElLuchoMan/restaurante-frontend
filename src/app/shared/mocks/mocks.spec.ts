@@ -85,18 +85,12 @@ describe('shared mocks', () => {
     expect(mockNominaPagaResponse.data.estadoNomina).toBeDefined();
   });
 
-  it('pago mocks', () => {
-    expect(mockPagosResponse.data).toHaveLength(2);
-    expect(mockPagoResponse.data.monto).toBe(2000);
-    expect(mockPagoBody.estadoPago).toBeDefined();
-  });
-
   // pedido-cliente eliminado: ya no se requiere mock
 
   it('pedido mocks', () => {
     expect(mockPedidosResponse.data).toHaveLength(3);
     expect(mockPedidoBody.delivery).toBe(true);
-    expect(mockPedidoDetalle.data.METODO_PAGO).toBe('Nequi');
+    expect(mockPedidoDetalle.data.metodoPago).toBe('Nequi');
   });
 
   it('producto mocks', () => {
@@ -106,7 +100,7 @@ describe('shared mocks', () => {
   });
 
   it('producto pedido mocks', () => {
-    expect(mockProductoPedidoResponse.data.detallesProductos[0].nombre).toContain('Coca Cola');
+    expect(mockProductoPedidoResponse.data.detalles[0].nombre).toContain('Coca Cola');
   });
 
   it('reserva mocks', () => {
@@ -115,7 +109,7 @@ describe('shared mocks', () => {
     expect(mockReservasDelDiaResponse.data).toHaveLength(2);
     expect(mockReservaUpdateResponse.data).toEqual(mockReserva);
     expect(mockReservasUnordered).toHaveLength(3);
-    expect(mockReservaBody.documentoCliente).toBe(1015466494);
+    expect(mockReservaBody.contactoId).toBe(1);
   });
 
   it('restaurante mocks', () => {

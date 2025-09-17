@@ -1,5 +1,6 @@
 import { ApiResponse } from '../models/api-response.model';
 import { Pedido, PedidoDetalle } from '../models/pedido.model';
+import { EstadoPedido } from '../constants';
 
 export const mockPedidosResponse: ApiResponse<Pedido[]> = {
   code: 200,
@@ -10,9 +11,9 @@ export const mockPedidosResponse: ApiResponse<Pedido[]> = {
       createdAt: '',
       updatedAt: '0001-01-01 00:00:00',
       pedidoId: 1,
-      horaPedido: '0000-01-01 12:00:00 +0000 UTC',
+      horaPedido: '12:00:00',
       delivery: true,
-      estadoPedido: 'TERMINADO',
+      estadoPedido: EstadoPedido.EstadoPedidoTerminado,
       domicilioId: 1,
       pagoId: 1,
       restauranteId: 1,
@@ -23,9 +24,9 @@ export const mockPedidosResponse: ApiResponse<Pedido[]> = {
       createdAt: '',
       updatedAt: '0001-01-01 00:00:00',
       pedidoId: 2,
-      horaPedido: '0000-01-01 14:10:00 +0000 UTC',
+      horaPedido: '14:10:00',
       delivery: false,
-      estadoPedido: 'INICIADO',
+      estadoPedido: EstadoPedido.EstadoPedidoIniciado,
       pagoId: 2,
       restauranteId: 1,
       updatedBy: '',
@@ -35,9 +36,9 @@ export const mockPedidosResponse: ApiResponse<Pedido[]> = {
       createdAt: '',
       updatedAt: '0001-01-01 00:00:00',
       pedidoId: 3,
-      horaPedido: '0000-01-01 14:30:00 +0000 UTC',
+      horaPedido: '14:30:00',
       delivery: true,
-      estadoPedido: 'INICIADO',
+      estadoPedido: EstadoPedido.EstadoPedidoIniciado,
       domicilioId: 2,
       pagoId: 2,
       restauranteId: 1,
@@ -47,9 +48,9 @@ export const mockPedidosResponse: ApiResponse<Pedido[]> = {
 };
 export const mockPedidoBody: Pedido = {
   fechaPedido: '2024-12-30',
-  horaPedido: '14:30',
+  horaPedido: '14:30:00',
   delivery: true,
-  estadoPedido: 'INICIADO',
+  estadoPedido: EstadoPedido.EstadoPedidoIniciado,
   domicilioId: 2,
   pagoId: 2,
   restauranteId: 1,
@@ -60,14 +61,18 @@ export const mockPedidoDetalle: ApiResponse<PedidoDetalle> = {
   code: 200,
   message: 'Detalle de pedido encontrado',
   data: {
-    PK_ID_PEDIDO: 0,
-    FECHA: '',
-    HORA: '',
-    delivery: false,
-    ESTADO_PEDIDO: '',
-    METODO_PAGO: 'Nequi',
-    PRODUCTOS:
-      '[{"NOMBRE": "Coca Cola 500ml", "CANTIDAD": 1, "SUBTOTAL": 2000, "PK_ID_PRODUCTO": 1, "PRECIO_UNITARIO": 2000}]',
+    pedidoId: 1,
+    fechaPedido: '2024-12-25',
+    horaPedido: '12:00:00',
+    delivery: true,
+    estadoPedido: EstadoPedido.EstadoPedidoTerminado,
+    metodoPago: 'Nequi',
+    productos:
+      '[{"nombre": "Coca Cola 500ml", "cantidad": 1, "subtotal": 2000, "productoId": 1, "precioUnitario": 2000}]',
+    pagoId: 1,
+    metodoPagoId: 1,
+    domicilioId: 1,
+    documentoCliente: 1015466495,
   },
 };
 

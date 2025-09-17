@@ -183,6 +183,13 @@ En CI (deploy a Netlify) se genera con secrets `APP_API_BASE` y `GMAPS_API_KEY`.
 3. Open a draft PR at [https://github.com/ElLuchoMan/restaurante-frontend/compare](https://github.com/ElLuchoMan/restaurante-frontend/compare).
 4. Mark the PR as **Ready for review** once complete.
 
+### chore/fix-models-mocks-enums
+- Sincroniza enums y alinea models/mocks con Swagger/Datos.sql.
+- Reservas: `ReservaBase`/`ReservaPopulada`, requests sin PII, formatos normalizados.
+- Pedidos: `EstadoPedido` tipado; ProductoPedido `detalles`.
+- Horarios: `horarioTrabajadorId`, `DiaSemana`.
+- Clientes: `ClienteListParams` + mocks de paginación/proyección.
+
 ## Convenciones
 - Commits: Conventional Commits (por ejemplo, `feat/ui: ...`, `fix/ui: ...`, `chore/deps: ...`).
 - Estilo de código: ESLint + Prettier; imports ordenados; SCSS con Stylelint.

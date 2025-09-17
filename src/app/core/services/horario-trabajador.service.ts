@@ -51,8 +51,12 @@ export class HorarioTrabajadorService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  delete(id: number): Observable<ApiResponse<unknown>> {
-    const params = new HttpParams().set('id', String(id));
+  /**
+   * Elimina un horario por documento y día (contrato Swagger)
+   * DELETE /horario_trabajador?documento=...&dia=...
+   */
+  deleteByDocumentoDia(documento: number, dia: string): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('documento', String(documento)).set('dia', dia);
     return this.http
       .delete<ApiResponse<unknown>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.handleError));

@@ -8,7 +8,7 @@ import { ReservaService } from '../../../../core/services/reserva.service';
 import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
-import { Reserva } from '../../../../shared/models/reserva.model';
+import { ReservaPopulada } from '../../../../shared/models/reserva.model';
 
 @Component({
   selector: 'app-consultar-reserva',
@@ -18,7 +18,7 @@ import { Reserva } from '../../../../shared/models/reserva.model';
   imports: [CommonModule, FormsModule],
 })
 export class ConsultarReservaComponent implements OnInit {
-  reservas: Reserva[] = [];
+  reservas: ReservaPopulada[] = [];
   mostrarMensaje: boolean = false;
   mostrarFiltros: boolean = true;
   esAdmin: boolean = false;
@@ -118,7 +118,9 @@ export class ConsultarReservaComponent implements OnInit {
       this.reservaService.getReservaByParameter(cid, fechaISO).subscribe({
         next: (response) => {
           console.log('[Reservas] Respuesta RAW /reservas/parameter:', response);
-          const normalizados: Reserva[] = (response.data || []).map((r: any) => ({ ...r })) as any;
+          const normalizados: ReservaPopulada[] = (response.data || []).map((r: any) => ({
+            ...r,
+          })) as any;
           console.log('[Reservas] Normalizados (pre-enriquecidos):', normalizados);
 
           // Si falta nombre/telefono y tenemos contactoId numérico, enriquecer desde /reserva_contacto/search
@@ -130,8 +132,8 @@ export class ConsultarReservaComponent implements OnInit {
               r?.telefono.trim() === '',
           );
 
-          const finish = (items: Reserva[]) => {
-            this.reservas = items.sort((a: Reserva, b: Reserva) => {
+          const finish = (items: ReservaPopulada[]) => {
+            this.reservas = items.sort((a: ReservaPopulada, b: ReservaPopulada) => {
               const fechaA = new Date(a.fechaReserva.split('-').reverse().join('-'));
               const fechaB = new Date(b.fechaReserva.split('-').reverse().join('-'));
               if (fechaA.getTime() !== fechaB.getTime()) {
@@ -153,7 +155,7 @@ export class ConsultarReservaComponent implements OnInit {
           const subs = normalizados.map(async (r: any) => {
             const cidVal =
               typeof r?.contactoId === 'number' ? r.contactoId : r?.contactoId?.contactoId;
-            if (!cidVal) return r as Reserva;
+            if (!cidVal) return r as ReservaPopulada;
             try {
               const info = await this.reservaContactoService.getById(cidVal).toPromise();
               if (info) {
@@ -167,10 +169,10 @@ export class ConsultarReservaComponent implements OnInit {
                   r?.documentoCliente ?? info.data.documentoCliente?.documentoCliente ?? null;
               }
             } catch {}
-            return r as Reserva;
+            return r as ReservaPopulada;
           });
 
-          Promise.all(subs).then((enriched) => finish(enriched as Reserva[]));
+          Promise.all(subs).then((enriched) => finish(enriched as ReservaPopulada[]));
         },
         error: () => {
           this.toastr.error('Ocurrió un error al buscar la reserva', 'Error');
@@ -186,19 +188,19 @@ export class ConsultarReservaComponent implements OnInit {
     return partes.length === 3 ? `${partes[0]}-${partes[1]}-${partes[2]}` : fecha;
   }
 
-  confirmarReserva(reserva: Reserva): void {
+  confirmarReserva(reserva: ReservaPopulada): void {
     this.actualizarReserva(reserva, estadoReserva.CONFIRMADA);
   }
 
-  cancelarReserva(reserva: Reserva): void {
+  cancelarReserva(reserva: ReservaPopulada): void {
     this.actualizarReserva(reserva, estadoReserva.CANCELADA);
   }
 
-  cumplirReserva(reserva: Reserva): void {
+  cumplirReserva(reserva: ReservaPopulada): void {
     this.actualizarReserva(reserva, estadoReserva.CUMPLIDA);
   }
 
-  private actualizarReserva(reserva: Reserva, nuevoEstado: estadoReserva): void {
+  private actualizarReserva(reserva: ReservaPopulada, nuevoEstado: estadoReserva): void {
     if (!this.esAdmin) return;
 
     if (!reserva.reservaId || isNaN(reserva.reservaId)) {
@@ -215,14 +217,8 @@ export class ConsultarReservaComponent implements OnInit {
       horaReserva: reserva.horaReserva,
       indicaciones: reserva.indicaciones,
       personas: reserva.personas,
-      restauranteId:
-        typeof (reserva as any)?.restauranteId === 'number'
-          ? (reserva as any).restauranteId
-          : ((reserva as any)?.restauranteId?.restauranteId ?? 1),
-      contactoId:
-        typeof (reserva as any)?.contactoId === 'number'
-          ? (reserva as any).contactoId
-          : ((reserva as any)?.contactoId?.contactoId ?? undefined),
+      restauranteId: (reserva as any).restauranteId,
+      contactoId: (reserva as any).contactoId,
     };
 
     this.reservaService.actualizarReserva(reserva.reservaId, payload).subscribe({
@@ -230,7 +226,7 @@ export class ConsultarReservaComponent implements OnInit {
         this.toastr.success(`Reserva marcada como ${nuevoEstado}`, 'Actualización Exitosa');
         const idx = this.reservas.findIndex((r) => r.reservaId === reserva.reservaId);
         if (idx > -1) {
-          const updated = { ...this.reservas[idx], estadoReserva: nuevoEstado } as Reserva;
+          const updated = { ...this.reservas[idx], estadoReserva: nuevoEstado } as ReservaPopulada;
           this.reservas = [
             ...this.reservas.slice(0, idx),
             updated,

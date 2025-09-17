@@ -69,10 +69,10 @@ describe('HorarioTrabajadorService', () => {
     req.flush(mock);
   });
 
-  it('delete horario', () => {
+  it('delete horario por documento y día (Swagger)', () => {
     const mock = { code: 200, message: 'ok', data: {} };
-    service.delete(11).subscribe((res) => expect(res).toEqual(mock));
-    const req = http.expectOne(`${baseUrl}?id=11`);
+    service.deleteByDocumentoDia(11, 'Lunes').subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?documento=11&dia=Lunes`);
     expect(req.request.method).toBe('DELETE');
     req.flush(mock);
   });
