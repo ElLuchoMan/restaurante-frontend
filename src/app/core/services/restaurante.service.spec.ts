@@ -3,6 +3,9 @@ import { TestBed } from '@angular/core/testing';
 
 import {
   mockCambioHorarioResponse,
+  mockRestauranteCreateBody,
+  mockRestauranteDeleteResponse,
+  mockRestauranteResponse,
   mockRestaurantesResponse,
 } from '../../shared/mocks/restaurante.mock';
 import { ApiResponse } from '../../shared/models/api-response.model';
@@ -50,5 +53,53 @@ describe('RestauranteService', () => {
     const req = httpTestingController.expectOne(`${service['baseUrl']}/cambios_horario/actual`);
     expect(req.request.method).toBe('GET');
     req.flush(mockCambioHorarioResponse);
+  });
+
+  it('should list restaurantes', () => {
+    service.listRestaurantes().subscribe((response) => {
+      expect(response).toEqual(mockRestaurantesResponse);
+    });
+
+    const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockRestaurantesResponse);
+  });
+
+  it('should create a restaurante', () => {
+    const payload: Partial<Restaurante> = { ...mockRestauranteCreateBody };
+    const mockResponse = { ...mockRestauranteResponse, data: { ...mockRestauranteResponse.data, ...payload } };
+
+    service.createRestaurante(payload).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(payload);
+    req.flush(mockResponse);
+  });
+
+  it('should update a restaurante', () => {
+    const payload: Partial<Restaurante> = { nombreRestaurante: 'Actualizado' };
+    const mockResponse = { ...mockRestauranteResponse, data: { ...mockRestauranteResponse.data, ...payload } };
+
+    service.updateRestaurante(5, payload).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes?id=5`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(payload);
+    req.flush(mockResponse);
+  });
+
+  it('should delete a restaurante', () => {
+    service.deleteRestaurante(5).subscribe((response) => {
+      expect(response).toEqual(mockRestauranteDeleteResponse);
+    });
+
+    const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes?id=5`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(mockRestauranteDeleteResponse);
   });
 });
