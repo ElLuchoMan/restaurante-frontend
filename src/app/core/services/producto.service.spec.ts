@@ -67,6 +67,7 @@ describe('ProductoService', () => {
       calorias: 500,
       descripcion: 'rico',
       estadoProducto: 'ACTIVO',
+      subcategoriaId: 9,
     } as any;
     const file = new Blob(['x'], { type: 'image/jpeg' }) as any as File;
     (file as any).name = 'b.jpg';
@@ -82,6 +83,7 @@ describe('ProductoService', () => {
     expect((fd as any).has('calorias')).toBe(true);
     expect((fd as any).has('descripcion')).toBe(true);
     expect((fd as any).has('estadoProducto')).toBe(true);
+    expect((fd as any).has('subcategoriaId')).toBe(true);
     expect((fd as any).has('imagen')).toBe(true);
     req.flush(mock);
   });
@@ -235,6 +237,7 @@ describe('ProductoService', () => {
       calorias: 300,
       descripcion: 'desc',
       estadoProducto: 'INACTIVO',
+      subcategoriaId: 4,
     } as any;
     const file = new Blob(['x'], { type: 'image/jpeg' }) as any as File;
     (file as any).name = 'c.jpg';
@@ -248,6 +251,7 @@ describe('ProductoService', () => {
     expect((fd as any).has('descripcion')).toBe(true);
     expect((fd as any).has('estadoProducto')).toBe(true);
     expect((fd as any).has('cantidad')).toBe(true);
+    expect((fd as any).has('subcategoriaId')).toBe(true);
     expect((fd as any).has('imagen')).toBe(true);
     req.flush(mock);
   });
@@ -294,5 +298,13 @@ describe('ProductoService', () => {
     expect(req.request.method).toBe('PUT');
     req.error(new ErrorEvent('Network error'));
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+  });
+
+  it('deleteProducto elimina el recurso por id', () => {
+    const mock = { code: 200, message: 'ok', data: {} };
+    service.deleteProducto(12).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?id=12`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(mock);
   });
 });

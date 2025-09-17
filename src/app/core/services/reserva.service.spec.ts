@@ -189,6 +189,38 @@ describe('ReservaService', () => {
     req.flush(mockResponse);
   });
 
+  it('should get reserva by parameters (restauranteId)', () => {
+    const mockResponse: ApiResponse<Reserva[]> = {
+      code: 200,
+      message: 'Reservas encontradas por restaurante',
+      data: [mockReservaBody],
+    };
+
+    service.getReservaByParameter(undefined, undefined, 7).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter?restaurante_id=7`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  it('should get reserva by parameters (día)', () => {
+    const mockResponse: ApiResponse<Reserva[]> = {
+      code: 200,
+      message: 'Reservas encontradas por día',
+      data: [mockReservaBody],
+    };
+
+    service.getReservaByParameter(undefined, undefined, undefined, 'Lunes').subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter?dia=Lunes`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
   it('should handle API error when creating a reserva', () => {
     service.crearReserva(mockReservaBody).subscribe({
       error: (error) => {

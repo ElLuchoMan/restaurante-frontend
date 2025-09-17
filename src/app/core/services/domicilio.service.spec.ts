@@ -42,6 +42,18 @@ describe('DomicilioService', () => {
   });
 
   describe('getDomicilios', () => {
+    it('should GET domicilios sin parámetros', () => {
+      const mockResponse = mockDomiciliosRespone;
+
+      service.getDomicilios().subscribe((response) => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne((req) => req.url === baseUrl && req.params.keys().length === 0);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockResponse);
+    });
+
     it('should GET domicilios with query params', () => {
       const mockResponse = mockDomiciliosRespone;
       const params = { filter: 'test' };

@@ -141,4 +141,17 @@ describe('TrabajadorService', () => {
       req.flush({ code: 200, message: 'ok', data: mockTrabajadorResponse.data });
     });
   });
+
+  describe('deleteTrabajador', () => {
+    it('should DELETE a trabajador by documento', () => {
+      const documento = mockTrabajadorResponse.data.documentoTrabajador;
+      const mockResponse = { code: 200, message: 'ok', data: {} } as any;
+      service.deleteTrabajador(documento).subscribe((res) => {
+        expect(res).toEqual(mockResponse);
+      });
+      const req = httpMock.expectOne(`${baseUrl}/trabajadores?id=${documento}`);
+      expect(req.request.method).toBe('DELETE');
+      req.flush(mockResponse);
+    });
+  });
 });

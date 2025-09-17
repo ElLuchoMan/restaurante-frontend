@@ -140,11 +140,37 @@ describe('PedidoService', () => {
     req.flush(mockPedidosFiltroResponse);
   });
 
+  it('getPedidos sin filtros utiliza HttpParams vacío', () => {
+    const mock = { code: 200, message: 'ok', data: [] };
+    service.getPedidos().subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne((r) => r.url === baseUrl && r.params.keys().length === 0);
+    expect(req.request.method).toBe('GET');
+    req.flush(mock);
+  });
+
   it('updates estado of pedido', () => {
     service.updateEstado(77, 'TERMINADO').subscribe((res) => expect(res).toEqual({ code: 200 }));
     const req = http.expectOne(`${baseUrl}/actualizar-estado?pedido_id=77&estado=TERMINADO`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toBeNull();
     req.flush({ code: 200 });
+  });
+
+  it('updatePedido envía body parcial con id en query', () => {
+    const body = { estadoPedido: 'EN_CURSO' } as any;
+    const mock = { code: 200, message: 'ok', data: {} };
+    service.updatePedido(5, body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?id=5`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(body);
+    req.flush(mock);
+  });
+
+  it('deletePedido envía id como query', () => {
+    const mock = { code: 200, message: 'ok', data: {} };
+    service.deletePedido(9).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?id=9`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(mock);
   });
 });

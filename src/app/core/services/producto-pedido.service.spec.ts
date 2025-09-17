@@ -69,4 +69,12 @@ describe('ProductoPedidoService', () => {
     expect(req.request.body).toEqual(mockProductoPedidoUpdateBody);
     req.flush({ code: 200 });
   });
+
+  it('deleteByPedido elimina productos por pedido', () => {
+    const mock = { code: 200, message: 'ok', data: {} };
+    service.deleteByPedido(31).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?pedido_id=31`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(mock);
+  });
 });

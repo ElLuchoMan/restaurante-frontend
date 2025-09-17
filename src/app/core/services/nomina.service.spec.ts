@@ -23,6 +23,15 @@ describe('NominaService', () => {
 
   afterEach(() => http.verify());
 
+  it('list sin filtros no agrega parámetros', () => {
+    const mock = { code: 200, message: 'ok', data: [] };
+    service.list().subscribe((res) => expect(res).toEqual([]));
+    const req = http.expectOne(baseUrl);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush(mock);
+  });
+
   it('lists nominas con filtros', () => {
     const mock = { code: 200, message: 'ok', data: [] };
     service
@@ -38,6 +47,24 @@ describe('NominaService', () => {
     service.updateEstado(1).subscribe((res) => expect(res).toEqual(mock.data));
     const req = http.expectOne(`${baseUrl}?id=1`);
     expect(req.request.method).toBe('PUT');
+    req.flush(mock);
+  });
+
+  it('crea nomina', () => {
+    const body = { fecha: '2025-09-01' } as any;
+    const mock = { code: 201, message: 'created', data: { nominaId: 2 } } as any;
+    service.create(body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(baseUrl);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(body);
+    req.flush(mock);
+  });
+
+  it('elimina nomina por id', () => {
+    const mock = { code: 200, message: 'deleted', data: {} } as any;
+    service.delete(9).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?id=9`);
+    expect(req.request.method).toBe('DELETE');
     req.flush(mock);
   });
 });
