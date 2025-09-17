@@ -221,6 +221,38 @@ describe('ReservaService', () => {
     req.flush(mockResponse);
   });
 
+  it('should get reserva by id successfully', () => {
+    const mockResponse: ApiResponse<Reserva> = {
+      code: 200,
+      message: 'Reserva encontrada',
+      data: mockReserva,
+    };
+
+    service.getReservaById(3).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/search?id=3`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  it('should delete reserva successfully', () => {
+    const mockResponse: ApiResponse<unknown> = {
+      code: 200,
+      message: 'Reserva eliminada',
+      data: null,
+    };
+
+    service.deleteReserva(4).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas?id=4`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(mockResponse);
+  });
+
   it('should handle API error when creating a reserva', () => {
     service.crearReserva(mockReservaBody).subscribe({
       error: (error) => {
@@ -281,6 +313,30 @@ describe('ReservaService', () => {
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter?contactoId=1`);
+    req.error(new ErrorEvent('API error'));
+    expect(handleErrorService.handleError).toHaveBeenCalled();
+  });
+
+  it('should handle API error when getting reserva by id', () => {
+    service.getReservaById(5).subscribe({
+      error: (error) => {
+        expect(error).toBeTruthy();
+      },
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/search?id=5`);
+    req.error(new ErrorEvent('API error'));
+    expect(handleErrorService.handleError).toHaveBeenCalled();
+  });
+
+  it('should handle API error when deleting reserva', () => {
+    service.deleteReserva(6).subscribe({
+      error: (error) => {
+        expect(error).toBeTruthy();
+      },
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas?id=6`);
     req.error(new ErrorEvent('API error'));
     expect(handleErrorService.handleError).toHaveBeenCalled();
   });
