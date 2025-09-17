@@ -78,6 +78,22 @@ describe('PerformanceService', () => {
     expect(() => TestBed.inject(PerformanceService)).not.toThrow();
   });
 
+  it('avisa cuando PerformanceObserver lanza error al inicializar', () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    class ThrowingObserver {
+      constructor() {
+        throw new Error('observer-error');
+      }
+      observe() {}
+    }
+    const localRouter = new MockRouter();
+    (global as any).PerformanceObserver = ThrowingObserver as any;
+
+    expect(() => new PerformanceService(localRouter as unknown as Router)).not.toThrow();
+    expect(warnSpy).toHaveBeenCalledWith('Performance Observer not supported:', expect.any(Error));
+    warnSpy.mockRestore();
+  });
+
   it('getMetricStatus retorna needs-improvement y poor para umbrales', () => {
     // Fuerza métricas previas
     emitEntry({ entryType: 'largest-contentful-paint', startTime: 3000 });
@@ -126,5 +142,24 @@ describe('PerformanceService', () => {
     expect(svc.getMetrics().length).toBeGreaterThan(0);
     svc.clearMetrics();
     expect(svc.getMetrics().length).toBe(0);
+  });
+
+  it('no registra métricas en consola cuando hostname no es localhost', () => {
+    consoleSpy.mockClear();
+    const originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      value: { hostname: 'example.com' } as any,
+      configurable: true,
+    });
+
+    try {
+      (svc as any).recordMetrics({ url: '/externa', lcp: 10 });
+      expect(consoleSpy).not.toHaveBeenCalled();
+    } finally {
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        configurable: true,
+      });
+    }
   });
 });
