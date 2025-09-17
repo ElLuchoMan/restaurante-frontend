@@ -19,7 +19,6 @@ import {
   mockNominaPagaResponse,
   mockNominaResponse,
 } from './nomina.mock';
-import { mockPagoBody, mockPagoResponse, mockPagosResponse } from './pago.mock';
 import { mockPedidoBody, mockPedidoDetalle, mockPedidosResponse } from './pedido.mock';
 import { mockProductoPedidoResponse } from './producto-pedido.mock';
 import {
@@ -63,7 +62,7 @@ describe('shared mocks', () => {
   });
 
   it('login mocks', () => {
-    expect(mockLogin.documento).toBe('12345');
+    expect(mockLogin.documento).toBe(12345);
     expect(mockLoginResponse.data.token).toBe('testToken');
   });
 

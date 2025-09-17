@@ -9,17 +9,17 @@ export interface Pedido {
   delivery: boolean;
   estadoPedido: EstadoPedido;
   domicilioId?: number;
-  pagoId: number;
+  pagoId?: number;
   documentoCliente?: number;
   restauranteId: number;
   updatedBy?: string;
 }
 
-export interface PedidoCreate {
+export type PedidoCreate = {
   delivery: boolean;
-  clienteId?: number;
   restauranteId?: number;
-}
+  pk_id_domicilio?: number;
+};
 
 export interface PedidoDetalle {
   pedidoId: number;

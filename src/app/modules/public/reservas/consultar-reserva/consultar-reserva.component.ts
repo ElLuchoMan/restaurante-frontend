@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
-import { ReservaService } from '../../../../core/services/reserva.service';
 import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
+import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { ReservaPopulada } from '../../../../shared/models/reserva.model';
@@ -165,8 +165,7 @@ export class ConsultarReservaComponent implements OnInit {
                     : info.data.nombreCompleto || '';
                 r.telefono =
                   r?.telefono && r.telefono.trim() !== '' ? r.telefono : info.data.telefono || '';
-                r.documentoCliente =
-                  r?.documentoCliente ?? info.data.documentoCliente?.documentoCliente ?? null;
+                r.documentoCliente = r?.documentoCliente ?? info.data.documentoCliente ?? null;
               }
             } catch {}
             return r as ReservaPopulada;

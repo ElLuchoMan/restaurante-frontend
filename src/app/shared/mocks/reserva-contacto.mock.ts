@@ -9,7 +9,7 @@ export const mockReservaContactosByDocumentoCliente: ApiResponse<ReservaContacto
       contactoId: 1,
       nombreCompleto: 'Carlos Perez',
       telefono: '3216549870',
-      documentoCliente: { documentoCliente: 1015466495 },
+      documentoCliente: 1015466495,
     },
   ],
 };

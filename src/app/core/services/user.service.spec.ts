@@ -46,7 +46,7 @@ describe('UserService', () => {
   });
 
   it('should send login request and return response', () => {
-    const credentials = { documento: '123', password: 'password' };
+    const credentials = { documento: 123, password: 'password' };
 
     service.login(credentials).subscribe((response: ApiResponse<any>) => {
       expect(response).toEqual(mockLoginResponse);
@@ -59,7 +59,7 @@ describe('UserService', () => {
   });
 
   it('should handle error on login request', () => {
-    const credentials = { documento: '123', password: 'password' };
+    const credentials = { documento: 123, password: 'password' };
 
     service.login(credentials).subscribe({
       error: (error) => {

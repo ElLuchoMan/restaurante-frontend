@@ -51,9 +51,8 @@ export const mockNominaTrabajadorMes: ApiResponse<NominaTrabajador[]> = {
 };
 
 export const mockNominaTrabajadorCreateBody = {
-  trabajadorId: 1015466494,
-  nominaId: 1,
-  monto: 1000000,
+  documentoTrabajador: 1015466494,
+  detalles: 'Pago correspondiente al mes de enero',
 };
 
 export const mockNominaTrabajadorCreateResponse: ApiResponse<NominaTrabajador> = {
@@ -71,7 +70,7 @@ export const mockNominaTrabajadorCreateResponse: ApiResponse<NominaTrabajador> =
 };
 
 export const mockNominaTrabajadorUpdateBody = {
-  monto: 1100000,
+  detalles: 'Pago correspondiente al mes de enero (ajustado)',
 };
 
 export const mockNominaTrabajadorUpdateResponse: ApiResponse<NominaTrabajador> = {

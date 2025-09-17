@@ -3,8 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
-import { ReservaService } from '../../../../core/services/reserva.service';
 import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
+import { ReservaService } from '../../../../core/services/reserva.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { ReservaPopulada } from '../../../../shared/models/reserva.model';
 
@@ -51,8 +51,7 @@ export class ReservasDelDiaComponent implements OnInit {
           const telefonoFinal = telTop && telTop.trim().length > 0 ? telTop : telContacto || '';
 
           const docTop: number | null | undefined = r?.documentoCliente as any;
-          const docContacto: number | null | undefined = r?.contactoId?.documentoCliente
-            ?.documentoCliente as any;
+          const docContacto: number | null | undefined = r?.contactoId?.documentoCliente as any;
 
           return {
             ...r,
@@ -96,8 +95,7 @@ export class ReservasDelDiaComponent implements OnInit {
                   : info.data.nombreCompleto || '';
               r.telefono =
                 r?.telefono && r.telefono.trim() !== '' ? r.telefono : info.data.telefono || '';
-              r.documentoCliente =
-                r?.documentoCliente ?? info.data.documentoCliente?.documentoCliente ?? null;
+              r.documentoCliente = r?.documentoCliente ?? info.data.documentoCliente ?? null;
             }
           } catch {}
           return r as ReservaPopulada;

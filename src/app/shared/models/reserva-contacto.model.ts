@@ -2,5 +2,6 @@ export interface ReservaContacto {
   contactoId: number;
   nombreCompleto?: string;
   telefono?: string;
-  documentoCliente?: { documentoCliente: number };
+  documentoCliente?: number | null;
+  documentoContacto?: number | null;
 }
