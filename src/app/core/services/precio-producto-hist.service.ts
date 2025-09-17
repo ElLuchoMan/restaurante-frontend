@@ -4,14 +4,8 @@ import { catchError, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
+import { PrecioProductoHist } from '../../shared/models/precio-producto-hist.model';
 import { HandleErrorService } from './handle-error.service';
-
-export interface PrecioProductoHistDTO {
-  productoId?: number;
-  precio?: number;
-  fechaVigencia?: string;
-  estadoProducto?: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class PrecioProductoHistService {
@@ -21,20 +15,20 @@ export class PrecioProductoHistService {
     private handleError: HandleErrorService,
   ) {}
 
-  list(producto_id?: number, fecha?: string): Observable<ApiResponse<PrecioProductoHistDTO[]>> {
+  list(producto_id?: number, fecha?: string): Observable<ApiResponse<PrecioProductoHist[]>> {
     let params = new HttpParams();
     if (producto_id) params = params.set('producto_id', String(producto_id));
     if (fecha) params = params.set('fecha', fecha);
     return this.http
-      .get<ApiResponse<PrecioProductoHistDTO[]>>(`${this.baseUrl}/precio_producto_hist`, { params })
+      .get<ApiResponse<PrecioProductoHist[]>>(`${this.baseUrl}/precio_producto_hist`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getById(id: number): Observable<ApiResponse<PrecioProductoHistDTO>> {
+  getById(id: number): Observable<ApiResponse<PrecioProductoHist>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
       .get<
-        ApiResponse<PrecioProductoHistDTO>
+        ApiResponse<PrecioProductoHist>
       >(`${this.baseUrl}/precio_producto_hist/search`, { params })
       .pipe(catchError(this.handleError.handleError));
   }

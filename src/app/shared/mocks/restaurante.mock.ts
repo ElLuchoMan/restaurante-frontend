@@ -15,6 +15,18 @@ export const mockRestaurantesResponse: ApiResponse<Restaurante[]> = {
   ],
 };
 
+export const mockRestauranteCreateBody: Partial<Restaurante> = {
+  nombreRestaurante: 'Sede Centro',
+  horaApertura: '08:00:00',
+  diasLaborales: ['Lunes'],
+};
+
+export const mockRestauranteDeleteResponse: ApiResponse<unknown> = {
+  code: 200,
+  message: 'Restaurante eliminado',
+  data: {},
+};
+
 export const mockRestauranteResponse: ApiResponse<Restaurante> = {
   code: 200,
   message: 'Restaurante encontrado',
@@ -31,7 +43,7 @@ export const mockCambioHorarioResponse: ApiResponse<CambioHorario> = {
   message: 'Cambios de horario obtenidos correctamente',
   data: {
     cambioHorarioId: 1,
-    fechaCambioHorario: '2025-01-20',
+    fecha: '2025-01-20',
     horaApertura: '00:00',
     horaCierre: '23:59',
     abierto: false,
@@ -43,7 +55,7 @@ export const mockCambioHorarioAbiertoResponse: ApiResponse<CambioHorario> = {
   message: 'Cambios de horario obtenidos correctamente',
   data: {
     cambioHorarioId: 1,
-    fechaCambioHorario: '2025-01-20',
+    fecha: '2025-01-20',
     horaApertura: '00:00',
     horaCierre: '23:59',
     abierto: false,
@@ -51,7 +63,7 @@ export const mockCambioHorarioAbiertoResponse: ApiResponse<CambioHorario> = {
 };
 
 export const mockCambioHorarioBody: CambioHorario = {
-  fechaCambioHorario: '2025-01-20',
+  fecha: '2025-01-20',
   horaApertura: '00:00',
   horaCierre: '23:59',
   abierto: false,

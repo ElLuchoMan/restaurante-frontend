@@ -77,7 +77,12 @@ export class ReservaService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getReservaByParameter(contactoId?: number, fecha?: string): Observable<ApiResponse<Reserva[]>> {
+  getReservaByParameter(
+    contactoId?: number,
+    fecha?: string,
+    restauranteId?: number,
+    dia?: string,
+  ): Observable<ApiResponse<Reserva[]>> {
     let params = new HttpParams();
 
     if (contactoId !== undefined && !isNaN(contactoId)) {
@@ -86,8 +91,28 @@ export class ReservaService {
 
     if (fecha) params = params.set('fecha', fecha);
 
+    // Compatibilidad con endpoints públicos (Postman): restaurante_id y dia
+    if (restauranteId !== undefined && !isNaN(restauranteId)) {
+      params = params.set('restaurante_id', restauranteId.toString());
+    }
+    if (dia) params = params.set('dia', dia);
+
     return this.http
       .get<ApiResponse<Reserva[]>>(`${this.baseUrl}/reservas/parameter`, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  getReservaById(id: number): Observable<ApiResponse<Reserva>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .get<ApiResponse<Reserva>>(`${this.baseUrl}/reservas/search`, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  deleteReserva(id: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<unknown>>(`${this.baseUrl}/reservas`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 

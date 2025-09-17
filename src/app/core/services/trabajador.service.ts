@@ -70,4 +70,11 @@ export class TrabajadorService {
       .put<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores?id=${documento}`, partial)
       .pipe(catchError(this.handleError.handleError));
   }
+
+  deleteTrabajador(documento: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(documento));
+    return this.http
+      .delete<ApiResponse<unknown>>(`${this.baseUrl}/trabajadores`, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
 }

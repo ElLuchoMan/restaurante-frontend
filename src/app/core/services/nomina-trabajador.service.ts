@@ -36,14 +36,18 @@ export class NominaTrabajadorService {
   }
 
   search(params: {
-    documento: number;
+    documento?: number;
+    trabajador_id?: number;
     actual?: boolean;
     pagas?: boolean;
     no_pagas?: boolean;
     mes?: number;
     anio?: number;
   }): Observable<ApiResponse<Record<string, unknown>[]>> {
-    let hp = new HttpParams().set('documento', String(params.documento));
+    let hp = new HttpParams();
+    if (params.documento !== undefined) hp = hp.set('documento', String(params.documento));
+    if (params.trabajador_id !== undefined)
+      hp = hp.set('trabajador_id', String(params.trabajador_id));
     if (params.actual !== undefined) hp = hp.set('actual', String(params.actual));
     if (params.pagas !== undefined) hp = hp.set('pagas', String(params.pagas));
     if (params.no_pagas !== undefined) hp = hp.set('no_pagas', String(params.no_pagas));
@@ -57,6 +61,20 @@ export class NominaTrabajadorService {
   create(body: NominaTrabajadorRequest): Observable<ApiResponse<Record<string, unknown>>> {
     return this.http
       .post<ApiResponse<Record<string, unknown>>>(this.baseUrl, body)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  update(id: number, body: Partial<NominaTrabajadorRequest>): Observable<ApiResponse<any>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .put<ApiResponse<any>>(this.baseUrl, body, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  delete(id: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<unknown>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

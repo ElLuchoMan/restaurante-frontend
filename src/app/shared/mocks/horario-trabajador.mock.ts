@@ -14,3 +14,10 @@ export const mockHorarioTrabajadorUpdateBody: Partial<HorarioTrabajador> = {
   horaInicio: '09:00:00',
   horaFin: '18:00:00',
 };
+
+export const mockHorarioTrabajadorCreateBody: HorarioTrabajador = {
+  documentoTrabajador: 1015466494,
+  dia: 'Lunes',
+  horaInicio: '08:00:00',
+  horaFin: '17:00:00',
+};

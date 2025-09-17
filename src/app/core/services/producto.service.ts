@@ -68,7 +68,8 @@ export class ProductoService {
       form.append('precio', String(producto.precio));
       if (producto.estadoProducto) form.append('estadoProducto', String(producto.estadoProducto));
       if (producto.cantidad != null) form.append('cantidad', String(producto.cantidad));
-      // Nota: subcategoriaId no está disponible en el modelo actual
+      if (producto.subcategoriaId != null)
+        form.append('subcategoriaId', String(producto.subcategoriaId));
       form.append('imagen', file);
       return this.http
         .post<ApiResponse<Producto>>(`${this.baseUrl}`, form)
@@ -119,6 +120,8 @@ export class ProductoService {
       form.append('precio', String(producto.precio));
       if (producto.estadoProducto) form.append('estadoProducto', String(producto.estadoProducto));
       if (producto.cantidad != null) form.append('cantidad', String(producto.cantidad));
+      if (producto.subcategoriaId != null)
+        form.append('subcategoriaId', String(producto.subcategoriaId));
       form.append('imagen', file);
       return this.http
         .put<ApiResponse<Producto>>(`${this.baseUrl}`, form, { params: { id: id.toString() } })
@@ -126,6 +129,16 @@ export class ProductoService {
     }
     return this.http
       .put<ApiResponse<Producto>>(`${this.baseUrl}`, producto, { params: { id: id.toString() } })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Elimina un producto por ID
+   */
+  deleteProducto(id: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<unknown>>(`${this.baseUrl}`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

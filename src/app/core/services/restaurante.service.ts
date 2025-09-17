@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable } from 'rxjs';
 
@@ -28,6 +28,33 @@ export class RestauranteService {
   getCambiosHorario(): Observable<ApiResponse<CambioHorario>> {
     return this.http
       .get<ApiResponse<CambioHorario>>(`${this.baseUrl}/cambios_horario/actual`)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  // CRUD opcional según Swagger/Postman
+  listRestaurantes(): Observable<ApiResponse<Restaurante[]>> {
+    return this.http
+      .get<ApiResponse<Restaurante[]>>(`${this.baseUrl}/restaurantes`)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  createRestaurante(body: Partial<Restaurante>): Observable<ApiResponse<Restaurante>> {
+    return this.http
+      .post<ApiResponse<Restaurante>>(`${this.baseUrl}/restaurantes`, body)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  updateRestaurante(id: number, body: Partial<Restaurante>): Observable<ApiResponse<Restaurante>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .put<ApiResponse<Restaurante>>(`${this.baseUrl}/restaurantes`, body, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  deleteRestaurante(id: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<unknown>>(`${this.baseUrl}/restaurantes`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

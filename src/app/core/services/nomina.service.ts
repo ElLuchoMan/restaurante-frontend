@@ -37,4 +37,17 @@ export class NominaService {
       catchError(this.handleError.handleError),
     );
   }
+
+  create(body: Partial<Nomina>): Observable<ApiResponse<Nomina>> {
+    return this.http
+      .post<ApiResponse<Nomina>>(this.baseUrl, body)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  delete(id: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<unknown>>(this.baseUrl, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
 }

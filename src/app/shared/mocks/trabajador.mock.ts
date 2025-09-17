@@ -57,3 +57,9 @@ export const mockTrabajadorRegisterResponse: ApiResponse<Trabajador> = {
     restauranteId: 1,
   },
 };
+
+export const mockTrabajadorDeleteResponse: ApiResponse<unknown> = {
+  code: 200,
+  message: 'Trabajador eliminado',
+  data: {},
+};

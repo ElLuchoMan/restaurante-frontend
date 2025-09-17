@@ -44,4 +44,17 @@ export class HorarioTrabajadorService {
       .put<ApiResponse<unknown>>(this.baseUrl, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
+
+  create(body: HorarioTrabajador): Observable<ApiResponse<unknown>> {
+    return this.http
+      .post<ApiResponse<unknown>>(this.baseUrl, body)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  delete(id: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<unknown>>(this.baseUrl, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
 }

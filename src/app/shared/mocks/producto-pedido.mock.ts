@@ -30,3 +30,5 @@ export const mockProductoPedidoCreateBody = {
     { productoId: 3, cantidad: 2 },
   ],
 };
+
+export const mockProductoPedidoDeleteResponse = { code: 200, message: 'Eliminado', data: {} };

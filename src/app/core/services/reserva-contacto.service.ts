@@ -4,14 +4,8 @@ import { catchError, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
+import { ReservaContacto } from '../../shared/models/reserva-contacto.model';
 import { HandleErrorService } from './handle-error.service';
-
-export interface ReservaContactoDTO {
-  contactoId: number;
-  nombreCompleto?: string;
-  telefono?: string;
-  documentoCliente?: { documentoCliente: number };
-}
 
 @Injectable({ providedIn: 'root' })
 export class ReservaContactoService {
@@ -25,7 +19,7 @@ export class ReservaContactoService {
   getContactos(params?: {
     documento_contacto?: number;
     documento_cliente?: number;
-  }): Observable<ApiResponse<ReservaContactoDTO[]>> {
+  }): Observable<ApiResponse<ReservaContacto[]>> {
     let httpParams = new HttpParams();
     if (params?.documento_contacto)
       httpParams = httpParams.set('documento_contacto', String(params.documento_contacto));
@@ -34,15 +28,15 @@ export class ReservaContactoService {
 
     return this.http
       .get<
-        ApiResponse<ReservaContactoDTO[]>
+        ApiResponse<ReservaContacto[]>
       >(`${this.baseUrl}/reserva_contacto`, { params: httpParams })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getById(id: number): Observable<ApiResponse<ReservaContactoDTO>> {
+  getById(id: number): Observable<ApiResponse<ReservaContacto>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .get<ApiResponse<ReservaContactoDTO>>(`${this.baseUrl}/reserva_contacto/search`, { params })
+      .get<ApiResponse<ReservaContacto>>(`${this.baseUrl}/reserva_contacto/search`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

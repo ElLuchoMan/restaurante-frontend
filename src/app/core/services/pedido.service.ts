@@ -82,4 +82,24 @@ export class PedidoService {
       .put<ApiResponse<any>>(`${this.baseUrl}/actualizar-estado`, null, { params })
       .pipe(catchError(this.handleError.handleError));
   }
+
+  /**
+   * Actualiza un pedido por ID (PUT /pedidos?id=...)
+   */
+  updatePedido(id: number, body: Partial<Pedido>): Observable<ApiResponse<Pedido>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .put<ApiResponse<Pedido>>(this.baseUrl, body, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Elimina un pedido por ID (DELETE /pedidos?id=...)
+   */
+  deletePedido(id: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<unknown>>(this.baseUrl, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
 }

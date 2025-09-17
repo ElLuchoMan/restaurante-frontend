@@ -40,4 +40,11 @@ export class ProductoPedidoService {
       .put<ApiResponse<any>>(`${this.baseUrl}/producto_pedido`, detalles, { params })
       .pipe(catchError(this.handleError.handleError));
   }
+
+  deleteByPedido(pedidoId: number) {
+    const params = new HttpParams().set('pedido_id', String(pedidoId));
+    return this.http
+      .delete<ApiResponse<any>>(`${this.baseUrl}/producto_pedido`, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
 }

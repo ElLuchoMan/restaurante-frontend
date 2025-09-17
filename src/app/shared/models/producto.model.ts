@@ -12,6 +12,7 @@ export interface Producto {
   cantidad: number;
   categoria?: string;
   subcategoria?: string;
+  subcategoriaId?: number;
 }
 
 export interface DetallesProducto {

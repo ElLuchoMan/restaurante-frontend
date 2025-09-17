@@ -90,3 +90,9 @@ export const mockPedidosFiltroResponse: ApiResponse<Pedido[]> = {
     },
   ],
 };
+
+export const mockPedidoUpdateBody: Partial<Pedido> = {
+  delivery: true,
+};
+
+export const mockPedidoDeleteResponse = { code: 200, message: 'Pedido eliminado', data: {} };
