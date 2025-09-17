@@ -23,6 +23,15 @@ describe('RestauranteDiaService', () => {
 
   afterEach(() => http.verify());
 
+  it('list sin filtros no agrega parámetros', () => {
+    const mock = { code: 200, message: 'ok', data: [] };
+    service.list().subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(baseUrl);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush(mock);
+  });
+
   it('lists con filtros', () => {
     const mock = { code: 200, message: 'ok', data: [] };
     service.list(1, 'Lunes').subscribe((res) => expect(res).toEqual(mock));

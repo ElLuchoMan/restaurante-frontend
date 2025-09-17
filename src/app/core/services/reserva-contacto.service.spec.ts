@@ -24,6 +24,15 @@ describe('ReservaContactoService', () => {
 
   afterEach(() => http.verify());
 
+  it('getContactos sin filtros no agrega query params', () => {
+    const mock = { code: 200, message: 'ok', data: [] };
+    service.getContactos().subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(baseUrl + '/reserva_contacto');
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush(mock);
+  });
+
   it('gets contactos by filtros', () => {
     const mock = { code: 200, message: 'ok', data: [] };
     service.getContactos({ documento_cliente: 101 }).subscribe((res) => expect(res).toEqual(mock));
