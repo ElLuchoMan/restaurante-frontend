@@ -14,7 +14,6 @@ import { LiveAnnouncerService } from '../../../core/services/live-announcer.serv
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { PedidoService } from '../../../core/services/pedido.service';
-import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
@@ -46,7 +45,6 @@ export class CarritoComponent implements OnInit, OnDestroy {
     private domicilioService: DomicilioService,
     private pedidoService: PedidoService,
     private productoPedidoService: ProductoPedidoService,
-    private pedidoClienteService: PedidoClienteService,
     private userService: UserService,
     private clienteService: ClienteService,
     private router: Router,
@@ -211,11 +209,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
         this.productoPedidoService.create(pedidoId, detalles as any).pipe(takeUntil(this.destroy$)),
       );
 
-      await firstValueFrom(
-        this.pedidoClienteService
-          .create({ pedidoId, documentoCliente: this.userService.getUserId() })
-          .pipe(takeUntil(this.destroy$)),
-      );
+      // Backend ya incluye documentoCliente en el modelo de pedido; no se requiere relación explícita
 
       if (domicilioId !== null) {
         const resp = await firstValueFrom(

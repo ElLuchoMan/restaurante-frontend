@@ -10,7 +10,6 @@ import { DomicilioService } from '../../../core/services/domicilio.service';
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { PedidoService } from '../../../core/services/pedido.service';
-import { PedidoClienteService } from '../../../core/services/pedido-cliente.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
@@ -20,7 +19,6 @@ import {
   createDomicilioServiceMock,
   createMetodosPagoServiceMock,
   createModalServiceMock,
-  createPedidoClienteServiceMock,
   createPedidoServiceMock,
   createProductoPedidoServiceMock,
   createRouterMock,
@@ -41,7 +39,6 @@ describe('CarritoComponent', () => {
   let domicilioServiceMock: any;
   let pedidoServiceMock: any;
   let productoPedidoServiceMock: any;
-  let pedidoClienteServiceMock: any;
   let userServiceMock: any;
   let clienteServiceMock: any;
   let routerMock: any;
@@ -59,7 +56,6 @@ describe('CarritoComponent', () => {
     domicilioServiceMock = createDomicilioServiceMock();
     pedidoServiceMock = createPedidoServiceMock();
     productoPedidoServiceMock = createProductoPedidoServiceMock();
-    pedidoClienteServiceMock = createPedidoClienteServiceMock();
     userServiceMock = createUserServiceMock();
     clienteServiceMock = createClienteServiceMock();
     routerMock = createRouterMock();
@@ -75,7 +71,6 @@ describe('CarritoComponent', () => {
         { provide: DomicilioService, useValue: domicilioServiceMock },
         { provide: PedidoService, useValue: pedidoServiceMock },
         { provide: ProductoPedidoService, useValue: productoPedidoServiceMock },
-        { provide: PedidoClienteService, useValue: pedidoClienteServiceMock },
         { provide: UserService, useValue: userServiceMock },
         { provide: ClienteService, useValue: clienteServiceMock },
         { provide: Router, useValue: routerMock },
@@ -307,7 +302,7 @@ describe('CarritoComponent', () => {
     userServiceMock.getUserId.mockReturnValue(5);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    pedidoClienteServiceMock.create.mockReturnValue(of({}));
+    // pedido-cliente eliminado: ya no se requiere mock
     pedidoServiceMock.assignDomicilio.mockReturnValue(of({}));
     await (component as any).finalizeOrder(1, null);
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
@@ -325,7 +320,7 @@ describe('CarritoComponent', () => {
     userServiceMock.getUserId.mockReturnValue(5);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 50 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    pedidoClienteServiceMock.create.mockReturnValue(of({}));
+    // pedido-cliente eliminado: ya no se requiere mock
     pedidoServiceMock.assignDomicilio.mockReturnValue(
       of({ data: { delivery: true, estadoPedido: 'EN CURSO' } }),
     );
@@ -343,7 +338,7 @@ describe('CarritoComponent', () => {
     userServiceMock.getUserId.mockReturnValue(6);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 60 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    pedidoClienteServiceMock.create.mockReturnValue(of({}));
+    // pedido-cliente eliminado: ya no se requiere mock
     pedidoServiceMock.assignDomicilio.mockReturnValue(of({ data: { delivery: false } }));
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
     await (component as any).finalizeOrder(2, 8);
@@ -379,7 +374,7 @@ describe('CarritoComponent', () => {
     // Mock flujo de API para que finalizeOrder complete OK
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 123 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    pedidoClienteServiceMock.create.mockReturnValue(of({}));
+    // pedido-cliente eliminado: ya no se requiere mock
 
     await (component as any).finalizeOrder(2, null);
 

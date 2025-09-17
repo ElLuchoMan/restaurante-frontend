@@ -103,9 +103,7 @@ export function createProductoPedidoServiceMock() {
   return { create: jest.fn() } as any;
 }
 
-export function createPedidoClienteServiceMock() {
-  return { create: jest.fn() } as any;
-}
+// PedidoClienteService se eliminó; no se requiere este mock
 
 export function createClienteServiceMock() {
   return {

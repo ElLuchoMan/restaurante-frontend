@@ -69,6 +69,13 @@
                 </span>
               </div>
 
+              @if (p.documentoCliente) {
+                <div class="meta__item">
+                  <span class="meta__label">Documento cliente</span>
+                  <span class="meta__value">{{ p.documentoCliente }}</span>
+                </div>
+              }
+
               @if (p.metodoPago) {
                 <div class="meta__item">
                   <span class="meta__label">Método de pago</span>

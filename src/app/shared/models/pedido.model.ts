@@ -8,6 +8,7 @@ export interface Pedido {
   estadoPedido: string;
   domicilioId?: number;
   pagoId: number;
+  documentoCliente?: number;
   restauranteId: number;
   updatedBy?: string;
 }

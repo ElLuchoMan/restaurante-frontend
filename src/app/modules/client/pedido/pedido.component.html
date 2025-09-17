@@ -58,7 +58,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (prod of pedido.productos; track prod.NOMBRE; let i = $index) {
+              @for (prod of pedido.productos; track $index; let i = $index) {
                 <tr>
                   <td>{{ prod.NOMBRE || prod.nombre }}</td>
                   <td>{{ prod.CANTIDAD || prod.cantidad }}</td>
