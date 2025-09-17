@@ -35,3 +35,25 @@ export const mockMetodoPagoBody: MetodosPago = {
   tipo: 'Nequi',
   detalle: '3042449339',
 };
+
+export const mockMetodoPagoCreateResponse: ApiResponse<MetodosPago> = {
+  code: 201,
+  message: 'Método de pago creado',
+  data: { metodoPagoId: 4, tipo: 'Nequi', detalle: '3000000000' },
+};
+
+export const mockMetodoPagoUpdateBody: Partial<MetodosPago> = {
+  detalle: '3000000000',
+};
+
+export const mockMetodoPagoUpdateResponse: ApiResponse<MetodosPago> = {
+  code: 200,
+  message: 'Método de pago actualizado',
+  data: { metodoPagoId: 1, tipo: 'Nequi', detalle: '3000000000' },
+};
+
+export const mockMetodoPagoDeleteResponse: ApiResponse<unknown> = {
+  code: 200,
+  message: 'Método de pago eliminado',
+  data: {},
+};

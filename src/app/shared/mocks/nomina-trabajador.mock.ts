@@ -49,3 +49,47 @@ export const mockNominaTrabajadorMes: ApiResponse<NominaTrabajador[]> = {
     },
   ],
 };
+
+export const mockNominaTrabajadorCreateBody = {
+  trabajadorId: 1015466494,
+  nominaId: 1,
+  monto: 1000000,
+};
+
+export const mockNominaTrabajadorCreateResponse: ApiResponse<NominaTrabajador> = {
+  code: 201,
+  message: 'Relación creada',
+  data: {
+    detalles: 'Pago del mes con bonificación',
+    documentoTrabajador: 1015466494,
+    montoIncidencias: 100000,
+    nominaId: 1,
+    nominaTrabajadorId: 10,
+    sueldoBase: 2000000,
+    total: 2100000,
+  },
+};
+
+export const mockNominaTrabajadorUpdateBody = {
+  monto: 1100000,
+};
+
+export const mockNominaTrabajadorUpdateResponse: ApiResponse<NominaTrabajador> = {
+  code: 200,
+  message: 'Relación actualizada',
+  data: {
+    detalles: 'Pago del mes con bonificación',
+    documentoTrabajador: 1015466494,
+    montoIncidencias: 100000,
+    nominaId: 1,
+    nominaTrabajadorId: 1,
+    sueldoBase: 2000000,
+    total: 2100000,
+  },
+};
+
+export const mockNominaTrabajadorDeleteResponse: ApiResponse<unknown> = {
+  code: 200,
+  message: 'Relación eliminada',
+  data: {},
+};

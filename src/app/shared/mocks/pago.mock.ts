@@ -49,3 +49,23 @@ export const mockPagoBody: PagoCreate = {
   estadoPago: estadoPago.PAGADO,
   metodoPagoId: 1,
 };
+
+export const mockPagoUpdateBody = {
+  monto: 2200,
+  updatedBy: 'Administrador - Bryan Luis',
+};
+
+export const mockPagoUpdateResponse: ApiResponse<Pago> = {
+  code: 200,
+  message: 'Pago actualizado',
+  data: {
+    ...mockPagoResponse.data,
+    monto: 2200,
+  },
+};
+
+export const mockPagoDeleteResponse: ApiResponse<unknown> = {
+  code: 200,
+  message: 'Pago eliminado',
+  data: {},
+};

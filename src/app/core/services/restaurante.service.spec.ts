@@ -1,8 +1,8 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
+import { mockCambioHorarioResponse } from '../../shared/mocks/cambios-horario.mock';
 import {
-  mockCambioHorarioResponse,
   mockRestauranteCreateBody,
   mockRestauranteDeleteResponse,
   mockRestauranteResponse,
@@ -67,7 +67,10 @@ describe('RestauranteService', () => {
 
   it('should create a restaurante', () => {
     const payload: Partial<Restaurante> = { ...mockRestauranteCreateBody };
-    const mockResponse = { ...mockRestauranteResponse, data: { ...mockRestauranteResponse.data, ...payload } };
+    const mockResponse = {
+      ...mockRestauranteResponse,
+      data: { ...mockRestauranteResponse.data, ...payload },
+    };
 
     service.createRestaurante(payload).subscribe((response) => {
       expect(response).toEqual(mockResponse);
@@ -81,7 +84,10 @@ describe('RestauranteService', () => {
 
   it('should update a restaurante', () => {
     const payload: Partial<Restaurante> = { nombreRestaurante: 'Actualizado' };
-    const mockResponse = { ...mockRestauranteResponse, data: { ...mockRestauranteResponse.data, ...payload } };
+    const mockResponse = {
+      ...mockRestauranteResponse,
+      data: { ...mockRestauranteResponse.data, ...payload },
+    };
 
     service.updateRestaurante(5, payload).subscribe((response) => {
       expect(response).toEqual(mockResponse);

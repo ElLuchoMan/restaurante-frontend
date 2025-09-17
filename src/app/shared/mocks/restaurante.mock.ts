@@ -1,5 +1,4 @@
 import { ApiResponse } from '../models/api-response.model';
-import { CambioHorario } from '../models/cambio-horario.model';
 import { Restaurante } from '../models/restaurante.model';
 
 export const mockRestaurantesResponse: ApiResponse<Restaurante[]> = {
@@ -38,33 +37,4 @@ export const mockRestauranteResponse: ApiResponse<Restaurante> = {
   },
 };
 
-export const mockCambioHorarioResponse: ApiResponse<CambioHorario> = {
-  code: 200,
-  message: 'Cambios de horario obtenidos correctamente',
-  data: {
-    cambioHorarioId: 1,
-    fecha: '2025-01-20',
-    horaApertura: '00:00',
-    horaCierre: '23:59',
-    abierto: false,
-  },
-};
-
-export const mockCambioHorarioAbiertoResponse: ApiResponse<CambioHorario> = {
-  code: 200,
-  message: 'Cambios de horario obtenidos correctamente',
-  data: {
-    cambioHorarioId: 1,
-    fecha: '2025-01-20',
-    horaApertura: '00:00',
-    horaCierre: '23:59',
-    abierto: false,
-  },
-};
-
-export const mockCambioHorarioBody: CambioHorario = {
-  fecha: '2025-01-20',
-  horaApertura: '00:00',
-  horaCierre: '23:59',
-  abierto: false,
-};
+// Mocks de cambios de horario movidos a cambios-horario.mock.ts

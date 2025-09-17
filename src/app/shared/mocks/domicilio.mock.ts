@@ -61,3 +61,22 @@ export const mockDomicilioBody: DomicilioRequest = {
   observaciones: 'Requiere cambio',
   createdBy: 'Administrador - Bryan Luis',
 };
+
+export const mockDomicilioUpdateBody: Partial<DomicilioRequest> = {
+  telefono: '3003334455',
+};
+
+export const mockDomicilioUpdateResponse: ApiResponse<Domicilio> = {
+  code: 200,
+  message: 'Domicilio actualizado',
+  data: {
+    ...mockDomicilioRespone.data,
+    telefono: '3003334455',
+  },
+};
+
+export const mockDomicilioDeleteResponse: ApiResponse<unknown> = {
+  code: 200,
+  message: 'Domicilio eliminado',
+  data: {},
+};

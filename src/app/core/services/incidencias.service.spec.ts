@@ -57,4 +57,30 @@ describe('IncidenciasService', () => {
     expect(req.request.method).toBe('DELETE');
     req.flush(mock);
   });
+
+  it('search incidencias por documento, mes y año', () => {
+    const mock = { code: 200, message: 'ok', data: [] } as any;
+    service.search({ documento: 1015466494, mes: 12, anio: 2024 }).subscribe((res) => {
+      expect(res).toEqual(mock);
+    });
+    const req = http.expectOne(
+      (r) =>
+        r.url === `${baseUrl}/search` &&
+        r.params.get('documento') === '1015466494' &&
+        r.params.get('mes') === '12' &&
+        r.params.get('anio') === '2024',
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mock);
+  });
+
+  it('maneja error en search incidencias', () => {
+    service.search({ documento: 1, mes: 1, anio: 2025 }).subscribe({
+      next: () => fail('should have failed'),
+      error: (err) => expect(err).toBeTruthy(),
+    });
+    const req = http.expectOne(`${baseUrl}/search?documento=1&mes=1&anio=2025`);
+    req.error(new ErrorEvent('Network error'));
+    expect(mockHandle.handleError).toHaveBeenCalled();
+  });
 });

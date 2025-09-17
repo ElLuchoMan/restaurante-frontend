@@ -44,4 +44,22 @@ export class IncidenciasService {
       .delete<ApiResponse<Record<string, unknown>>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.handleError));
   }
+
+  /**
+   * Busca incidencias por documento y periodo (mes y año)
+   * GET /incidencias/search?documento=...&mes=...&anio=...
+   */
+  search(params: {
+    documento: number;
+    mes: number;
+    anio: number;
+  }): Observable<ApiResponse<Incidencia[]>> {
+    let hp = new HttpParams();
+    hp = hp.set('documento', String(params.documento));
+    hp = hp.set('mes', String(params.mes));
+    hp = hp.set('anio', String(params.anio));
+    return this.http
+      .get<ApiResponse<Incidencia[]>>(`${this.baseUrl}/search`, { params: hp })
+      .pipe(catchError(this.handleError.handleError));
+  }
 }

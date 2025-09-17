@@ -1,3 +1,8 @@
+import {
+  mockCambioHorarioAbiertoResponse,
+  mockCambioHorarioBody,
+  mockCambioHorarioResponse,
+} from './cambios-horario.mock';
 import { mockClienteBody, mockClienteRegisterResponse, mockResponseCliente } from './cliente.mock';
 import { mockDomicilioBody, mockDomicilioRespone, mockDomiciliosRespone } from './domicilio.mock';
 import { mockHttpError400, mockHttpError500 } from './error.mock';
@@ -7,22 +12,21 @@ import {
   mockMetodoPagoRespone,
   mockMetodosPagoRespone,
 } from './metodo-pago.mock';
+import { mockNominaTrabajadorMes, mockNominaTrabajadorResponse } from './nomina-trabajador.mock';
 import {
   mockNominaBody,
   mockNominaFecha,
   mockNominaPagaResponse,
   mockNominaResponse,
 } from './nomina.mock';
-import { mockNominaTrabajadorMes, mockNominaTrabajadorResponse } from './nomina-trabajador.mock';
 import { mockPagoBody, mockPagoResponse, mockPagosResponse } from './pago.mock';
 import { mockPedidoBody, mockPedidoDetalle, mockPedidosResponse } from './pedido.mock';
-import { mockPedidoClienteResponse } from './pedido-cliente.mocks';
+import { mockProductoPedidoResponse } from './producto-pedido.mock';
 import {
   mockProductoResponse,
   mockProductosResponse,
   mockProductosSinImagenResponse,
 } from './producto.mock';
-import { mockProductoPedidoResponse } from './producto-pedido.mock';
 import {
   mockReserva,
   mockReservaBody,
@@ -31,13 +35,7 @@ import {
   mockReservasUnordered,
   mockReservaUpdateResponse,
 } from './reserva.mocks';
-import {
-  mockCambioHorarioAbiertoResponse,
-  mockCambioHorarioBody,
-  mockCambioHorarioResponse,
-  mockRestauranteResponse,
-  mockRestaurantesResponse,
-} from './restaurante.mock';
+import { mockRestauranteResponse, mockRestaurantesResponse } from './restaurante.mock';
 import {
   mockTrabajadorBody,
   mockTrabajadorRegisterResponse,
@@ -93,9 +91,7 @@ describe('shared mocks', () => {
     expect(mockPagoBody.estadoPago).toBeDefined();
   });
 
-  it('pedido cliente mocks', () => {
-    expect(mockPedidoClienteResponse.data).toHaveLength(3);
-  });
+  // pedido-cliente eliminado: ya no se requiere mock
 
   it('pedido mocks', () => {
     expect(mockPedidosResponse.data).toHaveLength(3);

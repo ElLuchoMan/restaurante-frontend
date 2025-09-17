@@ -7,8 +7,8 @@ import { RestauranteService } from '../../../core/services/restaurante.service';
 import {
   mockCambioHorarioAbiertoResponse,
   mockCambioHorarioResponse,
-  mockRestauranteResponse,
-} from '../../mocks/restaurante.mock';
+} from '../../mocks/cambios-horario.mock';
+import { mockRestauranteResponse } from '../../mocks/restaurante.mock';
 import { createLoggingServiceMock, createRestauranteServiceMock } from '../../mocks/test-doubles';
 import { FooterComponent } from './footer.component';
 
