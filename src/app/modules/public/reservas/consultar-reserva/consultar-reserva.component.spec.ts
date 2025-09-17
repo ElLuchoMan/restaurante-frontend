@@ -212,9 +212,9 @@ describe('ConsultarReservaComponent', () => {
 
     expect(component.reservas.map((r) => ({ fecha: r.fechaReserva, hora: r.horaReserva }))).toEqual(
       [
-        { fecha: '2025-01-02', hora: '16:00' },
-        { fecha: '2025-01-01', hora: '18:00' },
-        { fecha: '2025-01-01', hora: '14:00' },
+        { fecha: '2025-01-02', hora: '16:00:00' },
+        { fecha: '2025-01-01', hora: '18:00:00' },
+        { fecha: '2025-01-01', hora: '14:00:00' },
       ],
     );
   });

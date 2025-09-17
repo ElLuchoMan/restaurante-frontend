@@ -6,7 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { TrabajadorService } from '../../../core/services/trabajador.service';
 import { UserService } from '../../../core/services/user.service';
-import { Roles } from '../../../shared/constants';
+import { RolTrabajador } from '../../../shared/constants';
 import { Cliente } from '../../../shared/models/cliente.model';
 import { Trabajador } from '../../../shared/models/trabajador.model';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
@@ -73,7 +73,7 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit(): void {
     const admin = this.isAdmin();
-    Object.values(Roles).forEach((element: string) => {
+    Object.values(RolTrabajador).forEach((element: string) => {
       this.roles.push(element);
     });
     this.registerForm.get('esTrabajador')?.valueChanges.subscribe((esTrabajador) => {
@@ -139,7 +139,7 @@ export class RegisterComponent implements OnInit {
         apellido: values.apellido,
         password: values.password,
         restauranteId: 1,
-        rol: values.rol || 'Mesero',
+        rol: (values.rol as unknown as RolTrabajador) || RolTrabajador.RolMesero,
         nuevo: values.nuevo,
         horario: `${values.horaEntrada} - ${values.horaSalida}`,
         sueldo: Number(values.sueldo),

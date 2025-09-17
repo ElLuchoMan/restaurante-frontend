@@ -5,10 +5,10 @@ export const mockProductoPedidoResponse: ApiResponse<ProductoPedido> = {
   code: 200,
   message: 'Productos del pedido obtenidos exitosamente',
   data: {
-    detallesProductos: [
+    detalles: [
       {
         cantidad: 1,
-        nombre: 'Coca Cola 5<00ml',
+        nombre: 'Coca Cola 500ml',
         precioUnitario: 2000,
         productoId: 1,
         subtotal: 2000,
@@ -24,7 +24,7 @@ export const mockProductoPedidoUpdateBody = [
 ];
 
 export const mockProductoPedidoCreateBody = {
-  pedidoId: 99,
+  pedidoId: 1,
   detalles: [
     { productoId: 2, cantidad: 1 },
     { productoId: 3, cantidad: 2 },

@@ -1,3 +1,5 @@
+import { RolTrabajador } from '../constants';
+
 export interface Trabajador {
   documentoTrabajador: number;
   nombre: string;
@@ -9,7 +11,7 @@ export interface Trabajador {
   nuevo: boolean;
   password: string;
   restauranteId: number;
-  rol: string;
+  rol: RolTrabajador;
   sueldo: number;
   telefono: string;
   trabajadorNombre?: string;

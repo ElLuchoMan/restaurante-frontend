@@ -43,8 +43,8 @@ export class FooterComponent {
     this.restauranteService.getCambiosHorario().subscribe({
       next: (response: ApiResponse<CambioHorario>) => {
         if (response.data != undefined) {
-          this.horaApertura = response.data?.horaApertura;
-          this.horaCierre = response.data?.horaCierre;
+          this.horaApertura = response.data?.horaApertura ?? this.horaApertura;
+          this.horaCierre = response.data?.horaCierre ?? this.horaCierre;
           if (response.data?.abierto === false) {
             this.estado = 'Cerrado';
             this.horaApertura = 'No Aplica';

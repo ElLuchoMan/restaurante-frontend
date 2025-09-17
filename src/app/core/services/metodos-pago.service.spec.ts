@@ -36,4 +36,36 @@ describe('MetodosPagoService', () => {
     expect(req.request.method).toBe('GET');
     req.flush(mock);
   });
+
+  it('creates a method', () => {
+    const body = { tipo: 'Nequi', detalle: '3000000000' } as any;
+    const mock = { code: 201, message: 'created', data: { ...body, metodoPagoId: 10 } };
+    service.create(body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(baseUrl);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(body);
+    req.flush(mock);
+  });
+
+  it('updates a method', () => {
+    const body = { detalle: '3111111111' } as any;
+    const mock = {
+      code: 200,
+      message: 'updated',
+      data: { metodoPagoId: 1, tipo: 'Nequi', detalle: '3111111111' },
+    };
+    service.update(1, body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?id=1`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(body);
+    req.flush(mock);
+  });
+
+  it('deletes a method', () => {
+    const mock = { code: 200, message: 'deleted', data: {} };
+    service.delete(1).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?id=1`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(mock);
+  });
 });

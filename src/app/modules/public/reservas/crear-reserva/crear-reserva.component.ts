@@ -110,24 +110,22 @@ export class CrearReservaComponent implements OnInit {
     const [anio, mes, dia] = this.fechaReserva.split('-');
     const fechaReservaFormateada = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
 
-    const base: ReservaCreate & { restauranteId?: number } = {
+    const base: ReservaCreate & { documentoCliente?: number } = {
       estadoReserva: estadoReserva.PENDIENTE,
       fechaReserva: fechaReservaFormateada,
       horaReserva: this.horaReserva,
       indicaciones: this.indicaciones,
-      nombreCompleto: this.nombreCompleto,
-      personas: this.personas === '5+' ? this.personasExtra : Number(this.personas),
-      telefono: this.telefono,
+      personas: totalPersonas,
+      restauranteId: 1,
+      contactoId: 1,
     };
-    // Alinear con backend: requiere restauranteId (según error). Fijamos 1 por contexto/Datos.sql
-    base.restauranteId = 1;
-    const isLoggedIn = userRole === 'Cliente';
-    const reserva: ReservaCreate & { documentoCliente?: number } = { ...base } as any;
-    if (!isLoggedIn) {
+
+    if (!this.esAdmin) {
       const doc = Number(this.documentoCliente);
-      if (!isNaN(doc)) (reserva as any).documentoCliente = doc;
+      if (!isNaN(doc)) (base as any).documentoCliente = doc;
     }
-    this.reservaService.crearReserva(reserva).subscribe({
+
+    this.reservaService.crearReserva(base).subscribe({
       next: (response) => {
         this.toastr.success('Reserva creada exitosamente', 'Éxito');
         this.router.navigate(['/reservas']);
