@@ -44,7 +44,7 @@
   z-index: 1030; // sobre el contenido pero bajo offcanvas/menus
   background: transparent; // fondo transparente detrás del dock
   border-top: none;
-  backdrop-filter: blur(4px);
+  backdrop-filter: none; // sin blur, totalmente transparente detrás del dock
   padding-top: 0.25rem;
   padding-bottom: max(env(safe-area-inset-bottom), 0.4rem);
   transition:
