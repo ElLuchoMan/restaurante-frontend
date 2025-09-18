@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ViewEncapsulation } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { Observable, map } from 'rxjs';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-quick-actions',
@@ -12,6 +14,19 @@ import { RouterModule } from '@angular/router';
 })
 export class QuickActionsComponent implements AfterViewInit {
   private footerObserver?: IntersectionObserver;
+  isLoggedOut$!: Observable<boolean>;
+
+  constructor(
+    private userService: UserService,
+    private router: Router,
+  ) {
+    this.isLoggedOut$ = this.userService.getAuthState().pipe(map((isAuth) => !isAuth));
+  }
+
+  onLogout(): void {
+    this.userService.logout();
+    this.router.navigate(['/home']);
+  }
   ngAfterViewInit(): void {
     const footerEl = document.querySelector('app-footer .footer') as Element | null;
     const bar = document.querySelector('.quick-actions-bar') as HTMLElement | null;

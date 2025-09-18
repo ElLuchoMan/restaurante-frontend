@@ -19,12 +19,25 @@
           <span>Ubicación</span>
         </a>
       </div>
-      <div class="col-3">
+      <div class="col-3" *ngIf="isLoggedOut$ | async; else logoutBtn">
         <a routerLink="/login" class="qa-item" aria-label="Iniciar sesión">
           <i class="fa fa-sign-in-alt" aria-hidden="true"></i>
           <span>Login</span>
         </a>
       </div>
+      <ng-template #logoutBtn>
+        <div class="col-3">
+          <button
+            type="button"
+            class="qa-item w-100"
+            aria-label="Cerrar sesión"
+            (click)="onLogout()"
+          >
+            <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </ng-template>
     </div>
   </nav>
 </div>

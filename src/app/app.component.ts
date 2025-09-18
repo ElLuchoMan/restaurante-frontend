@@ -7,6 +7,7 @@ import { UserService } from './core/services/user.service';
 import { NetworkService } from './core/services/network.service';
 import { SeoService } from './core/services/seo.service';
 import { ModalComponent } from './shared/components/modal/modal.component';
+import { NativeTopbarComponent } from './shared/components/native-topbar/native-topbar.component';
 import { QuickActionsComponent } from './shared/components/quick-actions/quick-actions.component';
 import { UpdateBannerComponent } from './shared/components/update-banner/update-banner.component';
 import { SharedModule } from './shared/shared.module';
@@ -20,6 +21,7 @@ import { SharedModule } from './shared/shared.module';
     ModalComponent,
     UpdateBannerComponent,
     QuickActionsComponent,
+    NativeTopbarComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
