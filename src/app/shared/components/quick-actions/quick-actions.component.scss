@@ -42,8 +42,8 @@
   right: 0;
   bottom: 0;
   z-index: 1030; // sobre el contenido pero bajo offcanvas/menus
-  background: #f8f9fae6;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background: transparent; // fondo transparente detrás del dock
+  border-top: none;
   backdrop-filter: blur(4px);
   padding-top: 0.25rem;
   padding-bottom: max(env(safe-area-inset-bottom), 0.4rem);
@@ -54,5 +54,14 @@
     transform: translateY(100%);
     opacity: 0;
     pointer-events: none;
+  }
+
+  // Dock elevando el fondo y con curva en el centro
+  .qa-dock {
+    position: relative;
+    padding: 6px 8px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   }
 }

@@ -1,43 +1,45 @@
 <div class="quick-actions-bar d-md-none" aria-label="Acciones rápidas">
-  <nav class="container quick-actions">
-    <div class="row">
-      <div class="col-3">
-        <a routerLink="/menu" class="qa-item" aria-label="Ir al menú">
-          <i class="fa fa-utensils" aria-hidden="true"></i>
-          <span>Menú</span>
-        </a>
-      </div>
-      <div class="col-3">
-        <a routerLink="/reservas/crear" class="qa-item" aria-label="Crear reserva">
-          <i class="fa fa-calendar" aria-hidden="true"></i>
-          <span>Reservar</span>
-        </a>
-      </div>
-      <div class="col-3">
-        <a routerLink="/ubicacion" class="qa-item" aria-label="Ver ubicación">
-          <i class="fa fa-map-marker-alt" aria-hidden="true"></i>
-          <span>Ubicación</span>
-        </a>
-      </div>
-      <div class="col-3" *ngIf="isLoggedOut$ | async; else logoutBtn">
-        <a routerLink="/login" class="qa-item" aria-label="Iniciar sesión">
-          <i class="fa fa-sign-in-alt" aria-hidden="true"></i>
-          <span>Login</span>
-        </a>
-      </div>
-      <ng-template #logoutBtn>
+  <nav class="container quick-actions" aria-roledescription="Dock de accesos">
+    <div class="qa-dock">
+      <div class="row">
         <div class="col-3">
-          <button
-            type="button"
-            class="qa-item w-100"
-            aria-label="Cerrar sesión"
-            (click)="onLogout()"
-          >
-            <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-            <span>Logout</span>
-          </button>
+          <a routerLink="/menu" class="qa-item" aria-label="Ir al menú">
+            <i class="fa fa-utensils" aria-hidden="true"></i>
+            <span>Menú</span>
+          </a>
         </div>
-      </ng-template>
+        <div class="col-3">
+          <a routerLink="/reservas/crear" class="qa-item" aria-label="Crear reserva">
+            <i class="fa fa-calendar" aria-hidden="true"></i>
+            <span>Reservar</span>
+          </a>
+        </div>
+        <div class="col-3">
+          <a routerLink="/ubicacion" class="qa-item" aria-label="Ver ubicación">
+            <i class="fa fa-map-marker-alt" aria-hidden="true"></i>
+            <span>Ubicación</span>
+          </a>
+        </div>
+        <div class="col-3" *ngIf="isLoggedOut$ | async; else logoutBtn">
+          <a routerLink="/login" class="qa-item" aria-label="Iniciar sesión">
+            <i class="fa fa-sign-in-alt" aria-hidden="true"></i>
+            <span>Login</span>
+          </a>
+        </div>
+        <ng-template #logoutBtn>
+          <div class="col-3">
+            <button
+              type="button"
+              class="qa-item w-100"
+              aria-label="Cerrar sesión"
+              (click)="onLogout()"
+            >
+              <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
+              <span>Logout</span>
+            </button>
+          </div>
+        </ng-template>
+      </div>
     </div>
   </nav>
 </div>
