@@ -145,6 +145,25 @@ export class QuickActionsComponent implements AfterViewInit, OnDestroy {
       vv.addEventListener('resize', onVVResize);
       this.teardownFns.push(() => vv.removeEventListener('resize', onVVResize));
     }
+
+    // Efecto tap: agregar clase para animación en CSS
+    const items = Array.from(document.querySelectorAll('.quick-actions .qa-item')) as HTMLElement[];
+    const attachTap = (el: HTMLElement) => {
+      const trigger = () => {
+        el.classList.add('qa-tap');
+        window.setTimeout(() => el.classList.remove('qa-tap'), 240);
+      };
+      const onPointer = () => trigger();
+      const onKey = (ev: KeyboardEvent) => {
+        const k = ev.key;
+        if (k === 'Enter' || k === ' ') trigger();
+      };
+      el.addEventListener('pointerdown', onPointer, { passive: true });
+      el.addEventListener('keydown', onKey);
+      this.teardownFns.push(() => el.removeEventListener('pointerdown', onPointer));
+      this.teardownFns.push(() => el.removeEventListener('keydown', onKey));
+    };
+    items.forEach(attachTap);
   }
 
   @HostListener('window:resize')
