@@ -1,6 +1,11 @@
 @use '../../../../assets/styles.scss' as *;
 
 // Evita flash blanco entre slides forzando crossfade
+.home-hero {
+  margin-bottom: 0; // eliminar gap extra debajo del héroe
+  padding-bottom: 0;
+}
+
 #header-carousel .carousel-item {
   transition: opacity 0.8s ease-in-out;
 }
@@ -15,7 +20,225 @@
   opacity: 1;
 }
 
+.carousel-caption {
+  // Quita overlay global heredado de assets para evitar doble fondo
+  background: transparent !important;
+  inset: 0; // mantener área completa para centrar contenido correctamente
+}
+
 .img-responsive {
   height: auto;
   max-width: 100%;
 }
+
+// Accesibilidad de texto sobre imagen
+.bg-text.caption-card {
+  max-width: 900px;
+  border-radius: 12px;
+  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.caption-eyebrow {
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.caption-title {
+  color: #fff;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 5vw, 2.75rem);
+  line-height: 1.15;
+}
+
+.btn-lg-mobile {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+}
+
+.control-circle {
+  width: 45px;
+  height: 45px;
+  justify-content: center;
+  border-radius: 100%;
+}
+
+// Sección About
+.home-about {
+  // Por defecto (desktop/tablet): respetar diseño previo
+  .about-image {
+    min-height: 400px;
+    height: 100%;
+  }
+  .lead-sm {
+    font-size: 1.05rem;
+  }
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    i {
+      margin-right: 0.25rem;
+    }
+  }
+}
+
+// Ajustes específicos para pantallas pequeñas
+@media (max-width: 576px) {
+  // Héroe más compacto y legible
+  #header-carousel {
+    .carousel-item img {
+      height: 45vh;
+      object-fit: cover;
+    }
+    .carousel-caption {
+      bottom: 0.75rem;
+    }
+  }
+
+  // Ocultar flechas en mobile (deslizable por touch)
+  .carousel-control-prev,
+  .carousel-control-next {
+    display: none;
+  }
+
+  #header-carousel .carousel-caption {
+    padding-bottom: 1.5rem;
+  }
+
+  .control-circle {
+    width: 38px;
+    height: 38px;
+  }
+
+  .home-about {
+    padding-top: 1rem !important;
+    .container {
+      padding-top: 0.5rem !important;
+      padding-bottom: 0.5rem !important;
+    }
+    .section-title {
+      font-size: clamp(1.4rem, 4.8vw, 2.2rem);
+      margin-bottom: 1.1rem !important;
+      .subtitle {
+        display: inline-block;
+        font-weight: 600;
+        font-size: clamp(1rem, 3.8vw, 1.25rem);
+      }
+    }
+    .about-image {
+      min-height: 260px;
+    }
+    // reducir padding vertical en los bloques
+    [class*='py-4'] {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
+    }
+    // reducir separación del grid
+    .g-4 {
+      gap: 1rem !important;
+    }
+    // Asegurar centrado del botón en mobile y desktop
+    .btn.btn-primary.mx-auto,
+    .btn.btn-primary.d-block.mx-auto,
+    .btn.btn-primary.btn-sm.d-block.mx-auto {
+      display: block;
+      width: max-content;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+  }
+}
+
+// Restituir medidas de desktop (>= md) al estilo original
+@media (min-width: 768px) {
+  .caption-title {
+    // Aproxima a Bootstrap .display-3
+    font-size: 4.5rem;
+    line-height: 1.2;
+  }
+  .caption-eyebrow {
+    font-size: 1.25rem;
+  }
+  .btn-lg-mobile {
+    padding: 0.75rem 2.5rem;
+    font-size: 1.125rem;
+  }
+}
+
+// Desktop (>= lg): carrusel casi a pantalla completa
+@media (min-width: 992px) {
+  #header-carousel {
+    max-height: 91vh;
+    .carousel-item img {
+      height: 91vh;
+      object-fit: cover;
+    }
+    .carousel-caption {
+      bottom: 2rem;
+    }
+  }
+  // En desktop evitamos blur para mayor nitidez
+  .bg-text.caption-card {
+    backdrop-filter: none;
+  }
+}
+
+// Acciones rápidas
+.quick-actions {
+  margin-top: 0.75rem;
+  margin-bottom: 1.25rem;
+  .qa-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    height: 60px; // barra más baja
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    text-decoration: none;
+    color: inherit;
+    font-weight: 600;
+    i {
+      color: var(--bs-secondary, #c79a2f);
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    // menos prominente en desktop
+    .qa-item {
+      height: 64px;
+    }
+  }
+}
+
+// Barra fija inferior (solo mobile)
+.quick-actions-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1030; // sobre el contenido pero bajo offcanvas/menus
+  background: #f8f9fae6;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(4px);
+  padding-top: 0.4rem;
+  padding-bottom: max(env(safe-area-inset-bottom), 0.55rem);
+  transition:
+    transform 0.2s ease-in-out,
+    opacity 0.2s ease-in-out;
+  &.qa-hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+// espaciador eliminado (se maneja con IntersectionObserver)

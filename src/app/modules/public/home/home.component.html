@@ -1,4 +1,4 @@
-<div class="container-fluid p-0 mb-5 pb-5">
+<div class="container-fluid p-0 home-hero" aria-label="Promociones destacadas">
   <div
     id="header-carousel"
     class="carousel slide carousel-fade"
@@ -7,8 +7,13 @@
     data-bs-pause="false"
     data-bs-wrap="true"
   >
-    <div class="carousel-inner">
-      <div class="carousel-item active">
+    <div class="carousel-inner" role="listbox">
+      <div
+        class="carousel-item active"
+        role="group"
+        aria-roledescription="slide"
+        aria-label="1 de 3"
+      >
         <img
           class="w-100 img-responsive"
           ngSrc="assets/img/carousel-1-1200.webp"
@@ -20,14 +25,16 @@
           height="686"
         />
         <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-          <div class="p-3 bg-text" style="max-width: 900px">
-            <h4 class="text-white text-uppercase mb-md-3">Tradición Colombiana reinventada</h4>
-            <h1 class="display-3 text-white mb-md-4">Un bocado de innovación</h1>
-            <a routerLink="/menu" class="btn btn-primary py-md-3 px-md-5 mt-2">Ver Menú</a>
+          <div class="p-3 bg-text caption-card">
+            <h2 class="caption-eyebrow mb-2">Tradición Colombiana reinventada</h2>
+            <p class="caption-title mb-3">Un bocado de innovación</p>
+            <a routerLink="/menu" class="btn btn-primary btn-lg-mobile mt-1" aria-label="Ver menú"
+              >Ver Menú</a
+            >
           </div>
         </div>
       </div>
-      <div class="carousel-item">
+      <div class="carousel-item" role="group" aria-roledescription="slide" aria-label="2 de 3">
         <img
           class="w-100 img-responsive"
           ngSrc="assets/img/carousel-2-1200.webp"
@@ -40,14 +47,16 @@
           height="686"
         />
         <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-          <div class="p-3 bg-text" style="max-width: 900px">
-            <h4 class="text-white text-uppercase mb-md-3">Sabores auténticos</h4>
-            <h1 class="display-3 text-white mb-md-4">Lo mejor de nuestra tierra</h1>
-            <a routerLink="/menu" class="btn btn-primary py-md-3 px-md-5 mt-2">Ver Menú</a>
+          <div class="p-3 bg-text caption-card">
+            <h2 class="caption-eyebrow mb-2">Sabores auténticos</h2>
+            <p class="caption-title mb-3">Lo mejor de nuestra tierra</p>
+            <a routerLink="/menu" class="btn btn-primary btn-lg-mobile mt-1" aria-label="Ver menú"
+              >Ver Menú</a
+            >
           </div>
         </div>
       </div>
-      <div class="carousel-item">
+      <div class="carousel-item" role="group" aria-roledescription="slide" aria-label="3 de 3">
         <img
           class="w-100 img-responsive"
           ngSrc="assets/img/carousel-3-1200.webp"
@@ -60,42 +69,84 @@
           height="686"
         />
         <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-          <div class="p-3 bg-text" style="max-width: 900px">
-            <h4 class="text-white text-uppercase mb-md-3">Para los más arriesgados</h4>
-            <h1 class="display-3 text-white mb-md-4">Descubre sabores únicos</h1>
-            <a routerLink="/menu" class="btn btn-primary py-md-3 px-md-5 mt-2">Ver Menú</a>
+          <div class="p-3 bg-text caption-card">
+            <h2 class="caption-eyebrow mb-2">Para los más arriesgados</h2>
+            <p class="caption-title mb-3">Descubre sabores únicos</p>
+            <a routerLink="/menu" class="btn btn-primary btn-lg-mobile mt-1" aria-label="Ver menú"
+              >Ver Menú</a
+            >
           </div>
         </div>
       </div>
     </div>
-    <a class="carousel-control-prev" href="#header-carousel" data-bs-slide="prev">
-      <div
-        class="btn btn-secondary px-0"
-        style="width: 45px; height: 45px; justify-content: center; border-radius: 100%"
-      >
-        <span class="carousel-control-prev-icon mb-n1 pl-3"></span>
+    <a
+      class="carousel-control-prev"
+      href="#header-carousel"
+      data-bs-slide="prev"
+      aria-label="Anterior"
+    >
+      <div class="btn btn-secondary px-0 control-circle">
+        <span class="carousel-control-prev-icon mb-n1"></span>
       </div>
     </a>
-    <a class="carousel-control-next" href="#header-carousel" data-bs-slide="next">
-      <div class="btn btn-secondary px-0" style="width: 45px; height: 45px">
+    <a
+      class="carousel-control-next"
+      href="#header-carousel"
+      data-bs-slide="next"
+      aria-label="Siguiente"
+    >
+      <div class="btn btn-secondary px-0 control-circle">
         <span class="carousel-control-next-icon mb-n1"></span>
       </div>
     </a>
   </div>
 </div>
-<div class="container-fluid py-5">
+
+<!-- Acciones rápidas: solo mobile y solo para invitados -->
+<div class="quick-actions-bar d-md-none" *ngIf="isLoggedOut$ | async">
+  <nav class="container quick-actions" aria-label="Acciones rápidas">
+    <div class="row g-3">
+      <div class="col-3">
+        <a routerLink="/menu" class="qa-item" aria-label="Ir al menú">
+          <i class="fa fa-utensils" aria-hidden="true"></i>
+          <span>Menú</span>
+        </a>
+      </div>
+      <div class="col-3">
+        <a routerLink="/reservas/crear" class="qa-item" aria-label="Crear reserva">
+          <i class="fa fa-calendar" aria-hidden="true"></i>
+          <span>Reservar</span>
+        </a>
+      </div>
+      <div class="col-3">
+        <a routerLink="/ubicacion" class="qa-item" aria-label="Ver ubicación">
+          <i class="fa fa-map-marker-alt" aria-hidden="true"></i>
+          <span>Ubicación</span>
+        </a>
+      </div>
+      <div class="col-3">
+        <a routerLink="/login" class="qa-item" aria-label="Iniciar sesión">
+          <i class="fa fa-sign-in-alt" aria-hidden="true"></i>
+          <span>Login</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+</div>
+<!-- Eliminado espaciador: la barra ahora se oculta al ver el footer -->
+<div class="container-fluid py-5 home-about">
   <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-lg-8">
-        <h1 class="section-title position-relative text-center mb-5">
-          Innovación con sabor colombiano <br />Desde 2025
-        </h1>
+        <h2 class="section-title position-relative text-center mb-5">
+          Innovación con sabor colombiano <span class="d-block subtitle">Desde 2025</span>
+        </h2>
       </div>
     </div>
-    <div class="row">
-      <div class="col-lg-4 py-5 text-cente">
-        <h4 class="font-weight-bold mb-3 text-center-sm">Acerca de nosotros</h4>
-        <h5 class="text-muted mb-3">Tradición y creatividad en un bocado</h5>
+    <div class="row align-items-stretch g-4">
+      <div class="col-12 col-md-6 col-lg-4 py-4 text-center text-md-start">
+        <h3 class="font-weight-bold mb-2">Acerca de nosotros</h3>
+        <p class="text-muted lead-sm mb-3">Tradición y creatividad en un bocado</p>
         <p>
           Celebramos la riqueza de la gastronomía colombiana reinventando platos tradicionales con
           un toque innovador, sin dejar atrás las opciones clásicas que todos aman. Desde
@@ -103,10 +154,15 @@
           experiencia única que combina tradición y creatividad, diseñada para sorprender y deleitar
           a todos nuestros comensales.
         </p>
-        <a routerLink="/nosotros" class="text-cente btn btn-secondary mt-2">Leer Más</a>
+        <a
+          routerLink="/nosotros"
+          class="btn btn-secondary mt-2"
+          aria-label="Leer más sobre nosotros"
+          >Leer Más</a
+        >
       </div>
-      <div class="col-lg-4" style="min-height: 400px">
-        <div class="position-relative h-100 rounded overflow-hidden">
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="position-relative about-image rounded overflow-hidden">
           <img
             class="position-absolute w-100 h-100"
             ngSrc="assets/img/about2.webp"
@@ -121,23 +177,30 @@
         </div>
       </div>
 
-      <div class="col-lg-4 py-5">
-        <h4 class="font-weight-bold mb-3 text-center-sm">Lo que nos hace únicos</h4>
+      <div class="col-12 col-lg-4 py-4">
+        <h3 class="font-weight-bold mb-3 text-center text-lg-start">Lo que nos hace únicos</h3>
         <p>
           En nuestro restaurante, tradición e innovación se unen para ofrecer sabores únicos.
           Disfruta de opciones tradicionales y platos reinventados que resaltan lo mejor de la
           gastronomía colombiana.
         </p>
-        <h5 class="text-muted mb-3">
+        <p class="text-muted mb-2 feature-item">
           <i class="fa fa-check text-secondary mr-3"></i>Platos internacionales reinventandos
-        </h5>
-        <h5 class="text-muted mb-3">
+        </p>
+        <p class="text-muted mb-2 feature-item">
           <i class="fa fa-check text-secondary mr-3"></i>Ingredientes locales y frescos
-        </h5>
-        <h5 class="text-muted mb-3">
+        </p>
+        <p class="text-muted mb-3 feature-item">
           <i class="fa fa-check text-secondary mr-3"></i>Experiencia gastronómica única y auténtica
-        </h5>
-        <a routerLink="/menu" class="btn btn-primary mt-2">Descubre Más</a>
+        </p>
+        <div class="text-center">
+          <a
+            routerLink="/menu"
+            class="btn btn-primary mt-2 d-inline-block"
+            aria-label="Descubrir más del menú"
+            >Descubre Más</a
+          >
+        </div>
       </div>
     </div>
   </div>

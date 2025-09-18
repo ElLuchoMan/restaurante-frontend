@@ -1,29 +1,55 @@
-import { isPlatformBrowser, NgOptimizedImage } from '@angular/common';
+import { AsyncPipe, CommonModule, isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   Inject,
   makeStateKey,
+  OnDestroy,
+  OnInit,
   PLATFORM_ID,
   TransferState,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { map, Observable, Subscription } from 'rxjs';
+import { UserService } from '../../../core/services/user.service';
 
 const HOME_STATE = makeStateKey<string>('home_bootstrap');
 
 @Component({
   selector: 'app-home',
-  imports: [RouterModule, NgOptimizedImage],
+  imports: [RouterModule, NgOptimizedImage, AsyncPipe, CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements AfterViewInit {
+export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
+  isLoggedOut$: Observable<boolean>;
+  private footerObserver?: IntersectionObserver;
+  private authSub?: Subscription;
+  private footerObserverInitAttempts = 0;
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private ts: TransferState,
-  ) {}
+    private userService: UserService,
+  ) {
+    this.isLoggedOut$ = this.userService.getAuthState().pipe(map((isAuth) => !isAuth));
+  }
+
+  ngOnInit(): void {
+    // Reconfigurar el observer cuando cambia el estado de sesión
+    this.authSub = this.userService
+      .getAuthState()
+      .pipe(map((isAuth) => !isAuth))
+      .subscribe((isLoggedOut) => {
+        if (isLoggedOut) {
+          // esperar a que Angular renderice la barra tras logout
+          setTimeout(() => this.initFooterObserver(), 0);
+        } else {
+          this.footerObserver?.disconnect();
+        }
+      });
+  }
 
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -50,6 +76,55 @@ export class HomeComponent implements AfterViewInit {
         touch: true,
       });
       setTimeout(() => instance.cycle(), 100);
+    }
+
+    this.initFooterObserver();
+  }
+
+  ngOnDestroy(): void {
+    this.footerObserver?.disconnect();
+    this.authSub?.unsubscribe();
+  }
+
+  private initFooterObserver(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const footerEl =
+      (document.querySelector('app-footer .footer') as Element | null) ||
+      document.querySelector('.footer');
+    if (!footerEl) {
+      if (this.footerObserverInitAttempts++ < 10) {
+        setTimeout(() => this.initFooterObserver(), 300);
+      }
+      return;
+    }
+    this.footerObserver?.disconnect();
+    this.footerObserver = new IntersectionObserver(
+      (entries) => {
+        const isVisible = entries[0]?.isIntersecting === true;
+        const qaBar = document.querySelector('.quick-actions-bar') as HTMLElement | null;
+        if (!qaBar) return;
+        if (isVisible) {
+          qaBar.classList.add('qa-hidden');
+        } else {
+          qaBar.classList.remove('qa-hidden');
+        }
+      },
+      {
+        root: null,
+        threshold: 0.01,
+        rootMargin: '0px 0px 140px 0px',
+      },
+    );
+    this.footerObserver.observe(footerEl);
+
+    // Aplicar estado inicial si el footer ya es visible al crear la barra
+    const qaBarNow = document.querySelector('.quick-actions-bar') as HTMLElement | null;
+    if (qaBarNow) {
+      const viewportH = window.innerHeight || document.documentElement.clientHeight || 0;
+      const rect = footerEl.getBoundingClientRect();
+      const footerVisible = rect.top < viewportH && rect.bottom > 0;
+      if (footerVisible) qaBarNow.classList.add('qa-hidden');
+      else qaBarNow.classList.remove('qa-hidden');
     }
   }
 }

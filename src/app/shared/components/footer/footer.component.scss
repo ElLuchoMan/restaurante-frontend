@@ -1,1 +1,9 @@
 @use '../../../../assets/styles.scss' as *;
+.footer {
+  // Reservar espacio cuando exista barra de quick-actions en mobile
+  @media (max-width: 576px) {
+    padding-bottom: calc(
+      env(safe-area-inset-bottom) + 130px
+    ); // más espacio para no tapar el crédito
+  }
+}

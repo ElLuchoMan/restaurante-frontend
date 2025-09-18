@@ -1,5 +1,31 @@
 # Restaurante Frontend
 
+## Live reload en Android (ADB/Capacitor)
+
+Opciones:
+
+### Script automático (recomendado)
+
+```bash
+npm run android:live:auto
+```
+- Detecta tu IP local, actualiza `capacitor.config.ts` (server.url + cleartext) y añade tu IP a `android/app/src/main/res/xml/network_security_config.xml` si falta.
+- Sincroniza `npx cap sync android`.
+- Arranca `ng serve --host 0.0.0.0 --port 4200` y lanza `npx cap run android -l --external`.
+- Guarda cambios en Angular y verás la app recargar en el dispositivo.
+
+Notas:
+- Si tienes que forzar un puerto/IP específicos:
+  - `node tools/android-live.mjs --port 4200 --ip 192.168.1.21`
+- Problemas de pantalla en negro / cleartext:
+  - Asegura que el dev-server esté accesible desde el móvil (misma red o usa `adb reverse`).
+  - Si usas USB + `adb reverse`, puedes pasar `--ip localhost`.
+
+### Manual rápido
+- `npm run android:dev` (ng serve 0.0.0.0:4200)
+- `npm run android:cap:live` (abre la app con live reload)
+- Para USB: `npm run android:dev:adb` y después `npm run android:cap:live`.
+
 ![AutoGen with AI](https://img.shields.io/badge/AutoGen%20with%20AI-%F0%9F%8C%9F-blueviolet)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/08900eb5-ce5b-4278-932b-037569ffd3c4/deploy-status)](https://app.netlify.com/sites/lacocinademaria/deploys)
 
