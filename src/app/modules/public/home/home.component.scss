@@ -22,6 +22,19 @@
     width: auto;
     object-fit: contain;
   }
+  .btn-link {
+    color: inherit;
+    i {
+      font-size: 18px;
+    }
+  }
+  .badge.cart-badge.topbar {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: var(--bs-secondary, #c79a2f);
+    color: #fff;
+  }
 }
 .home-topbar .container {
   height: 54px;
@@ -57,6 +70,16 @@
   // Quita overlay global heredado de assets para evitar doble fondo
   background: transparent !important;
   inset: 0; // mantener área completa para centrar contenido correctamente
+}
+.is-native .home-hero::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 96px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.35) 100%);
+  pointer-events: none;
 }
 
 .img-responsive {

@@ -1,7 +1,8 @@
-import { isPlatformBrowser, Location } from '@angular/common';
+import { CommonModule, isPlatformBrowser, Location } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { filter, Subject, takeUntil } from 'rxjs';
+import { filter, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
+import { UserService } from './core/services/user.service';
 
 import { NetworkService } from './core/services/network.service';
 import { SeoService } from './core/services/seo.service';
@@ -11,13 +12,15 @@ import { SharedModule } from './shared/shared.module';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SharedModule, ModalComponent, UpdateBannerComponent],
+  imports: [CommonModule, RouterOutlet, SharedModule, ModalComponent, UpdateBannerComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'restaurante-frontend';
   private destroy$ = new Subject<void>();
+  isHome$!: Observable<boolean>;
+  // Eliminado isLoggedOut$ (reversión)
   constructor(
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -25,10 +28,18 @@ export class AppComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private seo: SeoService,
     private location: Location,
+    private userService: UserService,
   ) {}
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
+    // stream para saber si estamos en Home (para mostrar/ocultar footer en mobile)
+    this.isHome$ = this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      startWith({ url: this.router.url } as NavigationEnd),
+      map(() => this.router.url === '/' || this.router.url.startsWith('/home')),
+      takeUntil(this.destroy$),
+    );
     this.router.events
       .pipe(
         filter((e) => e instanceof NavigationEnd),
@@ -39,6 +50,12 @@ export class AppComponent implements OnInit, OnDestroy {
         main?.focus();
         this.seo.applyForRoute(this.route.snapshot, this.router.url);
         this.seo.updateCanonical(this.router.url);
+        // Forzar scroll al top después de cada navegación (incluye "atrás")
+        try {
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        } catch {
+          window.scrollTo(0, 0);
+        }
         // Recordar última ruta válida cuando estamos online
         if (this.network.current) {
           this.network.setLastOnlinePath(this.router.url);

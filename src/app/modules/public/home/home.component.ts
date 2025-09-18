@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { map, Observable, Subscription } from 'rxjs';
+import { CartService } from '../../../core/services/cart.service';
 import { UserService } from '../../../core/services/user.service';
 
 const HOME_STATE = makeStateKey<string>('home_bootstrap');
@@ -25,6 +26,8 @@ const HOME_STATE = makeStateKey<string>('home_bootstrap');
 })
 export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
   isLoggedOut$: Observable<boolean>;
+  isWebView = false;
+  cartCount = 0;
   private footerObserver?: IntersectionObserver;
   private authSub?: Subscription;
   private footerObserverInitAttempts = 0;
@@ -32,11 +35,27 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: object,
     private ts: TransferState,
     private userService: UserService,
+    private cartService: CartService,
   ) {
     this.isLoggedOut$ = this.userService.getAuthState().pipe(map((isAuth) => !isAuth));
   }
 
   ngOnInit(): void {
+    // Detectar si estamos en navegador puro (no Capacitor)
+    if (isPlatformBrowser(this.platformId)) {
+      const cap: any = (window as any).Capacitor;
+      this.isWebView = !(
+        cap &&
+        typeof cap.getPlatform === 'function' &&
+        cap.getPlatform() !== 'web'
+      );
+      // Añadir clase a <body> solo en nativo (para estilos exclusivos)
+      if (!this.isWebView) {
+        document.body.classList.add('is-native');
+      }
+    }
+    // Contador de carrito para topbar nativa
+    this.cartService.count$?.subscribe?.((n) => (this.cartCount = n ?? 0));
     // Reconfigurar el observer cuando cambia el estado de sesión
     this.authSub = this.userService
       .getAuthState()
@@ -84,6 +103,9 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.footerObserver?.disconnect();
     this.authSub?.unsubscribe();
+    if (!this.isWebView && isPlatformBrowser(this.platformId)) {
+      document.body.classList.remove('is-native');
+    }
   }
 
   private initFooterObserver(): void {

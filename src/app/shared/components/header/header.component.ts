@@ -22,6 +22,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   menuRight: MenuItem[] = [];
   userRole: string | null = null;
   isBrowser: boolean;
+  isNative = false;
   showHeader = true;
   imagenVisible: boolean = true;
   cartCount = 0;
@@ -41,17 +42,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Mostrar el header solo en navegadores (no en apps nativas con Capacitor)
-    if (this.isBrowser) {
-      const cap: any = (window as any).Capacitor;
-      this.showHeader = !(
-        cap &&
-        typeof cap.getPlatform === 'function' &&
-        cap.getPlatform() !== 'web'
-      );
-    } else {
-      this.showHeader = false;
-    }
+    // Mostrar header clásico solo en navegadores; en nativo usamos topbar
+    const cap: any = (window as any).Capacitor;
+    this.isNative = !!(cap && typeof cap.getPlatform === 'function' && cap.getPlatform() !== 'web');
+    this.showHeader = !this.isNative;
 
     this.userService
       .getAuthState()

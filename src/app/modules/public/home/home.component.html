@@ -1,12 +1,37 @@
 <!-- Barra superior fija (solo Home, solo mobile) -->
-<div class="home-topbar d-md-none" aria-label="Barra superior">
-  <div class="container d-flex align-items-center justify-content-center">
+<!-- Topbar solo en dispositivos nativos (Capacitor) -->
+<div class="home-topbar d-md-none" aria-label="Barra superior" [class.d-none]="isWebView">
+  <div class="container d-flex align-items-center justify-content-between">
     <img ngSrc="assets/img/logo2.webp" alt="La cocina DE MARÍA" width="96" height="32" priority />
+    <div class="d-flex align-items-center gap-3 ms-auto">
+      <ng-container *ngIf="!(isLoggedOut$ | async); else loginLink">
+        <a
+          *ngIf="cartCount > 0"
+          routerLink="/cliente/carrito-cliente"
+          class="btn btn-link p-0 position-relative"
+          aria-label="Carrito"
+        >
+          <i class="fa fa-shopping-cart"></i>
+          <span class="badge cart-badge topbar">{{ cartCount }}</span>
+        </a>
+        <span *ngIf="cartCount === 0" class="topbar-icon-disabled" aria-hidden="true">
+          <i class="fa fa-shopping-cart"></i>
+        </span>
+        <a routerLink="/cliente/perfil" class="btn btn-link p-0" aria-label="Perfil">
+          <i class="fa fa-user-circle"></i>
+        </a>
+      </ng-container>
+      <ng-template #loginLink>
+        <a routerLink="/login" class="btn btn-link p-0" aria-label="Iniciar sesión">
+          <i class="fa fa-user"></i>
+        </a>
+      </ng-template>
+    </div>
   </div>
   <div class="home-topbar-shadow" aria-hidden="true"></div>
   <div class="visually-hidden">Inicio</div>
 </div>
-<div class="home-topbar-spacer d-md-none" aria-hidden="true"></div>
+<div class="home-topbar-spacer d-md-none" [class.d-none]="isWebView" aria-hidden="true"></div>
 
 <div class="container-fluid p-0 home-hero" aria-label="Promociones destacadas">
   <div
@@ -112,37 +137,6 @@
   </div>
 </div>
 
-<!-- Acciones rápidas: solo mobile y solo para invitados -->
-<div class="quick-actions-bar d-md-none" *ngIf="isLoggedOut$ | async">
-  <nav class="container quick-actions" aria-label="Acciones rápidas">
-    <div class="row g-3">
-      <div class="col-3">
-        <a routerLink="/menu" class="qa-item" aria-label="Ir al menú">
-          <i class="fa fa-utensils" aria-hidden="true"></i>
-          <span>Menú</span>
-        </a>
-      </div>
-      <div class="col-3">
-        <a routerLink="/reservas/crear" class="qa-item" aria-label="Crear reserva">
-          <i class="fa fa-calendar" aria-hidden="true"></i>
-          <span>Reservar</span>
-        </a>
-      </div>
-      <div class="col-3">
-        <a routerLink="/ubicacion" class="qa-item" aria-label="Ver ubicación">
-          <i class="fa fa-map-marker-alt" aria-hidden="true"></i>
-          <span>Ubicación</span>
-        </a>
-      </div>
-      <div class="col-3">
-        <a routerLink="/login" class="qa-item" aria-label="Iniciar sesión">
-          <i class="fa fa-sign-in-alt" aria-hidden="true"></i>
-          <span>Login</span>
-        </a>
-      </div>
-    </div>
-  </nav>
-</div>
 <!-- Eliminado espaciador: la barra ahora se oculta al ver el footer -->
 <div class="container-fluid py-5 home-about">
   <div class="container py-5">
@@ -214,4 +208,36 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Acciones rápidas: solo mobile y solo para invitados (Home) -->
+<div class="quick-actions-bar d-md-none" *ngIf="(isLoggedOut$ | async) && !isWebView">
+  <nav class="container quick-actions" aria-label="Acciones rápidas">
+    <div class="row g-3">
+      <div class="col-3">
+        <a routerLink="/menu" class="qa-item" aria-label="Ir al menú">
+          <i class="fa fa-utensils" aria-hidden="true"></i>
+          <span>Menú</span>
+        </a>
+      </div>
+      <div class="col-3">
+        <a routerLink="/reservas/crear" class="qa-item" aria-label="Crear reserva">
+          <i class="fa fa-calendar" aria-hidden="true"></i>
+          <span>Reservar</span>
+        </a>
+      </div>
+      <div class="col-3">
+        <a routerLink="/ubicacion" class="qa-item" aria-label="Ver ubicación">
+          <i class="fa fa-map-marker-alt" aria-hidden="true"></i>
+          <span>Ubicación</span>
+        </a>
+      </div>
+      <div class="col-3">
+        <a routerLink="/login" class="qa-item" aria-label="Iniciar sesión">
+          <i class="fa fa-sign-in-alt" aria-hidden="true"></i>
+          <span>Login</span>
+        </a>
+      </div>
+    </div>
+  </nav>
 </div>
