@@ -38,4 +38,12 @@
   backdrop-filter: blur(4px);
   padding-top: 0.5rem;
   padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+  transition:
+    transform 0.2s ease-in-out,
+    opacity 0.2s ease-in-out;
+  &.qa-hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
 }
