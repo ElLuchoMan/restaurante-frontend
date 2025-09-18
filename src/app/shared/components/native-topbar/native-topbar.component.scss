@@ -6,8 +6,7 @@
   left: 0;
   right: 0;
   z-index: 1040;
-  height: calc(54px + max(env(safe-area-inset-top), 0px));
-  padding-top: max(env(safe-area-inset-top), 0px);
+  height: 54px; // altura visual fija; el main compensa con padding-top dinámico
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -46,7 +45,4 @@
   pointer-events: none;
 }
 
-/* Espaciador opcional si se necesita en contenedores que no tengan padding-top */
-.home-topbar-spacer {
-  height: calc(54px + max(env(safe-area-inset-top), 0px));
-}
+/* Espaciador eliminado: se maneja con padding-top en #main */

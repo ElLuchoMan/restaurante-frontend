@@ -7,7 +7,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { Observable, map } from 'rxjs';
+import { map, Observable } from 'rxjs';
+
 import { UserService } from '../../../core/services/user.service';
 
 @Component({
@@ -49,9 +50,9 @@ export class QuickActionsComponent implements AfterViewInit, OnDestroy {
       if (!this.mainEl || !this.barEl) return;
       const atHome = (this.router.url || '').startsWith('/home') || this.router.url === '/';
       if (!visible) {
-        // En Home, deja un respiro mínimo cuando el footer hace ocultar la barra
+        // En Home, deja un respiro mínimo más compacto cuando el footer oculta la barra
         this.mainEl.style.paddingBottom = atHome
-          ? 'calc(16px + max(env(safe-area-inset-bottom), 0px))'
+          ? 'calc(8px + max(env(safe-area-inset-bottom), 0px))'
           : '';
         return;
       }
@@ -128,7 +129,7 @@ export class QuickActionsComponent implements AfterViewInit, OnDestroy {
     this.teardownFns.push(() => document.removeEventListener('focusout', onFocusOut, true));
 
     // Detectar teclado por cambio fuerte de viewport (visualViewport)
-    const vv = (window as any).visualViewport as VisualViewport | undefined;
+    const vv = (window as unknown as { visualViewport?: VisualViewport }).visualViewport;
     const base = window.innerHeight;
     const onVVResize = () => {
       const h = vv?.height ?? window.innerHeight;

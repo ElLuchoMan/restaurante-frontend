@@ -3,7 +3,7 @@
 <app-native-topbar *ngIf="isWebView"></app-native-topbar>
 <!-- Header solo en web; en webview la barra inferior reemplaza el header -->
 <app-header *ngIf="!isWebView"></app-header>
-<app-update-banner></app-update-banner>
+<app-update-banner *ngIf="!isWebView"></app-update-banner>
 <app-modal></app-modal>
 <main id="main" tabindex="-1" role="main">
   <router-outlet></router-outlet>
