@@ -1,26 +1,36 @@
-<div class="container-fluid py-5">
+<section class="auth-hero">
   <div class="container py-5">
     <div class="row justify-content-center">
-      <div class="col-lg-6">
-        <h1 class="section-title text-center mt-5 mb-5">Iniciar Sesión</h1>
-        <div class="form-card-bg p-5">
-          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <div class="form-group">
-              <label for="documento">Documento</label>
-              <input
-                type="number"
-                id="documento"
-                class="form-control"
-                formControlName="documento"
-                placeholder="1000000000"
-                autocomplete="document"
-                [attr.aria-invalid]="
-                  loginForm.get('documento')?.invalid && loginForm.get('documento')?.touched
-                    ? 'true'
-                    : null
-                "
-                aria-describedby="documento-error"
-              />
+      <div class="col-lg-5 col-md-7">
+        <header class="text-center mb-4">
+          <h1 class="section-title position-relative text-center">Iniciar Sesión</h1>
+          <p class="subtitle">Bienvenido de nuevo. Nos alegra verte.</p>
+        </header>
+
+        <div class="card-glass glow-border p-4 p-md-5" role="region" aria-labelledby="login-title">
+          <h2 id="login-title" class="visually-hidden">Formulario de inicio de sesión</h2>
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="form-group mb-3">
+              <label for="documento" class="form-label">Documento</label>
+              <div class="input-icon">
+                <span class="icon" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  id="documento"
+                  class="form-control"
+                  formControlName="documento"
+                  placeholder="1000000000"
+                  autocomplete="username"
+                  autofocus
+                  [attr.aria-invalid]="
+                    loginForm.get('documento')?.invalid && loginForm.get('documento')?.touched
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="documento-error"
+                />
+              </div>
               <div
                 *ngIf="loginForm.get('documento')?.invalid && loginForm.get('documento')?.touched"
                 id="documento-error"
@@ -30,22 +40,37 @@
                 El documento es obligatorio.
               </div>
             </div>
+
             <div class="form-group mb-4">
-              <label for="password">Contraseña</label>
-              <input
-                type="password"
-                id="password"
-                class="form-control"
-                autocomplete="current-password"
-                formControlName="password"
-                placeholder="*****"
-                [attr.aria-invalid]="
-                  loginForm.get('password')?.invalid && loginForm.get('password')?.touched
-                    ? 'true'
-                    : null
-                "
-                aria-describedby="password-error"
-              />
+              <label for="password" class="form-label">Contraseña</label>
+              <div class="input-icon">
+                <span class="icon" aria-hidden="true"><i class="fa-solid fa-lock"></i></span>
+                <input
+                  [type]="isPasswordVisible ? 'text' : 'password'"
+                  id="password"
+                  class="form-control"
+                  autocomplete="current-password"
+                  formControlName="password"
+                  placeholder="•••••"
+                  [attr.aria-invalid]="
+                    loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="password-error"
+                />
+                <button
+                  type="button"
+                  class="toggle-btn"
+                  (click)="togglePasswordVisibility()"
+                  [attr.aria-pressed]="isPasswordVisible"
+                  [attr.aria-label]="
+                    isPasswordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                  "
+                >
+                  <i class="fa-solid" [ngClass]="isPasswordVisible ? 'fa-eye-slash' : 'fa-eye'"></i>
+                </button>
+              </div>
               <div
                 *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
                 id="password-error"
@@ -55,15 +80,48 @@
                 La contraseña es obligatoria y debe tener al menos 5 caracteres.
               </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-block" [disabled]="loginForm.invalid">
-              Iniciar Sesión
+
+            <div class="d-flex align-items-center justify-content-between mb-4 gap-3 flex-wrap">
+              <div class="form-check form-switch remember m-0">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="remember"
+                  (change)="onRememberChange($event)"
+                  aria-describedby="remember-help"
+                />
+                <label class="form-check-label" for="remember">Recordarme</label>
+                <small id="remember-help" class="text-muted d-block"
+                  >Mantener sesión en este dispositivo</small
+                >
+              </div>
+              <a class="link m-0" routerLink="/recuperar" *ngIf="hasRecoveryRoute"
+                >¿Olvidaste tu contraseña?</a
+              >
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary auth-cta btn-block d-flex align-items-center justify-content-center gap-2"
+              [disabled]="loginForm.invalid || isSubmitting"
+            >
+              <span class="progress-bg" [style.--progress]="progress"></span>
+              <span *ngIf="!isSubmitting">Iniciar Sesión</span>
+              <span
+                *ngIf="isSubmitting"
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-live="polite"
+                aria-label="Iniciando sesión"
+              ></span>
             </button>
+
             <a class="link mt-4" routerLink="/registro-cliente"
-              >¿No tienes una cuenta? <br />Regístrate aquí
-            </a>
+              >¿No tienes una cuenta? <br />Regístrate aquí</a
+            >
           </form>
         </div>
       </div>
     </div>
   </div>
-</div>
+</section>

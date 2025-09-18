@@ -9,3 +9,162 @@ a.link {
   white-space: normal;
   word-wrap: break-word;
 }
+
+.auth-hero {
+  position: relative;
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+}
+
+// Sin fondo personalizado; respetar fondo del layout actual
+
+// Barra gruesa y redondeada sobre el texto; ocultar la delgada inferior
+.section-title::before {
+  display: block;
+  border-radius: 999px;
+  height: 6px; // un poco más gruesa
+}
+.section-title::after {
+  display: none;
+}
+
+.subtitle {
+  color: #6b7280;
+  margin: 0;
+}
+
+.card-glass {
+  position: relative;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+}
+
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(212, 160, 23, 0.45), rgba(0, 0, 0, 0.08));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.input-icon {
+  position: relative;
+}
+
+.input-icon .icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.input-icon .form-control {
+  padding-left: 40px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.toggle-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  padding: 8px 10px;
+}
+
+.auth-cta {
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.auth-cta:active {
+  transform: translateY(1px);
+}
+.remember {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 10px;
+  padding-left: 0; // anula padding de .form-check/.form-switch
+}
+.remember .form-check-input {
+  width: 42px;
+  height: 24px;
+  cursor: pointer;
+  border-radius: 999px;
+  margin-left: 0; // anula margen negativo de bootstrap
+  margin-right: 0;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6; // estado off neutro (no azul)
+  accent-color: var(--primary);
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+.remember .form-check-input:focus {
+  box-shadow: 0 0 0 0.15rem rgba(212, 160, 23, 0.2);
+  border-color: var(--primary);
+}
+.remember .form-check-input:checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+.remember .form-check-label {
+  font-weight: 500;
+  user-select: none;
+}
+.remember small {
+  margin-left: 0;
+  grid-column: 2; // debajo del texto
+}
+
+// Barra de progreso animada dentro del botón
+.auth-cta .progress-bg {
+  --progress: 0%;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(212, 160, 23, 0.25), rgba(212, 160, 23, 0.55));
+  width: var(--progress);
+  transition: width 200ms ease;
+  z-index: 0;
+}
+.auth-cta > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card-glass {
+    animation: rise 420ms ease-out;
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}

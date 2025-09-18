@@ -40,12 +40,16 @@ describe('CambiosHorarioService', () => {
   });
 
   it('create cambio', () => {
-    const body = { fecha: '2025-09-15', horaApertura: '08:00:00' };
+    // El servicio espera 'fechaCambioHorario' según API real
+    const body = { fecha: '2025-09-15', horaApertura: '08:00:00' } as any; // la service mapea a fechaCambioHorario
     const mock = { code: 201, message: 'created', data: {} };
-    service.create(body as any).subscribe((res) => expect(res).toEqual(mock));
+    service.create(body).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(baseUrl);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(body);
+    expect(req.request.body).toEqual({
+      fechaCambioHorario: '2025-09-15',
+      horaApertura: '08:00:00',
+    });
     req.flush(mock);
   });
 

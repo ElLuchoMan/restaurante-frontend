@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { take } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
@@ -20,6 +21,10 @@ import { UserService } from '../../../core/services/user.service';
 })
 export class LoginComponent {
   loginForm: FormGroup;
+  isSubmitting = false;
+  isPasswordVisible = false;
+  hasRecoveryRoute = false;
+  progress = '0%';
 
   constructor(
     private fb: FormBuilder,
@@ -34,6 +39,9 @@ export class LoginComponent {
       documento: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(5)]],
     });
+
+    // Progreso visual dentro del botón segun validación
+    this.loginForm.valueChanges.subscribe(() => this.updateProgress());
   }
 
   onSubmit(): void {
@@ -42,10 +50,14 @@ export class LoginComponent {
       return;
     }
 
+    this.isSubmitting = true;
     this.telemetry.logLoginAttempt();
     this.userService
       .login(this.loginForm.value)
-      .pipe(take(1))
+      .pipe(
+        take(1),
+        finalize(() => (this.isSubmitting = false)),
+      )
       .subscribe({
         next: (response) => {
           this.userService.saveToken(response.data.token);
@@ -70,5 +82,31 @@ export class LoginComponent {
           }
         },
       });
+  }
+
+  togglePasswordVisibility(): void {
+    this.isPasswordVisible = !this.isPasswordVisible;
+  }
+
+  ngOnInit(): void {
+    // detectar si existe ruta de recuperación
+    this.hasRecoveryRoute = this.router.config.some((r) => r.path === 'recuperar');
+  }
+
+  onRememberChange(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.userService.setRemember(checked);
+  }
+
+  private updateProgress(): void {
+    const docValid = this.loginForm.get('documento')?.value?.toString().trim().length > 0;
+    const passValid = this.loginForm.get('password')?.valid ?? false;
+    if (docValid && passValid) {
+      this.progress = '100%';
+    } else if (docValid) {
+      this.progress = '50%';
+    } else {
+      this.progress = '0%';
+    }
   }
 }

@@ -22,6 +22,7 @@ export interface DecodedToken {
 export class UserService {
   private baseUrl = environment.apiUrl;
   private tokenKey = 'auth_token';
+  private useSession = false;
 
   private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
 
@@ -45,8 +46,16 @@ export class UserService {
       .pipe(catchError(this.handleError.handleError));
   }
 
+  setRemember(remember: boolean): void {
+    this.useSession = !remember;
+  }
+
+  private storage(): Storage {
+    return this.useSession ? sessionStorage : localStorage;
+  }
+
   saveToken(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
+    this.storage().setItem(this.tokenKey, token);
     this.authState.next(true);
   }
 
@@ -54,7 +63,7 @@ export class UserService {
     if (typeof window === 'undefined') {
       return null;
     }
-    return localStorage.getItem(this.tokenKey);
+    return localStorage.getItem(this.tokenKey) ?? sessionStorage.getItem(this.tokenKey);
   }
 
   private decodeTokenSafely(token: string): DecodedToken | null {
@@ -96,6 +105,7 @@ export class UserService {
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    sessionStorage.removeItem(this.tokenKey);
     this.authState.next(false);
   }
 
