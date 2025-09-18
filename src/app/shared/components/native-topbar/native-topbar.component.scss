@@ -1,0 +1,52 @@
+@use '../../../../assets/styles.scss' as *;
+
+.home-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1040;
+  height: calc(54px + max(env(safe-area-inset-top), 0px));
+  padding-top: max(env(safe-area-inset-top), 0px);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  .container {
+    height: 54px;
+    display: flex;
+    align-items: center;
+  }
+  img {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+  }
+  .btn-link {
+    color: inherit;
+    i {
+      font-size: 18px;
+    }
+  }
+  .badge.cart-badge.topbar {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: var(--bs-secondary, #c79a2f);
+    color: #fff;
+  }
+}
+
+.home-topbar-shadow {
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+
+/* Espaciador opcional si se necesita en contenedores que no tengan padding-top */
+.home-topbar-spacer {
+  height: calc(54px + max(env(safe-area-inset-top), 0px));
+}

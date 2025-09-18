@@ -1,0 +1,35 @@
+<div class="home-topbar d-md-none" aria-label="Barra superior">
+  <div class="container d-flex align-items-center justify-content-between">
+    <a [routerLink]="logoLink" aria-label="Ir al inicio">
+      <img src="assets/img/logo2.webp" alt="La cocina DE MARÍA" width="96" height="32" />
+    </a>
+    <div class="d-flex align-items-center gap-3 ms-auto">
+      <ng-container *ngIf="!(isLoggedOut$ | async); else loginLink">
+        <a
+          *ngIf="cartCount > 0"
+          routerLink="/cliente/carrito-cliente"
+          class="btn btn-link p-0 position-relative"
+          aria-label="Carrito"
+        >
+          <i class="fa fa-shopping-cart"></i>
+          <span class="badge cart-badge topbar">{{ cartCount }}</span>
+        </a>
+        <span *ngIf="cartCount === 0" class="topbar-icon-disabled" aria-hidden="true">
+          <i class="fa fa-shopping-cart"></i>
+        </span>
+        <a routerLink="/cliente/perfil" class="btn btn-link p-0" aria-label="Perfil">
+          <i class="fa fa-user-circle"></i>
+        </a>
+      </ng-container>
+      <ng-template #loginLink>
+        <a routerLink="/login" class="btn btn-link p-0" aria-label="Iniciar sesión">
+          <i class="fa fa-user"></i>
+        </a>
+      </ng-template>
+    </div>
+  </div>
+  <div class="home-topbar-shadow" aria-hidden="true"></div>
+</div>
+
+<!-- Espaciador para evitar solape con el contenido -->
+<div class="home-topbar-spacer d-md-none" aria-hidden="true"></div>
