@@ -1,5 +1,5 @@
-<!-- Barra superior fija (solo Home, solo mobile) -->
-<!-- Topbar solo en dispositivos nativos (Capacitor) -->
+<!-- Barra superior fija (solo Home, solo mobile web) -->
+<!-- En webview se usa la topbar global, por eso aquí solo navegador -->
 <div class="home-topbar d-md-none" aria-label="Barra superior" [class.d-none]="isWebView">
   <div class="container d-flex align-items-center justify-content-between">
     <img ngSrc="assets/img/logo2.webp" alt="La cocina DE MARÍA" width="96" height="32" priority />
@@ -210,7 +210,7 @@
   </div>
 </div>
 
-<!-- Acciones rápidas: solo mobile y solo para invitados (Home) -->
+<!-- Acciones rápidas: solo mobile web (invitados). En webview ya existe global -->
 <div class="quick-actions-bar d-md-none" *ngIf="(isLoggedOut$ | async) && !isWebView">
   <nav class="container quick-actions" aria-label="Acciones rápidas">
     <div class="row g-3">

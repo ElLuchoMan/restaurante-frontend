@@ -44,13 +44,14 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     // Detectar si estamos en navegador puro (no Capacitor)
     if (isPlatformBrowser(this.platformId)) {
       const cap: any = (window as any).Capacitor;
-      this.isWebView = !(
+      // true cuando es entorno nativo (Capacitor), false en navegador web
+      this.isWebView = !!(
         cap &&
         typeof cap.getPlatform === 'function' &&
         cap.getPlatform() !== 'web'
       );
       // Añadir clase a <body> solo en nativo (para estilos exclusivos)
-      if (!this.isWebView) {
+      if (this.isWebView) {
         document.body.classList.add('is-native');
       }
     }
@@ -103,7 +104,7 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.footerObserver?.disconnect();
     this.authSub?.unsubscribe();
-    if (!this.isWebView && isPlatformBrowser(this.platformId)) {
+    if (this.isWebView && isPlatformBrowser(this.platformId)) {
       document.body.classList.remove('is-native');
     }
   }
