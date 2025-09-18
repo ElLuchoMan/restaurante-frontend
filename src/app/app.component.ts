@@ -1,4 +1,4 @@
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, Location } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, Subject, takeUntil } from 'rxjs';
@@ -24,6 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private network: NetworkService,
     private route: ActivatedRoute,
     private seo: SeoService,
+    private location: Location,
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +61,39 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    // Manejo del botón atrás (Android): navegar al historial en vez de cerrar
+    window.addEventListener('popstate', () => {
+      if (history.length <= 1) this.router.navigate(['/home']);
+    });
+
+    // Capturar botón físico atrás con @capacitor/app (más fiable)
+    (async () => {
+      try {
+        const cap: any = (window as any).Capacitor;
+        if (!cap || (cap.getPlatform && cap.getPlatform() === 'web')) return;
+        const { App } = await import('@capacitor/app');
+        App.addListener('backButton', (_ev: any) => {
+          const url = this.router.url || '';
+          console.log(
+            '[BackButton] event received. currentUrl=',
+            url,
+            'history.length=',
+            history.length,
+          );
+          const atRoot = url === '/' || url.startsWith('/home');
+          if (atRoot) {
+            // No cerrar la app en raíz
+            this.router.navigate(['/home']);
+            return;
+          }
+          console.log('[BackButton] navigating back via Location.back()');
+          this.location.back();
+        });
+      } catch {
+        // fallback silencioso
+      }
+    })();
   }
 
   ngOnDestroy(): void {
