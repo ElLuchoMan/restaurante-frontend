@@ -7,12 +7,20 @@ import { UserService } from './core/services/user.service';
 import { NetworkService } from './core/services/network.service';
 import { SeoService } from './core/services/seo.service';
 import { ModalComponent } from './shared/components/modal/modal.component';
+import { QuickActionsComponent } from './shared/components/quick-actions/quick-actions.component';
 import { UpdateBannerComponent } from './shared/components/update-banner/update-banner.component';
 import { SharedModule } from './shared/shared.module';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, SharedModule, ModalComponent, UpdateBannerComponent],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    SharedModule,
+    ModalComponent,
+    UpdateBannerComponent,
+    QuickActionsComponent,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
@@ -20,6 +28,8 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'restaurante-frontend';
   private destroy$ = new Subject<void>();
   isHome$!: Observable<boolean>;
+  isLoggedOut$!: Observable<boolean>;
+  isWebView = false;
   // Eliminado isLoggedOut$ (reversión)
   constructor(
     private router: Router,
@@ -33,6 +43,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
+    // Estado de sesión para condicionar barra inferior en webview
+    this.isLoggedOut$ = this.userService.getAuthState().pipe(map((isAuth) => !isAuth));
+    // Detectar entorno nativo (Capacitor) para mostrar barra transversal solo en webview
+    const cap: any = (window as any).Capacitor;
+    this.isWebView = !!(
+      cap &&
+      typeof cap.getPlatform === 'function' &&
+      cap.getPlatform() !== 'web'
+    );
     // stream para saber si estamos en Home (para mostrar/ocultar footer en mobile)
     this.isHome$ = this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),

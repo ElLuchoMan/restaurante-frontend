@@ -1,9 +1,13 @@
 <a class="skip-link" href="#main">Saltar al contenido principal</a>
-<app-header></app-header>
+<!-- Header solo en web; en webview la barra inferior reemplaza el header -->
+<app-header *ngIf="!isWebView"></app-header>
 <app-update-banner></app-update-banner>
 <app-modal></app-modal>
 <main id="main" tabindex="-1" role="main">
   <router-outlet></router-outlet>
   <div aria-live="polite" aria-atomic="true" class="sr-only" id="aria-live-region"></div>
 </main>
+<!-- Barra inferior transversal (solo webview/invitados) -->
+<app-quick-actions *ngIf="isWebView && (isLoggedOut$ | async)"></app-quick-actions>
+
 <app-footer></app-footer>

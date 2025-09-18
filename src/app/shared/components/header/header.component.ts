@@ -9,10 +9,11 @@ import { LiveAnnouncerService } from '../../../core/services/live-announcer.serv
 import { NetworkService } from '../../../core/services/network.service';
 import { UserService } from '../../../core/services/user.service';
 import { MenuItem } from '../../models/menu-item.model';
+import { QuickActionsComponent } from '../quick-actions/quick-actions.component';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, QuickActionsComponent],
   standalone: true,
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],

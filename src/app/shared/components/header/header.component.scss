@@ -1,5 +1,41 @@
 @use '../../../../assets/styles.scss' as *;
 $header-height: 84px; /* acercamos el pill al top */
+/* ====== Barra inferior (quick-actions) - estilos tomados del Home ====== */
+.quick-actions {
+  margin-top: 0.75rem;
+  margin-bottom: 1.25rem;
+  .qa-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    height: 68px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    text-decoration: none;
+    color: inherit;
+    font-weight: 600;
+    i {
+      color: var(--bs-secondary, #c79a2f);
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.quick-actions-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1030; // sobre el contenido pero bajo offcanvas/menus
+  background: #f8f9fae6;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(4px);
+  padding-top: 0.5rem;
+  padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+}
 
 .navbar {
   position: relative;
