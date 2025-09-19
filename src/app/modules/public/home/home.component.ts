@@ -150,4 +150,15 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
       else qaBarNow.classList.remove('qa-hidden');
     }
   }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      // Cambiar a logo como fallback
+      img.src = 'assets/img/logo2.webp';
+      img.alt = 'La cocina DE MARÍA - Logo';
+      // Añadir clase para estilos específicos del fallback
+      img.classList.add('fallback-logo');
+    }
+  }
 }

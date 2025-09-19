@@ -26,6 +26,7 @@
           priority
           width="1200"
           height="686"
+          (error)="onImageError($event)"
         />
         <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
           <div class="p-3 bg-text caption-card">
@@ -48,6 +49,7 @@
           decoding="async"
           width="1200"
           height="686"
+          (error)="onImageError($event)"
         />
         <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
           <div class="p-3 bg-text caption-card">
@@ -70,6 +72,7 @@
           decoding="async"
           width="1200"
           height="686"
+          (error)="onImageError($event)"
         />
         <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
           <div class="p-3 bg-text caption-card">
@@ -149,6 +152,85 @@
   </div>
 </div>
 
+<!-- Sección de Ofertas Especiales -->
+<div class="container-fluid py-5 home-offers">
+  <div class="container">
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-8 text-center">
+        <h2 class="section-title position-relative mb-3">
+          Ofertas Especiales <span class="d-block subtitle">¡Por tiempo limitado!</span>
+        </h2>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="offer-card">
+          <div class="offer-badge">¡NUEVO!</div>
+          <div class="offer-image">
+            <img
+              src="assets/img/offer-1.webp"
+              alt="Combo Tradicional"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+          </div>
+          <div class="offer-content">
+            <h3>Combo Tradicional</h3>
+            <p>Bandeja paisa + bebida + postre</p>
+            <div class="offer-price">
+              <span class="old-price">$35.000</span>
+              <span class="new-price">$28.000</span>
+            </div>
+            <a routerLink="/menu" class="btn btn-primary btn-sm">Ver Menú</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="offer-card">
+          <div class="offer-badge hot">🔥 HOT</div>
+          <div class="offer-image">
+            <img
+              src="assets/img/offer-2.webp"
+              alt="2x1 Bebidas"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+          </div>
+          <div class="offer-content">
+            <h3>2x1 en Bebidas</h3>
+            <p>Válido en jugos naturales y gaseosas</p>
+            <div class="offer-price">
+              <span class="new-price">Desde $8.000</span>
+            </div>
+            <a routerLink="/menu" class="btn btn-secondary btn-sm">Aprovechar</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="offer-card">
+          <div class="offer-badge weekend">FIN DE SEMANA</div>
+          <div class="offer-image">
+            <img
+              src="assets/img/offer-3.webp"
+              alt="Brunch Especial"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+          </div>
+          <div class="offer-content">
+            <h3>Brunch Especial</h3>
+            <p>Desayuno + almuerzo fusión</p>
+            <div class="offer-price">
+              <span class="new-price">$22.000</span>
+            </div>
+            <a routerLink="/menu" class="btn btn-primary btn-sm">Descubrir</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Eliminado espaciador: la barra ahora se oculta al ver el footer -->
 <div class="container-fluid py-5 home-about">
   <div class="container py-5">
@@ -216,6 +298,196 @@
             aria-label="Descubrir más del menú"
             >Descubre Más</a
           >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Galería de Platos Destacados -->
+<div class="container-fluid py-5 home-gallery">
+  <div class="container">
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-8 text-center">
+        <h2 class="section-title position-relative mb-3">
+          Nuestros Platos Estrella <span class="d-block subtitle">Sabores que enamoran</span>
+        </h2>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="gallery-item">
+          <img
+            src="assets/img/dish-1.webp"
+            alt="Arepa Rellena Gourmet"
+            loading="lazy"
+            (error)="onImageError($event)"
+          />
+          <div class="gallery-overlay">
+            <h4>Arepa Rellena Gourmet</h4>
+            <p>Tradición reinventada</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="gallery-item">
+          <img
+            src="assets/img/dish-2.webp"
+            alt="Hamburguesa Colombiana"
+            loading="lazy"
+            (error)="onImageError($event)"
+          />
+          <div class="gallery-overlay">
+            <h4>Hamburguesa Colombiana</h4>
+            <p>Fusión perfecta</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="gallery-item">
+          <img
+            src="assets/img/dish-3.webp"
+            alt="Tacos Costeños"
+            loading="lazy"
+            (error)="onImageError($event)"
+          />
+          <div class="gallery-overlay">
+            <h4>Tacos Costeños</h4>
+            <p>Sabor caribeño</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="gallery-item">
+          <img
+            src="assets/img/dish-4.webp"
+            alt="Postre de la Casa"
+            loading="lazy"
+            (error)="onImageError($event)"
+          />
+          <div class="gallery-overlay">
+            <h4>Postre de la Casa</h4>
+            <p>Final perfecto</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-4">
+      <a routerLink="/menu" class="btn btn-primary btn-lg">Ver Menú Completo</a>
+    </div>
+  </div>
+</div>
+
+<!-- Sección de Testimonios -->
+<div class="container-fluid py-5 home-testimonials">
+  <div class="container">
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-8 text-center">
+        <h2 class="section-title position-relative mb-3">
+          Lo que Dicen Nuestros Clientes <span class="d-block subtitle">Experiencias reales</span>
+        </h2>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+          </div>
+          <p>
+            "La mejor arepa rellena que he probado en Bogotá. La combinación de sabores
+            tradicionales con toques modernos es increíble."
+          </p>
+          <div class="testimonial-author">
+            <img
+              src="assets/img/customer-1.webp"
+              alt="María González"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+            <div>
+              <h5>María González</h5>
+              <span>Cliente frecuente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+          </div>
+          <p>
+            "El servicio es excelente y la comida llega súper rápido. Los tacos costeños son mi
+            debilidad, ¡no puedo parar de pedirlos!"
+          </p>
+          <div class="testimonial-author">
+            <img
+              src="assets/img/customer-2.webp"
+              alt="Carlos Rodríguez"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+            <div>
+              <h5>Carlos Rodríguez</h5>
+              <span>Foodie bogotano</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+          </div>
+          <p>
+            "Perfecto para almorzar en familia. Los niños aman las hamburguesas colombianas y
+            nosotros la bandeja paisa reinventada."
+          </p>
+          <div class="testimonial-author">
+            <img
+              src="assets/img/customer-3.webp"
+              alt="Ana Martínez"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+            <div>
+              <h5>Ana Martínez</h5>
+              <span>Mamá de familia</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Call to Action Principal -->
+<div class="container-fluid py-5 home-cta">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <h2 class="cta-title mb-3">¿Listo para una Experiencia Única?</h2>
+        <p class="cta-subtitle mb-4">Descubre por qué somos el restaurante favorito de Bogotá</p>
+        <div class="cta-buttons">
+          <a routerLink="/menu" class="btn btn-primary btn-lg me-3 mb-2">
+            <i class="fa fa-utensils me-2"></i>Ver Menú
+          </a>
+          <a routerLink="/reservas/crear" class="btn btn-secondary btn-lg mb-2">
+            <i class="fa fa-calendar me-2"></i>Reservar Mesa
+          </a>
         </div>
       </div>
     </div>
