@@ -33,12 +33,36 @@
       transform 140ms ease,
       box-shadow 140ms ease;
     will-change: transform;
+    .qa-icon-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
     i {
       color: var(--bs-secondary, #c79a2f);
       font-size: 0.9rem;
       transition:
         transform 140ms ease,
         color 140ms ease;
+    }
+
+    .qa-badge {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 2px 4px;
+      border-radius: 6px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+
+      &.qa-new {
+        background: #ff4757;
+        color: #ffffff;
+        animation: qa-pulse 2s infinite;
+      }
     }
     // Ripple elegante (centrado)
     &::before {
@@ -117,6 +141,18 @@
   100% {
     transform: translate(-50%, -50%) scale(28);
     opacity: 0;
+  }
+}
+
+@keyframes qa-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
   }
 }
 

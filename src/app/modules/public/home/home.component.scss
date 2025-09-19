@@ -6,51 +6,8 @@
   padding-bottom: 0;
 }
 
-// Topbar fija en Home (mobile)
-.home-topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1040;
-  height: 54px;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  img {
-    height: 36px;
-    width: auto;
-    object-fit: contain;
-  }
-  .btn-link {
-    color: inherit;
-    i {
-      font-size: 18px;
-    }
-  }
-  .badge.cart-badge.topbar {
-    position: absolute;
-    top: -6px;
-    right: -10px;
-    background: var(--bs-secondary, #c79a2f);
-    color: #fff;
-  }
-}
-.home-topbar .container {
-  height: 54px;
-}
-.home-topbar-shadow {
-  position: absolute;
-  bottom: -6px;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0));
-  pointer-events: none;
-}
-.home-topbar-spacer {
-  height: 54px;
-}
+// Topbar del home eliminada - en navegadores web siempre existe header principal
+// En webview se usa native-topbar global
 
 #header-carousel .carousel-item {
   transition: opacity 0.8s ease-in-out;
@@ -87,12 +44,14 @@
   max-width: 100%;
 }
 
-// Accesibilidad de texto sobre imagen
+// Accesibilidad de texto sobre imagen - Diseño más moderno
 .bg-text.caption-card {
   max-width: 900px;
-  border-radius: 12px;
-  backdrop-filter: blur(2px);
-  background: rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+  backdrop-filter: blur(8px) saturate(120%);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .caption-eyebrow {
@@ -294,6 +253,59 @@
     transform: translateY(100%);
     opacity: 0;
     pointer-events: none;
+  }
+}
+
+// Sección de estadísticas (solo webview)
+.home-stats {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+
+  .stat-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.25rem 0.75rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 0.75rem;
+    background: linear-gradient(135deg, var(--bs-secondary, #c79a2f), #d4a017);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      color: #ffffff;
+      font-size: 1.25rem;
+    }
+  }
+
+  .stat-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
   }
 }
 

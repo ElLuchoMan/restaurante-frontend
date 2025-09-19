@@ -1,37 +1,5 @@
-<!-- Barra superior fija (solo Home, solo mobile web) -->
-<!-- En webview se usa la topbar global, por eso aquí solo navegador -->
-<div class="home-topbar d-md-none" aria-label="Barra superior" [class.d-none]="isWebView">
-  <div class="container d-flex align-items-center justify-content-between">
-    <img ngSrc="assets/img/logo2.webp" alt="La cocina DE MARÍA" width="96" height="32" priority />
-    <div class="d-flex align-items-center gap-3 ms-auto">
-      <ng-container *ngIf="!(isLoggedOut$ | async); else loginLink">
-        <a
-          *ngIf="cartCount > 0"
-          routerLink="/cliente/carrito-cliente"
-          class="btn btn-link p-0 position-relative"
-          aria-label="Carrito"
-        >
-          <i class="fa fa-shopping-cart"></i>
-          <span class="badge cart-badge topbar">{{ cartCount }}</span>
-        </a>
-        <span *ngIf="cartCount === 0" class="topbar-icon-disabled" aria-hidden="true">
-          <i class="fa fa-shopping-cart"></i>
-        </span>
-        <a routerLink="/cliente/perfil" class="btn btn-link p-0" aria-label="Perfil">
-          <i class="fa fa-user-circle"></i>
-        </a>
-      </ng-container>
-      <ng-template #loginLink>
-        <a routerLink="/login" class="btn btn-link p-0" aria-label="Iniciar sesión">
-          <i class="fa fa-user"></i>
-        </a>
-      </ng-template>
-    </div>
-  </div>
-  <div class="home-topbar-shadow" aria-hidden="true"></div>
-  <div class="visually-hidden">Inicio</div>
-</div>
-<div class="home-topbar-spacer d-md-none" [class.d-none]="isWebView" aria-hidden="true"></div>
+<!-- La topbar del home se eliminó porque en navegadores web siempre existe el header principal -->
+<!-- En webview se usa la native-topbar global, por eso no necesitamos topbar aquí -->
 
 <div class="container-fluid p-0 home-hero" aria-label="Promociones destacadas">
   <div
@@ -134,6 +102,50 @@
         <span class="carousel-control-next-icon mb-n1"></span>
       </div>
     </a>
+  </div>
+</div>
+
+<!-- Sección de estadísticas destacadas -->
+<div class="container-fluid py-4 home-stats" *ngIf="isWebView">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+          <div class="stat-icon">
+            <i class="fa fa-star" aria-hidden="true"></i>
+          </div>
+          <div class="stat-number">4.8</div>
+          <div class="stat-label">Calificación</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+          <div class="stat-icon">
+            <i class="fa fa-utensils" aria-hidden="true"></i>
+          </div>
+          <div class="stat-number">50+</div>
+          <div class="stat-label">Platos</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+          <div class="stat-icon">
+            <i class="fa fa-clock" aria-hidden="true"></i>
+          </div>
+          <div class="stat-number">25min</div>
+          <div class="stat-label">Entrega</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+          <div class="stat-icon">
+            <i class="fa fa-users" aria-hidden="true"></i>
+          </div>
+          <div class="stat-number">1000+</div>
+          <div class="stat-label">Clientes</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

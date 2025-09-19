@@ -1,17 +1,19 @@
 @use '../../../../assets/styles.scss' as *;
 
+// Solo aplicar estilos en webview (el componente ya tiene *ngIf="isWebView")
 .home-topbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1040;
-  height: 54px; // altura visual fija; el main compensa con padding-top dinámico
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  height: 60px; // altura visual fija; el main compensa con padding-top dinámico
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 20px rgba(0, 0, 0, 0.04);
   .container {
-    height: 54px;
+    height: 60px;
     display: flex;
     align-items: center;
   }

@@ -79,6 +79,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('window:scroll', [])
+  onScroll(): void {
+    // Cerrar menú automáticamente al hacer scroll
+    this.cerrarMenu();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    // Cerrar menú al hacer clic fuera de él
+    const target = event.target as HTMLElement;
+    const navbar = document.getElementById('navbarCollapse');
+    const toggler = document.querySelector('.navbar-toggler');
+
+    if (
+      navbar?.classList.contains('show') &&
+      !navbar.contains(target) &&
+      !toggler?.contains(target)
+    ) {
+      this.cerrarMenu();
+    }
+  }
+
   private bindMenuA11yHandlers(): void {
     const toggler = document.querySelector<HTMLButtonElement>('.navbar-toggler');
     const collapse = document.getElementById('navbarCollapse');
@@ -182,8 +204,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   cerrarMenu(): void {
     if (this.isBrowser) {
       const navbar = document.getElementById('navbarCollapse');
+      const toggler = document.querySelector<HTMLButtonElement>('.navbar-toggler');
+
       if (navbar?.classList.contains('show')) {
         navbar.classList.remove('show');
+        // Actualizar aria-expanded del botón toggler
+        if (toggler) {
+          toggler.setAttribute('aria-expanded', 'false');
+        }
       }
     }
   }
