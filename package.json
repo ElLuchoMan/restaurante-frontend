@@ -10,7 +10,7 @@
     "android:live:auto": "node tools/android-live.mjs",
     "android:live:reverse": "node tools/android-live.mjs --ip localhost --port 4200 --reverse 4200",
     "android:live:wifi": "npm run android:live:auto -- --target adb-R5CY30CJF7X-SZKcHs._adb-tls-connect._tcp --ip 192.168.1.2 --port 4200 --reverse 8080",
-    "android:live:wifi:2:2": "npm run android:live:auto -- --target 192.168.1.155:36051 --ip 192.168.1.2 --port 4200 --reverse 8080",
+    "android:live:wifi:2:2": "npm run android:live:auto -- --target 192.168.1.155:43815 --ip 192.168.1.2 --port 4200 --reverse 8080",
     "android:live:usb": "npm run android:live:reverse -- --target R5CY30CJF7X",
     "start:prod:local": "npx serve dist/restaurante-frontend/browser",
     "serve:ssr:restaurante-frontend": "node dist/restaurante-frontend/server/server.mjs",

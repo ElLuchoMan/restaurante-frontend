@@ -229,6 +229,12 @@ export function createTelemetryServiceMock() {
   } as any;
 }
 
+export function createStorageErrorMock() {
+  return jest.fn(() => {
+    throw new Error('Storage error');
+  });
+}
+
 // Additional UI/core doubles
 export function createNetworkServiceMock(initialOnline = true) {
   const online$ = new BehaviorSubject<boolean>(initialOnline);

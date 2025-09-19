@@ -1,345 +1,428 @@
-import { createSpy } from '../../shared/mocks/test-doubles';
-import { TelemetryService } from './telemetry.service';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+
+import { environment } from '../../../environments/environment';
+import {
+  mockDashboardData,
+  mockSalesData,
+  mockProductsData,
+} from '../../shared/mocks/telemetry.mock';
+import { createHandleErrorServiceMock, createStorageErrorMock } from '../../shared/mocks/test-doubles';
+import { TelemetryParams } from '../../shared/models/telemetry.model';
+import { HandleErrorService } from './handle-error.service';
+import { TelemetryService, PurchaseData } from './telemetry.service';
 
 describe('TelemetryService', () => {
-  let svc: TelemetryService;
+  let service: TelemetryService;
+  let httpTestingController: HttpTestingController;
+  const baseUrl = `${environment.apiUrl}/telemetria`;
+  const mockHandleErrorService = createHandleErrorServiceMock();
 
   beforeEach(() => {
-    svc = new TelemetryService();
-    svc.clear();
-  });
-
-  it('debe registrar intentos/éxitos/fallos de login y agregarlos', () => {
-    svc.logLoginAttempt(1);
-    svc.logLoginSuccess(1);
-    svc.logLoginFailure(2);
-
-    const agg = svc.getAggregatedMetrics();
-    expect(agg.login.attempts).toBe(1);
-    expect(agg.login.successes).toBe(1);
-    expect(agg.login.failures).toBe(1);
-  });
-
-  it('debe registrar una compra y agregar por método, producto, usuario, hora y día', () => {
-    const now = Date.now();
-    jest.spyOn(Date, 'now').mockReturnValue(now);
-
-    svc.logPurchase({
-      userId: 42,
-      paymentMethodId: 2,
-      paymentMethodLabel: 'Nequi',
-      requiresDelivery: true,
-      items: [
-        { productId: 10, name: 'Hamburguesa', quantity: 2, unitPrice: 10000 },
-        { productId: 11, name: 'Gaseosa', quantity: 1, unitPrice: 3000 },
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+        TelemetryService,
+        { provide: HandleErrorService, useValue: mockHandleErrorService },
       ],
-      subtotal: 23000,
     });
 
-    const agg = svc.getAggregatedMetrics();
-    expect(agg.purchasesByPaymentMethod['Nequi']).toBe(1);
-    expect(agg.productsCount['Hamburguesa']).toBe(2);
-    expect(agg.productsCount['Gaseosa']).toBe(1);
-    expect(agg.usersByPurchases['42']).toBe(1);
-    // Hora y día dependen del sistema, solo verificamos que existan claves
-    expect(Object.keys(agg.salesByHour).length).toBeGreaterThan(0);
-    expect(Object.keys(agg.salesByWeekday).length).toBeGreaterThan(0);
+    service = TestBed.inject(TelemetryService);
+    httpTestingController = TestBed.inject(HttpTestingController);
   });
 
-  it('logHttp y logError agregan eventos y getEvents respeta limit', () => {
-    svc.clear();
-    svc.logHttp({ method: 'GET', url: '/x', ok: true, status: 200 });
-    svc.logError('oops', 'stack', false, 'req-1');
-    const events = svc.getEvents(1);
-    expect(events.length).toBe(1);
-    expect(events[0].type === 'error' || events[0].type === 'http_request').toBe(true);
+  afterEach(() => {
+    httpTestingController.verify();
+    mockHandleErrorService.handleError.mockReset();
+    localStorage.clear();
   });
 
-  it('recorta eventos al exceder maxEvents y agrega correctamente múltiples tipos', () => {
-    // fuerza a 5 eventos para testeo del recorte
-    const originalPush = (svc as any).writeAll;
-    // Genera 10 eventos
-    for (let i = 0; i < 10; i++) {
-      svc.logLoginAttempt(i);
-    }
-    const events = svc.getEvents();
-    expect(events.length).toBeGreaterThan(0);
+  it('should be created', () => {
+    expect(service).toBeTruthy();
   });
 
-  it('tolera JSON inválido y errores de localStorage', () => {
-    const originalGet = localStorage.getItem;
-    const originalSet = localStorage.setItem;
-    // JSON inválido
-    (localStorage as any).getItem = () => 'not-json';
-    expect(() => svc.getEvents()).not.toThrow();
-    // Error al escribir
-    (localStorage as any).getItem = originalGet;
-    (localStorage as any).setItem = () => {
-      throw new Error('nope');
-    };
-    expect(() => svc.logLoginAttempt()).not.toThrow();
-    (localStorage as any).setItem = originalSet;
-  });
-
-  it('usa fallback uid cuando no hay crypto.randomUUID', () => {
-    const originalCrypto = (self as any).crypto;
-    (self as any).crypto = undefined;
-    svc.clear();
-    expect(() => svc.logLoginAttempt()).not.toThrow();
-    const events = svc.getEvents();
-    expect(events.length).toBeGreaterThan(0);
-    (self as any).crypto = originalCrypto;
-  });
-
-  it('recorta al máximo de eventos y clear ignora errores de localStorage', () => {
-    svc.clear();
-    // simular límite pequeño usando las APIs públicas; generamos >100 eventos
-    for (let i = 0; i < 120; i++) {
-      svc.logLoginAttempt(i);
-    }
-    const events = svc.getEvents();
-    // No podemos leer maxEvents, pero debe haber guardado muchos sin romperse
-    expect(events.length).toBeGreaterThan(0);
-
-    const originalRemove = localStorage.removeItem;
-    (localStorage as any).removeItem = () => {
-      throw new Error('blocked');
-    };
-    expect(() => svc.clear()).not.toThrow();
-    (localStorage as any).removeItem = originalRemove;
-  });
-
-  it('readAll tolera valores no-array', () => {
-    const originalGet = localStorage.getItem;
-    (localStorage as any).getItem = () => '{"not":"array"}';
-    expect((svc as any).readAll()).toEqual([]);
-    (localStorage as any).getItem = originalGet;
-  });
-
-  it('getAggregatedMetrics maneja items con nombres vacíos y suma por productId', () => {
-    svc.clear();
-    svc.logPurchase({
-      userId: null,
-      paymentMethodId: 1,
-      paymentMethodLabel: 'Efectivo',
-      requiresDelivery: true,
-      items: [
-        { productId: 10, name: '' as any, quantity: 3, unitPrice: 5 },
-        { productId: 10, name: '' as any, quantity: 2, unitPrice: 5 },
-      ],
-      subtotal: 25,
-    });
-    const agg = svc.getAggregatedMetrics();
-    // cae al productId como clave
-    expect(agg.productsCount['10']).toBe(5);
-  });
-
-  it('writeAll tolera errores de localStorage.setItem', () => {
-    const originalSet = localStorage.setItem;
-    (localStorage as any).setItem = () => {
-      throw new Error('blocked');
-    };
-    expect(() => svc.logLoginAttempt(1)).not.toThrow();
-    (localStorage as any).setItem = originalSet;
-  });
-
-  it('getAggregatedMetrics usa fallback de etiqueta cuando falta paymentMethodLabel', () => {
-    svc.clear();
-    const ts = Date.now();
-    svc.logPurchase({
-      userId: 7,
-      paymentMethodId: 3,
-      paymentMethodLabel: '' as any,
-      requiresDelivery: false,
-      items: [{ productId: 1, name: 'A', quantity: 2, unitPrice: 10 }],
-      subtotal: 20,
-    });
-    const agg = svc.getAggregatedMetrics();
-    expect(agg.purchasesByPaymentMethod['3']).toBe(1);
-    expect(agg.usersByPurchases['7']).toBe(1);
-    expect(agg.productsCount['A']).toBe(2);
-  });
-
-  it('logEvent respeta id provisto y no invoca uid', () => {
-    svc.clear();
-    const originalUid = (svc as any).uid;
-    const uidSpy: any = createSpy();
-    uidSpy.mockReturnValue('generated');
-    (svc as any).uid = uidSpy;
-    const now = Date.now();
-    svc.logEvent({ id: 'given', type: 'error', timestamp: now, message: 'm', handled: true });
-    const events = svc.getEvents();
-    expect(events[0].id).toBe('given');
-    expect(uidSpy).not.toHaveBeenCalled();
-    (svc as any).uid = originalUid;
-  });
-
-  it('recorta eventos al exceder maxEvents (forzando valor bajo)', () => {
-    svc.clear();
-    (svc as any).maxEvents = 5;
-    for (let i = 0; i < 7; i++) {
-      svc.logLoginAttempt(i);
-    }
-    const events = svc.getEvents();
-    expect(events.length).toBe(5);
-    // los primeros 2 deben haber sido cortados
-    const firstRemaining = events[0] as any;
-    expect(firstRemaining.type).toBe('login_attempt');
-  });
-
-  it('getEvents devuelve todos si limit >= length', () => {
-    svc.clear();
-    svc.logLoginAttempt();
-    svc.logLoginSuccess();
-    const all = svc.getEvents(10);
-    expect(all.length).toBe(2);
-  });
-
-  it('usa self.crypto.randomUUID cuando existe y no hay id provisto', () => {
-    svc.clear();
-    const originalSelfCrypto = (self as any).crypto;
-    const randSpy: any = createSpy();
-    randSpy.mockReturnValue('uuid-1');
-    Object.defineProperty(self as any, 'crypto', {
-      value: { randomUUID: randSpy },
-      configurable: true,
-    });
-    const now = Date.now();
-    svc.logEvent({ type: 'error', timestamp: now, message: 'm', handled: true } as any);
-    expect(randSpy).toHaveBeenCalled();
-    Object.defineProperty(self as any, 'crypto', { value: originalSelfCrypto, configurable: true });
-  });
-
-  it('cuando crypto existe pero randomUUID no, cae a uid()', () => {
-    svc.clear();
-    const originalCrypto = (self as any).crypto;
-    const originalUid = (svc as any).uid;
-    const uidSpy: any = createSpy();
-    uidSpy.mockReturnValue('uid-fallback');
-    (svc as any).uid = uidSpy;
-    // sin randomUUID
-    Object.defineProperty(self as any, 'crypto', { value: {}, configurable: true });
-    svc.logError('m');
-    const [evt] = svc.getEvents();
-    expect(uidSpy).toHaveBeenCalled();
-    expect(evt.id).toBe('uid-fallback');
-    (svc as any).uid = originalUid;
-    Object.defineProperty(self as any, 'crypto', { value: originalCrypto, configurable: true });
-  });
-
-  it('userId undefined se guarda como null en eventos de login', () => {
-    svc.clear();
-    svc.logLoginAttempt(undefined);
-    const [evt] = svc.getEvents() as any[];
-    expect((evt as any).userId).toBeNull();
-  });
-
-  it('logError sin handled explícito usa handled=true por defecto', () => {
-    svc.clear();
-    svc.logError('boom', 'stack');
-    const [evt] = svc.getEvents() as any[];
-    expect((evt as any).handled).toBe(true);
-  });
-
-  it('readAll captura excepción de localStorage.getItem y retorna []', () => {
-    const originalGet = localStorage.getItem;
-    (localStorage as any).getItem = () => {
-      throw new Error('fail');
-    };
-    expect((svc as any).readAll()).toEqual([]);
-    (localStorage as any).getItem = originalGet;
-  });
-
-  it('logEvent usa uid() cuando no hay id ni crypto.randomUUID', () => {
-    svc.clear();
-    const originalCrypto = (self as any).crypto;
-    Object.defineProperty(self as any, 'crypto', { value: {}, configurable: true });
-    const originalUid = (svc as any).uid;
-    const uidSpy: any = createSpy();
-    uidSpy.mockReturnValue('uid-from-branch');
-    (svc as any).uid = uidSpy;
-
-    const now = Date.now();
-    svc.logEvent({
-      type: 'http_request',
-      timestamp: now,
-      method: 'GET',
-      url: '/x',
-      ok: true,
-      status: 200,
-    } as any);
-    const [evt] = svc.getEvents();
-    expect(uidSpy).toHaveBeenCalled();
-    expect((evt as any).id).toBe('uid-from-branch');
-
-    (svc as any).uid = originalUid;
-    Object.defineProperty(self as any, 'crypto', { value: originalCrypto, configurable: true });
-  });
-
-  it('logLoginFailure(undefined) guarda userId como null', () => {
-    svc.clear();
-    svc.logLoginFailure(undefined);
-    const [evt] = svc.getEvents() as any[];
-    expect((evt as any).userId).toBeNull();
-  });
-
-  it('getEvents cubre catch de readAll cuando localStorage.getItem lanza', () => {
-    const originalGet = localStorage.getItem;
-    (localStorage as any).getItem = () => {
-      throw new Error('fail-get');
-    };
-    expect(() => svc.getEvents()).not.toThrow();
-    (localStorage as any).getItem = originalGet;
-  });
-
-  it('getEvents maneja JSON válido no-array retornando [] (cubre rama else)', () => {
-    const originalGet = localStorage.getItem;
-    (localStorage as any).getItem = () => '{"k":123}';
-    const events = svc.getEvents();
-    expect(Array.isArray(events)).toBe(true);
-    expect(events.length).toBe(0);
-    (localStorage as any).getItem = originalGet;
-  });
-
-  it('getEvents maneja JSON válido no-array retornando [] (rama else de Array.isArray)', () => {
-    const originalGet = localStorage.getItem;
-    (localStorage as any).getItem = () => '{"k":123}'; // JSON válido, pero no es array
-    const events = svc.getEvents(); // pasa por readAll -> Array.isArray(parsed) === false
-    expect(Array.isArray(events)).toBe(true);
-    expect(events.length).toBe(0);
-    (localStorage as any).getItem = originalGet;
-  });
-
-  it('getEvents cubre el catch de readAll cuando JSON.parse lanza', () => {
-    const originalGet = localStorage.getItem;
-    (localStorage as any).getItem = () => '}{'; // fuerza excepción en JSON.parse
-    expect(() => svc.getEvents()).not.toThrow(); // readAll -> catch -> return []
-    (localStorage as any).getItem = originalGet;
-  });
-
-  it('readAll regresa [] cuando el valor almacenado no es un arreglo', () => {
-    const spy = jest.spyOn(Storage.prototype, 'getItem').mockReturnValue('{"foo":1}');
-    try {
-      const result = (svc as any).readAll();
-      expect(Array.isArray(result)).toBe(true);
-      expect(result).toHaveLength(0);
-      expect(spy).toHaveBeenCalledWith('app_telemetry_events');
-    } finally {
-      spy.mockRestore();
-    }
-  });
-
-  it('readAll captura excepciones de localStorage.getItem y devuelve []', () => {
-    const spy = jest
-      .spyOn(Storage.prototype, 'getItem')
-      .mockImplementation(() => {
-        throw new Error('get-fail');
+  describe('getDashboard', () => {
+    it('should get dashboard data without parameters', () => {
+      service.getDashboard().subscribe((response) => {
+        expect(response).toEqual(mockDashboardData);
       });
-    try {
-      expect((svc as any).readAll()).toEqual([]);
-      expect(spy).toHaveBeenCalledWith('app_telemetry_events');
-    } finally {
-      spy.mockRestore();
-    }
+
+      const req = httpTestingController.expectOne(`${baseUrl}/dashboard`);
+      expect(req.request.method).toBe('GET');
+      expect(req.request.params.keys().length).toBe(0);
+      req.flush(mockDashboardData);
+    });
+
+    it('should get dashboard data with parameters', () => {
+      const params: TelemetryParams = { periodo: 'ultimo_mes', limit: 10 };
+
+      service.getDashboard(params).subscribe((response) => {
+        expect(response).toEqual(mockDashboardData);
+      });
+
+      const req = httpTestingController.expectOne(
+        `${baseUrl}/dashboard?periodo=ultimo_mes&limit=10`,
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockDashboardData);
+    });
+
+    it('should handle dashboard error', () => {
+      service.getDashboard().subscribe();
+
+      const req = httpTestingController.expectOne(`${baseUrl}/dashboard`);
+      req.error(new ErrorEvent('Network error'));
+
+      expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+    });
+  });
+
+  describe('getSales', () => {
+    it('should get sales data', () => {
+      service.getSales().subscribe((response) => {
+        expect(response).toEqual(mockSalesData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/sales`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockSalesData);
+    });
+
+    it('should get sales data with periodo parameter', () => {
+      const params: TelemetryParams = { periodo: 'ultimos_3_meses' };
+
+      service.getSales(params).subscribe((response) => {
+        expect(response).toEqual(mockSalesData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/sales?periodo=ultimos_3_meses`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockSalesData);
+    });
+  });
+
+  describe('getProducts', () => {
+    it('should get products data', () => {
+      service.getProducts().subscribe((response) => {
+        expect(response).toEqual(mockProductsData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/products`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockProductsData);
+    });
+
+    it('should get products data with limit parameter', () => {
+      const params: TelemetryParams = { limit: 5 };
+
+      service.getProducts(params).subscribe((response) => {
+        expect(response).toEqual(mockProductsData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/products?limit=5`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockProductsData);
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should handle network errors', () => {
+      service.getDashboard().subscribe();
+
+      const req = httpTestingController.expectOne(`${baseUrl}/dashboard`);
+      req.error(new ErrorEvent('Network error'));
+
+      expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+    });
+  });
+
+  describe('Parameter building', () => {
+    it('should build params correctly with only periodo', () => {
+      const params: TelemetryParams = { periodo: 'hoy' };
+
+      service.getDashboard(params).subscribe();
+
+      const req = httpTestingController.expectOne(`${baseUrl}/dashboard?periodo=hoy`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockDashboardData);
+    });
+
+    it('should build params correctly with only limit', () => {
+      const params: TelemetryParams = { limit: 25 };
+
+      service.getProducts(params).subscribe();
+
+      const req = httpTestingController.expectOne(`${baseUrl}/products?limit=25`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockProductsData);
+    });
+
+    it('should handle empty params object', () => {
+      const params: TelemetryParams = {};
+
+      service.getSales(params).subscribe();
+
+      const req = httpTestingController.expectOne(`${baseUrl}/sales`);
+      expect(req.request.method).toBe('GET');
+      expect(req.request.params.keys().length).toBe(0);
+      req.flush(mockSalesData);
+    });
+  });
+
+  // ========================================
+  // TESTS PARA LOGGING LOCAL
+  // ========================================
+
+  describe('Local Logging Methods', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    describe('logLoginAttempt', () => {
+      it('should log login attempt without userId', () => {
+        service.logLoginAttempt();
+        const events = service.getEvents();
+
+        expect(events).toHaveLength(1);
+        expect(events[0].type).toBe('login_attempt');
+        expect(events[0].userId).toBeNull();
+      });
+
+      it('should log login attempt with userId', () => {
+        service.logLoginAttempt(123);
+        const events = service.getEvents();
+
+        expect(events).toHaveLength(1);
+        expect(events[0].type).toBe('login_attempt');
+        expect(events[0].userId).toBe(123);
+      });
+    });
+
+    describe('logLoginSuccess', () => {
+      it('should log login success', () => {
+        service.logLoginSuccess(456);
+        const events = service.getEvents();
+
+        expect(events).toHaveLength(1);
+        expect(events[0].type).toBe('login_success');
+        expect(events[0].userId).toBe(456);
+      });
+    });
+
+    describe('logLoginFailure', () => {
+      it('should log login failure', () => {
+        service.logLoginFailure();
+        const events = service.getEvents();
+
+        expect(events).toHaveLength(1);
+        expect(events[0].type).toBe('login_failure');
+        expect(events[0].userId).toBeNull();
+      });
+    });
+
+    describe('logPurchase', () => {
+      it('should log purchase data', () => {
+        const purchaseData: PurchaseData = {
+          userId: 789,
+          paymentMethodId: 1,
+          paymentMethodLabel: 'EFECTIVO',
+          requiresDelivery: true,
+          items: [
+            { productId: 1, name: 'Bandeja Paisa', quantity: 2, unitPrice: 25000 },
+            { productId: 2, name: 'Gaseosa', quantity: 1, unitPrice: 3000 },
+          ],
+          subtotal: 53000,
+        };
+
+        service.logPurchase(purchaseData);
+        const events = service.getEvents();
+
+        expect(events).toHaveLength(1);
+        expect(events[0].type).toBe('purchase');
+        expect(events[0].userId).toBe(789);
+        expect(events[0].paymentMethodLabel).toBe('EFECTIVO');
+        expect(events[0].subtotal).toBe(53000);
+        expect(events[0].items).toHaveLength(2);
+      });
+    });
+
+    describe('logHttp', () => {
+      it('should log HTTP request', () => {
+        service.logHttp({
+          method: 'GET',
+          url: '/api/test',
+          ok: true,
+          status: 200,
+          durationMs: 150,
+          requestId: 'req-123',
+        });
+
+        const events = service.getEvents();
+
+        expect(events).toHaveLength(1);
+        expect(events[0].type).toBe('http_request');
+        expect(events[0].method).toBe('GET');
+        expect(events[0].url).toBe('/api/test');
+        expect(events[0].ok).toBe(true);
+        expect(events[0].status).toBe(200);
+        expect(events[0].durationMs).toBe(150);
+        expect(events[0].requestId).toBe('req-123');
+      });
+    });
+
+    describe('logError', () => {
+      it('should log error with default handled=true', () => {
+        service.logError('Test error', 'stack trace');
+        const events = service.getEvents();
+
+        expect(events).toHaveLength(1);
+        expect(events[0].type).toBe('error');
+        expect(events[0].message).toBe('Test error');
+        expect(events[0].stack).toBe('stack trace');
+        expect(events[0].handled).toBe(true);
+      });
+
+      it('should log error with handled=false', () => {
+        service.logError('Unhandled error', undefined, false, 'req-456');
+        const events = service.getEvents();
+
+        expect(events).toHaveLength(1);
+        expect(events[0].type).toBe('error');
+        expect(events[0].message).toBe('Unhandled error');
+        expect(events[0].handled).toBe(false);
+        expect(events[0].requestId).toBe('req-456');
+      });
+    });
+
+    describe('getEvents', () => {
+      it('should return all events when no limit', () => {
+        service.logLoginAttempt();
+        service.logLoginSuccess();
+        service.logLoginFailure();
+
+        const events = service.getEvents();
+        expect(events).toHaveLength(3);
+      });
+
+      it('should return limited events when limit provided', () => {
+        service.logLoginAttempt();
+        service.logLoginSuccess();
+        service.logLoginFailure();
+
+        const events = service.getEvents(2);
+        expect(events).toHaveLength(2);
+        // Should return the last 2 events
+        expect(events[0].type).toBe('login_success');
+        expect(events[1].type).toBe('login_failure');
+      });
+    });
+
+    describe('getAggregatedMetrics', () => {
+      it('should aggregate login metrics', () => {
+        service.logLoginAttempt();
+        service.logLoginAttempt();
+        service.logLoginSuccess();
+        service.logLoginFailure();
+
+        const metrics = service.getAggregatedMetrics();
+
+        expect(metrics.login.attempts).toBe(2);
+        expect(metrics.login.successes).toBe(1);
+        expect(metrics.login.failures).toBe(1);
+      });
+
+      it('should aggregate purchase metrics', () => {
+        const purchaseData: PurchaseData = {
+          userId: 123,
+          paymentMethodId: 1,
+          paymentMethodLabel: 'EFECTIVO',
+          requiresDelivery: true,
+          items: [{ productId: 1, name: 'Bandeja Paisa', quantity: 2, unitPrice: 25000 }],
+          subtotal: 50000,
+        };
+
+        service.logPurchase(purchaseData);
+        const metrics = service.getAggregatedMetrics();
+
+        expect(metrics.purchasesByPaymentMethod['EFECTIVO']).toBe(1);
+        expect(metrics.productsCount['Bandeja Paisa']).toBe(2);
+        expect(metrics.usersByPurchases['123']).toBe(1);
+      });
+    });
+
+    describe('clear', () => {
+      it('should clear all events', () => {
+        service.logLoginAttempt();
+        service.logLoginSuccess();
+
+        expect(service.getEvents()).toHaveLength(2);
+
+        service.clear();
+
+        expect(service.getEvents()).toHaveLength(0);
+      });
+
+      it('should handle localStorage errors gracefully', () => {
+        const originalRemoveItem = localStorage.removeItem;
+        const mockRemoveItem = createStorageErrorMock();
+        localStorage.removeItem = mockRemoveItem as any;
+
+        expect(() => service.clear()).not.toThrow();
+        
+        localStorage.removeItem = originalRemoveItem;
+      });
+    });
+
+    describe('Event management', () => {
+      it('should maintain maximum events limit', () => {
+        // Force a small limit for testing
+        (service as any).maxEvents = 3;
+
+        service.logLoginAttempt();
+        service.logLoginSuccess();
+        service.logLoginFailure();
+        service.logLoginAttempt(); // This should remove the first event
+
+        const events = service.getEvents();
+        expect(events).toHaveLength(3);
+        // First event should be removed
+        expect(events[0].type).toBe('login_success');
+      });
+
+      it('should handle localStorage read errors', () => {
+        const originalGetItem = localStorage.getItem;
+        const mockGetItem = createStorageErrorMock();
+        localStorage.getItem = mockGetItem as any;
+
+        expect(() => service.getEvents()).not.toThrow();
+        expect(service.getEvents()).toEqual([]);
+        
+        localStorage.getItem = originalGetItem;
+      });
+
+      it('should handle localStorage write errors', () => {
+        const originalSetItem = localStorage.setItem;
+        const mockSetItem = createStorageErrorMock();
+        localStorage.setItem = mockSetItem as any;
+
+        expect(() => service.logLoginAttempt()).not.toThrow();
+        
+        localStorage.setItem = originalSetItem;
+      });
+
+      it('should handle invalid JSON in localStorage', () => {
+        localStorage.setItem('app_telemetry_events', 'invalid json');
+
+        expect(() => service.getEvents()).not.toThrow();
+        expect(service.getEvents()).toEqual([]);
+      });
+
+      it('should handle non-array data in localStorage', () => {
+        localStorage.setItem('app_telemetry_events', '{"not": "array"}');
+
+        expect(() => service.getEvents()).not.toThrow();
+        expect(service.getEvents()).toEqual([]);
+      });
+    });
   });
 });
