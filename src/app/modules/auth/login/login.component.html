@@ -8,6 +8,7 @@
         </header>
 
         <div class="card-glass glow-border p-4 p-md-5" role="region" aria-labelledby="login-title">
+          <div class="particles-bg" aria-hidden="true"></div>
           <h2 id="login-title" class="visually-hidden">Formulario de inicio de sesión</h2>
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
             <div class="form-group mb-3">
@@ -87,7 +88,6 @@
                   class="form-check-input"
                   type="checkbox"
                   id="remember"
-                  (change)="onRememberChange($event)"
                   aria-describedby="remember-help"
                 />
                 <label class="form-check-label" for="remember">Recordarme</label>
@@ -95,15 +95,12 @@
                   >Mantener sesión en este dispositivo</small
                 >
               </div>
-              <a class="link m-0" routerLink="/recuperar" *ngIf="hasRecoveryRoute"
-                >¿Olvidaste tu contraseña?</a
-              >
             </div>
 
             <button
               type="submit"
               class="btn btn-primary auth-cta btn-block d-flex align-items-center justify-content-center gap-2"
-              [disabled]="loginForm.invalid || isSubmitting"
+              [disabled]="!isButtonEnabled || isSubmitting"
             >
               <span class="progress-bg" [style.--progress]="progress"></span>
               <span *ngIf="!isSubmitting">Iniciar Sesión</span>

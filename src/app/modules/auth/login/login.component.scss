@@ -17,8 +17,6 @@ a.link {
   align-items: center;
 }
 
-// Sin fondo personalizado; respetar fondo del layout actual
-
 // Barra gruesa y redondeada sobre el texto; ocultar la delgada inferior
 .section-title::before {
   display: block;
@@ -86,6 +84,63 @@ a.link {
   padding: 8px 10px;
 }
 
+.remember {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 10px;
+  padding-left: 0;
+}
+.remember .form-check-input {
+  width: 42px;
+  height: 24px;
+  cursor: pointer;
+  border-radius: 999px;
+  margin-left: 0;
+  margin-right: 0;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+  accent-color: var(--primary);
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+  position: relative;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.remember .form-check-input:focus {
+  box-shadow: 0 0 0 0.15rem rgba(212, 160, 23, 0.2);
+  border-color: var(--primary);
+}
+.remember .form-check-input:checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+.remember .form-check-input::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 200ms ease;
+}
+.remember .form-check-input:checked::after {
+  transform: translateX(18px);
+}
+.remember .form-check-label {
+  font-weight: 500;
+  user-select: none;
+}
+.remember small {
+  margin-left: 0;
+  grid-column: 2;
+}
+
 .auth-cta {
   border-radius: 999px;
   font-weight: 600;
@@ -99,44 +154,6 @@ a.link {
 .auth-cta:active {
   transform: translateY(1px);
 }
-.remember {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  column-gap: 10px;
-  padding-left: 0; // anula padding de .form-check/.form-switch
-}
-.remember .form-check-input {
-  width: 42px;
-  height: 24px;
-  cursor: pointer;
-  border-radius: 999px;
-  margin-left: 0; // anula margen negativo de bootstrap
-  margin-right: 0;
-  border: 1px solid #e5e7eb;
-  background-color: #f3f4f6; // estado off neutro (no azul)
-  accent-color: var(--primary);
-  transition:
-    background-color 200ms ease,
-    border-color 200ms ease,
-    box-shadow 200ms ease;
-}
-.remember .form-check-input:focus {
-  box-shadow: 0 0 0 0.15rem rgba(212, 160, 23, 0.2);
-  border-color: var(--primary);
-}
-.remember .form-check-input:checked {
-  background-color: var(--primary);
-  border-color: var(--primary);
-}
-.remember .form-check-label {
-  font-weight: 500;
-  user-select: none;
-}
-.remember small {
-  margin-left: 0;
-  grid-column: 2; // debajo del texto
-}
 
 // Barra de progreso animada dentro del botón
 .auth-cta .progress-bg {
@@ -145,12 +162,61 @@ a.link {
   inset: 0;
   background: linear-gradient(90deg, rgba(212, 160, 23, 0.25), rgba(212, 160, 23, 0.55));
   width: var(--progress);
-  transition: width 200ms ease;
+  transition: width 400ms ease;
   z-index: 0;
 }
 .auth-cta > * {
   position: relative;
   z-index: 1;
+}
+
+// Partículas flotantes
+.particles-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.particles-bg::before,
+.particles-bg::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, rgba(212, 160, 23, 0.6), transparent);
+  border-radius: 50%;
+  animation: float-particles 8s infinite ease-in-out;
+}
+.particles-bg::before {
+  top: 20%;
+  left: 15%;
+  animation-delay: -2s;
+}
+.particles-bg::after {
+  top: 60%;
+  right: 20%;
+  animation-delay: -4s;
+}
+
+@keyframes float-particles {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-10px) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-5px) rotate(180deg);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(-15px) rotate(270deg);
+    opacity: 0.7;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

@@ -23,8 +23,8 @@ export class LoginComponent {
   loginForm: FormGroup;
   isSubmitting = false;
   isPasswordVisible = false;
-  hasRecoveryRoute = false;
   progress = '0%';
+  isButtonEnabled = false;
 
   constructor(
     private fb: FormBuilder,
@@ -40,7 +40,7 @@ export class LoginComponent {
       password: ['', [Validators.required, Validators.minLength(5)]],
     });
 
-    // Progreso visual dentro del botón segun validación
+    // Progreso visual dentro del botón según validación
     this.loginForm.valueChanges.subscribe(() => this.updateProgress());
   }
 
@@ -88,25 +88,23 @@ export class LoginComponent {
     this.isPasswordVisible = !this.isPasswordVisible;
   }
 
-  ngOnInit(): void {
-    // detectar si existe ruta de recuperación
-    this.hasRecoveryRoute = this.router.config.some((r) => r.path === 'recuperar');
-  }
-
-  onRememberChange(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    this.userService.setRemember(checked);
-  }
-
   private updateProgress(): void {
     const docValid = this.loginForm.get('documento')?.value?.toString().trim().length > 0;
     const passValid = this.loginForm.get('password')?.valid ?? false;
+
     if (docValid && passValid) {
       this.progress = '100%';
-    } else if (docValid) {
-      this.progress = '50%';
+      // Delay para que se vea la animación completarse antes de habilitar el botón
+      setTimeout(() => {
+        this.isButtonEnabled = true;
+      }, 450); // 50ms más que la animación CSS (400ms)
     } else {
-      this.progress = '0%';
+      this.isButtonEnabled = false;
+      if (docValid) {
+        this.progress = '50%';
+      } else {
+        this.progress = '0%';
+      }
     }
   }
 }
