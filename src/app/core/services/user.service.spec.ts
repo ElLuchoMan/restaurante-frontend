@@ -37,6 +37,7 @@ describe('UserService', () => {
   afterEach(() => {
     httpTestingController.verify();
     localStorage.clear();
+    sessionStorage.clear();
     mockHandleErrorService.handleError.mockReset();
     mockLoggingService.log.mockReset();
   });
@@ -253,5 +254,203 @@ describe('UserService', () => {
     jest.spyOn(service, 'decodeToken').mockReturnValue(null);
     const result = service.getUserId();
     expect(result).toBe(0);
+  });
+
+  describe('Refresh Token functionality', () => {
+    beforeEach(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+
+    it('should save both tokens to localStorage by default', () => {
+      const accessToken = 'access-token';
+      const refreshToken = 'refresh-token';
+
+      service.saveTokens(accessToken, refreshToken);
+
+      expect(localStorage.getItem('auth_token')).toBe(accessToken);
+      expect(localStorage.getItem('refresh_token')).toBe(refreshToken);
+      expect(sessionStorage.getItem('auth_token')).toBeNull();
+      expect(sessionStorage.getItem('refresh_token')).toBeNull();
+    });
+
+    it('should save tokens to sessionStorage when remember is false', () => {
+      const accessToken = 'access-token';
+      const refreshToken = 'refresh-token';
+
+      service.setRemember(false);
+      service.saveTokens(accessToken, refreshToken);
+
+      expect(sessionStorage.getItem('auth_token')).toBe(accessToken);
+      expect(sessionStorage.getItem('refresh_token')).toBe(refreshToken);
+      expect(localStorage.getItem('auth_token')).toBeNull();
+      expect(localStorage.getItem('refresh_token')).toBeNull();
+    });
+
+    it('should get refresh token from localStorage', () => {
+      const refreshToken = 'test-refresh-token';
+      localStorage.setItem('refresh_token', refreshToken);
+
+      expect(service.getRefreshToken()).toBe(refreshToken);
+    });
+
+    it('should get refresh token from sessionStorage if not in localStorage', () => {
+      const refreshToken = 'test-refresh-token';
+      sessionStorage.setItem('refresh_token', refreshToken);
+
+      expect(service.getRefreshToken()).toBe(refreshToken);
+    });
+
+    it('should return null for refresh token if window is undefined', () => {
+      const originalWindow = globalThis.window;
+      delete (globalThis as any).window;
+      const token = service.getRefreshToken();
+      expect(token).toBe(null);
+      globalThis.window = originalWindow;
+    });
+
+    it('should send refresh request with correct headers', () => {
+      const refreshToken = 'test-refresh-token';
+      localStorage.setItem('refresh_token', refreshToken);
+
+      service.refreshTokens().subscribe((response) => {
+        expect(response).toEqual(mockLoginResponse);
+      });
+
+      const req = httpTestingController.expectOne(`${environment.apiUrl}/auth/refresh`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.headers.get('Authorization')).toBe(`Bearer ${refreshToken}`);
+      req.flush(mockLoginResponse);
+    });
+
+    it('should logout and throw error if no refresh token available', () => {
+      const logoutSpy = jest.spyOn(service, 'logout');
+
+      expect(() => service.refreshTokens()).toThrow('No refresh token available');
+      expect(logoutSpy).toHaveBeenCalled();
+    });
+
+    it('should handle refresh token error and logout', () => {
+      const refreshToken = 'test-refresh-token';
+      localStorage.setItem('refresh_token', refreshToken);
+      const logoutSpy = jest.spyOn(service, 'logout');
+
+      service.refreshTokens().subscribe({
+        error: (error) => {
+          expect(error).toBeTruthy();
+          expect(logoutSpy).toHaveBeenCalled();
+          expect(mockLoggingService.log).toHaveBeenCalledWith(
+            LogLevel.ERROR,
+            'Error al refrescar token',
+            expect.any(Object),
+          );
+        },
+      });
+
+      const req = httpTestingController.expectOne(`${environment.apiUrl}/auth/refresh`);
+      req.error(new ErrorEvent('Network error'));
+    });
+
+    it('should attempt token refresh and return true on success', () => {
+      const refreshToken = 'test-refresh-token';
+      const newAccessToken = 'new-access-token';
+      const newRefreshToken = 'new-refresh-token';
+
+      localStorage.setItem('refresh_token', refreshToken);
+      const saveTokensSpy = jest.spyOn(service, 'saveTokens');
+
+      const mockRefreshResponse = {
+        ...mockLoginResponse,
+        data: {
+          ...mockLoginResponse.data,
+          access_token: newAccessToken,
+          refresh_token: newRefreshToken,
+        },
+      };
+
+      service.attemptTokenRefresh().subscribe((success) => {
+        expect(success).toBe(true);
+        expect(saveTokensSpy).toHaveBeenCalledWith(newAccessToken, newRefreshToken);
+      });
+
+      const req = httpTestingController.expectOne(`${environment.apiUrl}/auth/refresh`);
+      req.flush(mockRefreshResponse);
+    });
+
+    it('should attempt token refresh and return false on error', () => {
+      const refreshToken = 'test-refresh-token';
+      localStorage.setItem('refresh_token', refreshToken);
+
+      service.attemptTokenRefresh().subscribe((success) => {
+        expect(success).toBe(false);
+      });
+
+      const req = httpTestingController.expectOne(`${environment.apiUrl}/auth/refresh`);
+      req.error(new ErrorEvent('Network error'));
+    });
+
+    it('should clear refresh timer on logout', () => {
+      const accessToken = 'access-token';
+      const refreshToken = 'refresh-token';
+
+      // Simular que hay un timer activo
+      service.saveTokens(accessToken, refreshToken);
+
+      // Espiar clearTimeout
+      const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+
+      service.logout();
+
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+      expect(localStorage.getItem('auth_token')).toBeNull();
+      expect(localStorage.getItem('refresh_token')).toBeNull();
+      expect(sessionStorage.getItem('auth_token')).toBeNull();
+      expect(sessionStorage.getItem('refresh_token')).toBeNull();
+    });
+
+    it('should schedule token refresh when saving tokens', () => {
+      const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+      const accessToken = 'access-token';
+      const refreshToken = 'refresh-token';
+
+      service.saveTokens(accessToken, refreshToken);
+
+      expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 25 * 60 * 1000);
+    });
+  });
+
+  describe('Remember Me functionality', () => {
+    it('should use localStorage by default (remember = true)', () => {
+      service.setRemember(true);
+      service.saveToken('test-token');
+
+      expect(localStorage.getItem('auth_token')).toBe('test-token');
+      expect(sessionStorage.getItem('auth_token')).toBeNull();
+    });
+
+    it('should use sessionStorage when remember = false', () => {
+      service.setRemember(false);
+      service.saveToken('test-token');
+
+      expect(sessionStorage.getItem('auth_token')).toBe('test-token');
+      expect(localStorage.getItem('auth_token')).toBeNull();
+    });
+
+    it('should get token from both storages for compatibility', () => {
+      // Caso 1: Token en localStorage
+      localStorage.setItem('auth_token', 'local-token');
+      expect(service.getToken()).toBe('local-token');
+
+      localStorage.clear();
+
+      // Caso 2: Token en sessionStorage
+      sessionStorage.setItem('auth_token', 'session-token');
+      expect(service.getToken()).toBe('session-token');
+
+      // Caso 3: Token en ambos (localStorage tiene prioridad)
+      localStorage.setItem('auth_token', 'local-token');
+      sessionStorage.setItem('auth_token', 'session-token');
+      expect(service.getToken()).toBe('local-token');
+    });
   });
 });

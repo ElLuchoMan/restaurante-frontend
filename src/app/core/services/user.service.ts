@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
-import { BehaviorSubject, catchError, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
@@ -22,7 +22,9 @@ export interface DecodedToken {
 export class UserService {
   private baseUrl = environment.apiUrl;
   private tokenKey = 'auth_token';
+  private refreshTokenKey = 'refresh_token';
   private useSession = false;
+  private refreshTimer: any = null;
 
   private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
 
@@ -59,10 +61,31 @@ export class UserService {
     this.authState.next(true);
   }
 
+  saveTokens(accessToken: string, refreshToken: string): void {
+    const storage = this.storage();
+    storage.setItem(this.tokenKey, accessToken);
+    storage.setItem(this.refreshTokenKey, refreshToken);
+    this.authState.next(true);
+
+    // Programar refresh automático para 25 minutos (5 min antes de que expire)
+    this.scheduleTokenRefresh();
+  }
+
+  getRefreshToken(): string | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+    // Buscar en ambos storages para compatibilidad
+    return (
+      localStorage.getItem(this.refreshTokenKey) ?? sessionStorage.getItem(this.refreshTokenKey)
+    );
+  }
+
   getToken(): string | null {
     if (typeof window === 'undefined') {
       return null;
     }
+    // Buscar en ambos storages para compatibilidad
     return localStorage.getItem(this.tokenKey) ?? sessionStorage.getItem(this.tokenKey);
   }
 
@@ -104,8 +127,18 @@ export class UserService {
   }
 
   logout(): void {
+    // Limpiar timer de refresh
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+
+    // Limpiar tokens de ambos storages
     localStorage.removeItem(this.tokenKey);
     sessionStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    sessionStorage.removeItem(this.refreshTokenKey);
+
     this.authState.next(false);
   }
 
@@ -116,5 +149,69 @@ export class UserService {
       return null;
     }
     return token;
+  }
+
+  refreshTokens(): Observable<ApiResponse<LoginResponse>> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      this.logout();
+      throw new Error('No refresh token available');
+    }
+
+    return this.http
+      .post<ApiResponse<LoginResponse>>(
+        `${this.baseUrl}/auth/refresh`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${refreshToken}` },
+        },
+      )
+      .pipe(
+        catchError((error) => {
+          this.logger.log(LogLevel.ERROR, 'Error al refrescar token', error);
+          this.logout(); // Si falla el refresh, hacer logout
+          return this.handleError.handleError(error);
+        }),
+      );
+  }
+
+  private scheduleTokenRefresh(): void {
+    // Limpiar timer anterior si existe
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+    }
+
+    // Programar refresh para 25 minutos (1500000 ms)
+    this.refreshTimer = setTimeout(
+      () => {
+        this.refreshTokens().subscribe({
+          next: (response) => {
+            this.saveTokens(response.data.access_token, response.data.refresh_token);
+            this.logger.log(LogLevel.INFO, 'Tokens refrescados automáticamente');
+          },
+          error: (error) => {
+            this.logger.log(LogLevel.ERROR, 'Error en refresh automático', error);
+            // El logout ya se maneja en refreshTokens()
+          },
+        });
+      },
+      25 * 60 * 1000,
+    ); // 25 minutos
+  }
+
+  // Método para intentar refresh manual cuando una API call falla con 401
+  attemptTokenRefresh(): Observable<boolean> {
+    return this.refreshTokens().pipe(
+      map((response) => {
+        this.saveTokens(response.data.access_token, response.data.refresh_token);
+        return true;
+      }),
+      catchError(() => {
+        return new Observable<boolean>((observer) => {
+          observer.next(false);
+          observer.complete();
+        });
+      }),
+    );
   }
 }

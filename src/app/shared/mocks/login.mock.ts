@@ -10,7 +10,9 @@ export const mockLoginResponse: ApiResponse<LoginResponse> = {
   code: 200,
   message: 'Inicio de sesión exitoso',
   data: {
-    token: 'testToken',
+    token: 'testToken', // mantener compatibilidad hacia atrás
+    access_token: 'testAccessToken',
+    refresh_token: 'testRefreshToken',
     nombre: 'Test User',
   },
 };

@@ -25,6 +25,9 @@ export class LoginComponent {
   isPasswordVisible = false;
   progress = '0%';
   isButtonEnabled = false;
+  documentoFocused = false;
+  passwordFocused = false;
+  rememberMe = true;
 
   constructor(
     private fb: FormBuilder,
@@ -42,6 +45,9 @@ export class LoginComponent {
 
     // Progreso visual dentro del botón según validación
     this.loginForm.valueChanges.subscribe(() => this.updateProgress());
+
+    // Configurar el tipo de almacenamiento según "Recordarme"
+    this.userService.setRemember(this.rememberMe);
   }
 
   onSubmit(): void {
@@ -60,7 +66,14 @@ export class LoginComponent {
       )
       .subscribe({
         next: (response) => {
-          this.userService.saveToken(response.data.token);
+          // Usar el nuevo sistema de tokens si están disponibles
+          if (response.data.access_token && response.data.refresh_token) {
+            this.userService.saveTokens(response.data.access_token, response.data.refresh_token);
+          } else {
+            // Fallback para compatibilidad hacia atrás
+            this.userService.saveToken(response.data.token);
+          }
+
           this.live.announce('Sesión iniciada');
           this.toastr.success('Inicio de sesión exitoso', `Bienvenido ${response.data.nombre}`);
           this.telemetry.logLoginSuccess(this.userService.getUserId?.() ?? null);
@@ -106,5 +119,18 @@ export class LoginComponent {
         this.progress = '0%';
       }
     }
+  }
+
+  onRememberChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.rememberMe = target.checked;
+    this.userService.setRemember(this.rememberMe);
+
+    // Anunciar el cambio para accesibilidad
+    this.live.announce(
+      this.rememberMe
+        ? 'Sesión se mantendrá activa por 30 días'
+        : 'Sesión se cerrará al cerrar el navegador',
+    );
   }
 }

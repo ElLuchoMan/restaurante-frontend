@@ -6,11 +6,13 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
 import { mockLogin } from '../../../shared/mocks/login.mock';
 import {
+  createLiveAnnouncerServiceMock,
   createLoggingServiceMock,
   createRouterMock,
   createTelemetryServiceMock,
@@ -28,6 +30,7 @@ describe('LoginComponent', () => {
   let toastr: jest.Mocked<ToastrService>;
   let loggingService: jest.Mocked<LoggingService>;
   let telemetry: jest.Mocked<TelemetryService>;
+  let liveAnnouncer: jest.Mocked<LiveAnnouncerService>;
 
   beforeEach(async () => {
     const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
@@ -35,6 +38,7 @@ describe('LoginComponent', () => {
     const toastrMock = createToastrMock() as jest.Mocked<ToastrService>;
     const loggingServiceMock = createLoggingServiceMock() as jest.Mocked<LoggingService>;
     const telemetryMock = createTelemetryServiceMock() as jest.Mocked<TelemetryService>;
+    const liveAnnouncerMock = createLiveAnnouncerServiceMock() as jest.Mocked<LiveAnnouncerService>;
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent, ReactiveFormsModule, CommonModule, RouterTestingModule],
@@ -43,6 +47,7 @@ describe('LoginComponent', () => {
         { provide: ToastrService, useValue: toastrMock },
         { provide: LoggingService, useValue: loggingServiceMock },
         { provide: TelemetryService, useValue: telemetryMock },
+        { provide: LiveAnnouncerService, useValue: liveAnnouncerMock },
       ],
     }).compileComponents();
 
@@ -53,6 +58,7 @@ describe('LoginComponent', () => {
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
     telemetry = TestBed.inject(TelemetryService) as jest.Mocked<TelemetryService>;
+    liveAnnouncer = TestBed.inject(LiveAnnouncerService) as jest.Mocked<LiveAnnouncerService>;
 
     // Spy on router navigate method
     jest.spyOn(router, 'navigate').mockResolvedValue(true);
@@ -64,7 +70,7 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call login service with correct credentials and log telemetry success', () => {
+  it('should call login service with correct credentials and save new tokens', () => {
     userService.login.mockReturnValue(of(mockLoginResponse));
 
     component.loginForm.setValue(mockLogin);
@@ -72,9 +78,29 @@ describe('LoginComponent', () => {
 
     expect(telemetry.logLoginAttempt).toHaveBeenCalled();
     expect(userService.login).toHaveBeenCalledWith(mockLogin);
-    expect(userService.saveToken).toHaveBeenCalledWith('testToken');
+    expect(userService.saveTokens).toHaveBeenCalledWith('testAccessToken', 'testRefreshToken');
+    expect(liveAnnouncer.announce).toHaveBeenCalledWith('Sesión iniciada');
     expect(toastr.success).toHaveBeenCalledWith('Inicio de sesión exitoso', 'Bienvenido Test User');
     expect(telemetry.logLoginSuccess).toHaveBeenCalled();
+  });
+
+  it('should fallback to old token format if new tokens are not available', () => {
+    const mockOldResponse = {
+      ...mockLoginResponse,
+      data: {
+        token: 'oldToken',
+        nombre: 'Test User',
+        access_token: undefined,
+        refresh_token: undefined,
+      },
+    };
+    userService.login.mockReturnValue(of(mockOldResponse as any));
+
+    component.loginForm.setValue(mockLogin);
+    component.onSubmit();
+
+    expect(userService.saveToken).toHaveBeenCalledWith('oldToken');
+    expect(userService.saveTokens).not.toHaveBeenCalled();
   });
 
   it('should navigate to admin route when user role is Administrador', () => {
@@ -142,5 +168,121 @@ describe('LoginComponent', () => {
     component.onSubmit();
     expect(markSpy).toHaveBeenCalled();
     expect(userService.login).not.toHaveBeenCalled();
+  });
+
+  describe('Remember Me functionality', () => {
+    it('should initialize with rememberMe as true', () => {
+      expect(component.rememberMe).toBe(true);
+    });
+
+    it('should call userService.setRemember on initialization', () => {
+      expect(userService.setRemember).toHaveBeenCalledWith(true);
+    });
+
+    it('should toggle password visibility', () => {
+      expect(component.isPasswordVisible).toBe(false);
+
+      component.togglePasswordVisibility();
+      expect(component.isPasswordVisible).toBe(true);
+
+      component.togglePasswordVisibility();
+      expect(component.isPasswordVisible).toBe(false);
+    });
+
+    it('should handle remember me change event', () => {
+      const mockEvent = {
+        target: { checked: false },
+      } as any;
+
+      component.onRememberChange(mockEvent);
+
+      expect(component.rememberMe).toBe(false);
+      expect(userService.setRemember).toHaveBeenCalledWith(false);
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith(
+        'Sesión se cerrará al cerrar el navegador',
+      );
+    });
+
+    it('should announce correct message when enabling remember me', () => {
+      const mockEvent = {
+        target: { checked: true },
+      } as any;
+
+      component.rememberMe = false; // Start with false
+      component.onRememberChange(mockEvent);
+
+      expect(component.rememberMe).toBe(true);
+      expect(userService.setRemember).toHaveBeenCalledWith(true);
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith('Sesión se mantendrá activa por 30 días');
+    });
+  });
+
+  describe('Progress functionality', () => {
+    it('should start with 0% progress and button disabled', () => {
+      expect(component.progress).toBe('0%');
+      expect(component.isButtonEnabled).toBe(false);
+    });
+
+    it('should update progress to 50% when document is valid', () => {
+      component.loginForm.get('documento')?.setValue('12345');
+
+      // Trigger valueChanges manually since we're not using real form
+      component['updateProgress']();
+
+      expect(component.progress).toBe('50%');
+      expect(component.isButtonEnabled).toBe(false);
+    });
+
+    it('should update progress to 100% and enable button when both fields are valid', (done) => {
+      component.loginForm.get('documento')?.setValue('12345');
+      component.loginForm.get('password')?.setValue('validpassword');
+
+      component['updateProgress']();
+
+      expect(component.progress).toBe('100%');
+      expect(component.isButtonEnabled).toBe(false); // Still false initially
+
+      // Check after timeout
+      setTimeout(() => {
+        expect(component.isButtonEnabled).toBe(true);
+        done();
+      }, 500);
+    });
+
+    it('should reset progress when fields become invalid', () => {
+      // First make it valid
+      component.loginForm.get('documento')?.setValue('12345');
+      component.loginForm.get('password')?.setValue('validpassword');
+      component['updateProgress']();
+
+      // Then make document invalid
+      component.loginForm.get('documento')?.setValue('');
+      component['updateProgress']();
+
+      expect(component.progress).toBe('0%');
+      expect(component.isButtonEnabled).toBe(false);
+    });
+  });
+
+  describe('Focus states', () => {
+    it('should track document input focus state', () => {
+      expect(component.documentoFocused).toBe(false);
+
+      component.documentoFocused = true;
+      expect(component.documentoFocused).toBe(true);
+
+      component.documentoFocused = false;
+      expect(component.documentoFocused).toBe(false);
+    });
+
+    it('should track password input focus state', () => {
+      expect(component.passwordFocused).toBe(false);
+
+      component.passwordFocused = true;
+      expect(component.passwordFocused).toBe(true);
+
+      component.passwordFocused = false;
+      expect(component.passwordFocused).toBe(false);
+    });
   });
 });

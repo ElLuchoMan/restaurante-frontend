@@ -1,5 +1,7 @@
 export interface LoginResponse {
-  token: string;
+  token: string; // mantener compatibilidad hacia atrás
+  access_token: string;
+  refresh_token: string;
   nombre: string;
   rol?: string;
 }

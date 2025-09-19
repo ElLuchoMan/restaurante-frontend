@@ -12,18 +12,24 @@
           <h2 id="login-title" class="visually-hidden">Formulario de inicio de sesión</h2>
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
             <div class="form-group mb-3">
-              <label for="documento" class="form-label">Documento</label>
-              <div class="input-icon">
-                <span class="icon" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span>
+              <div class="input-float">
+                <span
+                  class="icon"
+                  aria-hidden="true"
+                  [class.icon-active]="documentoFocused || loginForm.get('documento')?.value"
+                  ><i class="fa-solid fa-id-card"></i
+                ></span>
                 <input
                   type="number"
                   inputmode="numeric"
                   id="documento"
                   class="form-control"
                   formControlName="documento"
-                  placeholder="1000000000"
+                  placeholder=" "
                   autocomplete="username"
                   autofocus
+                  (focus)="documentoFocused = true"
+                  (blur)="documentoFocused = false"
                   [attr.aria-invalid]="
                     loginForm.get('documento')?.invalid && loginForm.get('documento')?.touched
                       ? 'true'
@@ -31,6 +37,13 @@
                   "
                   aria-describedby="documento-error"
                 />
+                <label for="documento" class="float-label">Documento</label>
+                <div
+                  class="validation-icon"
+                  *ngIf="loginForm.get('documento')?.valid && loginForm.get('documento')?.value"
+                >
+                  <i class="fa-solid fa-check"></i>
+                </div>
               </div>
               <div
                 *ngIf="loginForm.get('documento')?.invalid && loginForm.get('documento')?.touched"
@@ -43,16 +56,22 @@
             </div>
 
             <div class="form-group mb-4">
-              <label for="password" class="form-label">Contraseña</label>
-              <div class="input-icon">
-                <span class="icon" aria-hidden="true"><i class="fa-solid fa-lock"></i></span>
+              <div class="input-float">
+                <span
+                  class="icon"
+                  aria-hidden="true"
+                  [class.icon-active]="passwordFocused || loginForm.get('password')?.value"
+                  ><i class="fa-solid fa-lock"></i
+                ></span>
                 <input
                   [type]="isPasswordVisible ? 'text' : 'password'"
                   id="password"
                   class="form-control"
                   autocomplete="current-password"
                   formControlName="password"
-                  placeholder="•••••"
+                  placeholder=" "
+                  (focus)="passwordFocused = true"
+                  (blur)="passwordFocused = false"
                   [attr.aria-invalid]="
                     loginForm.get('password')?.invalid && loginForm.get('password')?.touched
                       ? 'true'
@@ -60,6 +79,7 @@
                   "
                   aria-describedby="password-error"
                 />
+                <label for="password" class="float-label">Contraseña</label>
                 <button
                   type="button"
                   class="toggle-btn"
@@ -71,6 +91,12 @@
                 >
                   <i class="fa-solid" [ngClass]="isPasswordVisible ? 'fa-eye-slash' : 'fa-eye'"></i>
                 </button>
+                <div
+                  class="validation-icon"
+                  *ngIf="loginForm.get('password')?.valid && loginForm.get('password')?.value"
+                >
+                  <i class="fa-solid fa-check"></i>
+                </div>
               </div>
               <div
                 *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
@@ -88,11 +114,13 @@
                   class="form-check-input"
                   type="checkbox"
                   id="remember"
+                  [checked]="rememberMe"
+                  (change)="onRememberChange($event)"
                   aria-describedby="remember-help"
                 />
                 <label class="form-check-label" for="remember">Recordarme</label>
                 <small id="remember-help" class="text-muted d-block"
-                  >Mantener sesión en este dispositivo</small
+                  >Mantener sesión activa por 30 días</small
                 >
               </div>
             </div>

@@ -29,6 +29,12 @@ export function createToastrMock() {
   return { success: jest.fn(), error: jest.fn(), warning: jest.fn(), clear: jest.fn() } as any;
 }
 
+export function createLiveAnnouncerServiceMock() {
+  return {
+    announce: jest.fn(),
+  } as any;
+}
+
 export function createUserServiceMock() {
   return {
     getAuthState: jest.fn(),
@@ -43,6 +49,12 @@ export function createUserServiceMock() {
     isTokenExpired: jest.fn(),
     login: jest.fn(),
     saveToken: jest.fn(),
+    saveTokens: jest.fn(),
+    setRemember: jest.fn(),
+    getToken: jest.fn(),
+    getRefreshToken: jest.fn(),
+    refreshTokens: jest.fn(),
+    attemptTokenRefresh: jest.fn(),
   } as any;
 }
 
