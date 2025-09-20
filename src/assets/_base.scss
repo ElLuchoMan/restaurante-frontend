@@ -11217,3 +11217,411 @@ button.bg-dark {
   position: absolute;
   z-index: 1;
 }
+
+/* ========================================
+   TARJETAS VIBRANTES REUTILIZABLES
+   "La cocina DE MARÍA" - Estilos modernos
+   ======================================== */
+
+// Clase base para tarjetas vibrantes
+.card-vibrant {
+  border: none !important;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  .card-body {
+    background: transparent !important;
+
+    h6,
+    h3,
+    .card-title,
+    .card-text {
+      color: #fff !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      font-weight: 600;
+    }
+
+    i,
+    .fa-solid,
+    .fa-regular {
+      color: rgba(255, 255, 255, 0.8) !important;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+  }
+}
+
+// Tarjeta dorada vibrante
+.card-vibrant-primary {
+  @extend .card-vibrant;
+  background: linear-gradient(135deg, #{$primary} 0%, #{$warning} 100%) !important;
+  box-shadow: 0 8px 25px rgba(212, 160, 23, 0.3) !important;
+
+  &:hover {
+    box-shadow: 0 12px 35px rgba(212, 160, 23, 0.4) !important;
+  }
+}
+
+// Tarjeta verde vibrante
+.card-vibrant-success {
+  @extend .card-vibrant;
+  background: linear-gradient(135deg, #{$success} 0%, #{$teal} 100%) !important;
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3) !important;
+
+  &:hover {
+    box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4) !important;
+  }
+}
+
+// Tarjeta azul vibrante
+.card-vibrant-info {
+  @extend .card-vibrant;
+  background: linear-gradient(135deg, #{$info} 0%, #{$purple} 100%) !important;
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3) !important;
+
+  &:hover {
+    box-shadow: 0 12px 35px rgba(23, 162, 184, 0.4) !important;
+  }
+}
+
+// Tarjeta amarilla vibrante
+.card-vibrant-warning {
+  @extend .card-vibrant;
+  background: linear-gradient(135deg, #{$warning} 0%, #{$orange} 100%) !important;
+  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3) !important;
+
+  &:hover {
+    box-shadow: 0 12px 35px rgba(255, 193, 7, 0.4) !important;
+  }
+}
+
+// Tarjeta roja vibrante
+.card-vibrant-danger {
+  @extend .card-vibrant;
+  background: linear-gradient(135deg, #{$danger} 0%, #{$pink} 100%) !important;
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3) !important;
+
+  &:hover {
+    box-shadow: 0 12px 35px rgba(220, 53, 69, 0.4) !important;
+  }
+}
+
+// Tarjeta secundaria vibrante
+.card-vibrant-secondary {
+  @extend .card-vibrant;
+  background: linear-gradient(135deg, #{$secondary} 0%, #{$tertiary} 100%) !important;
+  box-shadow: 0 8px 25px rgba(158, 79, 63, 0.3) !important;
+
+  &:hover {
+    box-shadow: 0 12px 35px rgba(158, 79, 63, 0.4) !important;
+  }
+}
+
+/* ========================================
+   BOTONES VIBRANTES REUTILIZABLES
+   ======================================== */
+
+// Botón dorado vibrante
+.btn-vibrant-primary {
+  background: linear-gradient(135deg, #{$primary} 0%, #{$tertiary} 100%);
+  border-color: #{$secondary};
+  color: #fff;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(158, 79, 63, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      #{color.adjust($primary, $lightness: -10%)} 0%,
+      #{$secondary} 100%
+    );
+    border-color: #{color.adjust($secondary, $lightness: -15%)};
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(158, 79, 63, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    background: linear-gradient(
+      135deg,
+      #{color.adjust($primary, $lightness: -15%)} 0%,
+      #{color.adjust($secondary, $lightness: -10%)} 100%
+    );
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* ========================================
+   BADGES VIBRANTES REUTILIZABLES
+   ======================================== */
+
+.badge-vibrant {
+  font-weight: 500;
+  padding: 0.5em 0.75em;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+
+  &.badge-vibrant-primary {
+    background-color: rgba(212, 160, 23, 0.1);
+    color: #{$primary};
+    border-color: rgba(212, 160, 23, 0.2);
+  }
+
+  &.badge-vibrant-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #{$success};
+    border-color: rgba(40, 167, 69, 0.2);
+  }
+
+  &.badge-vibrant-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: #{$info};
+    border-color: rgba(23, 162, 184, 0.2);
+  }
+
+  &.badge-vibrant-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #{$warning};
+    border-color: rgba(255, 193, 7, 0.2);
+  }
+
+  &.badge-vibrant-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #{$danger};
+    border-color: rgba(220, 53, 69, 0.2);
+  }
+
+  &.badge-vibrant-secondary {
+    background-color: rgba(158, 79, 63, 0.1);
+    color: #{$secondary};
+    border-color: rgba(158, 79, 63, 0.2);
+  }
+}
+
+/* ========================================
+   FILTROS Y FORMULARIOS MEJORADOS
+   "La cocina DE MARÍA" - Estilos atractivos
+   ======================================== */
+
+// Estilos mejorados para form-control
+.form-control-enhanced {
+  font-size: 0.875rem;
+  border: 1px solid rgba(158, 79, 63, 0.15);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.625rem 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(158, 79, 63, 0.05);
+  height: 38px;
+
+  &:focus {
+    border-color: #{$primary};
+    box-shadow:
+      0 0 0 3px rgba(212, 160, 23, 0.1),
+      0 2px 8px rgba(158, 79, 63, 0.08);
+    outline: none;
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-1px);
+  }
+
+  &:hover:not(:focus) {
+    border-color: rgba(212, 160, 23, 0.3);
+    box-shadow: 0 2px 6px rgba(158, 79, 63, 0.08);
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  // Estilos específicos para campos de fecha
+  &[type='date'] {
+    cursor: pointer;
+    position: relative;
+
+    &::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.5;
+      transition: all 0.2s ease;
+      padding: 6px;
+      border-radius: 6px;
+      margin-left: 8px;
+
+      &:hover {
+        opacity: 0.8;
+        background-color: rgba(212, 160, 23, 0.08);
+      }
+    }
+  }
+
+  // Placeholder mejorado
+  &::placeholder {
+    color: rgba(158, 79, 63, 0.5);
+    opacity: 1;
+    font-style: italic;
+    font-weight: 400;
+  }
+}
+
+// Estilos mejorados para form-select
+.form-select-enhanced {
+  font-size: 0.875rem;
+  border: 1px solid rgba(158, 79, 63, 0.15);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.625rem 2.5rem 0.625rem 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(158, 79, 63, 0.05);
+  cursor: pointer;
+  height: 38px;
+
+  &:focus {
+    border-color: #{$primary};
+    box-shadow:
+      0 0 0 3px rgba(212, 160, 23, 0.1),
+      0 2px 8px rgba(158, 79, 63, 0.08);
+    outline: none;
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-1px);
+  }
+
+  &:hover:not(:focus) {
+    border-color: rgba(212, 160, 23, 0.3);
+    box-shadow: 0 2px 6px rgba(158, 79, 63, 0.08);
+    background: rgba(255, 255, 255, 0.9);
+  }
+}
+
+// Contenedor de filtros mejorado y armonioso
+.filters-container {
+  background: linear-gradient(135deg, rgba(253, 243, 231, 0.4) 0%, rgba(234, 218, 186, 0.2) 100%);
+  border: 1px solid rgba(158, 79, 63, 0.08);
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 12px rgba(158, 79, 63, 0.04);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #{$primary} 0%, #{$tertiary} 50%, #{$secondary} 100%);
+    border-radius: 1.25rem 1.25rem 0 0;
+  }
+
+  .row {
+    margin: 0;
+
+    > [class*='col-'] {
+      margin-bottom: 0;
+    }
+
+    // Campos de fecha más compactos en desktop
+    @media (min-width: 992px) {
+      .col-lg-1 {
+        min-width: 120px;
+      }
+    }
+  }
+}
+
+// Botón de limpiar filtros mejorado
+.btn-clear-filters {
+  background: linear-gradient(135deg, rgba(158, 79, 63, 0.8) 0%, rgba(158, 79, 63, 1) 100%);
+  border: 2px solid rgba(158, 79, 63, 0.3);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(158, 79, 63, 0.2);
+  height: 38px;
+  white-space: nowrap;
+
+  i {
+    margin-right: 0.5rem;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      #{$secondary} 0%,
+      #{color.adjust($secondary, $lightness: -15%)} 100%
+    );
+    border-color: #{$secondary};
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(158, 79, 63, 0.3);
+
+    i {
+      transform: rotate(15deg);
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(158, 79, 63, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow:
+      0 0 0 3px rgba(158, 79, 63, 0.2),
+      0 4px 15px rgba(158, 79, 63, 0.3);
+  }
+}
+
+// Input group mejorado
+.input-group-enhanced {
+  .input-group-text {
+    background: linear-gradient(135deg, #{$quaternary} 0%, rgba(234, 218, 186, 0.8) 100%);
+    border-color: #{$primary};
+    color: #{$dark};
+    font-weight: 500;
+  }
+
+  .form-control-enhanced {
+    border-left: none;
+
+    &:focus {
+      border-color: #{$primary};
+      box-shadow: 0 0 0 0.2rem rgba(212, 160, 23, 0.25);
+    }
+  }
+}
+
+// Clases de utilidad para filtros
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #{$secondary};
+  margin-bottom: 0.4rem;
+  display: block;
+  letter-spacing: 0.02em;
+
+  i {
+    color: #{$primary};
+    opacity: 0.7;
+    font-size: 0.7rem;
+    margin-right: 0.3rem;
+  }
+}
+
+.filter-help-text {
+  font-size: 0.75rem;
+  color: rgba(158, 79, 63, 0.7);
+  margin-top: 0.25rem;
+  font-style: italic;
+}

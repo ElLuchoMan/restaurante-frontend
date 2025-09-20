@@ -1,23 +1,27 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import {
   DashboardData,
-  SalesData,
-  ProductsData,
-  UsersData,
-  TimeAnalysisData,
-  RentabilidadData,
-  SegmentacionData,
   EficienciaData,
-  ReservasAnalisisData,
   PedidosAnalisisData,
+  ProductsData,
+  RentabilidadData,
+  ReservasAnalisisData,
+  SalesData,
+  SegmentacionData,
   TelemetryParams,
+  TimeAnalysisData,
+  UsersData,
 } from '../../shared/models/telemetry.model';
 import { HandleErrorService } from './handle-error.service';
+
+// Tipos de dispositivo
+export type DeviceType = 'desktop' | 'web-mobile' | 'android' | 'ios';
 
 // Interfaces para logging local
 export interface TelemetryEvent {
@@ -25,6 +29,9 @@ export interface TelemetryEvent {
   type: 'login_attempt' | 'login_success' | 'login_failure' | 'purchase' | 'http_request' | 'error';
   timestamp: number;
   userId?: number | null;
+  userDocument?: string | null;
+  deviceType?: DeviceType;
+  currentScreen?: string | null;
   message?: string;
   stack?: string;
   handled?: boolean;
@@ -78,12 +85,18 @@ export class TelemetryService {
 
   // Propiedades para logging local
   private readonly storageKey = 'app_telemetry_events';
+  private readonly userDocumentKey = 'app_user_document';
+  private readonly deviceTypeKey = 'app_device_type';
   private readonly maxEvents = 1000;
 
   constructor(
     private http: HttpClient,
     private handleError: HandleErrorService,
-  ) {}
+    private router: Router,
+  ) {
+    // Detectar y almacenar el tipo de dispositivo al inicializar
+    this.initializeDeviceType();
+  }
 
   /**
    * Construye los parámetros HTTP para las peticiones
@@ -207,6 +220,137 @@ export class TelemetryService {
   }
 
   // ========================================
+  // MÉTODOS DE GESTIÓN DE USUARIO Y DISPOSITIVO
+  // ========================================
+
+  /**
+   * Inicializa la detección del tipo de dispositivo
+   */
+  private initializeDeviceType(): void {
+    if (typeof window === 'undefined') return;
+
+    const storedDeviceType = localStorage.getItem(this.deviceTypeKey);
+    if (!storedDeviceType) {
+      const detectedType = this.detectDeviceType();
+      this.setDeviceType(detectedType);
+    }
+  }
+
+  /**
+   * Detecta el tipo de dispositivo basado en el user agent y otras características
+   */
+  private detectDeviceType(): DeviceType {
+    if (typeof window === 'undefined') return 'desktop';
+
+    const userAgent = navigator.userAgent.toLowerCase();
+
+    // Detectar si es una aplicación Capacitor (Android/iOS)
+    if ((window as any).Capacitor) {
+      if (userAgent.includes('android')) return 'android';
+      if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'ios';
+    }
+
+    // Detectar dispositivos móviles en web
+    const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+      userAgent,
+    );
+    const isTablet = /ipad|android(?!.*mobile)/i.test(userAgent);
+
+    if (isMobile && !isTablet) return 'web-mobile';
+
+    return 'desktop';
+  }
+
+  /**
+   * Establece el documento del usuario en caché
+   */
+  setUserDocument(document: string): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(this.userDocumentKey, document);
+    }
+  }
+
+  /**
+   * Obtiene el documento del usuario desde caché
+   */
+  getUserDocument(): string | null {
+    if (typeof localStorage === 'undefined') return null;
+    return localStorage.getItem(this.userDocumentKey);
+  }
+
+  /**
+   * Establece el tipo de dispositivo
+   */
+  setDeviceType(deviceType: DeviceType): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(this.deviceTypeKey, deviceType);
+    }
+  }
+
+  /**
+   * Obtiene el tipo de dispositivo
+   */
+  getDeviceType(): DeviceType {
+    if (typeof localStorage === 'undefined') return 'desktop';
+    const stored = localStorage.getItem(this.deviceTypeKey);
+    return (stored as DeviceType) || 'desktop';
+  }
+
+  /**
+   * Limpia la información del usuario (útil para logout)
+   */
+  clearUserInfo(): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(this.userDocumentKey);
+    }
+  }
+
+  /**
+   * Obtiene la pantalla/ruta actual
+   */
+  getCurrentScreen(): string | null {
+    try {
+      const currentUrl = this.router.url;
+
+      // Mapear rutas a nombres más amigables
+      const screenMappings: Record<string, string> = {
+        '/admin/dashboard': 'Dashboard Admin',
+        '/admin/telemetry': 'Telemetría',
+        '/admin/productos': 'Gestión Productos',
+        '/admin/usuarios': 'Gestión Usuarios',
+        '/admin/pedidos': 'Gestión Pedidos',
+        '/client/menu': 'Menú Cliente',
+        '/client/carrito': 'Carrito',
+        '/client/checkout': 'Checkout',
+        '/client/perfil': 'Perfil Cliente',
+        '/public/menu': 'Menú Público',
+        '/public/ubicacion': 'Ubicación',
+        '/auth/login': 'Login',
+        '/auth/register': 'Registro',
+        '/trabajadores/dashboard': 'Dashboard Trabajadores',
+        '/trabajadores/pedidos': 'Pedidos Trabajadores',
+      };
+
+      // Buscar coincidencia exacta primero
+      if (screenMappings[currentUrl]) {
+        return screenMappings[currentUrl];
+      }
+
+      // Buscar coincidencia parcial para rutas dinámicas
+      for (const [route, name] of Object.entries(screenMappings)) {
+        if (currentUrl.startsWith(route)) {
+          return name;
+        }
+      }
+
+      // Si no hay mapeo, devolver la ruta limpia
+      return currentUrl.replace(/^\//, '').replace(/\//g, ' > ') || 'Inicio';
+    } catch {
+      return null;
+    }
+  }
+
+  // ========================================
   // MÉTODOS DE LOGGING LOCAL
   // ========================================
 
@@ -218,6 +362,9 @@ export class TelemetryService {
       id: event.id || this.generateId(),
       type: event.type!,
       timestamp: event.timestamp || Date.now(),
+      userDocument: event.userDocument || this.getUserDocument(),
+      deviceType: event.deviceType || this.getDeviceType(),
+      currentScreen: event.currentScreen || this.getCurrentScreen(),
       ...event,
     };
 

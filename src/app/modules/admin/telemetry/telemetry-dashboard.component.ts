@@ -37,13 +37,24 @@ export class TelemetryDashboardComponent {
 
   // Signals para telemetría local
   private localRefreshTick = signal(0);
+
+  // Signals para filtros y ordenamiento
+  screenFilter = signal<string>('');
+  urlFilter = signal<string>('');
+  userFilter = signal<string>('');
+  dateFromFilter = signal<string>('');
+  dateToFilter = signal<string>('');
+  sortOrder = signal<'newest' | 'oldest'>('newest');
+
   localMetrics = computed(() => {
     this.localRefreshTick();
     return this.telemetry.getAggregatedMetrics();
   });
+
   localEvents = computed(() => {
     this.localRefreshTick();
-    return this.telemetry.getEvents(200);
+    const allEvents = this.telemetry.getEvents(200);
+    return this.filterEvents(allEvents);
   });
 
   constructor(
@@ -75,6 +86,115 @@ export class TelemetryDashboardComponent {
   clearLocal(): void {
     this.telemetry.clear();
     this.refreshLocal();
+  }
+
+  // Método para filtrar y ordenar eventos
+  private filterEvents(events: any[]): any[] {
+    const screenFilter = this.screenFilter().toLowerCase().trim();
+    const urlFilter = this.urlFilter().toLowerCase().trim();
+    const userFilter = this.userFilter().toLowerCase().trim();
+    const dateFromFilter = this.dateFromFilter();
+    const dateToFilter = this.dateToFilter();
+    const sortOrder = this.sortOrder();
+
+    // Aplicar filtros
+    let filteredEvents = events;
+
+    if (screenFilter || urlFilter || userFilter || dateFromFilter || dateToFilter) {
+      filteredEvents = events.filter((event) => {
+        const matchesScreen =
+          !screenFilter ||
+          (event.currentScreen && event.currentScreen.toLowerCase().includes(screenFilter));
+
+        const matchesUrl = !urlFilter || (event.url && event.url.toLowerCase().includes(urlFilter));
+
+        const matchesUser =
+          !userFilter ||
+          (event.userDocument && event.userDocument.toLowerCase().includes(userFilter)) ||
+          (event.userId && event.userId.toString().includes(userFilter));
+
+        // Filtro por fecha
+        let matchesDate = true;
+        if (dateFromFilter || dateToFilter) {
+          const eventDate = new Date(event.timestamp);
+          const eventDateOnly = new Date(
+            eventDate.getFullYear(),
+            eventDate.getMonth(),
+            eventDate.getDate(),
+          );
+
+          if (dateFromFilter) {
+            const fromDate = new Date(dateFromFilter);
+            matchesDate = matchesDate && eventDateOnly >= fromDate;
+          }
+
+          if (dateToFilter) {
+            const toDate = new Date(dateToFilter);
+            matchesDate = matchesDate && eventDateOnly <= toDate;
+          }
+        }
+
+        return matchesScreen && matchesUrl && matchesUser && matchesDate;
+      });
+    }
+
+    // Aplicar ordenamiento
+    const sortedEvents = [...filteredEvents].sort((a, b) => {
+      if (sortOrder === 'newest') {
+        return b.timestamp - a.timestamp; // Más recientes primero
+      } else {
+        return a.timestamp - b.timestamp; // Más antiguos primero
+      }
+    });
+
+    return sortedEvents;
+  }
+
+  // Métodos para actualizar filtros
+  onScreenFilterChange(value: string): void {
+    this.screenFilter.set(value);
+  }
+
+  onUrlFilterChange(value: string): void {
+    this.urlFilter.set(value);
+  }
+
+  onUserFilterChange(value: string): void {
+    this.userFilter.set(value);
+  }
+
+  onSortOrderChange(value: 'newest' | 'oldest'): void {
+    this.sortOrder.set(value);
+  }
+
+  onDateFromFilterChange(value: string): void {
+    this.dateFromFilter.set(value);
+  }
+
+  onDateToFilterChange(value: string): void {
+    this.dateToFilter.set(value);
+  }
+
+  // Método para limpiar todos los filtros (mantiene el ordenamiento)
+  clearFilters(): void {
+    this.screenFilter.set('');
+    this.urlFilter.set('');
+    this.userFilter.set('');
+    this.dateFromFilter.set('');
+    this.dateToFilter.set('');
+  }
+
+  // Método para establecer el documento del usuario (se puede llamar desde otros componentes)
+  setUserDocument(document: string): void {
+    this.telemetry.setUserDocument(document);
+  }
+
+  // Método para obtener información del usuario y dispositivo actual
+  getUserInfo(): { document: string | null; deviceType: string } {
+    return {
+      document: this.telemetry.getUserDocument(),
+      deviceType: this.telemetry.getDeviceType(),
+    };
   }
 
   getCoreWebVitals() {
@@ -133,6 +253,36 @@ export class TelemetryDashboardComponent {
     if (duration < 500) return 'duration-medium';
     if (duration < 1000) return 'duration-slow';
     return 'duration-very-slow';
+  }
+
+  getDeviceTypeClass(deviceType: string): string {
+    switch (deviceType) {
+      case 'desktop':
+        return 'device-desktop';
+      case 'web-mobile':
+        return 'device-web-mobile';
+      case 'android':
+        return 'device-android';
+      case 'ios':
+        return 'device-ios';
+      default:
+        return 'device-unknown';
+    }
+  }
+
+  getDeviceTypeIcon(deviceType: string): string {
+    switch (deviceType) {
+      case 'desktop':
+        return 'fa-solid fa-desktop';
+      case 'web-mobile':
+        return 'fa-solid fa-mobile-screen';
+      case 'android':
+        return 'fa-brands fa-android';
+      case 'ios':
+        return 'fa-brands fa-apple';
+      default:
+        return 'fa-solid fa-question';
+    }
   }
 
   private loadTabData(): void {

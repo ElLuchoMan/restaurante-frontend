@@ -12,7 +12,7 @@ ul {
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(234, 218, 186, 0.5);
 
   &:last-child {
     border-bottom: none;
@@ -20,7 +20,7 @@ ul {
 
   .method-name {
     font-weight: 500;
-    color: #495057;
+    color: #3b3b3b;
     flex: 1;
   }
 
@@ -50,7 +50,7 @@ ul {
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(234, 218, 186, 0.5);
 
   &:last-child {
     border-bottom: none;
@@ -58,7 +58,7 @@ ul {
 
   .stats-label {
     font-weight: 500;
-    color: #495057;
+    color: #3b3b3b;
     flex: 1;
   }
 
@@ -101,63 +101,86 @@ ul {
 }
 
 .vital-good {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: rgba(40, 167, 69, 0.1); // $success con transparencia
+  color: #28a745; // $success
+  border: 1px solid rgba(40, 167, 69, 0.2);
 }
 
 .vital-needs-improvement {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: rgba(255, 193, 7, 0.1); // $warning con transparencia
+  color: #ffc107; // $warning
+  border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
 .vital-poor {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: rgba(220, 53, 69, 0.1); // $danger con transparencia
+  color: #dc3545; // $danger
+  border: 1px solid rgba(220, 53, 69, 0.2);
 }
 
 .vital-unknown {
-  background-color: #e2e3e5;
-  color: #6c757d;
+  background-color: rgba(108, 117, 125, 0.1); // $gray con transparencia
+  color: #6c757d; // $gray
+  border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
-// Mejoras generales para las tarjetas
+// Los estilos vibrantes ahora están en _base.scss como clases reutilizables
+
+// Mejoras generales para las tarjetas con colores de la marca
 .card {
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  border: 1px solid rgba(0, 0, 0, 0.125);
+  box-shadow: 0 0.125rem 0.25rem rgba(158, 79, 63, 0.1); // $secondary con transparencia
+  border: 1px solid rgba(158, 79, 63, 0.15); // $secondary con transparencia
 
   .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    background: linear-gradient(
+      135deg,
+      rgba(253, 243, 231, 0.8) 0%,
+      rgba(234, 218, 186, 0.6) 100%
+    ); // $light a $quaternary
+    border-bottom: 1px solid rgba(158, 79, 63, 0.15); // $secondary
 
     h5 {
-      color: #495057;
+      color: #3b3b3b; // $dark
       font-weight: 600;
     }
   }
 
   .card-body {
     padding: 1.25rem;
+    background-color: rgba(253, 243, 231, 0.3); // $light con transparencia
   }
 }
 
-// Badges con mejor contraste
+// Badges con colores de "La cocina DE MARÍA"
 .badge {
   &.bg-primary {
-    background-color: #0d6efd !important;
+    background-color: #d4a017 !important; // $primary
+    color: #fff !important;
   }
 
   &.bg-success {
-    background-color: #198754 !important;
+    background-color: #28a745 !important; // $success
+    color: #fff !important;
   }
 
   &.bg-info {
-    background-color: #0dcaf0 !important;
-    color: #000 !important;
+    background-color: #17a2b8 !important; // $info
+    color: #fff !important;
   }
 
   &.bg-warning {
-    background-color: #ffc107 !important;
-    color: #000 !important;
+    background-color: #ffc107 !important; // $warning
+    color: #3b3b3b !important; // $dark para mejor contraste
+  }
+
+  &.bg-danger {
+    background-color: #dc3545 !important; // $danger
+    color: #fff !important;
+  }
+
+  &.bg-secondary {
+    background-color: #9e4f3f !important; // $secondary
+    color: #fff !important;
   }
 }
 
@@ -169,6 +192,41 @@ ul {
 
   i {
     font-size: 0.75rem;
+  }
+
+  // Botón personalizado con colores de la marca
+  &.btn-warning {
+    background: linear-gradient(135deg, #d4a017 0%, #b47c5f 100%); // $primary a $tertiary
+    border-color: #9e4f3f; // $secondary
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(158, 79, 63, 0.2); // $secondary con transparencia
+
+    &:hover {
+      background: linear-gradient(
+        135deg,
+        #b8901a 0%,
+        #9e4f3f 100%
+      ); // $primary más oscuro a $secondary
+      border-color: #7a3e32; // $secondary más oscuro
+      color: #fff;
+      box-shadow: 0 4px 8px rgba(158, 79, 63, 0.3);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      background: linear-gradient(135deg, #9e7d15 0%, #7a3e32 100%); // Tonos más oscuros
+      border-color: #5d2e25;
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      background: linear-gradient(135deg, #d4a017 0%, #b47c5f 100%);
+      border-color: #9e4f3f;
+      opacity: 0.6;
+      transform: none;
+      box-shadow: none;
+    }
   }
 }
 
@@ -182,9 +240,59 @@ ul {
   }
 }
 
+// Estilos personalizados para las pestañas de navegación
+.nav-tabs {
+  border-bottom: 2px solid rgba(234, 218, 186, 0.4);
+
+  .nav-item {
+    .nav-link {
+      color: #6c757d;
+      border: none;
+      border-bottom: 3px solid transparent;
+      background: none;
+      font-weight: 500;
+      padding: 0.75rem 1rem;
+      transition: all 0.3s ease;
+
+      i {
+        margin-right: 0.5rem;
+        opacity: 0.7;
+      }
+
+      &:hover {
+        color: #9e4f3f; // $secondary
+        background-color: rgba(234, 218, 186, 0.3); // $quaternary con transparencia
+        border-bottom-color: #b47c5f; // $tertiary
+
+        i {
+          opacity: 1;
+        }
+      }
+
+      &.active {
+        color: #9e4f3f; // $secondary
+        background: linear-gradient(
+          135deg,
+          rgba(234, 218, 186, 0.2) 0%,
+          rgba(180, 124, 95, 0.1) 100%
+        ); // $quaternary y $tertiary
+        border-bottom-color: #d4a017; // $primary (dorado)
+        font-weight: 600;
+
+        i {
+          opacity: 1;
+          color: #d4a017; // $primary para los iconos
+        }
+      }
+    }
+  }
+}
+
+// Los estilos de filtros ahora están en _base.scss como clases reutilizables
+
 // Estilos para eventos de telemetría compactos
 .event-item-compact {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(234, 218, 186, 0.5);
   padding: 0.4rem 0;
   width: 100%;
 
@@ -193,7 +301,7 @@ ul {
   }
 
   &:hover {
-    background-color: #f8f9fa;
+    background-color: rgba(253, 243, 231, 0.5);
     border-radius: 0.25rem;
     margin: 0 -0.5rem;
     padding: 0.4rem 0.5rem;
@@ -208,7 +316,7 @@ ul {
 
     .event-timestamp {
       font-weight: 500;
-      color: #495057;
+      color: #3b3b3b;
       font-size: 0.8rem;
       font-family: 'Courier New', monospace;
     }
@@ -234,17 +342,17 @@ ul {
         align-items: center;
         font-size: 0.75rem;
         color: #6c757d;
-        background-color: #f8f9fa;
+        background-color: rgba(253, 243, 231, 0.5);
         padding: 0.1rem 0.3rem;
         border-radius: 0.2rem;
-        border: 1px solid #e9ecef;
+        border: 1px solid rgba(234, 218, 186, 0.4);
         word-break: break-all;
         max-width: 100%;
 
         i {
           margin-right: 0.2rem;
           font-size: 0.7rem;
-          color: #495057;
+          color: #3b3b3b;
         }
 
         &.error-msg {
@@ -254,74 +362,123 @@ ul {
         }
 
         &.url-tag {
-          background-color: #e7f3ff;
-          border-color: #b3d9ff;
-          color: #0066cc;
+          background-color: rgba(180, 124, 95, 0.1); // $tertiary
+          border-color: rgba(180, 124, 95, 0.2);
+          color: #b47c5f; // $tertiary
           flex: 1;
           min-width: 200px;
           overflow-wrap: break-word;
         }
 
         &.req-id {
-          background-color: #f0f0f0;
-          color: #666;
+          background-color: rgba(234, 218, 186, 0.3); // $quaternary
+          color: #3b3b3b; // $dark
           font-family: 'Courier New', monospace;
           font-size: 0.7rem;
           flex: 0 0 auto;
           overflow-wrap: break-word;
+          border: 1px solid rgba(234, 218, 186, 0.5);
         }
 
         &.duration {
           font-weight: 500;
 
           &.duration-fast {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            color: #155724;
+            background-color: rgba(40, 167, 69, 0.1); // $success
+            border-color: rgba(40, 167, 69, 0.2);
+            color: #28a745; // $success
           }
 
           &.duration-medium {
-            background-color: #fff3cd;
-            border-color: #ffeaa7;
-            color: #856404;
+            background-color: rgba(255, 193, 7, 0.1); // $warning
+            border-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107; // $warning
           }
 
           &.duration-slow {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
+            background-color: rgba(220, 53, 69, 0.1); // $danger
+            border-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545; // $danger
           }
 
           &.duration-very-slow {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
+            background-color: rgba(220, 53, 69, 0.15); // $danger más intenso
+            border-color: rgba(220, 53, 69, 0.3);
+            color: #dc3545; // $danger
             font-weight: 600;
           }
         }
 
         &.status-success {
-          background-color: #d4edda;
-          border-color: #c3e6cb;
-          color: #155724;
+          background-color: rgba(40, 167, 69, 0.1); // $success
+          border-color: rgba(40, 167, 69, 0.2);
+          color: #28a745; // $success
         }
 
         &.status-redirect {
-          background-color: #d1ecf1;
-          border-color: #bee5eb;
-          color: #0c5460;
+          background-color: rgba(23, 162, 184, 0.1); // $info
+          border-color: rgba(23, 162, 184, 0.2);
+          color: #17a2b8; // $info
         }
 
         &.status-client-error {
-          background-color: #fff3cd;
-          border-color: #ffeaa7;
-          color: #856404;
+          background-color: rgba(255, 193, 7, 0.1); // $warning
+          border-color: rgba(255, 193, 7, 0.2);
+          color: #ffc107; // $warning
         }
 
         &.status-server-error {
-          background-color: #f8d7da;
-          border-color: #f5c6cb;
-          color: #721c24;
+          background-color: rgba(220, 53, 69, 0.1); // $danger
+          border-color: rgba(220, 53, 69, 0.2);
+          color: #dc3545; // $danger
+        }
+
+        &.user-doc {
+          background-color: rgba(212, 160, 23, 0.1); // $primary
+          border-color: rgba(212, 160, 23, 0.2);
+          color: #d4a017; // $primary
+          font-weight: 500;
+        }
+
+        &.screen-info {
+          background-color: rgba(158, 79, 63, 0.1); // $secondary
+          border-color: rgba(158, 79, 63, 0.2);
+          color: #9e4f3f; // $secondary
+          font-weight: 500;
+        }
+
+        &.device-type {
+          font-weight: 500;
+
+          &.device-desktop {
+            background-color: rgba(40, 167, 69, 0.1); // $success para desktop
+            border-color: rgba(40, 167, 69, 0.2);
+            color: #28a745; // $success
+          }
+
+          &.device-web-mobile {
+            background-color: rgba(255, 193, 7, 0.1); // $warning para web mobile
+            border-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107; // $warning
+          }
+
+          &.device-android {
+            background-color: rgba(23, 162, 184, 0.1); // $info para Android
+            border-color: rgba(23, 162, 184, 0.2);
+            color: #17a2b8; // $info
+          }
+
+          &.device-ios {
+            background-color: rgba(108, 117, 125, 0.1); // $gray para iOS
+            border-color: rgba(108, 117, 125, 0.2);
+            color: #6c757d; // $gray
+          }
+
+          &.device-unknown {
+            background-color: rgba(59, 59, 59, 0.1); // $dark para unknown
+            border-color: rgba(59, 59, 59, 0.2);
+            color: #3b3b3b; // $dark
+          }
         }
       }
     }

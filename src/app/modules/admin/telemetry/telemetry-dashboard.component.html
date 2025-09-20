@@ -3,7 +3,7 @@
     <h2 class="mb-0">Dashboard de Telemetría</h2>
     <div class="d-flex gap-2">
       <select
-        class="form-select form-select-sm"
+        class="form-select form-select-enhanced"
         style="width: auto; min-width: 150px"
         [(ngModel)]="selectedPeriod"
         (change)="onPeriodChange()"
@@ -16,7 +16,7 @@
         <option value="ultimo_año">Último año</option>
         <option value="historico">Histórico</option>
       </select>
-      <button class="btn btn-sm btn-primary px-3" (click)="refreshAll()" [disabled]="isLoading()">
+      <button class="btn btn-sm btn-warning px-3" (click)="refreshAll()" [disabled]="isLoading()">
         <i class="fa-solid fa-refresh" [class.fa-spin]="isLoading()"></i>
         Refrescar
       </button>
@@ -107,7 +107,7 @@
   <div *ngIf="activeTab() === 'dashboard' && !isLoading() && !error()" class="tab-content">
     <div class="row g-4" *ngIf="dashboardData()">
       <div class="col-md-3">
-        <div class="card bg-primary text-white">
+        <div class="card card-vibrant-primary text-white">
           <div class="card-body">
             <div class="d-flex justify-content-between">
               <div>
@@ -120,7 +120,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card bg-success text-white">
+        <div class="card card-vibrant-success text-white">
           <div class="card-body">
             <div class="d-flex justify-content-between">
               <div>
@@ -135,7 +135,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card bg-info text-white">
+        <div class="card card-vibrant-info text-white">
           <div class="card-body">
             <div class="d-flex justify-content-between">
               <div>
@@ -148,7 +148,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card bg-warning text-white">
+        <div class="card card-vibrant-warning text-white">
           <div class="card-body">
             <div class="d-flex justify-content-between">
               <div>
@@ -250,6 +250,39 @@
       <div class="col-md-4">
         <div class="card">
           <div class="card-header">
+            <h5 class="mb-0">Estadísticas de Productos</h5>
+          </div>
+          <div class="card-body">
+            <div class="stats-item">
+              <span class="stats-label">Producto Más Vendido:</span>
+              <div class="stats-value">
+                <span class="badge bg-success">{{
+                  productsData()?.estadisticasProductos?.productoConMasVentas
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Producto Menos Vendido:</span>
+              <div class="stats-value">
+                <span class="badge bg-warning">{{
+                  productsData()?.estadisticasProductos?.productoConMenosVentas
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Total Productos Activos:</span>
+              <div class="stats-value">
+                <span class="badge bg-info">{{
+                  productsData()?.estadisticasProductos?.totalProductosActivos
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
             <h5 class="mb-0">Productos Más Vendidos</h5>
           </div>
           <div class="card-body">
@@ -295,39 +328,6 @@
                 <span class="badge bg-warning">{{ product.cantidadVendida }}</span>
                 <span class="amount">{{
                   product.ingresoTotal | currency: 'COP' : 'symbol' : '1.0-0'
-                }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-header">
-            <h5 class="mb-0">Estadísticas de Productos</h5>
-          </div>
-          <div class="card-body">
-            <div class="stats-item">
-              <span class="stats-label">Producto Más Vendido:</span>
-              <div class="stats-value">
-                <span class="badge bg-success">{{
-                  productsData()?.estadisticasProductos?.productoConMasVentas
-                }}</span>
-              </div>
-            </div>
-            <div class="stats-item">
-              <span class="stats-label">Producto Menos Vendido:</span>
-              <div class="stats-value">
-                <span class="badge bg-warning">{{
-                  productsData()?.estadisticasProductos?.productoConMenosVentas
-                }}</span>
-              </div>
-            </div>
-            <div class="stats-item">
-              <span class="stats-label">Total Productos Activos:</span>
-              <div class="stats-value">
-                <span class="badge bg-info">{{
-                  productsData()?.estadisticasProductos?.totalProductosActivos
                 }}</span>
               </div>
             </div>
@@ -669,12 +669,124 @@
       </div>
     </div>
 
+    <!-- Filtros para eventos -->
+    <div class="row g-3 mt-1">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h6 class="mb-0">Filtros de Eventos</h6>
+          </div>
+          <div class="filters-container">
+            <div class="row align-items-end gx-2 gy-2">
+              <div class="col-lg col-md-6 col-12">
+                <label class="filter-label">
+                  <i class="fa-solid fa-desktop me-1"></i>Pantalla
+                </label>
+                <input
+                  type="text"
+                  class="form-control-enhanced"
+                  placeholder="Buscar pantalla..."
+                  [value]="screenFilter()"
+                  (input)="onScreenFilterChange($any($event.target).value)"
+                />
+              </div>
+              <div class="col-lg col-md-6 col-12">
+                <label class="filter-label"> <i class="fa-solid fa-link me-1"></i>URL </label>
+                <input
+                  type="text"
+                  class="form-control-enhanced"
+                  placeholder="Buscar URL..."
+                  [value]="urlFilter()"
+                  (input)="onUrlFilterChange($any($event.target).value)"
+                />
+              </div>
+              <div class="col-lg col-md-6 col-12">
+                <label class="filter-label"> <i class="fa-solid fa-user me-1"></i>Usuario </label>
+                <input
+                  type="text"
+                  class="form-control-enhanced"
+                  placeholder="Buscar usuario..."
+                  [value]="userFilter()"
+                  (input)="onUserFilterChange($any($event.target).value)"
+                />
+              </div>
+              <div class="col-lg-auto col-md-6 col-6" style="min-width: 140px">
+                <label class="filter-label">
+                  <i class="fa-solid fa-calendar-days me-1"></i>Desde
+                </label>
+                <input
+                  type="date"
+                  class="form-control-enhanced"
+                  [value]="dateFromFilter()"
+                  (input)="onDateFromFilterChange($any($event.target).value)"
+                />
+              </div>
+              <div class="col-lg-auto col-md-6 col-6" style="min-width: 140px">
+                <label class="filter-label">
+                  <i class="fa-solid fa-calendar-days me-1"></i>Hasta
+                </label>
+                <input
+                  type="date"
+                  class="form-control-enhanced"
+                  [value]="dateToFilter()"
+                  (input)="onDateToFilterChange($any($event.target).value)"
+                />
+              </div>
+              <div class="col-lg-auto col-md-6 col-12" style="min-width: 160px">
+                <label class="filter-label"> <i class="fa-solid fa-sort me-1"></i>Ordenar </label>
+                <select
+                  class="form-select-enhanced"
+                  [value]="sortOrder()"
+                  (change)="onSortOrderChange($any($event.target).value)"
+                >
+                  <option value="newest">Más recientes</option>
+                  <option value="oldest">Más antiguos</option>
+                </select>
+              </div>
+              <div
+                class="col-lg-auto col-md-6 col-12 d-flex align-items-end"
+                style="min-width: 120px"
+              >
+                <button class="btn btn-clear-filters w-100" (click)="clearFilters()">
+                  <i class="fa-solid fa-filter-circle-xmark me-1"></i>Limpiar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="row g-4 mt-1">
       <div class="col-12">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Eventos Recientes</h5>
-            <span class="badge bg-secondary">{{ localEvents().length }} eventos</span>
+            <div class="d-flex align-items-center gap-2">
+              <h5 class="mb-0">Eventos Recientes</h5>
+              <small class="text-muted">
+                <i
+                  [class]="
+                    sortOrder() === 'newest' ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'
+                  "
+                ></i>
+                {{ sortOrder() === 'newest' ? 'Más recientes primero' : 'Más antiguos primero' }}
+              </small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-secondary">{{ localEvents().length }} eventos</span>
+              <small
+                class="text-muted"
+                *ngIf="
+                  screenFilter() ||
+                  urlFilter() ||
+                  userFilter() ||
+                  dateFromFilter() ||
+                  dateToFilter()
+                "
+              >
+                (filtrados)
+              </small>
+            </div>
           </div>
           <div class="card-body">
             <div *ngIf="localEvents().length === 0" class="text-muted text-center py-3">
@@ -690,6 +802,19 @@
                   event.type
                 }}</span>
                 <span class="event-details-inline">
+                  <span *ngIf="event.userDocument" class="event-tag user-doc">
+                    <i class="fa-solid fa-id-card"></i>{{ event.userDocument }}
+                  </span>
+                  <span
+                    *ngIf="event.deviceType"
+                    class="event-tag device-type"
+                    [ngClass]="getDeviceTypeClass(event.deviceType)"
+                  >
+                    <i [class]="getDeviceTypeIcon(event.deviceType)"></i>{{ event.deviceType }}
+                  </span>
+                  <span *ngIf="event.currentScreen" class="event-tag screen-info">
+                    <i class="fa-solid fa-window-maximize"></i>{{ event.currentScreen }}
+                  </span>
                   <span *ngIf="event.userId" class="event-tag">
                     <i class="fa-solid fa-user"></i>{{ event.userId }}
                   </span>
