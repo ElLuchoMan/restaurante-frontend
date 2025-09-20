@@ -5454,14 +5454,21 @@ input {
 
 .card {
   background-clip: border-box;
-  background-color: $white;
-  border: 1px solid rgb(0 0 0 / 12.5%);
-  border-radius: 5px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   min-width: 0;
   position: relative;
   word-wrap: break-word;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
 
   > {
     hr {
@@ -5496,7 +5503,20 @@ input {
 .card-body {
   flex: 1 1 auto;
   min-height: 1px;
-  padding: 1.25rem;
+  padding: 2rem;
+  background-color: #ffffff;
+
+  &:first-child {
+    border-radius: 20px 20px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 20px 20px;
+  }
+
+  &:only-child {
+    border-radius: 20px;
+  }
 }
 
 .card-title {
@@ -5523,23 +5543,36 @@ input {
 }
 
 .card-header {
-  background-color: rgb(0 0 0 / 3%);
-  border-bottom: 1px solid rgb(0 0 0 / 12.5%);
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
   margin-bottom: 0;
-  padding: 0.75rem 1.25rem;
+  padding: 1.5rem 2rem 1rem 2rem;
+  border-radius: 20px 20px 0 0;
 
   &:first-child {
-    border-radius: 4px 4px 0 0;
+    border-radius: 20px 20px 0 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-bottom: 0;
+    font-weight: 600;
+    color: #2d3748;
   }
 }
 
 .card-footer {
-  background-color: rgb(0 0 0 / 3%);
-  border-top: 1px solid rgb(0 0 0 / 12.5%);
-  padding: 0.75rem 1.25rem;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  padding: 1rem 2rem 1.5rem 2rem;
+  border-radius: 0 0 20px 20px;
 
   &:last-child {
-    border-radius: 0 0 4px 4px;
+    border-radius: 0 0 20px 20px;
   }
 }
 
@@ -11500,7 +11533,7 @@ button.bg-dark {
 
 // Contenedor de filtros mejorado y armonioso
 .filters-container {
-  background: linear-gradient(135deg, rgba(253, 243, 231, 0.4) 0%, rgba(234, 218, 186, 0.2) 100%);
+  background: #ffffff;
   border: 1px solid rgba(158, 79, 63, 0.08);
   border-radius: 1.25rem;
   padding: 1.25rem 1.5rem;
@@ -11586,7 +11619,7 @@ button.bg-dark {
 // Input group mejorado
 .input-group-enhanced {
   .input-group-text {
-    background: linear-gradient(135deg, #{$quaternary} 0%, rgba(234, 218, 186, 0.8) 100%);
+    background: #ffffff;
     border-color: #{$primary};
     color: #{$dark};
     font-weight: 500;
@@ -11600,6 +11633,105 @@ button.bg-dark {
       box-shadow: 0 0 0 0.2rem rgba(212, 160, 23, 0.25);
     }
   }
+}
+
+// Tablas con estilo "La cocina DE MARÍA"
+.table {
+  background-color: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+
+  thead {
+    background-color: #ffffff;
+
+    th {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 1.5rem 1.5rem 1rem 1.5rem;
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  tbody {
+    tr {
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+
+      td {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f3f4f6;
+        color: #4a5568;
+
+        &:first-child {
+          font-weight: 500;
+        }
+      }
+
+      &:last-child td {
+        border-bottom: none;
+      }
+    }
+  }
+}
+
+// Wrapper para tablas responsivas
+.table-responsive {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+// Borde brillante sutil (igual al login)
+.glow-border {
+  position: relative;
+}
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(212, 160, 23, 0.45), rgba(0, 0, 0, 0.08));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  box-shadow: none !important; // Asegura que no agregue sombra adicional
+}
+
+// Superficie para listas (misma estética que las cards del login)
+.list-surface {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  padding: 0.25rem 1rem; // espacio interno sutil; los items manejan su padding
+
+  &.list-surface-tight {
+    padding: 0; // variante sin padding para listas muy compactas
+  }
+}
+
+// Cuando la lista vive dentro de una card, ocultar su borde/sombra para evitar doble marco
+.card .card-body > .list-surface,
+.card .card-body.list-surface {
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0; // evita solapamiento bajo de contenedores
 }
 
 // Clases de utilidad para filtros

@@ -108,7 +108,7 @@
     <div class="row g-4" *ngIf="dashboardData()">
       <div class="col-md-3">
         <div class="card card-vibrant-primary text-white">
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Total Pedidos</h6>
@@ -121,7 +121,7 @@
       </div>
       <div class="col-md-3">
         <div class="card card-vibrant-success text-white">
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Ingresos Totales</h6>
@@ -136,7 +136,7 @@
       </div>
       <div class="col-md-3">
         <div class="card card-vibrant-info text-white">
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Usuarios Registrados</h6>
@@ -149,7 +149,7 @@
       </div>
       <div class="col-md-3">
         <div class="card card-vibrant-warning text-white">
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Valor Promedio</h6>
@@ -169,11 +169,11 @@
   <div *ngIf="activeTab() === 'sales' && !isLoading() && !error()" class="tab-content">
     <div class="row g-4" *ngIf="salesData()">
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Pedidos por Método de Pago</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div *ngFor="let item of salesData()?.ventasPorMetodoPago" class="sales-item">
               <span class="method-name">{{ item.metodoPago }}</span>
               <div class="method-stats">
@@ -185,11 +185,11 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Estadísticas Generales</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div class="stats-item">
               <span class="stats-label">Pedido Promedio Diario:</span>
               <div class="stats-value">
@@ -220,11 +220,11 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Tendencia de Ventas</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div *ngFor="let trend of salesData()?.tendenciaVentas" class="sales-item">
               <span class="method-name">{{ trend.fecha | date: 'dd/MM/yyyy' }}</span>
               <div class="method-stats">
@@ -248,11 +248,11 @@
   <div *ngIf="activeTab() === 'products' && !isLoading() && !error()" class="tab-content">
     <div class="row g-4" *ngIf="productsData()">
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Estadísticas de Productos</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div class="stats-item">
               <span class="stats-label">Producto Más Vendido:</span>
               <div class="stats-value">
@@ -281,11 +281,11 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Productos Más Vendidos</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div
               *ngFor="let product of productsData()?.productosMasVendidos; let i = index"
               class="sales-item"
@@ -308,11 +308,11 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Productos Menos Vendidos</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div
               *ngFor="let product of productsData()?.productosMenosVendidos; let i = index"
               class="sales-item"
@@ -341,11 +341,11 @@
   <div *ngIf="activeTab() === 'users' && !isLoading() && !error()" class="tab-content">
     <div class="row g-4" *ngIf="usersData()">
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Usuarios Más Frecuentes</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div
               *ngFor="let user of usersData()?.usuariosFrecuentes; let i = index"
               class="sales-item"
@@ -384,11 +384,11 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Usuarios Inactivos</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div
               *ngFor="let user of usersData()?.usuariosInactivos; let i = index"
               class="sales-item"
@@ -420,11 +420,11 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Estadísticas de Usuarios</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div class="stats-item">
               <span class="stats-label">Total Clientes:</span>
               <div class="stats-value">
@@ -468,11 +468,11 @@
   <div *ngIf="activeTab() === 'time' && !isLoading() && !error()" class="tab-content">
     <div class="row g-4" *ngIf="timeData()">
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Pedidos por Hora</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div *ngFor="let item of timeData()?.ventasPorHora" class="sales-item">
               <div class="method-name">
                 <strong>{{ item.hora }}:00</strong>
@@ -504,7 +504,7 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Pedidos por Día</h5>
           </div>
@@ -542,7 +542,7 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Ventas por Mes</h5>
           </div>
@@ -584,11 +584,11 @@
   <div *ngIf="activeTab() === 'local'" class="tab-content">
     <div class="row g-4">
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Inicios de Sesión</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div class="stats-item">
               <span class="stats-label">Intentos:</span>
               <div class="stats-value">
@@ -611,11 +611,11 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Compras por Método de Pago</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div
               *ngFor="let kv of localMetrics().purchasesByPaymentMethod | keyvalue"
               class="sales-item"
@@ -639,11 +639,11 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h5 class="mb-0">Core Web Vitals</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div class="vital-item">
               <span class="vital-label">LCP:</span>
               <span class="vital-value" [class]="'vital-' + getCoreWebVitalsStatus().lcp">
@@ -672,7 +672,7 @@
     <!-- Filtros para eventos -->
     <div class="row g-3 mt-1">
       <div class="col-12">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header">
             <h6 class="mb-0">Filtros de Eventos</h6>
           </div>
@@ -759,7 +759,7 @@
 
     <div class="row g-4 mt-1">
       <div class="col-12">
-        <div class="card">
+        <div class="card glow-border">
           <div class="card-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
               <h5 class="mb-0">Eventos Recientes</h5>
@@ -788,7 +788,7 @@
               </small>
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body list-surface list-surface-tight">
             <div *ngIf="localEvents().length === 0" class="text-muted text-center py-3">
               No hay eventos registrados
             </div>
