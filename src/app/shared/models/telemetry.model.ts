@@ -9,94 +9,105 @@ export type TimePeriod =
 
 // Dashboard Types
 export interface DashboardData {
+  ingresosHoy: number;
+  pedidosHoy: number;
+  promedioVentaPedido: number;
+  totalIngresos: number;
   totalPedidos: number;
-  ingresosTotales: number;
-  usuariosRegistrados: number;
-  valorPromedioOrden: number;
+  totalUsuarios: number;
 }
 
 // Sales Types
-export interface MetodoPagoStats {
+export interface VentaPorMetodoPago {
   metodoPago: string;
-  cantidad?: number;
-  ingresos?: number;
-  porcentaje: number;
+  total: number;
+  cantidad: number;
 }
 
 export interface TendenciaVenta {
   fecha: string;
-  ventas: number;
-  pedidos: number;
+  total: number;
+  cantidad: number;
+}
+
+export interface EstadisticasGenerales {
+  pedidoPromedioDiario: number;
+  ticketPromedio: number;
+  ventaPromedioDiaria: number;
 }
 
 export interface SalesData {
-  pedidosPorMetodoPago: MetodoPagoStats[];
-  ingresosPorMetodoPago: MetodoPagoStats[];
-  tendenciasVentas: TendenciaVenta[];
+  ventasPorMetodoPago: VentaPorMetodoPago[];
+  tendenciaVentas: TendenciaVenta[];
+  estadisticasGenerales: EstadisticasGenerales;
 }
 
 // Products Types
-export interface ProductoVenta {
+export interface ProductoTelemetria {
+  productoId: number;
   nombreProducto: string;
   cantidadVendida: number;
-  ingresosTotales: number;
+  ingresoTotal: number;
+  precio: number;
 }
 
-export interface ProductoFrecuencia {
-  nombreProducto: string;
-  frecuencia: number;
+export interface EstadisticasProductos {
+  productoConMasVentas: string;
+  productoConMenosVentas: string;
+  totalProductosActivos: number;
 }
 
 export interface ProductsData {
-  productosMasVendidos: ProductoVenta[];
-  productosMenosVendidos: ProductoVenta[];
-  frecuenciaProductos: ProductoFrecuencia[];
+  productosMasVendidos: ProductoTelemetria[];
+  productosMenosVendidos: ProductoTelemetria[];
+  estadisticasProductos: EstadisticasProductos;
 }
 
 // Users Types
-export interface UsuarioStats {
-  nombreUsuario: string;
-  documento: number;
-  cantidadPedidos: number;
+export interface UsuarioTelemetria {
+  documentoCliente: number;
+  nombreCompleto: string;
+  totalPedidos: number;
   totalGastado: number;
+  ultimoPedido: string;
 }
 
-export interface UsuarioUltimoPedido {
-  nombreUsuario: string;
-  documento: number;
-  fechaUltimoPedido: string;
+export interface EstadisticasUsuarios {
+  clientesActivos: number;
+  clientesInactivos: number;
+  promedioGastoPorCliente: number;
+  totalClientes: number;
 }
 
 export interface UsersData {
-  usuariosFrecuentes: UsuarioStats[];
-  usuariosInactivos: UsuarioStats[];
-  totalGastadoPorUsuario: UsuarioStats[];
-  fechaUltimoPedido: UsuarioUltimoPedido[];
+  usuariosFrecuentes: UsuarioTelemetria[] | null;
+  usuariosInactivos: UsuarioTelemetria[];
+  estadisticasUsuarios: EstadisticasUsuarios;
 }
 
 // Time Analysis Types
-export interface PedidosPorHora {
+export interface VentaPorHora {
   hora: number;
-  cantidadPedidos: number;
-  porcentaje: number;
+  total: number;
+  cantidad: number;
 }
 
-export interface PedidosPorDia {
+export interface VentaPorDiaSemana {
   diaSemana: string;
-  cantidadPedidos: number;
-  porcentaje: number;
+  total: number;
+  cantidad: number;
 }
 
-export interface VentasPorMes {
+export interface VentaPorMes {
   mes: string;
-  ventas: number;
-  pedidos: number;
+  total: number;
+  cantidad: number;
 }
 
 export interface TimeAnalysisData {
-  pedidosPorHora: PedidosPorHora[];
-  pedidosPorDiaSemana: PedidosPorDia[];
-  ventasPorMes: VentasPorMes[];
+  ventasPorHora: VentaPorHora[];
+  ventasPorDiaSemana: VentaPorDiaSemana[];
+  ventasPorMes: VentaPorMes[];
 }
 
 // Rentabilidad Types

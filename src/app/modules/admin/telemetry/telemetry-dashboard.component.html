@@ -1,80 +1,163 @@
-<div class="container mt-3">
-  <h2>Telemetría (local)</h2>
-  <div class="mb-3">
-    <button class="btn btn-sm btn-primary me-2" (click)="refresh()">Refrescar</button>
-    <button class="btn btn-sm btn-outline-danger" (click)="clear()">Limpiar eventos</button>
-  </div>
-
-  <div class="row g-3">
-    <div class="col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Inicios de sesión</h5>
-          <p class="mb-1">Intentos: {{ metrics().login.attempts }}</p>
-          <p class="mb-1 text-success">Éxitos: {{ metrics().login.successes }}</p>
-          <p class="mb-0 text-danger">Fallos: {{ metrics().login.failures }}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Compras por método de pago</h5>
-          <ul class="mb-0">
-            <li *ngFor="let kv of metrics().purchasesByPaymentMethod | keyvalue">
-              {{ kv.key }}: {{ kv.value }}
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Productos más/menos pedidos</h5>
-          <ul class="mb-0">
-            <li *ngFor="let kv of metrics().productsCount | keyvalue">
-              {{ kv.key }}: {{ kv.value }} uds
-            </li>
-          </ul>
-        </div>
-      </div>
+<div class="container-fluid mt-3">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Dashboard de Telemetría</h2>
+    <div class="d-flex gap-2">
+      <select
+        class="form-select form-select-sm"
+        style="width: auto; min-width: 150px"
+        [(ngModel)]="selectedPeriod"
+        (change)="onPeriodChange()"
+      >
+        <option value="hoy">Hoy</option>
+        <option value="ultima_semana">Última semana</option>
+        <option value="ultimo_mes">Último mes</option>
+        <option value="ultimos_3_meses">Últimos 3 meses</option>
+        <option value="ultimos_6_meses">Últimos 6 meses</option>
+        <option value="ultimo_año">Último año</option>
+        <option value="historico">Histórico</option>
+      </select>
+      <button class="btn btn-sm btn-primary px-3" (click)="refreshAll()" [disabled]="isLoading()">
+        <i class="fa-solid fa-refresh" [class.fa-spin]="isLoading()"></i>
+        Refrescar
+      </button>
+      <button
+        *ngIf="activeTab() === 'local'"
+        class="btn btn-sm btn-outline-danger ms-2 px-3"
+        (click)="clearLocal()"
+      >
+        <i class="fa-solid fa-trash me-1"></i>Limpiar eventos
+      </button>
     </div>
   </div>
 
-  <div class="row g-3 mt-1">
-    <div class="col-md-6">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Usuarios por número de compras</h5>
-          <ul class="mb-0">
-            <li *ngFor="let kv of metrics().usersByPurchases | keyvalue">
-              {{ kv.key }}: {{ kv.value }} compras
-            </li>
-          </ul>
-        </div>
-      </div>
+  <!-- Tabs Navigation -->
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'dashboard'"
+        (click)="setActiveTab('dashboard')"
+      >
+        <i class="fa-solid fa-chart-line me-1"></i>Dashboard
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'sales'"
+        (click)="setActiveTab('sales')"
+      >
+        <i class="fa-solid fa-dollar-sign me-1"></i>Ventas
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'products'"
+        (click)="setActiveTab('products')"
+      >
+        <i class="fa-solid fa-box me-1"></i>Productos
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'users'"
+        (click)="setActiveTab('users')"
+      >
+        <i class="fa-solid fa-users me-1"></i>Usuarios
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'time'"
+        (click)="setActiveTab('time')"
+      >
+        <i class="fa-solid fa-clock me-1"></i>Temporal
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'local'"
+        (click)="setActiveTab('local')"
+      >
+        <i class="fa-solid fa-database me-1"></i>Local
+      </button>
+    </li>
+  </ul>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
     </div>
-    <div class="col-md-6">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Ventas por hora y día</h5>
-          <div class="row">
-            <div class="col-6">
-              <h6>Por hora</h6>
-              <ul>
-                <li *ngFor="let kv of metrics().salesByHour | keyvalue">
-                  {{ kv.key }}:00 → {{ kv.value }}
-                </li>
-              </ul>
+    <p class="mt-2 text-muted">Cargando datos de telemetría...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="alert alert-danger" role="alert">
+    <i class="fa-solid fa-exclamation-triangle me-2"></i>
+    {{ error() }}
+    <button class="btn btn-sm btn-outline-danger ms-2" (click)="refreshAll()">Reintentar</button>
+  </div>
+
+  <!-- Dashboard Tab -->
+  <div *ngIf="activeTab() === 'dashboard' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="dashboardData()">
+      <div class="col-md-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Total Pedidos</h6>
+                <h3 class="mb-0">{{ dashboardData()?.totalPedidos | number }}</h3>
+              </div>
+              <i class="fa-solid fa-shopping-cart fa-2x opacity-75"></i>
             </div>
-            <div class="col-6">
-              <h6>Por día (0=Dom)</h6>
-              <ul>
-                <li *ngFor="let kv of metrics().salesByWeekday | keyvalue">
-                  {{ kv.key }}: {{ kv.value }}
-                </li>
-              </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Ingresos Totales</h6>
+                <h3 class="mb-0">
+                  {{ dashboardData()?.totalIngresos | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </h3>
+              </div>
+              <i class="fa-solid fa-dollar-sign fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-info text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Usuarios Registrados</h6>
+                <h3 class="mb-0">{{ dashboardData()?.totalUsuarios | number }}</h3>
+              </div>
+              <i class="fa-solid fa-users fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-warning text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Valor Promedio</h6>
+                <h3 class="mb-0">
+                  {{ dashboardData()?.promedioVentaPedido | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </h3>
+              </div>
+              <i class="fa-solid fa-chart-line fa-2x opacity-75"></i>
             </div>
           </div>
         </div>
@@ -82,10 +165,569 @@
     </div>
   </div>
 
-  <div class="card mt-3">
-    <div class="card-body">
-      <h5 class="card-title">Eventos recientes</h5>
-      <pre class="small" style="max-height: 300px; overflow: auto">{{ events() | json }}</pre>
+  <!-- Sales Tab -->
+  <div *ngIf="activeTab() === 'sales' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="salesData()">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Pedidos por Método de Pago</h5>
+          </div>
+          <div class="card-body">
+            <div *ngFor="let item of salesData()?.ventasPorMetodoPago" class="sales-item">
+              <span class="method-name">{{ item.metodoPago }}</span>
+              <div class="method-stats">
+                <span class="badge bg-primary">{{ item.cantidad }}</span>
+                <span class="amount">{{ item.total | currency: 'COP' : 'symbol' : '1.0-0' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas Generales</h5>
+          </div>
+          <div class="card-body">
+            <div class="stats-item">
+              <span class="stats-label">Pedido Promedio Diario:</span>
+              <div class="stats-value">
+                <span class="badge bg-info">{{
+                  salesData()?.estadisticasGenerales?.pedidoPromedioDiario
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Ticket Promedio:</span>
+              <div class="stats-value">
+                <span class="badge bg-success">{{
+                  salesData()?.estadisticasGenerales?.ticketPromedio
+                    | currency: 'COP' : 'symbol' : '1.0-0'
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Venta Promedio Diaria:</span>
+              <div class="stats-value">
+                <span class="badge bg-warning">{{
+                  salesData()?.estadisticasGenerales?.ventaPromedioDiaria
+                    | currency: 'COP' : 'symbol' : '1.0-0'
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Tendencia de Ventas</h5>
+          </div>
+          <div class="card-body">
+            <div *ngFor="let trend of salesData()?.tendenciaVentas" class="sales-item">
+              <span class="method-name">{{ trend.fecha | date: 'dd/MM/yyyy' }}</span>
+              <div class="method-stats">
+                <span class="badge bg-secondary">{{ trend.cantidad }}</span>
+                <span class="amount">{{ trend.total | currency: 'COP' : 'symbol' : '1.0-0' }}</span>
+              </div>
+            </div>
+            <div
+              *ngIf="!salesData()?.tendenciaVentas || salesData()?.tendenciaVentas?.length === 0"
+              class="text-muted text-center py-3"
+            >
+              No hay datos de tendencia disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Tab -->
+  <div *ngIf="activeTab() === 'products' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="productsData()">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Productos Más Vendidos</h5>
+          </div>
+          <div class="card-body">
+            <div
+              *ngFor="let product of productsData()?.productosMasVendidos; let i = index"
+              class="sales-item"
+            >
+              <div class="method-name">
+                <strong>{{ product.nombreProducto }}</strong>
+                <br />
+                <small class="text-muted"
+                  >Precio: {{ product.precio | currency: 'COP' : 'symbol' : '1.0-0' }}</small
+                >
+              </div>
+              <div class="method-stats">
+                <span class="badge bg-success">{{ product.cantidadVendida }}</span>
+                <span class="amount">{{
+                  product.ingresoTotal | currency: 'COP' : 'symbol' : '1.0-0'
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Productos Menos Vendidos</h5>
+          </div>
+          <div class="card-body">
+            <div
+              *ngFor="let product of productsData()?.productosMenosVendidos; let i = index"
+              class="sales-item"
+            >
+              <div class="method-name">
+                <strong>{{ product.nombreProducto }}</strong>
+                <br />
+                <small class="text-muted"
+                  >Precio: {{ product.precio | currency: 'COP' : 'symbol' : '1.0-0' }}</small
+                >
+              </div>
+              <div class="method-stats">
+                <span class="badge bg-warning">{{ product.cantidadVendida }}</span>
+                <span class="amount">{{
+                  product.ingresoTotal | currency: 'COP' : 'symbol' : '1.0-0'
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas de Productos</h5>
+          </div>
+          <div class="card-body">
+            <div class="stats-item">
+              <span class="stats-label">Producto Más Vendido:</span>
+              <div class="stats-value">
+                <span class="badge bg-success">{{
+                  productsData()?.estadisticasProductos?.productoConMasVentas
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Producto Menos Vendido:</span>
+              <div class="stats-value">
+                <span class="badge bg-warning">{{
+                  productsData()?.estadisticasProductos?.productoConMenosVentas
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Total Productos Activos:</span>
+              <div class="stats-value">
+                <span class="badge bg-info">{{
+                  productsData()?.estadisticasProductos?.totalProductosActivos
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Tab -->
+  <div *ngIf="activeTab() === 'users' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="usersData()">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Usuarios Más Frecuentes</h5>
+          </div>
+          <div class="card-body">
+            <div
+              *ngFor="let user of usersData()?.usuariosFrecuentes; let i = index"
+              class="sales-item"
+            >
+              <div class="method-name">
+                <strong>{{ user.nombreCompleto }}</strong>
+                <br />
+                <small class="text-muted">Doc: {{ user.documentoCliente }}</small>
+                <br />
+                <small class="text-info">Último pedido: {{ user.ultimoPedido }}</small>
+              </div>
+              <div class="method-stats">
+                <div class="d-flex flex-column align-items-end">
+                  <div class="mb-1">
+                    <span class="badge bg-primary">{{ user.totalPedidos }}</span>
+                    <small class="text-muted ms-1">pedidos</small>
+                  </div>
+                  <div>
+                    <span class="amount">{{
+                      user.totalGastado | currency: 'COP' : 'symbol' : '1.0-0'
+                    }}</span>
+                    <small class="text-muted">total gastado</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              *ngIf="
+                !usersData()?.usuariosFrecuentes || usersData()?.usuariosFrecuentes?.length === 0
+              "
+              class="text-muted text-center py-3"
+            >
+              No hay datos de usuarios frecuentes disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Usuarios Inactivos</h5>
+          </div>
+          <div class="card-body">
+            <div
+              *ngFor="let user of usersData()?.usuariosInactivos; let i = index"
+              class="sales-item"
+            >
+              <div class="method-name">
+                <strong>{{ user.nombreCompleto }}</strong>
+                <br />
+                <small class="text-muted">Doc: {{ user.documentoCliente }}</small>
+              </div>
+              <div class="method-stats">
+                <div class="d-flex flex-column align-items-end">
+                  <div class="mb-1">
+                    <span class="badge bg-secondary">{{ user.totalPedidos }}</span>
+                    <small class="text-muted ms-1">pedidos</small>
+                  </div>
+                  <div>
+                    <span class="text-warning" *ngIf="user.ultimoPedido === 'Nunca'">
+                      <i class="fa-solid fa-exclamation-triangle me-1"></i>Sin pedidos
+                    </span>
+                    <span class="text-info" *ngIf="user.ultimoPedido !== 'Nunca'">
+                      <i class="fa-solid fa-calendar me-1"></i
+                      >{{ user.ultimoPedido | date: 'dd/MM/yyyy' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas de Usuarios</h5>
+          </div>
+          <div class="card-body">
+            <div class="stats-item">
+              <span class="stats-label">Total Clientes:</span>
+              <div class="stats-value">
+                <span class="badge bg-info">{{
+                  usersData()?.estadisticasUsuarios?.totalClientes
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Clientes Activos:</span>
+              <div class="stats-value">
+                <span class="badge bg-success">{{
+                  usersData()?.estadisticasUsuarios?.clientesActivos
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Clientes Inactivos:</span>
+              <div class="stats-value">
+                <span class="badge bg-warning">{{
+                  usersData()?.estadisticasUsuarios?.clientesInactivos
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Promedio Gasto por Cliente:</span>
+              <div class="stats-value">
+                <span class="badge bg-primary">{{
+                  usersData()?.estadisticasUsuarios?.promedioGastoPorCliente
+                    | currency: 'COP' : 'symbol' : '1.0-0'
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Time Analysis Tab -->
+  <div *ngIf="activeTab() === 'time' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="timeData()">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Pedidos por Hora</h5>
+          </div>
+          <div class="card-body">
+            <div *ngFor="let item of timeData()?.ventasPorHora" class="sales-item">
+              <div class="method-name">
+                <strong>{{ item.hora }}:00</strong>
+                <br />
+                <small class="text-muted">Hora del día</small>
+              </div>
+              <div class="method-stats">
+                <div class="d-flex flex-column align-items-end">
+                  <div class="mb-1">
+                    <span class="badge bg-info">{{ item.cantidad }}</span>
+                    <small class="text-muted ms-1">pedidos</small>
+                  </div>
+                  <div>
+                    <span class="amount">{{
+                      item.total | currency: 'COP' : 'symbol' : '1.0-0'
+                    }}</span>
+                    <small class="text-muted">total ventas</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              *ngIf="!timeData()?.ventasPorHora || timeData()?.ventasPorHora?.length === 0"
+              class="text-muted text-center py-3"
+            >
+              No hay datos por hora disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Pedidos por Día</h5>
+          </div>
+          <div class="card-body">
+            <div *ngFor="let item of timeData()?.ventasPorDiaSemana" class="sales-item">
+              <div class="method-name">
+                <strong>{{ item.diaSemana }}</strong>
+                <br />
+                <small class="text-muted">Día de la semana</small>
+              </div>
+              <div class="method-stats">
+                <div class="d-flex flex-column align-items-end">
+                  <div class="mb-1">
+                    <span class="badge bg-success">{{ item.cantidad }}</span>
+                    <small class="text-muted ms-1">pedidos</small>
+                  </div>
+                  <div>
+                    <span class="amount">{{
+                      item.total | currency: 'COP' : 'symbol' : '1.0-0'
+                    }}</span>
+                    <small class="text-muted">total ventas</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              *ngIf="
+                !timeData()?.ventasPorDiaSemana || timeData()?.ventasPorDiaSemana?.length === 0
+              "
+              class="text-muted text-center py-3"
+            >
+              No hay datos por día disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Ventas por Mes</h5>
+          </div>
+          <div class="card-body">
+            <div *ngFor="let item of timeData()?.ventasPorMes" class="sales-item">
+              <div class="method-name">
+                <strong>{{ item.mes | date: 'MMMM yyyy' }}</strong>
+                <br />
+                <small class="text-muted">Mes y año</small>
+              </div>
+              <div class="method-stats">
+                <div class="d-flex flex-column align-items-end">
+                  <div class="mb-1">
+                    <span class="badge bg-warning">{{ item.cantidad }}</span>
+                    <small class="text-muted ms-1">pedidos</small>
+                  </div>
+                  <div>
+                    <span class="amount">{{
+                      item.total | currency: 'COP' : 'symbol' : '1.0-0'
+                    }}</span>
+                    <small class="text-muted">total ventas</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              *ngIf="!timeData()?.ventasPorMes || timeData()?.ventasPorMes?.length === 0"
+              class="text-muted text-center py-3"
+            >
+              No hay datos por mes disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Local Telemetry Tab -->
+  <div *ngIf="activeTab() === 'local'" class="tab-content">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Inicios de Sesión</h5>
+          </div>
+          <div class="card-body">
+            <div class="stats-item">
+              <span class="stats-label">Intentos:</span>
+              <div class="stats-value">
+                <span class="badge bg-info">{{ localMetrics().login.attempts }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Éxitos:</span>
+              <div class="stats-value">
+                <span class="badge bg-success">{{ localMetrics().login.successes }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Fallos:</span>
+              <div class="stats-value">
+                <span class="badge bg-danger">{{ localMetrics().login.failures }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Compras por Método de Pago</h5>
+          </div>
+          <div class="card-body">
+            <div
+              *ngFor="let kv of localMetrics().purchasesByPaymentMethod | keyvalue"
+              class="sales-item"
+            >
+              <span class="method-name">{{ kv.key }}</span>
+              <div class="method-stats">
+                <span class="badge bg-primary">{{ kv.value }}</span>
+                <span class="amount">compras</span>
+              </div>
+            </div>
+            <div
+              *ngIf="
+                !localMetrics().purchasesByPaymentMethod ||
+                (localMetrics().purchasesByPaymentMethod | keyvalue)?.length === 0
+              "
+              class="text-muted text-center py-3"
+            >
+              No hay compras registradas
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Core Web Vitals</h5>
+          </div>
+          <div class="card-body">
+            <div class="vital-item">
+              <span class="vital-label">LCP:</span>
+              <span class="vital-value" [class]="'vital-' + getCoreWebVitalsStatus().lcp">
+                {{
+                  getCoreWebVitals().lcp ? (getCoreWebVitals().lcp! / 1000).toFixed(2) + 's' : 'N/A'
+                }}
+              </span>
+            </div>
+            <div class="vital-item">
+              <span class="vital-label">FID:</span>
+              <span class="vital-value" [class]="'vital-' + getCoreWebVitalsStatus().fid">
+                {{ getCoreWebVitals().fid ? getCoreWebVitals().fid!.toFixed(0) + 'ms' : 'N/A' }}
+              </span>
+            </div>
+            <div class="vital-item">
+              <span class="vital-label">CLS:</span>
+              <span class="vital-value" [class]="'vital-' + getCoreWebVitalsStatus().cls">
+                {{ getCoreWebVitals().cls ? getCoreWebVitals().cls!.toFixed(3) : 'N/A' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Eventos Recientes</h5>
+            <span class="badge bg-secondary">{{ localEvents().length }} eventos</span>
+          </div>
+          <div class="card-body">
+            <div *ngIf="localEvents().length === 0" class="text-muted text-center py-3">
+              No hay eventos registrados
+            </div>
+            <div
+              *ngFor="let event of localEvents(); trackBy: trackByEventId"
+              class="event-item-compact"
+            >
+              <div class="event-line">
+                <span class="event-timestamp">{{ formatEventTimestamp(event.timestamp) }}</span>
+                <span class="event-type badge" [ngClass]="getEventTypeClass(event.type)">{{
+                  event.type
+                }}</span>
+                <span class="event-details-inline">
+                  <span *ngIf="event.userId" class="event-tag">
+                    <i class="fa-solid fa-user"></i>{{ event.userId }}
+                  </span>
+                  <span *ngIf="event.message" class="event-tag error-msg">
+                    <i class="fa-solid fa-exclamation-circle"></i>{{ event.message }}
+                  </span>
+                  <span *ngIf="event.method" class="event-tag">
+                    <i class="fa-solid fa-globe"></i>{{ event.method }}
+                  </span>
+                  <span *ngIf="event.url" class="event-tag url-tag">
+                    <i class="fa-solid fa-link"></i>{{ event.url }}
+                  </span>
+                  <span
+                    *ngIf="event.status"
+                    class="event-tag"
+                    [ngClass]="getStatusClass(event.status)"
+                  >
+                    <i class="fa-solid fa-info-circle"></i>{{ event.status }}
+                  </span>
+                  <span *ngIf="event.requestId" class="event-tag req-id">
+                    <i class="fa-solid fa-hashtag"></i>{{ event.requestId }}
+                  </span>
+                  <span
+                    *ngIf="event.durationMs"
+                    class="event-tag duration"
+                    [ngClass]="getDurationClass(event.durationMs)"
+                  >
+                    <i class="fa-solid fa-clock"></i>{{ event.durationMs }}ms
+                  </span>
+                  <span *ngIf="event.paymentMethodLabel" class="event-tag">
+                    <i class="fa-solid fa-credit-card"></i>{{ event.paymentMethodLabel }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

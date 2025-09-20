@@ -7,7 +7,10 @@ import {
   mockSalesData,
   mockProductsData,
 } from '../../shared/mocks/telemetry.mock';
-import { createHandleErrorServiceMock, createStorageErrorMock } from '../../shared/mocks/test-doubles';
+import {
+  createHandleErrorServiceMock,
+  createStorageErrorMock,
+} from '../../shared/mocks/test-doubles';
 import { TelemetryParams } from '../../shared/models/telemetry.model';
 import { HandleErrorService } from './handle-error.service';
 import { TelemetryService, PurchaseData } from './telemetry.service';
@@ -368,7 +371,7 @@ describe('TelemetryService', () => {
         localStorage.removeItem = mockRemoveItem as any;
 
         expect(() => service.clear()).not.toThrow();
-        
+
         localStorage.removeItem = originalRemoveItem;
       });
     });
@@ -396,7 +399,7 @@ describe('TelemetryService', () => {
 
         expect(() => service.getEvents()).not.toThrow();
         expect(service.getEvents()).toEqual([]);
-        
+
         localStorage.getItem = originalGetItem;
       });
 
@@ -406,7 +409,7 @@ describe('TelemetryService', () => {
         localStorage.setItem = mockSetItem as any;
 
         expect(() => service.logLoginAttempt()).not.toThrow();
-        
+
         localStorage.setItem = originalSetItem;
       });
 

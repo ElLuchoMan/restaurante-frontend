@@ -209,6 +209,7 @@ export function createSpy() {
 
 export function createTelemetryServiceMock() {
   return {
+    // Métodos de logging local
     logEvent: jest.fn(),
     logLoginAttempt: jest.fn(),
     logLoginSuccess: jest.fn(),
@@ -226,6 +227,17 @@ export function createTelemetryServiceMock() {
       salesByHour: {},
       salesByWeekday: {},
     }),
+    // Métodos del backend HTTP
+    getDashboard: jest.fn(),
+    getSales: jest.fn(),
+    getProducts: jest.fn(),
+    getUsers: jest.fn(),
+    getTimeAnalysis: jest.fn(),
+    getRentabilidad: jest.fn(),
+    getSegmentacion: jest.fn(),
+    getEficiencia: jest.fn(),
+    getReservasAnalisis: jest.fn(),
+    getPedidosAnalisis: jest.fn(),
   } as any;
 }
 
