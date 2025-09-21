@@ -5455,7 +5455,7 @@ input {
 .card {
   background-clip: border-box;
   background-color: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 0; // borde físico off, usamos glow
   border-radius: 20px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
   display: flex;
@@ -5464,6 +5464,7 @@ input {
   position: relative;
   word-wrap: break-word;
   transition: all 0.3s ease;
+  overflow: hidden;
 
   &:hover {
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
@@ -11568,6 +11569,19 @@ button.bg-dark {
   }
 }
 
+// Cuando los filtros viven dentro de una card, evitar el efecto "card dentro de card"
+.card .filters-container {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0.75rem 1rem; // darle algo de aire vertical dentro de la card
+  margin-bottom: 0.75rem;
+}
+.card .filters-container::before {
+  content: none;
+}
+
 // Botón de limpiar filtros mejorado
 .btn-clear-filters {
   background: linear-gradient(135deg, rgba(158, 79, 63, 0.8) 0%, rgba(158, 79, 63, 1) 100%);
@@ -11693,7 +11707,8 @@ button.bg-dark {
 .glow-border {
   position: relative;
 }
-.glow-border::before {
+.glow-border::before,
+.card::before {
   content: '';
   position: absolute;
   inset: -1px;
