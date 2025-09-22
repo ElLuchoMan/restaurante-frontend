@@ -1,3 +1,10 @@
+/*
+  Fuente única de estilos globales de la app.
+  - SIEMPRE importar en los estilos de componentes con:
+      @use 'src/assets/styles.scss' as *;
+  - Usar variables, mixins y utilidades de aquí (_variables.scss, _base.scss, _utilities.scss).
+  - Evitar estilos personalizados locales; migrarlos a estilos reutilizables globales.
+*/
 @forward 'variables';
 @forward 'base';
 @forward 'utilities';
