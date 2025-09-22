@@ -5,6 +5,11 @@
     SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
 }
 
+/* Alineación global usada en Telemetría para contenedores con gap */
+.d-flex.gap-2 {
+  align-items: center;
+}
+
 .text-justify {
   text-align: justify !important;
 }

@@ -60,6 +60,19 @@
   }
 }
 
+.btn.btn-primary {
+  /* Alinear con Bootstrap 5 (CSS variables) para garantizar prioridad y consistencia */
+  --bs-btn-bg: #{$primary};
+  --bs-btn-border-color: #{$primary};
+  --bs-btn-hover-bg: #{$quaternary};
+  --bs-btn-hover-border-color: #{$quaternary};
+  --bs-btn-focus-shadow-rgb: 212, 160, 23; /* d4a017 */
+  --bs-btn-active-bg: #{$quaternary};
+  --bs-btn-active-border-color: #{$quaternary};
+  --bs-btn-disabled-bg: #{$quaternary};
+  --bs-btn-disabled-border-color: #{$quaternary};
+}
+
 html {
   font-family: Poppins, sans-serif;
   line-height: 1.15;
@@ -11713,8 +11726,8 @@ button.bg-dark {
 
 .form-select.form-select-sm {
   height: 38px;
-  padding: 0.5rem 2rem 0.5rem 0.875rem;
-  font-size: 0.85rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8rem;
 }
 
 /* Dropdown (button) global - para casos como "Último mes" en headers */
