@@ -7,13 +7,13 @@
   left: 0;
   right: 0;
   z-index: 1040;
-  height: 60px; // altura visual fija; el main compensa con padding-top dinámico
+  height: var(--native-topbar-h); // altura visual fija; el main compensa con padding-top dinámico
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px) saturate(180%);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 1px 20px rgba(0, 0, 0, 0.04);
   .container {
-    height: 60px;
+    height: var(--native-topbar-h);
     display: flex;
     align-items: center;
   }

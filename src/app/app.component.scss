@@ -32,3 +32,9 @@
 
 /* Espaciadores para barra inferior (mobile) y margen seguro (desktop/webview) */
 /* (revert) sin espaciadores globales */
+
+/* Compensación global en WebView: evita solapamiento con topbar y dock */
+.is-webview {
+  padding-top: var(--native-topbar-h);
+  padding-bottom: calc(var(--quick-actions-h) + env(safe-area-inset-bottom));
+}

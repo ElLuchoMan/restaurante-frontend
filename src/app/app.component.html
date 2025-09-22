@@ -5,7 +5,7 @@
 <app-header *ngIf="!isWebView"></app-header>
 <app-update-banner *ngIf="!isWebView"></app-update-banner>
 <app-modal></app-modal>
-<main id="main" tabindex="-1" role="main">
+<main id="main" tabindex="-1" role="main" [class.is-webview]="isWebView">
   <router-outlet></router-outlet>
   <div aria-live="polite" aria-atomic="true" class="sr-only" id="aria-live-region"></div>
 </main>

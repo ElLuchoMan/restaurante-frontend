@@ -46,6 +46,9 @@
   --font-family-sans-serif: 'Poppins', sans-serif;
   --font-family-monospace:
     sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
+  /* Alturas por defecto (ajustables por contexto) */
+  --native-topbar-h: 60px;
+  --quick-actions-h: 72px;
 }
 
 * {
@@ -12276,9 +12279,24 @@ textarea.form-control {
    ======================================== */
 .auth-hero {
   position: relative;
-  min-height: calc(100vh - 120px);
   display: flex;
-  align-items: center;
+  align-items: flex-start; // Web: contenido hacia arriba
+  padding-top: 1rem;
+  padding-bottom: 1.5rem;
+  min-height: auto;
+}
+
+// WebView (Capacitor/Cordova): centrar verticalmente
+.is-webview .auth-hero {
+  display: grid;
+  place-content: center; // centra en ambos ejes
+  height: calc(
+    100vh - var(--native-topbar-h) - var(--quick-actions-h) - env(safe-area-inset-top) - env(
+        safe-area-inset-bottom
+      )
+  );
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 // CTA redondeado con efecto de presión y capa de progreso
@@ -12565,9 +12583,9 @@ a.link {
     color: $dark;
   }
   .event-tag.error-msg {
-    background-color: mix($warning, $white, 20%);
-    border-color: mix($warning, $white, 40%);
-    color: mix($warning, $black, 60%);
+    background-color: color.mix($warning, $white, 20%);
+    border-color: color.mix($warning, $white, 40%);
+    color: color.mix($warning, $black, 60%);
   }
   .event-tag.url-tag {
     background-color: rgba($tertiary, 0.1);
