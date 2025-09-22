@@ -3,26 +3,28 @@
   <div class="form-card-bg p-5">
     <form (ngSubmit)="onSubmit()" #reservaForm="ngForm">
       <div class="form-group" *ngIf="mostrarCampo">
-        <label for="nombreCompleto">Nombre Completo</label>
-        <input
-          type="text"
-          id="nombreCompleto"
-          name="nombreCompleto"
-          [(ngModel)]="nombreCompleto"
-          required
-          class="form-control"
-          required
-          #campoNombreCompleto="ngModel"
-          placeholder="María Torres"
-          [attr.aria-invalid]="
-            campoNombreCompleto.invalid && campoNombreCompleto.touched ? 'true' : null
-          "
-          [attr.aria-describedby]="
-            campoNombreCompleto.invalid && campoNombreCompleto.touched
-              ? 'nombreCompleto-error'
-              : null
-          "
-        />
+        <div class="input-float">
+          <input
+            type="text"
+            id="nombreCompleto"
+            name="nombreCompleto"
+            [(ngModel)]="nombreCompleto"
+            required
+            class="form-control"
+            required
+            #campoNombreCompleto="ngModel"
+            placeholder=" "
+            [attr.aria-invalid]="
+              campoNombreCompleto.invalid && campoNombreCompleto.touched ? 'true' : null
+            "
+            [attr.aria-describedby]="
+              campoNombreCompleto.invalid && campoNombreCompleto.touched
+                ? 'nombreCompleto-error'
+                : null
+            "
+          />
+          <label class="float-label" for="nombreCompleto">Nombre Completo</label>
+        </div>
         <div
           *ngIf="campoNombreCompleto.invalid && campoNombreCompleto.touched"
           class="text-danger"
@@ -34,22 +36,24 @@
       </div>
 
       <div class="form-group" *ngIf="mostrarCampo">
-        <label for="telefono">Teléfono</label>
-        <input
-          type="text"
-          id="telefono"
-          name="telefono"
-          [(ngModel)]="telefono"
-          required
-          class="form-control"
-          required
-          #campoTelefono="ngModel"
-          placeholder="3000000000"
-          [attr.aria-invalid]="campoTelefono.invalid && campoTelefono.touched ? 'true' : null"
-          [attr.aria-describedby]="
-            campoTelefono.invalid && campoTelefono.touched ? 'telefono-error' : null
-          "
-        />
+        <div class="input-float">
+          <input
+            type="text"
+            id="telefono"
+            name="telefono"
+            [(ngModel)]="telefono"
+            required
+            class="form-control"
+            required
+            #campoTelefono="ngModel"
+            placeholder=" "
+            [attr.aria-invalid]="campoTelefono.invalid && campoTelefono.touched ? 'true' : null"
+            [attr.aria-describedby]="
+              campoTelefono.invalid && campoTelefono.touched ? 'telefono-error' : null
+            "
+          />
+          <label class="float-label" for="telefono">Teléfono</label>
+        </div>
         <div
           *ngIf="campoTelefono.invalid && campoTelefono.touched"
           class="text-danger"
@@ -61,26 +65,28 @@
       </div>
 
       <div class="form-group" *ngIf="mostrarCampo">
-        <label for="documentoCliente">Documento</label>
-        <input
-          type="number"
-          id="documentoCliente"
-          name="documentoCliente"
-          class="form-control"
-          [(ngModel)]="documentoCliente"
-          required
-          #campoDocumentoCliente="ngModel"
-          placeholder="1000000000"
-          autocomplete="document"
-          [attr.aria-invalid]="
-            campoDocumentoCliente.invalid && campoDocumentoCliente.touched ? 'true' : null
-          "
-          [attr.aria-describedby]="
-            campoDocumentoCliente.invalid && campoDocumentoCliente.touched
-              ? 'documentoCliente-error'
-              : null
-          "
-        />
+        <div class="input-float">
+          <input
+            type="number"
+            id="documentoCliente"
+            name="documentoCliente"
+            class="form-control"
+            [(ngModel)]="documentoCliente"
+            required
+            #campoDocumentoCliente="ngModel"
+            placeholder=" "
+            autocomplete="document"
+            [attr.aria-invalid]="
+              campoDocumentoCliente.invalid && campoDocumentoCliente.touched ? 'true' : null
+            "
+            [attr.aria-describedby]="
+              campoDocumentoCliente.invalid && campoDocumentoCliente.touched
+                ? 'documentoCliente-error'
+                : null
+            "
+          />
+          <label class="float-label" for="documentoCliente">Documento</label>
+        </div>
         <div
           *ngIf="campoDocumentoCliente.invalid && campoDocumentoCliente.touched"
           class="text-danger"
@@ -180,22 +186,27 @@
       </div>
 
       <div class="form-group" *ngIf="mostrarInputPersonas">
-        <label for="personasExtra">Ingrese el número de personas</label>
-        <input
-          type="number"
-          id="personasExtra"
-          name="personasExtra"
-          [(ngModel)]="personasExtra"
-          min="5"
-          class="form-control"
-          #campoPersonasExtra="ngModel"
-          [attr.aria-invalid]="
-            campoPersonasExtra.invalid && campoPersonasExtra.touched ? 'true' : null
-          "
-          [attr.aria-describedby]="
-            campoPersonasExtra.invalid && campoPersonasExtra.touched ? 'personasExtra-error' : null
-          "
-        />
+        <div class="input-float">
+          <input
+            type="number"
+            id="personasExtra"
+            name="personasExtra"
+            [(ngModel)]="personasExtra"
+            min="5"
+            class="form-control"
+            #campoPersonasExtra="ngModel"
+            placeholder=" "
+            [attr.aria-invalid]="
+              campoPersonasExtra.invalid && campoPersonasExtra.touched ? 'true' : null
+            "
+            [attr.aria-describedby]="
+              campoPersonasExtra.invalid && campoPersonasExtra.touched
+                ? 'personasExtra-error'
+                : null
+            "
+          />
+          <label class="float-label" for="personasExtra">Ingrese el número de personas</label>
+        </div>
         <div
           *ngIf="campoPersonasExtra.invalid && campoPersonasExtra.touched"
           class="text-danger"
@@ -211,15 +222,17 @@
       </div>
 
       <div class="form-group">
-        <label for="indicaciones">Indicaciones Especiales</label>
-        <textarea
-          class="form-control"
-          id="indicaciones"
-          name="indicaciones"
-          [(ngModel)]="indicaciones"
-          rows="3"
-          placeholder="Ejemplo: Mesa cerca de la ventana, decoración especial... "
-        ></textarea>
+        <div class="input-float">
+          <textarea
+            class="form-control"
+            id="indicaciones"
+            name="indicaciones"
+            [(ngModel)]="indicaciones"
+            rows="3"
+            placeholder=" "
+          ></textarea>
+          <label class="float-label" for="indicaciones">Indicaciones Especiales</label>
+        </div>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block mt-5" [disabled]="reservaForm.invalid">

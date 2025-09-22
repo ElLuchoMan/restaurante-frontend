@@ -55,115 +55,9 @@ a.link {
   mask-composite: exclude;
 }
 
-// Float Label Inputs
-.input-float {
-  position: relative;
-  margin-bottom: 8px;
-}
+// Float Label Inputs - se consumen desde assets/_base.scss
 
-.input-float .form-control {
-  padding: 15px 80px 0 50px;
-  height: auto;
-  min-height: 52px; // un poco más alto dentro de input-float por iconos y botón
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: rgba(255, 255, 255, 0.9);
-  transition: all 300ms ease;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-.input-float .form-control:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 0.15rem rgba(212, 160, 23, 0.15);
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-1px);
-}
-
-.input-float .float-label {
-  position: absolute;
-  left: 50px;
-  top: 52%; // ligeramente más abajo para compensar min-height
-  transform: translateY(-50%);
-  color: #9ca3af;
-  font-size: 16px;
-  font-weight: 400;
-  pointer-events: none;
-  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(255, 255, 255, 0.9);
-  padding: 0 4px;
-  z-index: 1;
-  transform-origin: left center;
-}
-
-.input-float .form-control:focus + .float-label,
-.input-float .form-control:not(:placeholder-shown) + .float-label {
-  top: 4px;
-  left: 46px;
-  transform: translateY(0);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--primary);
-  background: rgba(255, 255, 255, 1);
-}
-
-.input-float .icon {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  transition: all 300ms ease;
-  z-index: 2;
-}
-
-.input-float .icon.icon-active {
-  color: var(--primary);
-  transform: translateY(-50%) scale(1.1);
-}
-
-.validation-icon {
-  position: absolute;
-  right: 45px; // espacio para el toggle button
-  top: 50%;
-  transform: translateY(-50%);
-  color: #10b981;
-  font-size: 18px;
-  animation: checkmark-bounce 0.4s ease-out;
-  z-index: 2;
-}
-
-// Para el input de documento (sin toggle button)
-.input-float:not(:has(.toggle-btn)) .validation-icon {
-  right: 16px;
-}
-.input-float:not(:has(.toggle-btn)) .form-control {
-  padding-right: 50px; // menos espacio sin toggle
-}
-
-@keyframes checkmark-bounce {
-  0% {
-    transform: translateY(-50%) scale(0);
-  }
-  50% {
-    transform: translateY(-50%) scale(1.2);
-  }
-  100% {
-    transform: translateY(-50%) scale(1);
-  }
-}
-
-.toggle-btn {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 0;
-  background: transparent;
-  color: #6b7280;
-  padding: 8px 10px;
-}
-
+/* Switch: usar base .custom-switch en toda la app */
 .remember {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -171,54 +65,8 @@ a.link {
   column-gap: 10px;
   padding-left: 0;
 }
-.remember .form-check-input {
-  width: 42px;
-  height: 24px;
-  cursor: pointer;
-  border-radius: 999px;
-  margin-left: 0;
-  margin-right: 0;
-  border: 1px solid #e5e7eb;
-  background-color: #f3f4f6;
-  accent-color: var(--primary);
-  transition:
-    background-color 200ms ease,
-    border-color 200ms ease,
-    box-shadow 200ms ease;
-  position: relative;
-  -webkit-appearance: none;
-  appearance: none;
-}
-.remember .form-check-input:focus {
-  box-shadow: 0 0 0 0.15rem rgba(212, 160, 23, 0.2);
-  border-color: var(--primary);
-}
-.remember .form-check-input:checked {
-  background-color: var(--primary);
-  border-color: var(--primary);
-}
-.remember .form-check-input::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  background: #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: transform 200ms ease;
-}
-.remember .form-check-input:checked::after {
-  transform: translateX(18px);
-}
-.remember .form-check-label {
-  font-weight: 500;
-  user-select: none;
-}
-.remember small {
-  margin-left: 0;
-  grid-column: 2;
+.remember .custom-control.custom-switch {
+  padding-left: 2.25rem;
 }
 
 .auth-cta {
