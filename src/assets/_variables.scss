@@ -25,6 +25,16 @@ $danger: #dc3545; // Rojo original
 $light: #fdf3e7; // Crema original
 $dark: #3b3b3b; // Gris oscuro original
 $black: #000;
+$border-subtle: #e5e7eb; // Bordes sutiles de cards/tablas
+$text-heading-strong: #2d3748; // Títulos
+$text-body: #4a5568; // Texto de contenido
+$text-muted: #6b7280; // Subtítulos/ayudas
+$shadow-soft: rgba(0, 0, 0, 0.08); // Sombra base
+$shadow-hover: rgba(0, 0, 0, 0.12); // Sombra hover
+$glass-bg: rgba(255, 255, 255, 0.72); // Fondo glass
+$ring-primary-12: rgba($primary, 0.12); // Focus ring dorado suave
+$ring-primary-15: rgba($primary, 0.15); // Variante más visible
+$glow-primary-60: rgba($primary, 0.6); // Borde brillante dorado
 $breakpoint-xs: 0;
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;

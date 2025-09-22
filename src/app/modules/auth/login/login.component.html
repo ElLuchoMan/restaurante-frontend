@@ -1,9 +1,9 @@
-<section class="auth-hero">
+<section class="auth-hero page-shell">
   <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-lg-5 col-md-7">
         <header class="text-center mb-4">
-          <h1 class="section-title position-relative text-center">Iniciar Sesión</h1>
+          <h1 class="section-title">Iniciar Sesión</h1>
           <p class="subtitle">Bienvenido de nuevo. Nos alegra verte.</p>
         </header>
 
@@ -110,16 +110,16 @@
 
             <div class="d-flex align-items-center justify-content-between mb-4 gap-3 flex-wrap">
               <div class="remember m-0">
-                <div class="custom-control custom-switch">
+                <div class="custom-control switch">
                   <input
                     type="checkbox"
-                    class="custom-control-input"
+                    class="switch-input"
                     id="remember"
                     [checked]="rememberMe"
                     (change)="onRememberChange($event)"
                     aria-describedby="remember-help"
                   />
-                  <label class="custom-control-label" for="remember">Recordarme</label>
+                  <label class="switch-label" for="remember">Recordarme</label>
                 </div>
                 <small id="remember-help" class="text-muted d-block"
                   >Mantener sesión activa por 30 días</small

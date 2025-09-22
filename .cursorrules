@@ -15,3 +15,7 @@ rules:
   - "Webview: Todo cambio que hagamos en el WebView, es probado en el dispositivo real, no en el emulador. Adicionalmente, cuando se indique modificar el webview, no se debe modificar para web ni para web mobile, es decir, navegadores web y web mobile no deben ser afectados."
   - "Estilos globales: Siempre usaremos los estilos base de la app (variables y _base.scss) y evitaremos estilos personalizados en las hojas de estilo de los componentes; si existen, los migraremos a estilos globales reutilizables."
   - "Antes de crear o sugerir nuevos estilos, VALIDAR primero que no exista ya un patrón en src/assets/styles.scss (y sus _variables.scss/_base.scss/_utilities.scss). Todo componente debe tomar estilos desde allí."
+  - "Barra amarilla: usar el título estándar .section-title en todas las vistas."
+  - "Margen superior desktop: envolver vistas en el contenedor .page-shell (excepto Not-found). Valor desktop: 4rem."
+  - "Breakpoints oficiales: WEB DESKTOP >= 992px (lg Bootstrap); WEB MOBILE < 992px o cuando hay menú hamburguesa; WebView es nativo (capacitor/cordova) y sigue docs en docs/webview.md."
+  - "Colores: Todo color DEBE venir de src/assets/_variables.scss (incluye rgba() precalculados). No se permiten hex/rgb/rgba literales en componentes/estilos; si falta un token, agregarlo a _variables.scss primero."

@@ -1,37 +1,37 @@
 <div class="container">
   <h1 class="text-center mb-4">Consultar Domicilios</h1>
-  <div class="form-card-bg p-4">
+  <div class="card card-normal p-4">
     <div class="filtro-container">
       <label><strong>Filtrar por:</strong></label>
-      <div class="custom-control custom-checkbox mx-2">
+      <div class="control check mx-2">
         <input
-          class="custom-control-input"
+          class="check-input"
           type="checkbox"
           id="busquedaDireccion"
           [(ngModel)]="buscarPorDireccion"
           (change)="actualizarTipoBusqueda()"
         />
-        <label class="custom-control-label" for="busquedaDireccion">Dirección</label>
+        <label class="check-label" for="busquedaDireccion">Dirección</label>
       </div>
-      <div class="custom-control custom-checkbox mx-2">
+      <div class="control check mx-2">
         <input
-          class="custom-control-input"
+          class="check-input"
           type="checkbox"
           id="busquedaTelefono"
           [(ngModel)]="buscarPorTelefono"
           (change)="actualizarTipoBusqueda()"
         />
-        <label class="custom-control-label" for="busquedaTelefono">Teléfono</label>
+        <label class="check-label" for="busquedaTelefono">Teléfono</label>
       </div>
-      <div class="custom-control custom-checkbox mx-2">
+      <div class="control check mx-2">
         <input
-          class="custom-control-input"
+          class="check-input"
           type="checkbox"
           id="busquedaFecha"
           [(ngModel)]="buscarPorFecha"
           (change)="actualizarTipoBusqueda()"
         />
-        <label class="custom-control-label" for="busquedaFecha">Fecha</label>
+        <label class="check-label" for="busquedaFecha">Fecha</label>
       </div>
     </div>
 
@@ -95,7 +95,7 @@
     </div>
   </div>
 
-  <div class="form-card-bg p-4 mt-4" *ngIf="domicilios.length > 0">
+  <div class="card card-normal p-4 mt-4" *ngIf="domicilios.length > 0">
     <h2 class="text-center mb-4">Resultados</h2>
     <div class="table-container">
       <table class="table table-bordered text-center">

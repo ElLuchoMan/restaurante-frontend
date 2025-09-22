@@ -28,15 +28,15 @@ a.link {
 }
 
 .subtitle {
-  color: #6b7280;
+  color: $text-muted;
   margin: 0;
 }
 
 .card-glass {
   position: relative;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  background: $glass-bg;
+  box-shadow: 0 20px 50px $shadow-soft;
   backdrop-filter: saturate(140%) blur(8px);
   -webkit-backdrop-filter: saturate(140%) blur(8px);
 }
@@ -47,7 +47,7 @@ a.link {
   inset: -1px;
   border-radius: 20px;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(212, 160, 23, 0.45), rgba(0, 0, 0, 0.08));
+  background: linear-gradient(135deg, $glow-primary-60, rgba(0, 0, 0, 0.08));
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);

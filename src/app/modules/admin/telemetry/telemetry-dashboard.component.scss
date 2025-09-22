@@ -1,3 +1,35 @@
+@use '../../../../assets/styles.scss' as *;
+
+.header-actions {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid $border-subtle;
+
+  .title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: $dark;
+    flex: 1;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: $text-muted;
+    font-weight: 500;
+  }
+}
+
+.section-divider {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid $border-subtle;
+
+  .title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: $dark;
+    flex: 1;
+  }
+}
+
 .card-title {
   font-weight: 600;
 }
@@ -88,7 +120,7 @@ ul {
 
 .vital-label {
   font-weight: 500;
-  color: #6c757d;
+  color: $text-muted;
 }
 
 .vital-value {
@@ -101,51 +133,51 @@ ul {
 }
 
 .vital-good {
-  background-color: rgba(40, 167, 69, 0.1); // $success con transparencia
-  color: #28a745; // $success
-  border: 1px solid rgba(40, 167, 69, 0.2);
+  background-color: rgba($success, 0.1);
+  color: $success;
+  border: 1px solid rgba($success, 0.2);
 }
 
 .vital-needs-improvement {
-  background-color: rgba(255, 193, 7, 0.1); // $warning con transparencia
-  color: #ffc107; // $warning
-  border: 1px solid rgba(255, 193, 7, 0.2);
+  background-color: rgba($warning, 0.1);
+  color: $warning;
+  border: 1px solid rgba($warning, 0.2);
 }
 
 .vital-poor {
-  background-color: rgba(220, 53, 69, 0.1); // $danger con transparencia
-  color: #dc3545; // $danger
-  border: 1px solid rgba(220, 53, 69, 0.2);
+  background-color: rgba($danger, 0.1);
+  color: $danger;
+  border: 1px solid rgba($danger, 0.2);
 }
 
 .vital-unknown {
-  background-color: rgba(108, 117, 125, 0.1); // $gray con transparencia
-  color: #6c757d; // $gray
-  border: 1px solid rgba(108, 117, 125, 0.2);
+  background-color: rgba($gray, 0.1);
+  color: $gray;
+  border: 1px solid rgba($gray, 0.2);
 }
 
 // Los estilos vibrantes ahora están en _base.scss como clases reutilizables
 
 // Mejoras generales para las tarjetas con colores de la marca
 .card {
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 20px 50px $shadow-soft !important;
+  border: 1px solid $border-subtle !important;
   border-radius: 20px !important;
   overflow: hidden; // Evita doble “fondo inferior” por sombras internas
 
   .card-header {
-    background: #ffffff; // Fondo blanco limpio
-    border-bottom: 1px solid #e5e7eb;
+    background: $white;
+    border-bottom: 1px solid $border-subtle;
 
     h5 {
-      color: #3b3b3b; // $dark
+      color: $dark;
       font-weight: 600;
     }
   }
 
   .card-body {
     padding: 1.25rem;
-    background-color: #ffffff; // Fondo blanco limpio
+    background-color: $white;
   }
 }
 
@@ -157,33 +189,28 @@ ul {
 // Badges con colores de "La cocina DE MARÍA"
 .badge {
   &.bg-primary {
-    background-color: #d4a017 !important; // $primary
-    color: #fff !important;
+    background-color: $primary !important;
+    color: $white !important;
   }
-
   &.bg-success {
-    background-color: #28a745 !important; // $success
-    color: #fff !important;
+    background-color: $success !important;
+    color: $white !important;
   }
-
   &.bg-info {
-    background-color: #17a2b8 !important; // $info
-    color: #fff !important;
+    background-color: $info !important;
+    color: $white !important;
   }
-
   &.bg-warning {
-    background-color: #ffc107 !important; // $warning
-    color: #3b3b3b !important; // $dark para mejor contraste
+    background-color: $warning !important;
+    color: $dark !important;
   }
-
   &.bg-danger {
-    background-color: #dc3545 !important; // $danger
-    color: #fff !important;
+    background-color: $danger !important;
+    color: $white !important;
   }
-
   &.bg-secondary {
-    background-color: #9e4f3f !important; // $secondary
-    color: #fff !important;
+    background-color: $secondary !important;
+    color: $white !important;
   }
 }
 
@@ -199,33 +226,33 @@ ul {
 
   // Botón personalizado con colores de la marca
   &.btn-warning {
-    background: linear-gradient(135deg, #d4a017 0%, #b47c5f 100%); // $primary a $tertiary
-    border-color: #9e4f3f; // $secondary
-    color: #fff;
+    background: linear-gradient(135deg, $primary 0%, $tertiary 100%);
+    border-color: $secondary;
+    color: $white;
     font-weight: 500;
-    box-shadow: 0 2px 4px rgba(158, 79, 63, 0.2); // $secondary con transparencia
+    box-shadow: 0 2px 4px rgba($secondary, 0.2);
 
     &:hover {
-      background: linear-gradient(
-        135deg,
-        #b8901a 0%,
-        #9e4f3f 100%
-      ); // $primary más oscuro a $secondary
-      border-color: #7a3e32; // $secondary más oscuro
-      color: #fff;
-      box-shadow: 0 4px 8px rgba(158, 79, 63, 0.3);
+      background: linear-gradient(135deg, mix($primary, $black, 85%) 0%, $secondary 100%);
+      border-color: mix($secondary, $black, 80%);
+      color: $white;
+      box-shadow: 0 4px 8px rgba($secondary, 0.3);
       transform: translateY(-1px);
     }
 
     &:active {
-      background: linear-gradient(135deg, #9e7d15 0%, #7a3e32 100%); // Tonos más oscuros
-      border-color: #5d2e25;
+      background: linear-gradient(
+        135deg,
+        mix($primary, $black, 75%) 0%,
+        mix($secondary, $black, 80%) 100%
+      );
+      border-color: mix($secondary, $black, 70%);
       transform: translateY(0);
     }
 
     &:disabled {
-      background: linear-gradient(135deg, #d4a017 0%, #b47c5f 100%);
-      border-color: #9e4f3f;
+      background: linear-gradient(135deg, $primary 0%, $tertiary 100%);
+      border-color: $secondary;
       opacity: 0.6;
       transform: none;
       box-shadow: none;
@@ -245,11 +272,11 @@ ul {
 
 // Estilos personalizados para las pestañas de navegación
 .nav-tabs {
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid $border-subtle;
 
   .nav-item {
     .nav-link {
-      color: #6c757d;
+      color: $text-muted;
       border: none;
       border-bottom: 3px solid transparent;
       background: none;
@@ -263,9 +290,9 @@ ul {
       }
 
       &:hover {
-        color: #9e4f3f; // $secondary
-        background-color: #ffffff; // Fondo blanco limpio
-        border-bottom-color: #e5e7eb;
+        color: $secondary;
+        background-color: $white;
+        border-bottom-color: $border-subtle;
 
         i {
           opacity: 1;
@@ -273,14 +300,14 @@ ul {
       }
 
       &.active {
-        color: #9e4f3f; // $secondary
-        background: #ffffff;
-        border-bottom-color: #d4a017; // $primary (dorado)
+        color: $secondary;
+        background: $white;
+        border-bottom-color: $primary;
         font-weight: 600;
 
         i {
           opacity: 1;
-          color: #d4a017; // $primary para los iconos
+          color: $primary;
         }
       }
     }
@@ -291,7 +318,7 @@ ul {
 
 // Estilos para eventos de telemetría compactos
 .event-item-compact {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid $border-subtle;
   padding: 0.4rem 0;
   width: 100%;
 
@@ -300,7 +327,7 @@ ul {
   }
 
   &:hover {
-    background-color: #ffffff;
+    background-color: $white;
     border-radius: 0.25rem;
     margin: 0 -0.5rem;
     padding: 0.4rem 0.5rem;
@@ -361,88 +388,88 @@ ul {
         }
 
         &.url-tag {
-          background-color: rgba(180, 124, 95, 0.1); // $tertiary
-          border-color: rgba(180, 124, 95, 0.2);
-          color: #b47c5f; // $tertiary
+          background-color: rgba($tertiary, 0.1); // $tertiary
+          border-color: rgba($tertiary, 0.2);
+          color: $tertiary; // $tertiary
           flex: 1;
           min-width: 200px;
           overflow-wrap: break-word;
         }
 
         &.req-id {
-          background-color: #ffffff; // Fondo blanco limpio
-          color: #3b3b3b; // $dark
+          background-color: $white; // Fondo blanco limpio
+          color: $dark; // $dark
           font-family: 'Courier New', monospace;
           font-size: 0.7rem;
           flex: 0 0 auto;
           overflow-wrap: break-word;
-          border: 1px solid #e5e7eb;
+          border: 1px solid $border-subtle;
         }
 
         &.duration {
           font-weight: 500;
 
           &.duration-fast {
-            background-color: rgba(40, 167, 69, 0.1); // $success
-            border-color: rgba(40, 167, 69, 0.2);
-            color: #28a745; // $success
+            background-color: rgba($success, 0.1); // $success
+            border-color: rgba($success, 0.2);
+            color: $success; // $success
           }
 
           &.duration-medium {
-            background-color: rgba(255, 193, 7, 0.1); // $warning
-            border-color: rgba(255, 193, 7, 0.2);
-            color: #ffc107; // $warning
+            background-color: rgba($warning, 0.1); // $warning
+            border-color: rgba($warning, 0.2);
+            color: $warning; // $warning
           }
 
           &.duration-slow {
-            background-color: rgba(220, 53, 69, 0.1); // $danger
-            border-color: rgba(220, 53, 69, 0.2);
-            color: #dc3545; // $danger
+            background-color: rgba($danger, 0.1); // $danger
+            border-color: rgba($danger, 0.2);
+            color: $danger; // $danger
           }
 
           &.duration-very-slow {
-            background-color: rgba(220, 53, 69, 0.15); // $danger más intenso
-            border-color: rgba(220, 53, 69, 0.3);
-            color: #dc3545; // $danger
+            background-color: rgba($danger, 0.15); // $danger más intenso
+            border-color: rgba($danger, 0.3);
+            color: $danger; // $danger
             font-weight: 600;
           }
         }
 
         &.status-success {
-          background-color: rgba(40, 167, 69, 0.1); // $success
-          border-color: rgba(40, 167, 69, 0.2);
-          color: #28a745; // $success
+          background-color: rgba($success, 0.1); // $success
+          border-color: rgba($success, 0.2);
+          color: $success; // $success
         }
 
         &.status-redirect {
-          background-color: rgba(23, 162, 184, 0.1); // $info
-          border-color: rgba(23, 162, 184, 0.2);
-          color: #17a2b8; // $info
+          background-color: rgba($info, 0.1); // $info
+          border-color: rgba($info, 0.2);
+          color: $info; // $info
         }
 
         &.status-client-error {
-          background-color: rgba(255, 193, 7, 0.1); // $warning
-          border-color: rgba(255, 193, 7, 0.2);
-          color: #ffc107; // $warning
+          background-color: rgba($warning, 0.1); // $warning
+          border-color: rgba($warning, 0.2);
+          color: $warning; // $warning
         }
 
         &.status-server-error {
-          background-color: rgba(220, 53, 69, 0.1); // $danger
-          border-color: rgba(220, 53, 69, 0.2);
-          color: #dc3545; // $danger
+          background-color: rgba($danger, 0.1); // $danger
+          border-color: rgba($danger, 0.2);
+          color: $danger; // $danger
         }
 
         &.user-doc {
-          background-color: rgba(212, 160, 23, 0.1); // $primary
-          border-color: rgba(212, 160, 23, 0.2);
-          color: #d4a017; // $primary
+          background-color: rgba($primary, 0.1); // $primary
+          border-color: rgba($primary, 0.2);
+          color: $primary; // $primary
           font-weight: 500;
         }
 
         &.screen-info {
-          background-color: rgba(158, 79, 63, 0.1); // $secondary
-          border-color: rgba(158, 79, 63, 0.2);
-          color: #9e4f3f; // $secondary
+          background-color: rgba($secondary, 0.1); // $secondary
+          border-color: rgba($secondary, 0.2);
+          color: $secondary; // $secondary
           font-weight: 500;
         }
 
@@ -450,33 +477,33 @@ ul {
           font-weight: 500;
 
           &.device-desktop {
-            background-color: rgba(40, 167, 69, 0.1); // $success para desktop
-            border-color: rgba(40, 167, 69, 0.2);
-            color: #28a745; // $success
+            background-color: rgba($success, 0.1); // $success para desktop
+            border-color: rgba($success, 0.2);
+            color: $success; // $success
           }
 
           &.device-web-mobile {
-            background-color: rgba(255, 193, 7, 0.1); // $warning para web mobile
-            border-color: rgba(255, 193, 7, 0.2);
-            color: #ffc107; // $warning
+            background-color: rgba($warning, 0.1); // $warning para web mobile
+            border-color: rgba($warning, 0.2);
+            color: $warning; // $warning
           }
 
           &.device-android {
-            background-color: rgba(23, 162, 184, 0.1); // $info para Android
-            border-color: rgba(23, 162, 184, 0.2);
-            color: #17a2b8; // $info
+            background-color: rgba($info, 0.1); // $info para Android
+            border-color: rgba($info, 0.2);
+            color: $info; // $info
           }
 
           &.device-ios {
-            background-color: rgba(108, 117, 125, 0.1); // $gray para iOS
-            border-color: rgba(108, 117, 125, 0.2);
-            color: #6c757d; // $gray
+            background-color: rgba($gray, 0.1); // $gray para iOS
+            border-color: rgba($gray, 0.2);
+            color: $gray; // $gray
           }
 
           &.device-unknown {
-            background-color: rgba(59, 59, 59, 0.1); // $dark para unknown
-            border-color: rgba(59, 59, 59, 0.2);
-            color: #3b3b3b; // $dark
+            background-color: rgba($dark, 0.1); // $dark para unknown
+            border-color: rgba($dark, 0.2);
+            color: $dark; // $dark
           }
         }
       }

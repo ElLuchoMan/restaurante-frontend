@@ -4546,6 +4546,31 @@ input {
   }
 }
 
+/* Alias sin "custom-*" para switches */
+.switch {
+  @extend .custom-switch;
+}
+.switch-input {
+  @extend .custom-control-input;
+}
+.switch-label {
+  @extend .custom-control-label;
+}
+
+/* Alias sin "custom-*" para checkboxes */
+.control {
+  @extend .custom-control;
+}
+.check {
+  @extend .custom-checkbox;
+}
+.check-input {
+  @extend .custom-control-input;
+}
+.check-label {
+  @extend .custom-control-label;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .custom-switch .custom-control-label::after {
     transition: none;
@@ -5457,7 +5482,7 @@ input {
   background-color: #ffffff;
   border: 0; // borde físico off, usamos glow
   border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 50px $shadow-soft;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -5467,7 +5492,7 @@ input {
   overflow: hidden;
 
   &:hover {
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 25px 60px $shadow-hover;
     transform: translateY(-2px);
   }
 
@@ -5501,11 +5526,89 @@ input {
   }
 }
 
+/* Efecto "glass" global tomado del login */
+.card-glass {
+  border-radius: 20px;
+  background: $glass-bg;
+  box-shadow: 0 20px 50px $shadow-soft;
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+}
+
+/* Aplicar glass a todas las cards por defecto, excepto vibrantes o deshabilitadas */
+.card:not(.card-vibrant-primary):not(.card-vibrant-success):not(.card-vibrant-info):not(
+    .card-vibrant-warning
+  ):not(.card-vibrant-danger):not(.card-vibrant-secondary):not(.no-glass) {
+  background: $glass-bg;
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+}
+
+/* Utilidad para desactivar el glass explícitamente si se requiere */
+.card.no-glass {
+  background: $white;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Tipos oficiales de card */
+.card-normal {
+  @extend .card;
+  @extend .glow-border;
+  @extend .card-glass;
+}
+
+// Vibrantes (ya definidas): .card-vibrant-primary, -success, -info, -warning, -danger, -secondary
+// Utilidad para marcar explícitamente una card como vibrante sin color específico
+.card-vibrant {
+  @extend .card-vibrant-primary;
+}
+
+/* Título de sección con barra amarilla (estándar global) */
+.section-title {
+  position: relative;
+  text-align: center;
+  color: $text-heading-strong;
+  margin-bottom: 1.25rem;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 6px;
+    border-radius: 999px;
+    background-color: #{$primary};
+    margin-left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 0.75rem;
+  }
+
+  &::after {
+    display: none;
+  }
+}
+
+.subtitle {
+  color: $text-muted;
+  margin: 0;
+}
+
+/* Contenedor de página: asegura separación superior bajo la barra/navegación */
+.page-shell {
+  padding-top: 0; // mobile: sin margen adicional
+}
+
+@media (min-width: 992px) {
+  .page-shell {
+    margin-top: 4rem; // margen superior desktop estándar
+  }
+}
+
 .card-body {
   flex: 1 1 auto;
   min-height: 1px;
   padding: 2rem;
-  background-color: #ffffff;
+  background-color: $white;
 
   &:first-child {
     border-radius: 20px 20px 0 0;
@@ -5544,8 +5647,8 @@ input {
 }
 
 .card-header {
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: $white;
+  border-bottom: 1px solid $border-subtle;
   margin-bottom: 0;
   padding: 1.5rem 2rem 1rem 2rem;
   border-radius: 20px 20px 0 0;
@@ -5562,13 +5665,13 @@ input {
   h6 {
     margin-bottom: 0;
     font-weight: 600;
-    color: #2d3748;
+    color: $text-heading-strong;
   }
 }
 
 .card-footer {
-  background-color: #ffffff;
-  border-top: 1px solid #e5e7eb;
+  background-color: $white;
+  border-top: 1px solid $border-subtle;
   padding: 1rem 2rem 1.5rem 2rem;
   border-radius: 0 0 20px 20px;
 
