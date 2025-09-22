@@ -7,7 +7,11 @@
           <p class="subtitle">Bienvenido de nuevo. Nos alegra verte.</p>
         </header>
 
-        <div class="card-glass glow-border p-4 p-md-5" role="region" aria-labelledby="login-title">
+        <div
+          class="card-glass glow-border rise-on-mount p-4 p-md-5"
+          role="region"
+          aria-labelledby="login-title"
+        >
           <div class="particles-bg" aria-hidden="true"></div>
           <h2 id="login-title" class="visually-hidden">Formulario de inicio de sesión</h2>
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
@@ -109,7 +113,7 @@
             </div>
 
             <div class="d-flex align-items-center justify-content-between mb-4 gap-3 flex-wrap">
-              <div class="remember m-0">
+              <div class="remember switch-inline m-0">
                 <div class="custom-control switch">
                   <input
                     type="checkbox"
@@ -129,7 +133,7 @@
 
             <button
               type="submit"
-              class="btn btn-primary auth-cta btn-block d-flex align-items-center justify-content-center gap-2"
+              class="btn btn-primary btn-cta btn-block d-flex align-items-center justify-content-center gap-2"
               [disabled]="!isButtonEnabled || isSubmitting"
             >
               <span class="progress-bg" [style.--progress]="progress"></span>

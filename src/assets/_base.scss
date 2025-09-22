@@ -1,6 +1,18 @@
 @use 'variables' as *;
 @use 'sass:color';
 
+/*
+  Guía de estilos globales - La cocina DE MARÍA
+  - Preferir utilidades globales sobre estilos locales en componentes.
+  - Tabs: usar `.nav-tabs-brand` (DEPRECADO: `.nav-tabs` básico).
+  - Badges: usar `.badge.bg-*` mapeadas a la paleta (DEPRECADO: `.badge-*`).
+  - Cards: usar `.card-glass` + `.glow-border` y variantes `.card-vibrant-*`.
+  - Formularios: `.form-control-enhanced`, `.form-select-enhanced`.
+  - Listas/analítica: `.sales-item`, `.stats-item`, `.event-item-compact`, `.vitals-*`.
+  - Hero/CTA: `.auth-hero`, `.btn-cta`, `.particles-bg`, `.rise-on-mount`.
+  - Switch inline: `.switch-inline`.
+*/
+
 :root {
   --blue: #{$blue};
   --indigo: #{$indigo};
@@ -4378,7 +4390,8 @@ input {
 }
 
 .custom-control {
-  color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
   display: block;
   min-height: 1.5rem;
   padding-left: 1.5rem;
@@ -4912,6 +4925,7 @@ input {
   }
 }
 
+// DEPRECATED: Estilo base de tabs. Preferir .nav-tabs-brand para look de marca.
 .nav-tabs {
   border-bottom: 1px solid #dee2e6;
 
@@ -6007,6 +6021,7 @@ a.badge {
   padding-right: 0.6em;
 }
 
+// DEPRECATED: Preferir .badge.bg-primary (BS5) mapeado a la paleta de marca
 .badge-primary {
   background-color: $primary;
   color: #212529;
@@ -6031,6 +6046,7 @@ a.badge-primary {
   }
 }
 
+// DEPRECATED: Preferir .badge.bg-secondary mapeado a la paleta de marca
 .badge-secondary {
   background-color: $secondary;
   color: #212529;
@@ -6055,6 +6071,7 @@ a.badge-secondary {
   }
 }
 
+// DEPRECATED: Preferir .badge.bg-success mapeado a la paleta de marca
 .badge-success {
   background-color: var(--green);
   color: $white;
@@ -6079,6 +6096,7 @@ a.badge-success {
   }
 }
 
+// DEPRECATED: Preferir .badge.bg-info mapeado a la paleta de marca
 .badge-info {
   background-color: var(--cyan);
   color: $white;
@@ -6103,6 +6121,7 @@ a.badge-info {
   }
 }
 
+// DEPRECATED: Preferir .badge.bg-warning mapeado a la paleta de marca
 .badge-warning {
   background-color: var(--yellow);
   color: #212529;
@@ -6127,6 +6146,7 @@ a.badge-warning {
   }
 }
 
+// DEPRECATED: Preferir .badge.bg-danger mapeado a la paleta de marca
 .badge-danger {
   background-color: var(--red);
   color: $white;
@@ -12116,6 +12136,9 @@ textarea.form-control {
   border-radius: 20px;
   padding: 1.5px; // grosor sutilmente mayor para que se perciba en todas las cards
   background: linear-gradient(135deg, rgba(212, 160, 23, 0.6), rgba(0, 0, 0, 0.08));
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -12132,10 +12155,10 @@ textarea.form-control {
   border-radius: 20px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  padding: 0.25rem 1rem; // espacio interno sutil; los items manejan su padding
+  padding: 0.5rem 1rem; // padding base para coherencia visual
 
   &.list-surface-tight {
-    padding: 0; // variante sin padding para listas muy compactas
+    padding: 0.25rem 0.75rem; // compacto pero con respiración mínima
   }
 }
 
@@ -12146,8 +12169,14 @@ textarea.form-control {
   border: 0;
   box-shadow: none;
   border-radius: 0;
-  padding: 0;
+  padding: 0 1rem; // padding horizontal consistente dentro de cards
   margin-bottom: 0; // evita solapamiento bajo de contenedores
+}
+
+// En tarjetas vibrantes, mantener padding cómodo para que no se corte contenido
+.card[class*='card-vibrant'] .card-body.list-surface,
+.card[class*='card-vibrant'] .card-body > .list-surface {
+  padding: 1rem 1.25rem;
 }
 
 // Clases de utilidad para filtros
@@ -12172,4 +12201,513 @@ textarea.form-control {
   color: rgba(158, 79, 63, 0.7);
   margin-top: 0.25rem;
   font-style: italic;
+}
+
+/* ========================================
+   NAV TABS - Variante de marca reutilizable
+   ======================================== */
+.nav.nav-tabs.nav-tabs-brand {
+  border-bottom: 2px solid $border-subtle;
+}
+.nav.nav-tabs.nav-tabs-brand .nav-link {
+  color: $text-muted;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+.nav.nav-tabs.nav-tabs-brand .nav-link i {
+  margin-right: 0.5rem;
+  opacity: 0.7;
+}
+.nav.nav-tabs.nav-tabs-brand .nav-link:hover {
+  color: $secondary;
+  background-color: $white;
+  border-bottom-color: $border-subtle;
+}
+.nav.nav-tabs.nav-tabs-brand .nav-link:hover i {
+  opacity: 1;
+}
+.nav.nav-tabs.nav-tabs-brand .nav-link.active {
+  color: $secondary;
+  background: $white;
+  border-bottom-color: $primary;
+  font-weight: 600;
+}
+.nav.nav-tabs.nav-tabs-brand .nav-link.active i {
+  opacity: 1;
+  color: $primary;
+}
+
+/* ========================================
+   BADGES - Mapear utilidades bg-* a la paleta de marca
+   ======================================== */
+.badge {
+  &.bg-primary {
+    background-color: $primary !important;
+    color: $white !important;
+  }
+  &.bg-success {
+    background-color: $success !important;
+    color: $white !important;
+  }
+  &.bg-info {
+    background-color: $info !important;
+    color: $white !important;
+  }
+  &.bg-warning {
+    background-color: $warning !important;
+    color: $dark !important;
+  }
+  &.bg-danger {
+    background-color: $danger !important;
+    color: $white !important;
+  }
+  &.bg-secondary {
+    background-color: $secondary !important;
+    color: $white !important;
+  }
+}
+
+/* ========================================
+   AUTH / HERO / BUTTONS UTILITIES
+   ======================================== */
+.auth-hero {
+  position: relative;
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+}
+
+// CTA redondeado con efecto de presión y capa de progreso
+.btn-cta {
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-cta:active {
+  transform: translateY(1px);
+}
+.btn-cta > * {
+  position: relative;
+  z-index: 1;
+}
+.btn-cta .progress-bg {
+  --progress: 0%;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba($primary, 0.25), rgba($primary, 0.55));
+  width: var(--progress);
+  transition: width 400ms ease;
+  z-index: 0;
+}
+
+// Efecto de partículas sutil (decorativo)
+.particles-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.particles-bg::before,
+.particles-bg::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, rgba($primary, 0.6), transparent);
+  border-radius: 50%;
+  animation: float-particles 8s infinite ease-in-out;
+}
+.particles-bg::before {
+  top: 20%;
+  left: 15%;
+  animation-delay: -2s;
+}
+.particles-bg::after {
+  top: 60%;
+  right: 20%;
+  animation-delay: -4s;
+}
+@keyframes float-particles {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-10px) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-5px) rotate(180deg);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(-15px) rotate(270deg);
+    opacity: 0.7;
+  }
+}
+
+// Animación de aparición controlada por clase
+@media (prefers-reduced-motion: no-preference) {
+  .rise-on-mount {
+    animation: rise 420ms ease-out;
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+// Switch inline para Recordarme y similares
+.switch-inline {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 10px;
+  padding-left: 0;
+}
+.switch-inline .custom-control,
+.switch-inline .custom-control.custom-switch {
+  padding-left: 2.25rem;
+}
+
+// Enlaces primarios subrayados y centrados
+a.link {
+  color: var(--primary);
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  text-decoration: underline;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* ========================================
+   ANALYTICS / LIST ITEMS / VITALS UTILITIES
+   ======================================== */
+.sales-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid $border-subtle;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .method-name {
+    font-weight: 500;
+    color: $dark;
+    flex: 1;
+  }
+
+  .method-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    .badge {
+      min-width: 2rem;
+      text-align: center;
+    }
+    .amount {
+      font-size: 0.875rem;
+      color: $gray;
+      font-weight: 500;
+      min-width: 6rem;
+      text-align: right;
+    }
+  }
+}
+
+.stats-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid $border-subtle;
+  &:last-child {
+    border-bottom: none;
+  }
+  .stats-label {
+    font-weight: 500;
+    color: $dark;
+    flex: 1;
+  }
+  .stats-value {
+    .badge {
+      min-width: 5rem;
+      text-align: center;
+      font-size: 0.875rem;
+      padding: 0.5rem 0.75rem;
+    }
+  }
+}
+
+.vitals-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.vital-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+.vital-label {
+  font-weight: 500;
+  color: $text-muted;
+}
+.vital-value {
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  min-width: 4rem;
+  text-align: center;
+}
+.vital-good {
+  background-color: rgba($success, 0.1);
+  color: $success;
+  border: 1px solid rgba($success, 0.2);
+}
+.vital-needs-improvement {
+  background-color: rgba($warning, 0.1);
+  color: $warning;
+  border: 1px solid rgba($warning, 0.2);
+}
+.vital-poor {
+  background-color: rgba($danger, 0.1);
+  color: $danger;
+  border: 1px solid rgba($danger, 0.2);
+}
+.vital-unknown {
+  background-color: rgba($gray, 0.1);
+  color: $gray;
+  border: 1px solid rgba($gray, 0.2);
+}
+
+// Eventos compactos reutilizables
+.event-item-compact {
+  border-bottom: 1px solid $border-subtle;
+  padding: 0.4rem 0;
+  width: 100%;
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background-color: $white;
+    border-radius: 0.25rem;
+    margin: 0 -0.5rem;
+    padding: 0.4rem 0.5rem;
+  }
+
+  .event-line {
+    display: grid;
+    grid-template-columns: 160px 100px 1fr;
+    gap: 0.5rem;
+    align-items: start;
+    width: 100%;
+  }
+  .event-timestamp {
+    font-weight: 500;
+    color: $dark;
+    font-size: 0.8rem;
+    font-family: 'Courier New', monospace;
+  }
+  .event-type {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 0.15rem 0.4rem;
+    text-align: center;
+    justify-self: start;
+  }
+  .event-details-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .event-tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: $gray;
+    background-color: $white;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.2rem;
+    border: 1px solid $border-subtle;
+    word-break: break-all;
+    max-width: 100%;
+  }
+  .event-tag i {
+    margin-right: 0.2rem;
+    font-size: 0.7rem;
+    color: $dark;
+  }
+  .event-tag.error-msg {
+    background-color: mix($warning, $white, 20%);
+    border-color: mix($warning, $white, 40%);
+    color: mix($warning, $black, 60%);
+  }
+  .event-tag.url-tag {
+    background-color: rgba($tertiary, 0.1);
+    border-color: rgba($tertiary, 0.2);
+    color: $tertiary;
+    flex: 1;
+    min-width: 200px;
+    overflow-wrap: break-word;
+  }
+  .event-tag.req-id {
+    background-color: $white;
+    color: $dark;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    flex: 0 0 auto;
+    overflow-wrap: break-word;
+    border: 1px solid $border-subtle;
+  }
+  .event-tag.duration {
+    font-weight: 500;
+  }
+  .event-tag.duration.duration-fast {
+    background-color: rgba($success, 0.1);
+    border-color: rgba($success, 0.2);
+    color: $success;
+  }
+  .event-tag.duration.duration-medium {
+    background-color: rgba($warning, 0.1);
+    border-color: rgba($warning, 0.2);
+    color: $warning;
+  }
+  .event-tag.duration.duration-slow {
+    background-color: rgba($danger, 0.1);
+    border-color: rgba($danger, 0.2);
+    color: $danger;
+  }
+  .event-tag.duration.duration-very-slow {
+    background-color: rgba($danger, 0.15);
+    border-color: rgba($danger, 0.3);
+    color: $danger;
+    font-weight: 600;
+  }
+  .event-tag.status-success {
+    background-color: rgba($success, 0.1);
+    border-color: rgba($success, 0.2);
+    color: $success;
+  }
+  .event-tag.status-redirect {
+    background-color: rgba($info, 0.1);
+    border-color: rgba($info, 0.2);
+    color: $info;
+  }
+  .event-tag.status-client-error {
+    background-color: rgba($warning, 0.1);
+    border-color: rgba($warning, 0.2);
+    color: $warning;
+  }
+  .event-tag.status-server-error {
+    background-color: rgba($danger, 0.1);
+    border-color: rgba($danger, 0.2);
+    color: $danger;
+  }
+  .event-tag.user-doc {
+    background-color: rgba($primary, 0.1);
+    border-color: rgba($primary, 0.2);
+    color: $primary;
+    font-weight: 500;
+  }
+  .event-tag.screen-info {
+    background-color: rgba($secondary, 0.1);
+    border-color: rgba($secondary, 0.2);
+    color: $secondary;
+    font-weight: 500;
+  }
+  .event-tag.device-type {
+    font-weight: 500;
+  }
+  .event-tag.device-type.device-desktop {
+    background-color: rgba($success, 0.1);
+    border-color: rgba($success, 0.2);
+    color: $success;
+  }
+  .event-tag.device-type.device-web-mobile {
+    background-color: rgba($warning, 0.1);
+    border-color: rgba($warning, 0.2);
+    color: $warning;
+  }
+  .event-tag.device-type.device-android {
+    background-color: rgba($info, 0.1);
+    border-color: rgba($info, 0.2);
+    color: $info;
+  }
+  .event-tag.device-type.device-ios {
+    background-color: rgba($gray, 0.1);
+    border-color: rgba($gray, 0.2);
+    color: $gray;
+  }
+  .event-tag.device-type.device-unknown {
+    background-color: rgba($dark, 0.1);
+    border-color: rgba($dark, 0.2);
+    color: $dark;
+  }
+}
+
+@media (max-width: 768px) {
+  .event-item-compact .event-line {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+  .event-item-compact .event-timestamp {
+    font-size: 0.75rem;
+    justify-self: start;
+  }
+  .event-item-compact .event-type {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.3rem;
+    justify-self: start;
+  }
+  .event-item-compact .event-details-inline .event-tag {
+    font-size: 0.7rem;
+    padding: 0.05rem 0.25rem;
+  }
+  .event-item-compact .event-details-inline .event-tag.url-tag {
+    flex: none;
+    min-width: auto;
+  }
+  .event-item-compact .event-details-inline .event-tag i {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .event-item-compact .event-line {
+    grid-template-columns: 140px 90px 1fr;
+  }
+  .event-item-compact .event-timestamp {
+    font-size: 0.75rem;
+  }
+  .event-item-compact .event-type {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.3rem;
+  }
 }

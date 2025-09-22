@@ -33,7 +33,7 @@
   </div>
 
   <!-- Tabs Navigation -->
-  <ul class="nav nav-tabs mb-4" role="tablist">
+  <ul class="nav nav-tabs nav-tabs-brand mb-4" role="tablist">
     <li class="nav-item" role="presentation">
       <button
         class="nav-link"
@@ -110,7 +110,7 @@
     <div class="row g-4" *ngIf="dashboardData()">
       <div class="col-md-3">
         <div class="card card-vibrant-primary text-white">
-          <div class="card-body list-surface list-surface-tight">
+          <div class="card-body list-surface">
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Total Pedidos</h6>
@@ -123,7 +123,7 @@
       </div>
       <div class="col-md-3">
         <div class="card card-vibrant-success text-white">
-          <div class="card-body list-surface list-surface-tight">
+          <div class="card-body list-surface">
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Ingresos Totales</h6>
@@ -138,7 +138,7 @@
       </div>
       <div class="col-md-3">
         <div class="card card-vibrant-info text-white">
-          <div class="card-body list-surface list-surface-tight">
+          <div class="card-body list-surface">
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Usuarios Registrados</h6>
@@ -151,7 +151,7 @@
       </div>
       <div class="col-md-3">
         <div class="card card-vibrant-warning text-white">
-          <div class="card-body list-surface list-surface-tight">
+          <div class="card-body list-surface">
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Valor Promedio</h6>
@@ -175,7 +175,7 @@
           <div class="card-header">
             <h5 class="mb-0">Pedidos por Método de Pago</h5>
           </div>
-          <div class="card-body list-surface list-surface-tight">
+          <div class="card-body list-surface">
             <div *ngFor="let item of salesData()?.ventasPorMetodoPago" class="sales-item">
               <span class="method-name">{{ item.metodoPago }}</span>
               <div class="method-stats">
@@ -191,7 +191,7 @@
           <div class="card-header">
             <h5 class="mb-0">Estadísticas Generales</h5>
           </div>
-          <div class="card-body list-surface list-surface-tight">
+          <div class="card-body list-surface">
             <div class="stats-item">
               <span class="stats-label">Pedido Promedio Diario:</span>
               <div class="stats-value">
@@ -226,7 +226,7 @@
           <div class="card-header">
             <h5 class="mb-0">Tendencia de Ventas</h5>
           </div>
-          <div class="card-body list-surface list-surface-tight">
+          <div class="card-body list-surface">
             <div *ngFor="let trend of salesData()?.tendenciaVentas" class="sales-item">
               <span class="method-name">{{ trend.fecha | date: 'dd/MM/yyyy' }}</span>
               <div class="method-stats">
@@ -254,7 +254,7 @@
           <div class="card-header">
             <h5 class="mb-0">Estadísticas de Productos</h5>
           </div>
-          <div class="card-body list-surface list-surface-tight">
+          <div class="card-body list-surface">
             <div class="stats-item">
               <span class="stats-label">Producto Más Vendido:</span>
               <div class="stats-value">
@@ -287,7 +287,7 @@
           <div class="card-header">
             <h5 class="mb-0">Productos Más Vendidos</h5>
           </div>
-          <div class="card-body list-surface list-surface-tight">
+          <div class="card-body list-surface">
             <div
               *ngFor="let product of productsData()?.productosMasVendidos; let i = index"
               class="sales-item"
@@ -314,7 +314,7 @@
           <div class="card-header">
             <h5 class="mb-0">Productos Menos Vendidos</h5>
           </div>
-          <div class="card-body list-surface list-surface-tight">
+          <div class="card-body list-surface">
             <div
               *ngFor="let product of productsData()?.productosMenosVendidos; let i = index"
               class="sales-item"

@@ -26,10 +26,10 @@
               <span
                 class="badge"
                 [ngClass]="{
-                  'badge-warning': reserva.estadoReserva === 'PENDIENTE',
-                  'badge-success': reserva.estadoReserva === 'CONFIRMADA',
-                  'badge-secondary': reserva.estadoReserva === 'CUMPLIDA',
-                  'badge-danger': reserva.estadoReserva === 'CANCELADA',
+                  'bg-warning': reserva.estadoReserva === 'PENDIENTE',
+                  'bg-success': reserva.estadoReserva === 'CONFIRMADA',
+                  'bg-secondary': reserva.estadoReserva === 'CUMPLIDA',
+                  'bg-danger': reserva.estadoReserva === 'CANCELADA',
                 }"
               >
                 {{ reserva.estadoReserva }}

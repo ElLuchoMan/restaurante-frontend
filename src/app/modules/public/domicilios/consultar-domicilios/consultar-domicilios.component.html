@@ -118,8 +118,8 @@
               <span
                 class="badge"
                 [ngClass]="{
-                  'badge-warning': domicilio.entregado === false,
-                  'badge-success': domicilio.entregado === true,
+                  'bg-warning': domicilio.entregado === false,
+                  'bg-success': domicilio.entregado === true,
                 }"
               >
                 {{ domicilio.entregado ? 'Entregado' : 'Pendiente' }}

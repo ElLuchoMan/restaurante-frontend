@@ -894,25 +894,7 @@ label {
   user-select: none;
 }
 
-.badge-warning {
-  background-color: var(--warning);
-  color: black;
-}
-
-.badge-success {
-  background-color: var(--success);
-  color: white;
-}
-
-.badge-secondary {
-  background-color: var(--cyan);
-  color: white;
-}
-
-.badge-danger {
-  background-color: var(--danger);
-  color: white;
-}
+// DEPRECATED: Las variantes de badge viven en assets/_base.scss
 
 .tooltip-btn {
   background: none;
