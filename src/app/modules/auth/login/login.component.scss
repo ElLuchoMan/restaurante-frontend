@@ -1,5 +1,9 @@
 @use '../../../../assets/styles.scss' as *;
 
+.auth-hero {
+  width: 100%;
+}
+
 .remember {
   @extend .switch-inline;
 }

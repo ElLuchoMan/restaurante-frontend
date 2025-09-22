@@ -12288,8 +12288,9 @@ textarea.form-control {
 
 // WebView (Capacitor/Cordova): centrar verticalmente
 .is-webview .auth-hero {
-  display: grid;
-  place-content: center; // centra en ambos ejes
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: calc(
     100vh - var(--native-topbar-h) - var(--quick-actions-h) - env(safe-area-inset-top) - env(
         safe-area-inset-bottom
@@ -12297,6 +12298,22 @@ textarea.form-control {
   );
   padding-top: 0;
   padding-bottom: 0;
+}
+
+@supports (height: 100dvh) {
+  .is-webview .auth-hero {
+    height: calc(
+      100dvh - var(--native-topbar-h) - var(--quick-actions-h) - env(safe-area-inset-top) - env(
+          safe-area-inset-bottom
+        )
+    );
+  }
+}
+
+// Asegurar centrado de la columna interna en WebView
+.is-webview .auth-hero > .container,
+.is-webview .auth-hero > .container > .row {
+  height: 100%;
 }
 
 // CTA redondeado con efecto de presión y capa de progreso
