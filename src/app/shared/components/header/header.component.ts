@@ -153,7 +153,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
       const screenWidth = window.innerWidth;
       const totalItems = this.menuLeft.length + this.menuRight.length;
 
-      this.imagenVisible = screenWidth < 1201 || totalItems > 6;
+      // Transición suave del logo con animación
+      const newImagenVisible = screenWidth < 1201 || totalItems > 6;
+      if (newImagenVisible !== this.imagenVisible) {
+        this.imagenVisible = newImagenVisible;
+        this.animateLogoTransition();
+      }
+    }
+  }
+
+  private animateLogoTransition(): void {
+    if (!this.isBrowser) return;
+
+    const logoContainer = document.querySelector('.logo-container');
+    if (logoContainer) {
+      logoContainer.classList.add('transitioning');
+      setTimeout(() => {
+        logoContainer.classList.remove('transitioning');
+      }, 300);
     }
   }
 
@@ -206,10 +223,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
+    // Animación suave antes de cerrar sesión
+    if (this.isBrowser) {
+      const navbar = document.querySelector('.navbar');
+      navbar?.classList.add('logging-out');
+    }
+
     this.userService.logout();
     this.cerrarMenu();
-    this.router.navigate(['/home']);
-    this.live.announce('Sesión cerrada');
+
+    setTimeout(() => {
+      this.router.navigate(['/home']);
+      this.live.announce('Sesión cerrada correctamente');
+    }, 150);
   }
   cerrarMenu(): void {
     if (this.isBrowser) {

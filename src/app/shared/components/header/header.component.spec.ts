@@ -130,11 +130,14 @@ describe('HeaderComponent', () => {
     expect(checkScreenSizeSpy).toHaveBeenCalled();
   });
 
-  it('should execute logout and navigate to "/home"', () => {
+  it('should execute logout and navigate to "/home"', async () => {
     userService.getAuthState.mockReturnValue(of(false));
     fixture.detectChanges();
     component.logout();
     expect(userService.logout).toHaveBeenCalled();
+
+    // Esperar el setTimeout de la animación
+    await new Promise((resolve) => setTimeout(resolve, 200));
     expect(router.navigate).toHaveBeenCalledWith(['/home']);
   });
 
