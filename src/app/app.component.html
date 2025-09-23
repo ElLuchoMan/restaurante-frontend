@@ -12,5 +12,5 @@
 <!-- Barra inferior transversal (solo webview, ahora para todos) -->
 <app-quick-actions *ngIf="isWebView"></app-quick-actions>
 
-<!-- Footer solo Home en webview; siempre en web -->
-<app-footer *ngIf="!isWebView || (isWebView && (isHome$ | async))"></app-footer>
+<!-- Footer visible solo en Home (toda la app, todos los dispositivos) -->
+<app-footer *ngIf="isHome$ | async"></app-footer>
