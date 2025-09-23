@@ -498,16 +498,6 @@ h3 {
   z-index: 11;
 }
 
-.nav-bar::before {
-  background: var(--tertiary);
-  content: '';
-  height: 50%;
-  left: 0;
-  position: absolute;
-  top: 0;
-  width: 100%;
-}
-
 .navbar-light .navbar-nav .nav-link {
   color: var(--dark);
   font-size: 17px;
@@ -534,7 +524,7 @@ h3 {
 
   #header-carousel,
   .page-header {
-    margin-top: -45px;
+    margin-top: -90px;
   }
 }
 

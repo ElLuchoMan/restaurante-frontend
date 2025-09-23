@@ -21,7 +21,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   &::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: -10px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -32,19 +32,6 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       transparent 100%
     );
     animation: shimmer 3s ease-in-out infinite;
-  }
-
-  .text-white {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    transition: $transition-smooth;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-
-    &:hover {
-      transform: translateY(-1px);
-      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-      text-decoration: none !important;
-    }
   }
 
   i {
@@ -61,8 +48,9 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 /* ====== Navbar principal con glassmorphism ====== */
 .nav-bar {
-  position: relative;
-  z-index: 1000;
+  position: sticky;
+  top: 0;
+  z-index: 9999999 !important;
 
   .container-lg {
     position: relative;
@@ -80,10 +68,13 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     0 20px 60px rgba(0, 0, 0, 0.08),
     0 8px 16px rgba(212, 160, 23, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
+  position: sticky;
+  top: 0;
   overflow: visible;
   margin: 0 1rem;
+  margin-top: -10px;
   transition: $transition-smooth;
+  z-index: 9999999 !important;
 
   &::before {
     content: '';
@@ -155,7 +146,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     left: 50%;
     top: 50%;
     transform: translateX(-50%) translateY(-50%) rotate(-3deg);
-    height: 220px;
+    height: 180px;
     width: auto;
     z-index: 20;
     filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
@@ -345,8 +336,8 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   .navbar {
     min-height: 70px !important;
     height: 70px !important;
-    margin: 0 0.5rem;
-    border-radius: 20px;
+    margin: 0;
+    border-radius: 0;
 
     .logo-container .logo-img {
       height: 160px !important;
@@ -356,6 +347,22 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   .mobile-hamburger-btn {
     left: 0.5rem;
+  }
+
+  /* Quitar esquinas redondeadas en mobile */
+  .top-bar {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin: 0;
+  }
+
+  .nav-bar {
+    margin: 0;
+  }
+
+  /* Eliminar borde dorado del navbar en mobile */
+  .navbar::before {
+    display: none !important;
   }
 
   .navbar-collapse {
@@ -369,8 +376,8 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       backdrop-filter: blur(12px) !important;
       -webkit-backdrop-filter: blur(12px) !important;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1) !important;
-      border-top: 1px solid rgba(212, 160, 23, 0.2) !important;
-      z-index: 1040 !important;
+      z-index: 999998 !important;
+      border-top: none !important;
       padding: 1rem !important;
     }
 
@@ -403,10 +410,15 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 @media (max-width: 576px) {
   .navbar {
-    margin: 0 0.25rem;
+    margin: 0;
 
     .logo-container .logo-text {
       font-size: clamp(1.2rem, 4vw, 1.8rem) !important;
+    }
+
+    /* Eliminar borde dorado también en pantallas muy pequeñas */
+    &::before {
+      display: none !important;
     }
   }
 }
@@ -560,5 +572,27 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     justify-content: space-between;
     flex-wrap: nowrap;
     gap: 0.5rem;
+  }
+}
+
+/* ====== FORZAR HEADER SUPREMO - REGLA FINAL ====== */
+:host {
+  z-index: 99999999 !important;
+
+  .top-bar,
+  .nav-bar,
+  .navbar {
+    z-index: 99999999 !important;
+    position: relative !important;
+  }
+
+  .nav-bar {
+    position: sticky !important;
+    top: 0 !important;
+  }
+
+  .navbar {
+    position: sticky !important;
+    top: 0 !important;
   }
 }
