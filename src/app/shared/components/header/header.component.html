@@ -55,16 +55,19 @@
     >
       <button
         type="button"
-        class="navbar-toggler"
+        class="navbar-toggler mobile-hamburger-btn"
         data-bs-toggle="collapse"
         data-bs-target="#navbarCollapse"
         aria-controls="navbarCollapse"
         aria-expanded="false"
         aria-label="Abrir menú"
       >
-        <span class="navbar-toggler-icon"></span>
+        <i class="fas fa-hamburger hamburger-icon"></i>
       </button>
-      <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+      <div
+        class="collapse navbar-collapse justify-content-between mobile-menu-collapse"
+        id="navbarCollapse"
+      >
         <div class="navbar-nav ml-auto py-0 menu-left">
           <a
             *ngFor="let item of menuLeft"
@@ -81,7 +84,7 @@
         </div>
 
         <div class="logo-container">
-          <h1 class="m-0 display-5 text-primary logo-text" [ngClass]="{ 'd-none': imagenVisible }">
+          <h1 class="m-0 logo-text" [ngClass]="{ 'd-none': imagenVisible }">
             <span class="text-secondary">La cocina </span>DE MARÍA
           </h1>
           <img
@@ -95,7 +98,7 @@
             height="40"
           />
         </div>
-        <!-- header.component.html -->
+
         <div class="navbar-nav mr-auto py-0 menu-right">
           <a
             *ngFor="let item of menuRight"

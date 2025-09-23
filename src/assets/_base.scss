@@ -5625,14 +5625,14 @@ input {
 
 /* Contenedor de página: asegura separación superior bajo la barra/navegación */
 .page-shell {
-  padding-top: 0; // mobile: sin margen adicional
+  margin-top: 2rem; // margen superior mobile y webview
   /* Espacio inferior consistente para todas las vistas */
   padding-bottom: calc(2rem + max(env(safe-area-inset-bottom), 0px));
 }
 
 @media (min-width: 992px) {
   .page-shell {
-    margin-top: 4rem; // margen superior desktop estándar
+    margin-top: 4rem; // margen superior desktop estándar (más grande)
     padding-bottom: calc(3rem + max(env(safe-area-inset-bottom), 0px));
   }
 }
