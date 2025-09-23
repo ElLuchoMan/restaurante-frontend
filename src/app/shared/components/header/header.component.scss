@@ -1,4 +1,4 @@
-@use '../../../../assets/styles.scss' as *;
+@use '../../../../assets/_variables.scss' as *;
 $header-height: 84px; /* acercamos el pill al top */
 /* ====== Barra inferior (quick-actions) - estilos tomados del Home ====== */
 .quick-actions {
@@ -68,6 +68,7 @@ $header-height: 84px; /* acercamos el pill al top */
   display: block;
   user-select: none;
   white-space: nowrap;
+  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
 }
 
 /* Sin cambios en breakpoints: mantenemos tamaño natural */
@@ -80,10 +81,19 @@ $header-height: 84px; /* acercamos el pill al top */
 
 .menu-left {
   margin-right: 1.25rem;
+  display: flex;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .menu-right {
   margin-left: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 @media (width <=576px) {
@@ -113,6 +123,19 @@ $header-height: 84px; /* acercamos el pill al top */
 .nav-bar .container-lg,
 .nav-bar .navbar {
   overflow: visible;
+}
+
+/* Mantener enlaces dentro del pill: reducir padding horizontal y evitar wraps raros */
+.nav-bar .navbar-nav .nav-link {
+  padding-left: 10px;
+  padding-right: 10px;
+  white-space: nowrap;
+}
+
+/* Evitar que los tres bloques se rompan; repartir espacio de forma flexible */
+.navbar-collapse {
+  flex-wrap: nowrap;
+  gap: 0.25rem;
 }
 
 /* Accesibilidad: foco visible sin cambiar layout */

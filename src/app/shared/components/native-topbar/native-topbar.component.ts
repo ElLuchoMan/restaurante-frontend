@@ -1,7 +1,8 @@
-import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { Observable, map } from 'rxjs';
+import { map, Observable } from 'rxjs';
+
 import { CartService } from '../../../core/services/cart.service';
 import { UserService } from '../../../core/services/user.service';
 
@@ -21,6 +22,7 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
     cart: CartService,
     user: UserService,
     private router: Router,
+    @Inject(PLATFORM_ID) private platformId: object,
   ) {
     this.isLoggedOut$ = user.getAuthState().pipe(map((isAuth) => !isAuth));
     cart.count$?.subscribe?.((n) => (this.cartCount = n ?? 0));
@@ -29,6 +31,7 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     this.mainEl = document.getElementById('main') as HTMLElement | null;
     this.applyTopPadding();
     // Recalcular al cambiar de ruta (Home sin padding; resto con padding)
@@ -39,10 +42,12 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
 
   @HostListener('window:resize')
   onResize(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     this.applyTopPadding();
   }
 
   private applyTopPadding(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     const bar = document.querySelector('.home-topbar') as HTMLElement | null;
     if (!this.mainEl || !bar) return;
     const url = this.router.url || '';

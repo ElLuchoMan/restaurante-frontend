@@ -1,6 +1,6 @@
+import { DiaSemana } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
 import { HorarioTrabajador } from '../models/horario-trabajador.model';
-import { DiaSemana } from '../constants';
 
 export const mockHorarioTrabajadorList: ApiResponse<HorarioTrabajador[]> = {
   code: 200,

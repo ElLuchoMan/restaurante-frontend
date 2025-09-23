@@ -3,8 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
-import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
+import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { ReservaPopulada } from '../../../../shared/models/reserva.model';
 

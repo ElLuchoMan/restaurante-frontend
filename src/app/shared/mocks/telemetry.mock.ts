@@ -1,15 +1,15 @@
 import { ApiResponse } from '../models/api-response.model';
 import {
   DashboardData,
-  SalesData,
-  ProductsData,
-  UsersData,
-  TimeAnalysisData,
-  RentabilidadData,
-  SegmentacionData,
   EficienciaData,
-  ReservasAnalisisData,
   PedidosAnalisisData,
+  ProductsData,
+  RentabilidadData,
+  ReservasAnalisisData,
+  SalesData,
+  SegmentacionData,
+  TimeAnalysisData,
+  UsersData,
 } from '../models/telemetry.model';
 
 export const mockDashboardData: ApiResponse<DashboardData> = {

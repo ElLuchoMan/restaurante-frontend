@@ -2,10 +2,10 @@ import { CommonModule, isPlatformBrowser, Location } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
-import { UserService } from './core/services/user.service';
 
 import { NetworkService } from './core/services/network.service';
 import { SeoService } from './core/services/seo.service';
+import { UserService } from './core/services/user.service';
 import { ModalComponent } from './shared/components/modal/modal.component';
 import { NativeTopbarComponent } from './shared/components/native-topbar/native-topbar.component';
 import { QuickActionsComponent } from './shared/components/quick-actions/quick-actions.component';

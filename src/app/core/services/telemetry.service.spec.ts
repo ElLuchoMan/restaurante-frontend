@@ -4,8 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import {
   mockDashboardData,
-  mockSalesData,
   mockProductsData,
+  mockSalesData,
 } from '../../shared/mocks/telemetry.mock';
 import {
   createHandleErrorServiceMock,
@@ -13,7 +13,7 @@ import {
 } from '../../shared/mocks/test-doubles';
 import { TelemetryParams } from '../../shared/models/telemetry.model';
 import { HandleErrorService } from './handle-error.service';
-import { TelemetryService, PurchaseData } from './telemetry.service';
+import { PurchaseData, TelemetryService } from './telemetry.service';
 
 describe('TelemetryService', () => {
   let service: TelemetryService;

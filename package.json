@@ -8,7 +8,7 @@
     "android:dev:adb": "adb reverse tcp:4200 tcp:4200 && npm run android:dev",
     "android:cap:live": "npx cap run android -l --external",
     "android:live:auto": "node tools/android-live.mjs",
-    "android:live:reverse": "node tools/android-live.mjs --ip localhost --port 4200 --reverse 4200",
+    "android:live:reverse": "node tools/android-live.mjs --ip localhost --port 4200 --reverse 8080",
     "android:live:wifi": "npm run android:live:auto -- --target adb-R5CY30CJF7X-SZKcHs._adb-tls-connect._tcp --ip 192.168.1.2 --port 4200 --reverse 8080",
     "android:live:wifi:2:2": "npm run android:live:auto -- --target 192.168.1.155:42763 --ip 192.168.1.2 --port 4200 --reverse 8080",
     "android:live:usb": "npm run android:live:reverse -- --target R5CY30CJF7X",

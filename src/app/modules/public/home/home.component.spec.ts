@@ -1,9 +1,10 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TransferState } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject } from 'rxjs';
+
 import { CartService } from '../../../core/services/cart.service';
 import { UserService } from '../../../core/services/user.service';
 import { HomeComponent } from './home.component';

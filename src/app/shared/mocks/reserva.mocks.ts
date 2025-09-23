@@ -1,6 +1,6 @@
 import { estadoReserva } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
-import { ReservaBase, ReservaPopulada, ReservaCreate } from '../models/reserva.model';
+import { ReservaBase, ReservaCreate, ReservaPopulada } from '../models/reserva.model';
 
 export const mockReserva: ReservaPopulada = {
   reservaId: 1,

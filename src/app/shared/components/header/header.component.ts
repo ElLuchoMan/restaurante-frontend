@@ -44,9 +44,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Mostrar header clásico solo en navegadores; en nativo usamos topbar
-    const cap: any = (window as any).Capacitor;
-    this.isNative = !!(cap && typeof cap.getPlatform === 'function' && cap.getPlatform() !== 'web');
-    this.showHeader = !this.isNative;
+    if (this.isBrowser) {
+      const cap: any = (window as any).Capacitor;
+      this.isNative = !!(
+        cap &&
+        typeof cap.getPlatform === 'function' &&
+        cap.getPlatform() !== 'web'
+      );
+      this.showHeader = !this.isNative;
+    } else {
+      this.isNative = false;
+      this.showHeader = true;
+    }
 
     this.userService
       .getAuthState()
@@ -87,6 +96,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
+    if (!this.isBrowser) return;
     // Cerrar menú al hacer clic fuera de él
     const target = event.target as HTMLElement;
     const navbar = document.getElementById('navbarCollapse');

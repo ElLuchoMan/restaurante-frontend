@@ -21,8 +21,8 @@ import { provideToastr } from 'ngx-toastr';
 
 import { routes } from './app.routes';
 import { apiBaseInterceptor } from './interceptors/api-base.interceptor';
-import { authRefreshInterceptor } from './interceptors/auth-refresh.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { authRefreshInterceptor } from './interceptors/auth-refresh.interceptor';
 import { correlationInterceptor } from './interceptors/correlation.interceptor';
 import { retryInterceptor } from './interceptors/retry.interceptor';
 import { telemetryInterceptor } from './interceptors/telemetry.interceptor';

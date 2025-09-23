@@ -1,6 +1,6 @@
+import { EstadoPedido } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
 import { Pedido, PedidoDetalle } from '../models/pedido.model';
-import { EstadoPedido } from '../constants';
 
 export const mockPedidosResponse: ApiResponse<Pedido[]> = {
   code: 200,

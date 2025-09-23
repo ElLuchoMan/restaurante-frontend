@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -58,6 +58,7 @@ export class RutaDomicilioComponent implements OnInit {
   pedidoId: number = 0;
 
   public restauranteDireccion = 'Calle 78a # 62 - 48, Bogotá, Colombia';
+  private isBrowser = false;
 
   constructor(
     public route: ActivatedRoute,
@@ -71,9 +72,13 @@ export class RutaDomicilioComponent implements OnInit {
     public modalService: ModalService,
     public toastrService: ToastrService,
     private logger: LoggingService,
-  ) {}
+    @Inject(PLATFORM_ID) platformId: object,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
+    if (!this.isBrowser) return; // Evitar lógica de mapas/HTTP en SSR
     this.route.queryParams.subscribe((params) => {
       this.domicilioId = params['id'] ? +params['id'] : 0;
 

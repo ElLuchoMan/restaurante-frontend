@@ -212,9 +212,11 @@ describe('ReservaService', () => {
       data: [mockReservaBody],
     };
 
-    service.getReservaByParameter(undefined, undefined, undefined, 'Lunes').subscribe((response) => {
-      expect(response).toEqual(mockResponse);
-    });
+    service
+      .getReservaByParameter(undefined, undefined, undefined, 'Lunes')
+      .subscribe((response) => {
+        expect(response).toEqual(mockResponse);
+      });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter?dia=Lunes`);
     expect(req.request.method).toBe('GET');

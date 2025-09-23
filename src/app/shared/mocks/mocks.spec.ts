@@ -12,20 +12,20 @@ import {
   mockMetodoPagoRespone,
   mockMetodosPagoRespone,
 } from './metodo-pago.mock';
-import { mockNominaTrabajadorMes, mockNominaTrabajadorResponse } from './nomina-trabajador.mock';
 import {
   mockNominaBody,
   mockNominaFecha,
   mockNominaPagaResponse,
   mockNominaResponse,
 } from './nomina.mock';
+import { mockNominaTrabajadorMes, mockNominaTrabajadorResponse } from './nomina-trabajador.mock';
 import { mockPedidoBody, mockPedidoDetalle, mockPedidosResponse } from './pedido.mock';
-import { mockProductoPedidoResponse } from './producto-pedido.mock';
 import {
   mockProductoResponse,
   mockProductosResponse,
   mockProductosSinImagenResponse,
 } from './producto.mock';
+import { mockProductoPedidoResponse } from './producto-pedido.mock';
 import {
   mockReserva,
   mockReservaBody,

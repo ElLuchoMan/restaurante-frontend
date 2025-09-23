@@ -1,9 +1,11 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   Component,
   HostListener,
+  Inject,
   OnDestroy,
+  PLATFORM_ID,
   ViewEncapsulation,
 } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -27,12 +29,15 @@ export class QuickActionsComponent implements AfterViewInit, OnDestroy {
   private keyboardOpen = false;
   private footerVisible = false;
   isLoggedOut$!: Observable<boolean>;
+  private isBrowser: boolean;
 
   constructor(
     private userService: UserService,
     private router: Router,
+    @Inject(PLATFORM_ID) platformId: object,
   ) {
     this.isLoggedOut$ = this.userService.getAuthState().pipe(map((isAuth) => !isAuth));
+    this.isBrowser = isPlatformBrowser(platformId);
   }
 
   onLogout(): void {
@@ -41,6 +46,7 @@ export class QuickActionsComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    if (!this.isBrowser) return;
     this.barEl = document.querySelector('.quick-actions-bar') as HTMLElement | null;
     this.mainEl = document.getElementById('main') as HTMLElement | null;
     if (!this.barEl || !this.mainEl) return;

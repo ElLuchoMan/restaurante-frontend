@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject } from 'rxjs';
+
 import { CartService } from '../../../core/services/cart.service';
 import { UserService } from '../../../core/services/user.service';
 import { NativeTopbarComponent } from './native-topbar.component';

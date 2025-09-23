@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+
 import { ApiResponse } from '../models/api-response.model';
 
 export const mockHttpError500 = new HttpErrorResponse({

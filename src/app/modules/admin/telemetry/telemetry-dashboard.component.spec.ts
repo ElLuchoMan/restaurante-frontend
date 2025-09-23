@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
-import { TelemetryService } from '../../../core/services/telemetry.service';
-import {
-  createTelemetryServiceMock,
-  createPerformanceServiceMock,
-} from '../../../shared/mocks/test-doubles';
-import { mockDashboardData } from '../../../shared/mocks/telemetry.mock';
 import { PerformanceService } from '../../../core/services/performance.service';
+import { TelemetryService } from '../../../core/services/telemetry.service';
+import { mockDashboardData } from '../../../shared/mocks/telemetry.mock';
+import {
+  createPerformanceServiceMock,
+  createTelemetryServiceMock,
+} from '../../../shared/mocks/test-doubles';
 import { TelemetryDashboardComponent } from './telemetry-dashboard.component';
 
 describe('TelemetryDashboardComponent', () => {

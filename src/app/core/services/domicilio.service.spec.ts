@@ -49,7 +49,9 @@ describe('DomicilioService', () => {
         expect(response).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne((req) => req.url === baseUrl && req.params.keys().length === 0);
+      const req = httpMock.expectOne(
+        (req) => req.url === baseUrl && req.params.keys().length === 0,
+      );
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);
     });
