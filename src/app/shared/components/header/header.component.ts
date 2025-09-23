@@ -193,7 +193,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         menuItems.unshift({ label: '🛒', route: 'cliente/carrito-cliente', priority: 8 });
         menuItems = menuItems.filter((item) => item.label !== 'Inicio');
         menuItems = menuItems.filter((item) => item.label !== 'Ubicación');
-        menuItems = menuItems.filter((item) => item.label !== 'Galería');
+        // menuItems = menuItems.filter((item) => item.label !== 'Galería');
       } else if (this.userRole === 'Administrador') {
         menuItems.unshift({ label: 'Registrar', route: 'admin/registro-admin', priority: 6 });
         menuItems = menuItems.filter((item) => item.label !== 'Inicio');

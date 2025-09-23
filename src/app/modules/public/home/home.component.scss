@@ -2,10 +2,10 @@
 
 // Estilos globales para títulos de sección (sobrescribir estilos de assets)
 .section-title {
-  position: relative;
-  text-align: center;
+  position: relative !important;
+  text-align: center !important;
 
-  // Barra decorativa redondeada y centrada (igual que login) - con !important para sobrescribir assets
+  // Barra decorativa redondeada y PERFECTAMENTE centrada
   &::before {
     content: '' !important;
     position: absolute !important;
@@ -17,12 +17,25 @@
     background: linear-gradient(135deg, #c79a2f, #d4a017) !important;
     border-radius: 999px !important;
     display: block !important;
+    z-index: 10 !important;
   }
 
   // Ocultar barra inferior si existe
   &::after {
     display: none !important;
   }
+}
+
+// Especificidad extra para asegurar centrado perfecto en todas las secciones
+.home-offers .section-title::before,
+.home-about .section-title::before,
+.home-gallery .section-title::before,
+.home-testimonials .section-title::before,
+.home-cta .section-title::before {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 // Evita flash blanco entre slides forzando crossfade
