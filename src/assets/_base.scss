@@ -5604,13 +5604,15 @@ input {
   &::before {
     content: '';
     display: block;
-    width: 80px;
+    width: 60px;
     height: 6px;
     border-radius: 999px;
-    background-color: #{$primary};
-    margin-left: 50%;
+    background: linear-gradient(135deg, #c79a2f, $primary);
+    position: absolute;
+    top: -15px;
+    left: 50%;
     transform: translateX(-50%);
-    margin-bottom: 0.75rem;
+    z-index: 10;
   }
 
   &::after {
@@ -12760,5 +12762,468 @@ a.link {
   .event-item-compact .event-type {
     font-size: 0.65rem;
     padding: 0.1rem 0.3rem;
+  }
+}
+
+/* ====== Animaciones globales (migradas de componentes) ====== */
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ====== Clases utility para glassmorphism y efectos comunes ====== */
+
+/* Glass navbar principal */
+.navbar-glass {
+  background: #ffffff !important;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-radius: 25px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.08),
+    0 8px 16px rgba($primary, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: $transition-smooth;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 25px 80px rgba(0, 0, 0, 0.12),
+      0 12px 24px rgba($primary, 0.15);
+  }
+}
+
+/* Borde brillante dorado para elementos premium */
+.golden-glow-border {
+  position: relative;
+  overflow: visible;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 25px;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      rgba($primary, 0.6),
+      rgba($secondary, 0.3),
+      rgba($primary, 0.6)
+    );
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+  }
+}
+
+/* Gradiente de barra superior premium */
+.premium-bar-gradient {
+  background: linear-gradient(135deg, rgba($primary, 0.95) 0%, rgba($secondary, 0.9) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 8px 32px rgba($primary, 0.15);
+}
+
+/* Efecto shimmer para barras */
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%
+    );
+    animation: shimmer 3s ease-in-out infinite;
+  }
+}
+
+/* Enlaces de navegación con hover elegante */
+.nav-link-elegant {
+  position: relative;
+  color: $text-heading-strong !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  padding: $nav-item-padding;
+  border-radius: 15px;
+  transition: $transition-smooth;
+  white-space: nowrap;
+  text-decoration: none !important;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 15px;
+    background: linear-gradient(135deg, rgba($primary, 0.1), rgba($secondary, 0.05));
+    opacity: 0;
+    transition: $transition-smooth;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, rgba($primary, 0.8), rgba($secondary, 0.8));
+    border-radius: 1px;
+    transition: $transition-smooth;
+  }
+
+  &:hover {
+    color: $text-heading-strong !important;
+    transform: translateY(-2px);
+
+    &::before {
+      opacity: 1;
+    }
+
+    &::after {
+      width: calc(100% - 2rem);
+    }
+  }
+
+  &.active {
+    color: $primary !important;
+    background: rgba($primary, 0.1);
+
+    &::after {
+      width: calc(100% - 2rem);
+      background: linear-gradient(90deg, $primary, rgba($secondary, 0.8));
+    }
+  }
+}
+
+/* ====== Cards especializadas para home ====== */
+
+/* Card de oferta con efectos hover */
+.offer-card {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .offer-image {
+    height: 200px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+  }
+
+  &:hover .offer-image img {
+    transform: scale(1.05);
+  }
+
+  .offer-content {
+    padding: 1.5rem;
+  }
+}
+
+/* Badge de ofertas */
+.offer-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  z-index: 2;
+
+  &.hot {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    animation: pulse 2s infinite;
+  }
+
+  &.weekend {
+    background: linear-gradient(135deg, $primary, #b8941f);
+  }
+}
+
+/* Items de galería con overlay elegante */
+.gallery-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .gallery-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    color: #ffffff;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(8px);
+
+    h4 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+      text-shadow:
+        2px 2px 6px rgba(0, 0, 0, 1),
+        0 0 10px rgba(0, 0, 0, 0.9),
+        0 0 20px rgba(0, 0, 0, 0.7);
+      line-height: 1.2;
+      letter-spacing: 0.02em;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin: 0;
+      color: #ffffff;
+      text-shadow:
+        1px 1px 4px rgba(0, 0, 0, 1),
+        0 0 8px rgba(0, 0, 0, 0.9);
+      font-weight: 500;
+      opacity: 0.95;
+      letter-spacing: 0.01em;
+    }
+  }
+
+  &:hover {
+    .gallery-overlay {
+      opacity: 1;
+    }
+
+    img {
+      transform: scale(1.05);
+    }
+  }
+}
+
+/* Card de testimonio con glassmorphism */
+.testimonial-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  .testimonial-stars {
+    margin-bottom: 1rem;
+
+    i {
+      color: $primary;
+      margin-right: 0.25rem;
+    }
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    margin-top: 1.5rem;
+
+    img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 1rem;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    h5 {
+      margin: 0;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+      font-size: 1rem;
+    }
+
+    span {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+    }
+  }
+}
+
+/* Card de estadística para webview */
+.stat-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.25rem 0.75rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 0.75rem;
+    background: linear-gradient(135deg, $secondary, $primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      color: #ffffff;
+      font-size: 1.25rem;
+    }
+  }
+
+  .stat-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $text-heading-strong;
+    margin-bottom: 0.25rem;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: $text-muted;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* Fondos de sección para diferentes áreas */
+.section-bg-gradient-light {
+  background: linear-gradient(135deg, #faf8f3 0%, #ffffff 100%);
+}
+
+.section-bg-dark {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: #ffffff;
+
+  .section-title,
+  .subtitle {
+    color: #ffffff;
+  }
+}
+
+.section-bg-neutral {
+  background: #f8f9fa;
+}
+
+/* Caption card para carrusel con glassmorphism */
+.caption-card {
+  max-width: 900px;
+  border-radius: 16px;
+  backdrop-filter: blur(8px) saturate(120%);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+  @media (min-width: 992px) {
+    backdrop-filter: none;
+  }
+}
+
+/* Controles de carousel elegantes */
+.control-circle {
+  width: 45px;
+  height: 45px;
+  justify-content: center;
+  border-radius: 100%;
+
+  @media (max-width: 576px) {
+    width: 38px;
+    height: 38px;
   }
 }

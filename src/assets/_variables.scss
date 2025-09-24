@@ -46,3 +46,10 @@ $enable-responsive-font-sizes: true;
 $font-family-monospace:
   sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
 $border-radius: 5px;
+
+// Header component variables (migrated from local styles)
+$header-height: 90px;
+$header-glass-blur: 12px;
+$logo-glow: rgba($primary, 0.3);
+$nav-item-padding: 1rem 1.25rem;
+$transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

@@ -1,38 +1,10 @@
 @use '../../../../assets/styles.scss' as *;
 
-/* ====== Variables locales para el header profesional ====== */
-$header-height: 90px;
-$header-glass-blur: 12px;
-$logo-glow: rgba(212, 160, 23, 0.3);
-$nav-item-padding: 1rem 1.25rem;
-$transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
 /* ====== Barra superior premium ====== */
 .top-bar {
-  background: linear-gradient(135deg, rgba(212, 160, 23, 0.95) 0%, rgba(158, 79, 63, 0.9) 100%);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  box-shadow: 0 8px 32px rgba(212, 160, 23, 0.15);
+  @extend .premium-bar-gradient;
+  @extend .shimmer-effect;
   position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.1) 50%,
-      transparent 100%
-    );
-    animation: shimmer 3s ease-in-out infinite;
-  }
 
   i {
     font-size: 1.1rem;
@@ -58,47 +30,20 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar {
+  @extend .navbar-glass;
   height: $header-height;
-  background: #ffffff !important;
-  backdrop-filter: blur($header-glass-blur) saturate(180%);
-  -webkit-backdrop-filter: blur($header-glass-blur) saturate(180%);
-  border-radius: 25px;
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.08),
-    0 8px 16px rgba(212, 160, 23, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
   overflow: visible;
   margin: 0 1rem;
   margin-top: -10px;
-  transition: $transition-smooth;
   z-index: 9999999 !important;
 
-  &::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: 25px;
-    padding: 1px;
-    background: linear-gradient(
-      135deg,
-      rgba(212, 160, 23, 0.6),
-      rgba(158, 79, 63, 0.3),
-      rgba(212, 160, 23, 0.6)
-    );
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    -webkit-mask-composite: xor;
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 25px 80px rgba(0, 0, 0, 0.12),
-      0 12px 24px rgba(212, 160, 23, 0.15);
-  }
+  /* Sobrescribir el borde del navbar-glass con un borde dorado */
+  border: 1px solid rgba($primary, 0.4) !important;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.08),
+    0 8px 16px rgba($primary, 0.15),
+    0 0 0 1px rgba($primary, 0.1) !important;
 }
 
 /* ====== Logo premium con efectos únicos ====== */
@@ -478,8 +423,9 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Eliminar borde dorado del navbar en mobile */
-  .navbar::before {
-    display: none !important;
+  .navbar {
+    border: none !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1) !important;
   }
 
   .navbar-collapse {
@@ -604,52 +550,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-/* ====== Animaciones únicas ====== */
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  50% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+/* Las animaciones shimmer, pulse, slideDown y fadeInScale ahora están disponibles globalmente desde _base.scss */
 
 /* ====== Clases de animación para transiciones ====== */
 .logo-container.transitioning {

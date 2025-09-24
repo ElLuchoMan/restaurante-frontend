@@ -1,42 +1,6 @@
-@use '../../../../assets/_variables.scss' as *;
+@use '../../../../assets/styles.scss' as *;
 
-// Estilos globales para títulos de sección (sobrescribir estilos de assets)
-.section-title {
-  position: relative !important;
-  text-align: center !important;
-
-  // Barra decorativa redondeada y PERFECTAMENTE centrada
-  &::before {
-    content: '' !important;
-    position: absolute !important;
-    top: -15px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: 60px !important;
-    height: 6px !important;
-    background: linear-gradient(135deg, #c79a2f, #d4a017) !important;
-    border-radius: 999px !important;
-    display: block !important;
-    z-index: 10 !important;
-  }
-
-  // Ocultar barra inferior si existe
-  &::after {
-    display: none !important;
-  }
-}
-
-// Especificidad extra para asegurar centrado perfecto en todas las secciones
-.home-offers .section-title::before,
-.home-about .section-title::before,
-.home-gallery .section-title::before,
-.home-testimonials .section-title::before,
-.home-cta .section-title::before {
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-}
+/* Los estilos de .section-title ahora están estandarizados en _base.scss */
 
 // Evita flash blanco entre slides forzando crossfade
 .home-hero {
@@ -112,15 +76,7 @@
   }
 }
 
-// Accesibilidad de texto sobre imagen - Diseño más moderno
-.bg-text.caption-card {
-  max-width: 900px;
-  border-radius: 16px;
-  backdrop-filter: blur(8px) saturate(120%);
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
+/* Los estilos .caption-card están disponibles globalmente en _base.scss */
 
 .caption-eyebrow {
   color: #fff;
@@ -142,12 +98,7 @@
   font-size: 1rem;
 }
 
-.control-circle {
-  width: 45px;
-  height: 45px;
-  justify-content: center;
-  border-radius: 100%;
-}
+/* Los estilos .control-circle están disponibles globalmente en _base.scss */
 
 // Sección About
 .home-about {
@@ -208,10 +159,7 @@
     padding-bottom: 1.5rem;
   }
 
-  .control-circle {
-    width: 38px;
-    height: 38px;
-  }
+  /* Ajuste responsivo del .control-circle ya está en _base.scss */
 
   .home-about {
     padding-top: 1rem !important;
@@ -357,131 +305,18 @@
 
 // Sección de estadísticas (solo webview)
 .home-stats {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  @extend .section-bg-gradient-light;
   border-top: 1px solid rgba(0, 0, 0, 0.04);
   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 
-  .stat-card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 1.25rem 0.75rem;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
-    border: 1px solid rgba(0, 0, 0, 0.04);
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  .stat-icon {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 0.75rem;
-    background: linear-gradient(135deg, var(--bs-secondary, #c79a2f), #d4a017);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    i {
-      color: #ffffff;
-      font-size: 1.25rem;
-    }
-  }
-
-  .stat-number {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 0.25rem;
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 0.875rem;
-    color: #6c757d;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-  }
+  /* Los estilos .stat-card están disponibles globalmente en _base.scss */
 }
 
 // Sección de Ofertas Especiales
 .home-offers {
-  background: linear-gradient(135deg, #faf8f3 0%, #ffffff 100%);
+  @extend .section-bg-gradient-light;
 
-  .offer-card {
-    background: #ffffff;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    position: relative;
-
-    &:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-    }
-  }
-
-  .offer-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: #ff4757;
-    color: #ffffff;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    z-index: 2;
-
-    &.hot {
-      background: linear-gradient(135deg, #e74c3c, #c0392b);
-      animation: pulse 2s infinite;
-    }
-
-    &.weekend {
-      background: linear-gradient(135deg, #c79a2f, #b8941f);
-    }
-  }
-
-  .offer-image {
-    height: 200px;
-    overflow: hidden;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-  }
-
-  .offer-card:hover .offer-image img {
-    transform: scale(1.05);
-  }
-
-  .offer-content {
-    padding: 1.5rem;
-
-    h3 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #2c3e50;
-      margin-bottom: 0.5rem;
-    }
-
-    p {
-      color: #6c757d;
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-    }
-  }
-
+  /* Los estilos .offer-card y .offer-badge ahora están disponibles globalmente en _base.scss */
   .offer-price {
     margin-bottom: 1rem;
 
@@ -502,145 +337,21 @@
 
 // Galería de Platos
 .home-gallery {
-  background: #f8f9fa;
+  @extend .section-bg-neutral;
 
-  .gallery-item {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    aspect-ratio: 1;
-    cursor: pointer;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-
-    .gallery-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.85);
-      color: #ffffff;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      backdrop-filter: blur(8px);
-
-      h4 {
-        font-size: 1.4rem;
-        font-weight: 800;
-        margin-bottom: 0.5rem;
-        color: #ffffff;
-        text-shadow:
-          2px 2px 6px rgba(0, 0, 0, 1),
-          0 0 10px rgba(0, 0, 0, 0.9),
-          0 0 20px rgba(0, 0, 0, 0.7);
-        line-height: 1.2;
-        letter-spacing: 0.02em;
-      }
-
-      p {
-        font-size: 1.1rem;
-        margin: 0;
-        color: #ffffff;
-        text-shadow:
-          1px 1px 4px rgba(0, 0, 0, 1),
-          0 0 8px rgba(0, 0, 0, 0.9);
-        font-weight: 500;
-        opacity: 0.95;
-        letter-spacing: 0.01em;
-      }
-    }
-
-    &:hover {
-      .gallery-overlay {
-        opacity: 1;
-      }
-
-      img {
-        transform: scale(1.05);
-      }
-    }
-  }
+  /* Los estilos .gallery-item están disponibles globalmente en _base.scss */
 }
 
 // Testimonios
 .home-testimonials {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  color: #ffffff;
+  @extend .section-bg-dark;
 
-  .section-title,
-  .subtitle {
-    color: #ffffff;
-  }
-
-  .testimonial-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: transform 0.3s ease;
-
-    &:hover {
-      transform: translateY(-5px);
-    }
-  }
-
-  .testimonial-stars {
-    margin-bottom: 1rem;
-
-    i {
-      color: #c79a2f;
-      margin-right: 0.25rem;
-    }
-  }
-
-  .testimonial-author {
-    display: flex;
-    align-items: center;
-    margin-top: 1.5rem;
-
-    img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-right: 1rem;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    h5 {
-      margin: 0;
-      font-weight: 700;
-      color: #ffffff;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
-      font-size: 1rem;
-    }
-
-    span {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.9);
-      font-weight: 500;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
-    }
-  }
+  /* Los estilos .testimonial-card están disponibles globalmente en _base.scss */
 }
 
 // Call to Action
 .home-cta {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  color: #ffffff;
+  @extend .section-bg-dark;
 
   .cta-title {
     font-size: 2.5rem;
@@ -689,15 +400,7 @@
   }
 }
 
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
+/* La animación pulse está disponible globalmente desde _base.scss */
 
 // Responsive adjustments
 @media (max-width: 768px) {
