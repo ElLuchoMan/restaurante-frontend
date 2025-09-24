@@ -48,8 +48,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 /* ====== Navbar principal con glassmorphism ====== */
 .nav-bar {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 9999999 !important;
 
   .container-lg {
@@ -68,8 +67,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     0 20px 60px rgba(0, 0, 0, 0.08),
     0 8px 16px rgba(212, 160, 23, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  position: sticky;
-  top: 0;
+  position: relative;
   overflow: visible;
   margin: 0 1rem;
   margin-top: -10px;
@@ -706,12 +704,10 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .nav-bar {
-    position: sticky !important;
-    top: 0 !important;
+    position: relative !important;
   }
 
   .navbar {
-    position: sticky !important;
-    top: 0 !important;
+    position: relative !important;
   }
 }

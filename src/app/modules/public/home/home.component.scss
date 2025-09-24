@@ -103,6 +103,13 @@
   height: auto;
   max-width: 100%;
   object-fit: cover;
+
+  // En desktop (web), permitir que las imágenes del carrusel ocupen toda la pantalla
+  @media (min-width: 992px) {
+    #header-carousel & {
+      height: 100vh;
+    }
+  }
 }
 
 // Accesibilidad de texto sobre imagen - Diseño más moderno
@@ -262,25 +269,23 @@
   }
 }
 
-// Desktop (>= lg): carrusel casi a pantalla completa
+// Desktop (>= lg): carrusel a pantalla completa
 @media (min-width: 992px) {
   #header-carousel {
-    // Limitar altura del contenedor en desktop para mejor UX
-    max-height: 85vh;
+    // Ocupar todo el alto de pantalla disponible en desktop
+    height: 100vh;
     overflow: hidden;
 
     .carousel-item img {
       width: 100%;
-      height: auto;
-      min-height: 400px;
+      height: 100vh;
       object-fit: cover;
     }
 
-    // NgOptimizedImage: mantener aspect ratio mientras se adapta al contenedor
+    // NgOptimizedImage: mantener aspect ratio mientras ocupa toda la pantalla
     .carousel-item img[ngSrc] {
       width: 100% !important;
-      height: auto !important;
-      min-height: 400px !important;
+      height: 100vh !important;
       object-fit: cover !important;
       object-position: center !important;
     }
