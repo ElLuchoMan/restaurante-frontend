@@ -165,6 +165,19 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   align-items: center;
   gap: 0.5rem;
 
+  /* Prevenir overflow en casos críticos */
+  @media (min-width: 992px) and (max-width: 1100px) {
+    overflow: hidden !important; /* Evitar scroll horizontal */
+    flex-wrap: nowrap !important; /* No envolver elementos */
+    width: 100%; /* Asegurar que ocupe todo el ancho disponible */
+
+    .nav-link {
+      white-space: nowrap !important; /* No partir el texto */
+      overflow: hidden !important; /* Ocultar texto excedente */
+      flex-shrink: 1 !important; /* Permitir compresión */
+    }
+  }
+
   .nav-link {
     position: relative;
     color: #2d3748 !important;
@@ -320,7 +333,95 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: slideDown 0.3s ease-out;
 }
 
-/* ====== Responsive design mejorado ====== */
+/* ====== Responsive design SIMPLE - SOLO DESKTOP ====== */
+
+/* Solo para pantallas medianas de desktop donde hay problemas */
+@media (min-width: 992px) and (max-width: 1200px) {
+  .navbar-nav .nav-link {
+    padding: 0.7rem 0.8rem; /* Ligeramente más compacto */
+    font-size: 0.9rem;
+  }
+
+  .logo-container {
+    flex-grow: 0.7; /* Reducir un poco el logo */
+  }
+
+  .menu-left,
+  .menu-right {
+    margin: 0 0.5rem; /* Reducir también en este rango - más cerca del logo */
+  }
+}
+
+/* Solo para el rango más crítico */
+@media (min-width: 992px) and (max-width: 1100px) {
+  .navbar-nav {
+    gap: 0.2rem !important; /* Gap ultra-pequeño */
+  }
+
+  .navbar-nav .nav-link {
+    padding: 0.5rem 0.3rem !important; /* Super compacto para todos */
+    font-size: 0.75rem !important;
+    font-weight: 600;
+    letter-spacing: -0.2px; /* Comprimir ligeramente */
+  }
+
+  .logo-container {
+    flex-grow: 0.45 !important; /* Logo muy pequeño */
+  }
+
+  .menu-left,
+  .menu-right {
+    margin: 0 0.1rem !important; /* Márgenes súper pequeños - más pegado al logo */
+    min-width: 0;
+    flex-shrink: 2; /* Permitir mucha compresión */
+  }
+
+  .navbar {
+    padding-left: 0.3rem !important;
+    padding-right: 0.3rem !important;
+    overflow: hidden !important; /* Prevenir overflow del navbar completo */
+  }
+
+  /* Forzar que el contenido del navbar no se desborde */
+  .navbar-collapse {
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+}
+
+/* Para casos extremos donde aún se desborda */
+@media (min-width: 992px) and (max-width: 1050px) {
+  .navbar-nav {
+    gap: 0.1rem !important; /* Gap súper mínimo */
+  }
+
+  .navbar-nav .nav-link {
+    padding: 0.5rem 0.25rem !important; /* Ultra-compacto para todos */
+    font-size: 0.7rem !important;
+    letter-spacing: -0.3px !important; /* Comprimir más las letras */
+  }
+
+  .logo-container {
+    flex-grow: 0.4 !important; /* Logo muy pequeño */
+  }
+
+  .menu-left,
+  .menu-right {
+    margin: 0 0.05rem !important; /* Prácticamente pegado al logo */
+  }
+
+  .navbar {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    overflow: hidden !important; /* Prevenir overflow total */
+  }
+
+  .navbar-collapse {
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+}
+
 @media (max-width: 1200px) {
   .logo-container {
     flex-grow: 0.8;
@@ -336,8 +437,10 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   .navbar {
     min-height: 70px !important;
     height: 70px !important;
-    margin: 0;
+    margin: 0 !important;
     border-radius: 0;
+    width: 100% !important;
+    max-width: 100% !important;
 
     .logo-container .logo-img {
       height: 160px !important;
@@ -353,11 +456,27 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   .top-bar {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    margin: 0;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+
+    .container {
+      max-width: 100% !important;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
   }
 
   .nav-bar {
-    margin: 0;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .container-lg {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   /* Eliminar borde dorado del navbar en mobile */
