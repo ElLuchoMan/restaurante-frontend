@@ -5,6 +5,7 @@ import { catchError, map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { Producto } from '../../shared/models/producto.model';
+import { getSafeImageSrc } from '../../shared/utils/image.utils';
 import { HandleErrorService } from './handle-error.service';
 
 @Injectable({
@@ -43,13 +44,7 @@ export class ProductoService {
         ...res,
         data: (res.data || []).map((p) => ({
           ...p,
-          imagen:
-            p?.imagen &&
-            typeof p.imagen === 'string' &&
-            !p.imagen.startsWith('data:') &&
-            !p.imagen.startsWith('http')
-              ? `data:image/jpeg;base64,${p.imagen}`
-              : p.imagen,
+          imagen: getSafeImageSrc(p?.imagen, p?.productoId),
         })),
       })),
       catchError(this.handleError.handleError),

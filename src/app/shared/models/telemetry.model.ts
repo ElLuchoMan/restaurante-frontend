@@ -9,62 +9,68 @@ export type TimePeriod =
 
 // Dashboard Types
 export interface DashboardData {
-  ingresosHoy: number;
-  pedidosHoy: number;
-  promedioVentaPedido: number;
-  totalIngresos: number;
   totalPedidos: number;
-  totalUsuarios: number;
+  totalIngresos: number;
+  totalUsuarios: number; // Usuarios activos en el período filtrado
+  promedioVentaPedido: number;
+  pedidosHoy: number;
+  ingresosHoy: number;
 }
 
 // Sales Types
-export interface VentaPorMetodoPago {
+export interface VentaPorMetodo {
   metodoPago: string;
   total: number;
   cantidad: number;
 }
 
-export interface TendenciaVenta {
+export interface VentaPorFecha {
   fecha: string;
   total: number;
   cantidad: number;
 }
 
-export interface EstadisticasGenerales {
+export interface EstadisticasVentas {
+  ventaPromedioDiaria: number;
   pedidoPromedioDiario: number;
   ticketPromedio: number;
-  ventaPromedioDiaria: number;
 }
 
 export interface SalesData {
-  ventasPorMetodoPago: VentaPorMetodoPago[];
-  tendenciaVentas: TendenciaVenta[];
-  estadisticasGenerales: EstadisticasGenerales;
+  ventasPorMetodoPago: VentaPorMetodo[];
+  tendenciaVentas: VentaPorFecha[];
+  estadisticasGenerales: EstadisticasVentas;
 }
 
 // Products Types
-export interface ProductoTelemetria {
+export interface ProductoVendido {
   productoId: number;
   nombreProducto: string;
   cantidadVendida: number;
   ingresoTotal: number;
   precio: number;
+  imagen: string; // Base64 encoded image
 }
 
 export interface EstadisticasProductos {
+  totalProductosActivos: number;
   productoConMasVentas: string;
   productoConMenosVentas: string;
-  totalProductosActivos: number;
 }
 
 export interface ProductsData {
-  productosMasVendidos: ProductoTelemetria[];
-  productosMenosVendidos: ProductoTelemetria[];
+  productosMasVendidos: ProductoVendido[];
+  productosMenosVendidos: ProductoVendido[];
   estadisticasProductos: EstadisticasProductos;
 }
 
+// Productos Populares Types (Endpoint Público)
+export interface ProductosPopularesData {
+  productosPopulares: ProductoVendido[];
+}
+
 // Users Types
-export interface UsuarioTelemetria {
+export interface UsuarioFrecuente {
   documentoCliente: number;
   nombreCompleto: string;
   totalPedidos: number;
@@ -72,16 +78,23 @@ export interface UsuarioTelemetria {
   ultimoPedido: string;
 }
 
+export interface UsuarioInactivo {
+  documentoCliente: number;
+  nombreCompleto: string;
+  totalPedidos: number;
+  ultimoPedido: string;
+}
+
 export interface EstadisticasUsuarios {
+  totalClientes: number;
   clientesActivos: number;
   clientesInactivos: number;
   promedioGastoPorCliente: number;
-  totalClientes: number;
 }
 
 export interface UsersData {
-  usuariosFrecuentes: UsuarioTelemetria[] | null;
-  usuariosInactivos: UsuarioTelemetria[];
+  usuariosFrecuentes: UsuarioFrecuente[];
+  usuariosInactivos: UsuarioInactivo[];
   estadisticasUsuarios: EstadisticasUsuarios;
 }
 
@@ -112,153 +125,400 @@ export interface TimeAnalysisData {
 
 // Rentabilidad Types
 export interface ProductoRentabilidad {
+  productoId: number;
   nombreProducto: string;
-  margenBruto: number;
-  ingresosTotales: number;
+  precioVenta: number;
   cantidadVendida: number;
+  ingresoTotal: number;
+  margenGanancia: number;
+  gananciaTotal: number;
 }
 
 export interface EstadisticasRentabilidad {
   margenPromedioGeneral: number;
-  ingresosTotales: number;
-  totalProductosAnalizados: number;
+  productoMasRentable: string;
+  productoMenosRentable: string;
+  totalGanancias: number;
+  totalIngresos: number;
 }
 
 export interface RentabilidadData {
-  productosMasRentables: ProductoRentabilidad[];
+  productosRentables: ProductoRentabilidad[];
   productosMenosRentables: ProductoRentabilidad[];
-  estadisticas: EstadisticasRentabilidad;
+  estadisticasRentabilidad: EstadisticasRentabilidad;
 }
 
 // Segmentación Types
 export interface ClienteSegmento {
-  nombreCliente: string;
-  documento: number;
+  documentoCliente: number;
+  nombreCompleto: string;
+  totalPedidos: number;
   totalGastado: number;
-  cantidadPedidos: number;
-  valorPromedio: number;
+  promedioGasto: number;
+  ultimoPedido: string;
+  diasSinPedir: number;
+  segmento: string;
+  valorVida: number;
 }
 
 export interface EstadisticasSegmentacion {
   totalClientesVIP: number;
   totalClientesRegulares: number;
+  totalClientesOcasionales: number;
   totalClientesNuevos: number;
-  valorPromedioVIP: number;
-  valorPromedioRegular: number;
-  valorPromedioNuevo: number;
+  promedioGastoVIP: number;
+  promedioGastoRegular: number;
+  porcentajeVIP: number;
 }
 
 export interface SegmentacionData {
   clientesVIP: ClienteSegmento[];
   clientesRegulares: ClienteSegmento[];
+  clientesOcasionales: ClienteSegmento[];
   clientesNuevos: ClienteSegmento[];
-  estadisticas: EstadisticasSegmentacion;
+  estadisticasSegmentacion: EstadisticasSegmentacion;
 }
 
 // Eficiencia Types
 export interface TiempoEntrega {
-  fecha: string;
-  tiempoPromedioMinutos: number;
-  pedidosEntregados: number;
+  pedidoId: number;
+  cliente: string;
+  fechaPedido: string;
+  horaPedido: string;
+  tiempoPreparacion: number;
+  estadoPedido: string;
+  trabajadorAsignado: string;
 }
 
 export interface RendimientoTrabajador {
+  documentoTrabajador: number;
   nombreTrabajador: string;
-  documento: number;
-  pedidosEntregados: number;
-  tiempoPromedioMinutos: number;
-  eficiencia: number;
+  pedidosAtendidos: number;
+  tiempoPromedioAtencion: number;
+  eficienciaScore: number;
+  horasTrabajadas: number;
 }
 
 export interface EficienciaPorHora {
-  hora: number;
-  pedidosCompletados: number;
-  pedidosPendientes: number;
-  eficiencia: number;
+  hora: string;
+  pedidosRecibidos: number;
+  tiempoPromedioPrep: number;
+  capacidadUtilizada: number;
+  nivelEficiencia: string;
 }
 
 export interface EstadisticasEficiencia {
   tiempoPromedioGeneral: number;
-  eficienciaPromedio: number;
-  totalPedidosAnalizados: number;
-  trabajadoresActivos: number;
+  horaMasEficiente: string;
+  horaMenosEficiente: string;
+  trabajadorMasEficiente: string;
+  capacidadPromedioUso: number;
+  pedidosPendientes: number;
 }
 
 export interface EficienciaData {
   tiemposEntrega: TiempoEntrega[];
   rendimientoTrabajadores: RendimientoTrabajador[];
-  eficienciaPorHora: EficienciaPorHora[];
-  estadisticas: EstadisticasEficiencia;
+  analisisPorHora: EficienciaPorHora[];
+  estadisticasEficiencia: EstadisticasEficiencia;
 }
 
 // Reservas Analysis Types
 export interface ReservaPorDia {
   fecha: string;
+  totalReservas: number;
   reservasCompletadas: number;
-  porcentaje: number;
+  totalPersonas: number;
+  porcentajeCompletado: number;
 }
 
 export interface ReservaPorHora {
-  hora: number;
+  hora: string;
+  totalReservas: number;
   reservasCompletadas: number;
-  porcentaje: number;
+  totalPersonas: number;
+  porcentajeCompletado: number;
 }
 
 export interface ReservaPorDiaSemana {
   diaSemana: string;
+  totalReservas: number;
   reservasCompletadas: number;
-  porcentaje: number;
+  totalPersonas: number;
+  porcentajeCompletado: number;
 }
 
 export interface EstadisticasReservas {
   totalReservasCompletadas: number;
-  promedioReservasDiarias: number;
-  horaPico: number;
-  diaPico: string;
+  diaMasReservas: string;
+  horaMasReservas: string;
+  promedioPersonasPorReserva: number;
+  tasaCompletamiento: number;
 }
 
 export interface ReservasAnalisisData {
   reservasPorDia: ReservaPorDia[];
   reservasPorHora: ReservaPorHora[];
   reservasPorDiaSemana: ReservaPorDiaSemana[];
-  estadisticas: EstadisticasReservas;
+  estadisticasReservas: EstadisticasReservas;
 }
 
 // Pedidos Analysis Types
 export interface PedidoPorDia {
   fecha: string;
-  pedidosCompletados: number;
-  porcentaje: number;
+  totalPedidos: number;
+  pedidosTerminados: number;
+  ingresoTotal: number;
+  tasaCompletamiento: number;
 }
 
 export interface PedidoPorHora {
-  hora: number;
-  pedidosCompletados: number;
-  porcentaje: number;
+  hora: string;
+  totalPedidos: number;
+  pedidosTerminados: number;
+  ingresoTotal: number;
+  tasaCompletamiento: number;
 }
 
 export interface PedidoPorDiaSemana {
   diaSemana: string;
-  pedidosCompletados: number;
-  porcentaje: number;
+  totalPedidos: number;
+  pedidosTerminados: number;
+  ingresoTotal: number;
+  tasaCompletamiento: number;
 }
 
 export interface EstadisticasPedidos {
-  totalPedidosCompletados: number;
-  promedioPedidosDiarios: number;
-  horaPico: number;
-  diaPico: string;
+  totalPedidosTerminados: number;
+  diaMasPedidos: string;
+  horaMasPedidos: string;
+  ingresoPromedioHora: number;
+  tasaCompletamientoGeneral: number;
 }
 
 export interface PedidosAnalisisData {
   pedidosPorDia: PedidoPorDia[];
   pedidosPorHora: PedidoPorHora[];
   pedidosPorDiaSemana: PedidoPorDiaSemana[];
-  estadisticas: EstadisticasPedidos;
+  estadisticasPedidos: EstadisticasPedidos;
 }
 
-// Service Parameters
+// **🆕 NUEVOS TIPOS PARA LOS 5 DASHBOARDS FALTANTES**
+
+// Rentabilidad Types
+export interface ProductoRentabilidad {
+  productoId: number;
+  nombreProducto: string;
+  precioVenta: number;
+  cantidadVendida: number;
+  ingresoTotal: number;
+  margenGanancia: number;
+  gananciaTotal: number;
+}
+
+export interface EstadisticasRentabilidad {
+  margenPromedioGeneral: number;
+  productoMasRentable: string;
+  productoMenosRentable: string;
+  totalGanancias: number;
+  totalIngresos: number;
+}
+
+export interface RentabilidadData {
+  productosRentables: ProductoRentabilidad[];
+  productosMenosRentables: ProductoRentabilidad[];
+  estadisticasRentabilidad: EstadisticasRentabilidad;
+}
+
+// Segmentación Types
+export interface ClienteSegmento {
+  documentoCliente: number;
+  nombreCompleto: string;
+  totalPedidos: number;
+  totalGastado: number;
+  promedioGasto: number;
+  ultimoPedido: string;
+  diasSinPedir: number;
+  segmento: string;
+  valorVida: number;
+}
+
+export interface EstadisticasSegmentacion {
+  totalClientesVIP: number;
+  totalClientesRegulares: number;
+  totalClientesOcasionales: number;
+  totalClientesNuevos: number;
+  promedioGastoVIP: number;
+  promedioGastoRegular: number;
+  porcentajeVIP: number;
+}
+
+export interface SegmentacionData {
+  clientesVIP: ClienteSegmento[];
+  clientesRegulares: ClienteSegmento[];
+  clientesOcasionales: ClienteSegmento[];
+  clientesNuevos: ClienteSegmento[];
+  estadisticasSegmentacion: EstadisticasSegmentacion;
+}
+
+// Eficiencia Types
+export interface TiempoEntrega {
+  pedidoId: number;
+  cliente: string;
+  fechaPedido: string;
+  horaPedido: string;
+  tiempoPreparacion: number;
+  estadoPedido: string;
+  trabajadorAsignado: string;
+}
+
+export interface RendimientoTrabajador {
+  documentoTrabajador: number;
+  nombreTrabajador: string;
+  pedidosAtendidos: number;
+  tiempoPromedioAtencion: number;
+  eficienciaScore: number;
+  horasTrabajadas: number;
+}
+
+export interface AnalisisPorHora {
+  hora: string;
+  pedidosRecibidos: number;
+  tiempoPromedioPrep: number;
+  capacidadUtilizada: number;
+  nivelEficiencia: string;
+}
+
+export interface EstadisticasEficiencia {
+  tiempoPromedioGeneral: number;
+  horaMasEficiente: string;
+  horaMenosEficiente: string;
+  trabajadorMasEficiente: string;
+  capacidadPromedioUso: number;
+  pedidosPendientes: number;
+}
+
+export interface EficienciaData {
+  tiemposEntrega: TiempoEntrega[];
+  rendimientoTrabajadores: RendimientoTrabajador[];
+  analisisPorHora: AnalisisPorHora[];
+  estadisticasEficiencia: EstadisticasEficiencia;
+}
+
+// Reservas Analysis Types
+export interface ReservaPorDia {
+  fecha: string;
+  totalReservas: number;
+  reservasCompletadas: number;
+  totalPersonas: number;
+  porcentajeCompletado: number;
+}
+
+export interface ReservaPorHora {
+  hora: string;
+  totalReservas: number;
+  reservasCompletadas: number;
+  totalPersonas: number;
+  porcentajeCompletado: number;
+}
+
+export interface ReservaPorDiaSemana {
+  diaSemana: string;
+  totalReservas: number;
+  reservasCompletadas: number;
+  totalPersonas: number;
+  porcentajeCompletado: number;
+}
+
+export interface EstadisticasReservas {
+  totalReservasCompletadas: number;
+  diaMasReservas: string;
+  horaMasReservas: string;
+  promedioPersonasPorReserva: number;
+  tasaCompletamiento: number;
+}
+
+export interface ReservasAnalisisData {
+  reservasPorDia: ReservaPorDia[];
+  reservasPorHora: ReservaPorHora[];
+  reservasPorDiaSemana: ReservaPorDiaSemana[];
+  estadisticasReservas: EstadisticasReservas;
+}
+
+// Service Parameters - Filtros Temporales Avanzados
 export interface TelemetryParams {
+  // Filtros predefinidos
   periodo?: TimePeriod;
   limit?: number;
+
+  // Filtros por mes y año
+  mes?: number; // 1-12
+  año?: number; // ej: 2024
+
+  // Filtros por rango de fechas
+  fecha_inicio?: string; // YYYY-MM-DD
+  fecha_fin?: string; // YYYY-MM-DD
+
+  // Filtros por horas
+  hora_inicio?: string; // HH:MM:SS
+  hora_fin?: string; // HH:MM:SS
+}
+
+// ========================================
+// LOCAL TELEMETRY TYPES (for service internal use)
+// ========================================
+
+export type DeviceType = 'desktop' | 'web-mobile' | 'android' | 'ios';
+
+export interface TelemetryEvent {
+  id: string;
+  type: 'login_attempt' | 'login_success' | 'login_failure' | 'purchase' | 'http_request' | 'error';
+  timestamp: number;
+  userId?: number | null;
+  userDocument?: string | null;
+  deviceType?: DeviceType;
+  currentScreen?: string | null;
+  message?: string;
+  stack?: string;
+  handled?: boolean;
+  requestId?: string;
+  method?: string;
+  url?: string;
+  ok?: boolean;
+  status?: number;
+  durationMs?: number;
+  paymentMethodId?: number;
+  paymentMethodLabel?: string;
+  requiresDelivery?: boolean;
+  items?: PurchaseItem[];
+  subtotal?: number;
+}
+
+export interface PurchaseItem {
+  productId: number;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface PurchaseData {
+  userId: number | null;
+  paymentMethodId: number;
+  paymentMethodLabel: string;
+  requiresDelivery: boolean;
+  items: PurchaseItem[];
+  subtotal: number;
+}
+
+export interface AggregatedMetrics {
+  login: {
+    attempts: number;
+    successes: number;
+    failures: number;
+  };
+  purchasesByPaymentMethod: Record<string, number>;
+  productsCount: Record<string, number>;
+  usersByPurchases: Record<string, number>;
+  salesByHour: Record<string, number>;
+  salesByWeekday: Record<string, number>;
 }

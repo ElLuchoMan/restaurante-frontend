@@ -168,7 +168,7 @@
           <div class="offer-badge">¡NUEVO!</div>
           <div class="offer-image">
             <img
-              src="assets/img/offer-1.webp"
+              src="assets/img/product-1.webp"
               alt="Combo Tradicional"
               loading="lazy"
               (error)="onImageError($event)"
@@ -190,7 +190,7 @@
           <div class="offer-badge hot">🔥 HOT</div>
           <div class="offer-image">
             <img
-              src="assets/img/offer-2.webp"
+              src="assets/img/product-2.webp"
               alt="2x1 Bebidas"
               loading="lazy"
               (error)="onImageError($event)"
@@ -211,7 +211,7 @@
           <div class="offer-badge weekend">FIN DE SEMANA</div>
           <div class="offer-image">
             <img
-              src="assets/img/offer-3.webp"
+              src="assets/img/product-3.webp"
               alt="Brunch Especial"
               loading="lazy"
               (error)="onImageError($event)"
@@ -315,62 +315,69 @@
       </div>
     </div>
     <div class="row g-3">
-      <div class="col-6 col-md-4 col-lg-3">
-        <div class="gallery-item">
-          <img
-            src="assets/img/dish-1.webp"
-            alt="Arepa Rellena Gourmet"
-            loading="lazy"
-            (error)="onImageError($event)"
-          />
-          <div class="gallery-overlay">
-            <h4>Arepa Rellena Gourmet</h4>
-            <p>Tradición reinventada</p>
+      <!-- Loading state -->
+      <ng-container *ngIf="loadingProductos">
+        <div class="col-12 text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando productos populares...</span>
+          </div>
+          <p class="mt-2 text-muted">Cargando nuestros platos más populares...</p>
+        </div>
+      </ng-container>
+
+      <!-- Error state -->
+      <ng-container *ngIf="errorProductos && !loadingProductos">
+        <div class="col-12 text-center py-4">
+          <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            No pudimos cargar los platos en este momento.
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary ms-2"
+              (click)="loadProductosPopulares()"
+            >
+              Reintentar
+            </button>
           </div>
         </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-3">
-        <div class="gallery-item">
-          <img
-            src="assets/img/dish-2.webp"
-            alt="Hamburguesa Colombiana"
-            loading="lazy"
-            (error)="onImageError($event)"
-          />
-          <div class="gallery-overlay">
-            <h4>Hamburguesa Colombiana</h4>
-            <p>Fusión perfecta</p>
+      </ng-container>
+
+      <!-- Success state - Productos dinámicos -->
+      <ng-container *ngIf="!loadingProductos && !errorProductos && productosPopulares.length > 0">
+        <div
+          class="col-6 col-md-4 col-lg-3"
+          *ngFor="let producto of productosPopulares; let i = index; trackBy: trackByProductoId"
+        >
+          <div class="gallery-item">
+            <!-- Usar imágenes estáticas como fallback para evitar el error 431 -->
+            <img
+              [src]="getProductImageSrcByIndex(producto, i)"
+              [alt]="producto.nombreProducto"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+            <div class="gallery-overlay">
+              <h4>{{ producto.nombreProducto }}</h4>
+              <p>
+                {{ producto.cantidadVendida }} vendidos
+                <span class="d-block fw-bold text-warning">
+                  ${{ producto.precio | number: '1.0-0' }}
+                </span>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-3">
-        <div class="gallery-item">
-          <img
-            src="assets/img/dish-3.webp"
-            alt="Tacos Costeños"
-            loading="lazy"
-            (error)="onImageError($event)"
-          />
-          <div class="gallery-overlay">
-            <h4>Tacos Costeños</h4>
-            <p>Sabor caribeño</p>
+      </ng-container>
+
+      <!-- Fallback cuando no hay productos -->
+      <ng-container *ngIf="!loadingProductos && !errorProductos && productosPopulares.length === 0">
+        <div class="col-12 text-center py-4">
+          <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            No hay productos populares disponibles en este momento.
           </div>
         </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-3">
-        <div class="gallery-item">
-          <img
-            src="assets/img/dish-4.webp"
-            alt="Postre de la Casa"
-            loading="lazy"
-            (error)="onImageError($event)"
-          />
-          <div class="gallery-overlay">
-            <h4>Postre de la Casa</h4>
-            <p>Final perfecto</p>
-          </div>
-        </div>
-      </div>
+      </ng-container>
     </div>
     <div class="text-center mt-4">
       <a routerLink="/menu" class="btn btn-primary btn-lg">Ver Menú Completo</a>
@@ -404,7 +411,7 @@
           </p>
           <div class="testimonial-author">
             <img
-              src="assets/img/customer-1.webp"
+              src="assets/img/testimonial-1.webp"
               alt="María González"
               loading="lazy"
               (error)="onImageError($event)"
@@ -431,7 +438,7 @@
           </p>
           <div class="testimonial-author">
             <img
-              src="assets/img/customer-2.webp"
+              src="assets/img/testimonial-2.webp"
               alt="Carlos Rodríguez"
               loading="lazy"
               (error)="onImageError($event)"
@@ -458,7 +465,7 @@
           </p>
           <div class="testimonial-author">
             <img
-              src="assets/img/customer-3.webp"
+              src="assets/img/testimonial-3.webp"
               alt="Ana Martínez"
               loading="lazy"
               (error)="onImageError($event)"

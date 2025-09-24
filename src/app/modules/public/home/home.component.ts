@@ -2,6 +2,7 @@ import { AsyncPipe, CommonModule, isPlatformBrowser, NgOptimizedImage } from '@a
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Inject,
   makeStateKey,
@@ -14,7 +15,10 @@ import { RouterModule } from '@angular/router';
 import { map, Observable, Subscription } from 'rxjs';
 
 import { CartService } from '../../../core/services/cart.service';
+import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
+import { ProductoVendido } from '../../../shared/models/telemetry.model';
+import { clearBlobUrlCache, getSafeImageSrc } from '../../../shared/utils/image.utils';
 
 const HOME_STATE = makeStateKey<string>('home_bootstrap');
 
@@ -29,6 +33,12 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
   isLoggedOut$: Observable<boolean>;
   isWebView = false;
   cartCount = 0;
+
+  // Productos populares dinámicos
+  productosPopulares: ProductoVendido[] = [];
+  loadingProductos = true;
+  errorProductos = false;
+
   private footerObserver?: IntersectionObserver;
   private authSub?: Subscription;
   private footerObserverInitAttempts = 0;
@@ -37,6 +47,8 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     private ts: TransferState,
     private userService: UserService,
     private cartService: CartService,
+    private telemetryService: TelemetryService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.isLoggedOut$ = this.userService.getAuthState().pipe(map((isAuth) => !isAuth));
   }
@@ -70,6 +82,11 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
           this.footerObserver?.disconnect();
         }
       });
+
+    // Cargar productos populares solo en el navegador
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadProductosPopulares();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -108,6 +125,8 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     if (this.isWebView && isPlatformBrowser(this.platformId)) {
       document.body.classList.remove('is-native');
     }
+    // Limpiar cache de imágenes Blob para evitar memory leaks
+    clearBlobUrlCache();
   }
 
   private initFooterObserver(): void {
@@ -152,6 +171,46 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
+  /**
+   * TrackBy function para la lista de productos populares
+   */
+  trackByProductoId(index: number, producto: ProductoVendido): number {
+    return producto.productoId;
+  }
+
+  /**
+   * Carga los productos populares desde el backend
+   */
+  loadProductosPopulares(): void {
+    this.loadingProductos = true;
+    this.errorProductos = false;
+
+    this.telemetryService
+      .getProductosPopulares({
+        limit: 4,
+        periodo: 'historico',
+      })
+      .subscribe({
+        next: (response) => {
+          if (response.code === 200 && response.data && response.data.productosPopulares) {
+            this.productosPopulares = response.data.productosPopulares;
+            this.errorProductos = false;
+          } else {
+            this.errorProductos = true;
+            console.warn('No se pudieron cargar los productos populares:', response.message);
+          }
+          this.loadingProductos = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error al cargar productos populares:', error);
+          this.errorProductos = true;
+          this.loadingProductos = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     if (img) {
@@ -161,5 +220,21 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
       // Añadir clase para estilos específicos del fallback
       img.classList.add('fallback-logo');
     }
+  }
+
+  /**
+   * Obtiene la fuente de imagen adecuada para un producto
+   * Evita usar imágenes base64 grandes directamente como src para prevenir error 431
+   */
+  getProductImageSrc(producto: ProductoVendido): string {
+    return getSafeImageSrc(producto.imagen, producto.productoId);
+  }
+
+  /**
+   * Obtiene la fuente de imagen usando el índice del array para variar las imágenes fallback
+   * Útil cuando los productos tienen el mismo ID pero necesitamos imágenes diferentes
+   */
+  getProductImageSrcByIndex(producto: ProductoVendido, index: number): string {
+    return getSafeImageSrc(producto.imagen, index + 1); // +1 para que empiece desde 1, no 0
   }
 }

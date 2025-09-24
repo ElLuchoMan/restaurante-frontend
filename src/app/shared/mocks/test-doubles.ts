@@ -279,3 +279,13 @@ export function createSwUpdateMock(opts?: {
     activateUpdate: jest.fn().mockResolvedValue(true),
   } as any;
 }
+
+export function createPerformanceServiceMock() {
+  return {
+    recordMetric: jest.fn(),
+    getMetrics: jest.fn().mockReturnValue([]),
+    clearMetrics: jest.fn(),
+    logPerformanceMetrics: jest.fn(),
+    trackRouteChange: jest.fn(),
+  } as any;
+}

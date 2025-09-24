@@ -47,18 +47,38 @@
 // Topbar del home eliminada - en navegadores web siempre existe header principal
 // En webview se usa native-topbar global
 
-#header-carousel .carousel-item {
-  transition: opacity 0.8s ease-in-out;
-}
-#header-carousel .carousel-item {
-  display: block;
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-}
-#header-carousel .carousel-item.active {
-  position: relative;
-  opacity: 1;
+#header-carousel {
+  .carousel-item {
+    transition: opacity 0.8s ease-in-out;
+    display: block;
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+
+    &.active {
+      position: relative;
+      opacity: 1;
+    }
+  }
+
+  // Fix para NgOptimizedImage - mantener aspect ratio natural
+  .carousel-item img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    max-width: 100%;
+    display: block;
+  }
+
+  // Específico para imágenes con ngSrc (NgOptimizedImage)
+  .carousel-item img[ngSrc] {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover !important;
+    max-width: 100% !important;
+    // Mantener aspect ratio natural de la imagen
+    aspect-ratio: 1200 / 686 !important; // ratio de las imágenes del carousel
+  }
 }
 
 .carousel-caption {
@@ -77,9 +97,12 @@
   pointer-events: none;
 }
 
+// Clase img-responsive compatible con NgOptimizedImage
 .img-responsive {
+  width: 100%;
   height: auto;
   max-width: 100%;
+  object-fit: cover;
 }
 
 // Accesibilidad de texto sobre imagen - Diseño más moderno
@@ -143,10 +166,26 @@
 @media (max-width: 576px) {
   // Héroe más compacto y legible
   #header-carousel {
+    // Limitar altura del contenedor en móvil para mejor UX
+    max-height: 50vh;
+    overflow: hidden;
+
     .carousel-item img {
-      height: 45vh;
+      width: 100%;
+      height: auto;
+      min-height: 250px;
       object-fit: cover;
     }
+
+    // NgOptimizedImage: mantener aspect ratio mientras se adapta al contenedor
+    .carousel-item img[ngSrc] {
+      width: 100% !important;
+      height: auto !important;
+      min-height: 250px !important;
+      object-fit: cover !important;
+      object-position: center !important;
+    }
+
     .carousel-caption {
       bottom: 0.75rem;
     }
@@ -226,17 +265,34 @@
 // Desktop (>= lg): carrusel casi a pantalla completa
 @media (min-width: 992px) {
   #header-carousel {
-    max-height: 91vh;
+    // Limitar altura del contenedor en desktop para mejor UX
+    max-height: 85vh;
+    overflow: hidden;
+
     .carousel-item img {
-      height: 91vh;
+      width: 100%;
+      height: auto;
+      min-height: 400px;
       object-fit: cover;
     }
+
+    // NgOptimizedImage: mantener aspect ratio mientras se adapta al contenedor
+    .carousel-item img[ngSrc] {
+      width: 100% !important;
+      height: auto !important;
+      min-height: 400px !important;
+      object-fit: cover !important;
+      object-position: center !important;
+    }
+
     .carousel-caption {
       bottom: 2rem;
     }
   }
-  // En desktop evitamos blur para mayor nitidez
-  .bg-text.caption-card {
+}
+// En desktop evitamos blur para mayor nitidez
+.bg-text.caption-card {
+  @media (min-width: 992px) {
     backdrop-filter: none;
   }
 }

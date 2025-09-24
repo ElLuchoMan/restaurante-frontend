@@ -126,7 +126,7 @@ describe('ProductoService', () => {
     req.flush(mock);
   });
 
-  it('handles undefined imagen in list without prefixing', () => {
+  it('handles undefined imagen in list using default fallback', () => {
     const mock = {
       code: 200,
       message: 'ok',
@@ -137,7 +137,7 @@ describe('ProductoService', () => {
       ],
     } as any;
     service.getProductos().subscribe((res) => {
-      expect(res.data[2].imagen).toBeUndefined();
+      expect(res.data[2].imagen).toBe('assets/img/logo2.webp');
     });
     const req = http.expectOne(`${baseUrl}`);
     req.flush(mock);

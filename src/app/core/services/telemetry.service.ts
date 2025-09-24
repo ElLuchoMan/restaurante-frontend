@@ -6,76 +6,26 @@ import { catchError, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import {
+  AggregatedMetrics,
   DashboardData,
+  DeviceType,
   EficienciaData,
   PedidosAnalisisData,
+  ProductosPopularesData,
   ProductsData,
+  PurchaseData,
   RentabilidadData,
   ReservasAnalisisData,
   SalesData,
   SegmentacionData,
+  TelemetryEvent,
   TelemetryParams,
   TimeAnalysisData,
   UsersData,
 } from '../../shared/models/telemetry.model';
 import { HandleErrorService } from './handle-error.service';
 
-// Tipos de dispositivo
-export type DeviceType = 'desktop' | 'web-mobile' | 'android' | 'ios';
-
-// Interfaces para logging local
-export interface TelemetryEvent {
-  id: string;
-  type: 'login_attempt' | 'login_success' | 'login_failure' | 'purchase' | 'http_request' | 'error';
-  timestamp: number;
-  userId?: number | null;
-  userDocument?: string | null;
-  deviceType?: DeviceType;
-  currentScreen?: string | null;
-  message?: string;
-  stack?: string;
-  handled?: boolean;
-  requestId?: string;
-  method?: string;
-  url?: string;
-  ok?: boolean;
-  status?: number;
-  durationMs?: number;
-  paymentMethodId?: number;
-  paymentMethodLabel?: string;
-  requiresDelivery?: boolean;
-  items?: PurchaseItem[];
-  subtotal?: number;
-}
-
-export interface PurchaseItem {
-  productId: number;
-  name: string;
-  quantity: number;
-  unitPrice: number;
-}
-
-export interface PurchaseData {
-  userId: number | null;
-  paymentMethodId: number;
-  paymentMethodLabel: string;
-  requiresDelivery: boolean;
-  items: PurchaseItem[];
-  subtotal: number;
-}
-
-export interface AggregatedMetrics {
-  login: {
-    attempts: number;
-    successes: number;
-    failures: number;
-  };
-  purchasesByPaymentMethod: Record<string, number>;
-  productsCount: Record<string, number>;
-  usersByPurchases: Record<string, number>;
-  salesByHour: Record<string, number>;
-  salesByWeekday: Record<string, number>;
-}
+// ✅ Todas las interfaces y tipos ahora están definidos en shared/models/telemetry.model.ts
 
 @Injectable({
   providedIn: 'root',
@@ -98,18 +48,102 @@ export class TelemetryService {
     this.initializeDeviceType();
   }
 
+  // **🆕 NUEVOS MÉTODOS PARA LOS 5 DASHBOARDS FALTANTES**
+
   /**
-   * Construye los parámetros HTTP para las peticiones
+   * Obtiene análisis de rentabilidad por productos
+   */
+  getRentabilidad(params?: TelemetryParams): Observable<ApiResponse<RentabilidadData>> {
+    const httpParams = this.buildParams(params);
+    return this.http
+      .get<ApiResponse<RentabilidadData>>(`${this.baseUrl}/rentabilidad`, { params: httpParams })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Obtiene segmentación de clientes (VIP, regulares, ocasionales, nuevos)
+   */
+  getSegmentacion(params?: TelemetryParams): Observable<ApiResponse<SegmentacionData>> {
+    const httpParams = this.buildParams(params);
+    return this.http
+      .get<ApiResponse<SegmentacionData>>(`${this.baseUrl}/segmentacion`, { params: httpParams })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Obtiene análisis de eficiencia y tiempos de entrega
+   */
+  getEficiencia(params?: TelemetryParams): Observable<ApiResponse<EficienciaData>> {
+    const httpParams = this.buildParams(params);
+    return this.http
+      .get<ApiResponse<EficienciaData>>(`${this.baseUrl}/eficiencia`, { params: httpParams })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Obtiene análisis de reservas por tiempo
+   */
+  getReservasAnalisis(params?: TelemetryParams): Observable<ApiResponse<ReservasAnalisisData>> {
+    const httpParams = this.buildParams(params);
+    return this.http
+      .get<
+        ApiResponse<ReservasAnalisisData>
+      >(`${this.baseUrl}/reservas-analisis`, { params: httpParams })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Obtiene análisis de pedidos completados por tiempo
+   */
+  getPedidosAnalisis(params?: TelemetryParams): Observable<ApiResponse<PedidosAnalisisData>> {
+    const httpParams = this.buildParams(params);
+    return this.http
+      .get<
+        ApiResponse<PedidosAnalisisData>
+      >(`${this.baseUrl}/pedidos-analisis`, { params: httpParams })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Construye los parámetros HTTP para las peticiones con filtros temporales avanzados
    */
   private buildParams(params?: TelemetryParams): HttpParams {
     let httpParams = new HttpParams();
 
+    // Filtros básicos
     if (params?.periodo) {
       httpParams = httpParams.set('periodo', params.periodo);
     }
 
     if (params?.limit) {
       httpParams = httpParams.set('limit', params.limit.toString());
+    }
+
+    // Filtros por mes y año
+    if (params?.mes) {
+      httpParams = httpParams.set('mes', params.mes.toString());
+    }
+
+    if (params?.año) {
+      httpParams = httpParams.set('año', params.año.toString());
+    }
+
+    // Filtros por rango de fechas
+    if (params?.fecha_inicio) {
+      httpParams = httpParams.set('fecha_inicio', params.fecha_inicio);
+    }
+
+    if (params?.fecha_fin) {
+      httpParams = httpParams.set('fecha_fin', params.fecha_fin);
+    }
+
+    // Filtros por rango de horas
+    if (params?.hora_inicio) {
+      httpParams = httpParams.set('hora_inicio', params.hora_inicio);
+    }
+
+    if (params?.hora_fin) {
+      httpParams = httpParams.set('hora_fin', params.hora_fin);
     }
 
     return httpParams;
@@ -166,56 +200,17 @@ export class TelemetryService {
   }
 
   /**
-   * Obtiene análisis de rentabilidad por productos
+   * 🌟 NUEVO: Obtiene productos populares (endpoint público - sin autenticación)
+   * Soporta todos los filtros temporales avanzados
    */
-  getRentabilidad(params?: TelemetryParams): Observable<ApiResponse<RentabilidadData>> {
+  getProductosPopulares(params?: TelemetryParams): Observable<ApiResponse<ProductosPopularesData>> {
     const httpParams = this.buildParams(params);
-    return this.http
-      .get<ApiResponse<RentabilidadData>>(`${this.baseUrl}/rentabilidad`, { params: httpParams })
-      .pipe(catchError(this.handleError.handleError));
-  }
+    const url = `${environment.apiUrl}/productos-populares`;
 
-  /**
-   * Obtiene segmentación de clientes (VIP, regulares, nuevos)
-   */
-  getSegmentacion(params?: TelemetryParams): Observable<ApiResponse<SegmentacionData>> {
-    const httpParams = this.buildParams(params);
     return this.http
-      .get<ApiResponse<SegmentacionData>>(`${this.baseUrl}/segmentacion`, { params: httpParams })
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  /**
-   * Obtiene análisis de eficiencia y tiempos de entrega
-   */
-  getEficiencia(params?: TelemetryParams): Observable<ApiResponse<EficienciaData>> {
-    const httpParams = this.buildParams(params);
-    return this.http
-      .get<ApiResponse<EficienciaData>>(`${this.baseUrl}/eficiencia`, { params: httpParams })
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  /**
-   * Obtiene análisis de reservas por tiempo
-   */
-  getReservasAnalisis(params?: TelemetryParams): Observable<ApiResponse<ReservasAnalisisData>> {
-    const httpParams = this.buildParams(params);
-    return this.http
-      .get<
-        ApiResponse<ReservasAnalisisData>
-      >(`${this.baseUrl}/reservas-analisis`, { params: httpParams })
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  /**
-   * Obtiene análisis de pedidos completados por tiempo
-   */
-  getPedidosAnalisis(params?: TelemetryParams): Observable<ApiResponse<PedidosAnalisisData>> {
-    const httpParams = this.buildParams(params);
-    return this.http
-      .get<
-        ApiResponse<PedidosAnalisisData>
-      >(`${this.baseUrl}/pedidos-analisis`, { params: httpParams })
+      .get<ApiResponse<ProductosPopularesData>>(url, {
+        params: httpParams,
+      })
       .pipe(catchError(this.handleError.handleError));
   }
 
@@ -245,7 +240,7 @@ export class TelemetryService {
     const userAgent = navigator.userAgent.toLowerCase();
 
     // Detectar si es una aplicación Capacitor (Android/iOS)
-    if ((window as any).Capacitor) {
+    if ((window as Window & { Capacitor?: unknown }).Capacitor) {
       if (userAgent.includes('android')) return 'android';
       if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'ios';
     }

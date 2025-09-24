@@ -6,8 +6,13 @@ import { PerformanceService } from '../../../core/services/performance.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import {
   DashboardData,
+  EficienciaData,
+  PedidosAnalisisData,
   ProductsData,
+  RentabilidadData,
+  ReservasAnalisisData,
   SalesData,
+  SegmentacionData,
   TimeAnalysisData,
   TimePeriod,
   UsersData,
@@ -34,6 +39,13 @@ export class TelemetryDashboardComponent {
   productsData = signal<ProductsData | null>(null);
   usersData = signal<UsersData | null>(null);
   timeData = signal<TimeAnalysisData | null>(null);
+
+  // **🆕 Signals para los 5 nuevos dashboards**
+  rentabilidadData = signal<RentabilidadData | null>(null);
+  segmentacionData = signal<SegmentacionData | null>(null);
+  eficienciaData = signal<EficienciaData | null>(null);
+  reservasData = signal<ReservasAnalisisData | null>(null);
+  pedidosData = signal<PedidosAnalisisData | null>(null);
 
   // Signals para telemetría local
   private localRefreshTick = signal(0);
@@ -305,6 +317,22 @@ export class TelemetryDashboardComponent {
       case 'time':
         this.loadTimeData(params);
         break;
+      // **🆕 Nuevos casos para los 5 dashboards**
+      case 'rentabilidad':
+        this.loadRentabilidadData(params);
+        break;
+      case 'segmentacion':
+        this.loadSegmentacionData(params);
+        break;
+      case 'eficiencia':
+        this.loadEficienciaData(params);
+        break;
+      case 'reservas':
+        this.loadReservasData(params);
+        break;
+      case 'pedidos':
+        this.loadPedidosData(params);
+        break;
       case 'local':
         this.refreshLocal();
         break;
@@ -317,6 +345,7 @@ export class TelemetryDashboardComponent {
 
     this.telemetry.getDashboard({ periodo: this.selectedPeriod() }).subscribe({
       next: (response) => {
+        console.log('Dashboard response', response.data);
         this.dashboardData.set(response.data);
         this.isLoading.set(false);
       },
@@ -335,6 +364,7 @@ export class TelemetryDashboardComponent {
 
     this.telemetry.getSales(params).subscribe({
       next: (response) => {
+        console.log('Sales response', response.data);
         this.salesData.set(response.data);
         this.isLoading.set(false);
       },
@@ -370,6 +400,7 @@ export class TelemetryDashboardComponent {
 
     this.telemetry.getUsers(params).subscribe({
       next: (response) => {
+        console.log('Users response', response.data);
         this.usersData.set(response.data);
         this.isLoading.set(false);
       },
@@ -400,4 +431,131 @@ export class TelemetryDashboardComponent {
       },
     });
   }
+
+  // **🆕 MÉTODOS DE CARGA PARA LOS 5 NUEVOS DASHBOARDS**
+
+  private loadRentabilidadData(params: { periodo: TimePeriod }): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.telemetry.getRentabilidad(params).subscribe({
+      next: (response) => {
+        console.log('Rentabilidad response', response.data);
+        this.rentabilidadData.set(response.data);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.error.set(
+          'Error al cargar análisis de rentabilidad: ' + (err.message || 'Error desconocido'),
+        );
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  private loadSegmentacionData(params: { periodo: TimePeriod }): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.telemetry.getSegmentacion(params).subscribe({
+      next: (response) => {
+        console.log('Segmentacion response', response.data);
+        this.segmentacionData.set(response.data);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.error.set(
+          'Error al cargar segmentación de clientes: ' + (err.message || 'Error desconocido'),
+        );
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  private loadEficienciaData(params: { periodo: TimePeriod }): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.telemetry.getEficiencia(params).subscribe({
+      next: (response) => {
+        console.log('Eficiencia response', response.data);
+        this.eficienciaData.set(response.data);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.error.set(
+          'Error al cargar análisis de eficiencia: ' + (err.message || 'Error desconocido'),
+        );
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  private loadReservasData(params: { periodo: TimePeriod }): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.telemetry.getReservasAnalisis(params).subscribe({
+      next: (response) => {
+        console.log('Reservas response', response.data);
+        this.reservasData.set(response.data);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.error.set(
+          'Error al cargar análisis de reservas: ' + (err.message || 'Error desconocido'),
+        );
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  private loadPedidosData(params: { periodo: TimePeriod }): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.telemetry.getPedidosAnalisis(params).subscribe({
+      next: (response) => {
+        console.log('Pedidos response', response.data);
+        this.pedidosData.set(response.data);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.error.set(
+          'Error al cargar análisis de pedidos: ' + (err.message || 'Error desconocido'),
+        );
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  // **🆕 FUNCIONES TRACKBY PARA LAS NUEVAS PESTAÑAS**
+
+  trackByProductId = (index: number, item: any): number => {
+    return item.productoId;
+  };
+
+  trackByClientDocument = (index: number, item: any): number => {
+    return item.documentoCliente;
+  };
+
+  trackByPedidoId = (index: number, item: any): number => {
+    return item.pedidoId;
+  };
+
+  trackByTrabajadorDocument = (index: number, item: any): number => {
+    return item.documentoTrabajador;
+  };
+
+  trackByHour = (index: number, item: any): string => {
+    return item.hora;
+  };
+
+  trackByDate = (index: number, item: any): string => {
+    return item.fecha;
+  };
+
+  trackByDayName = (index: number, item: any): string => {
+    return item.diaSemana;
+  };
 }

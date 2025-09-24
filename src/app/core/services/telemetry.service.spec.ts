@@ -11,9 +11,9 @@ import {
   createHandleErrorServiceMock,
   createStorageErrorMock,
 } from '../../shared/mocks/test-doubles';
-import { TelemetryParams } from '../../shared/models/telemetry.model';
+import { PurchaseData, TelemetryParams } from '../../shared/models/telemetry.model';
 import { HandleErrorService } from './handle-error.service';
-import { PurchaseData, TelemetryService } from './telemetry.service';
+import { TelemetryService } from './telemetry.service';
 
 describe('TelemetryService', () => {
   let service: TelemetryService;
