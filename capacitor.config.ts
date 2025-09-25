@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist/restaurante-frontend/browser',
   // Habilitar HTTP en dev-server local (live reload)
   server: {
-    url: 'http://localhost:4200',
+    url: 'http://192.168.1.2:4200',
     cleartext: true,
   },
 };

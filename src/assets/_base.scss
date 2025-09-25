@@ -61,16 +61,20 @@
 }
 
 .btn.btn-primary {
-  /* Alinear con Bootstrap 5 (CSS variables) para garantizar prioridad y consistencia */
+  /* 🇨🇴 Botón primario colombiano - Maíz dorado con texto oscuro para accesibilidad */
   --bs-btn-bg: #{$primary};
   --bs-btn-border-color: #{$primary};
+  --bs-btn-color: #{$text-heading-strong}; /* Texto oscuro sobre fondo amarillo */
   --bs-btn-hover-bg: #{$quaternary};
   --bs-btn-hover-border-color: #{$quaternary};
-  --bs-btn-focus-shadow-rgb: 212, 160, 23; /* d4a017 */
+  --bs-btn-hover-color: #{$text-heading-strong};
+  --bs-btn-focus-shadow-rgb: 255, 193, 7; /* #FFC107 nuevo primary */
   --bs-btn-active-bg: #{$quaternary};
   --bs-btn-active-border-color: #{$quaternary};
-  --bs-btn-disabled-bg: #{$quaternary};
-  --bs-btn-disabled-border-color: #{$quaternary};
+  --bs-btn-active-color: #{$text-heading-strong};
+  --bs-btn-disabled-bg: #{$disabled-bg};
+  --bs-btn-disabled-border-color: #{$disabled-bg};
+  --bs-btn-disabled-color: #{$disabled-text};
 }
 
 html {
@@ -2816,26 +2820,27 @@ fieldset:disabled a.btn {
 .btn-primary {
   background-color: $primary;
   border-color: $primary;
-  color: $light;
+  color: $text-heading-strong; /* Texto oscuro para accesibilidad */
 
   &:hover {
+    background-color: $quaternary;
     border-color: $quaternary;
-    color: $dark;
+    color: $text-heading-strong;
   }
 
   &:focus,
   &.focus {
     background-color: $quaternary;
     border-color: $quaternary;
-    box-shadow: 0 0 0 0.2rem rgb(212 160 23 / 50%);
-    color: $dark;
+    box-shadow: 0 0 0 0.2rem rgba($primary, 0.5);
+    color: $text-heading-strong;
   }
 
   &.disabled,
   &:disabled {
     background-color: $quaternary;
     border-color: $quaternary;
-    color: $dark;
+    color: $text-heading-strong;
   }
 
   &:not(:disabled, .disabled) {
@@ -2843,7 +2848,7 @@ fieldset:disabled a.btn {
     &.active {
       background-color: $quaternary;
       border-color: $quaternary;
-      color: $dark;
+      color: $text-heading-strong;
     }
   }
 }
@@ -2866,7 +2871,7 @@ fieldset:disabled a.btn {
 .btn-primary:not(:disabled, .disabled) {
   &:active:focus,
   &.active:focus {
-    box-shadow: 0 0 0 0.2rem rgb(212 160 23 / 50%);
+    box-shadow: 0 0 0 0.2rem rgba($primary, 0.5);
   }
 }
 
@@ -2880,51 +2885,51 @@ fieldset:disabled a.btn {
   color: $light;
 
   &:hover {
-    background-color: $tertiary;
-    border-color: $tertiary;
-    color: $dark;
+    background-color: $secondary-hover;
+    border-color: $secondary-hover;
+    color: $text-heading-strong;
   }
 
   &:focus,
   &.focus {
-    background-color: $tertiary;
-    border-color: $tertiary;
-    box-shadow: 0 0 0 0.2rem rgb(158 79 63 / 50%);
-    color: $dark;
+    background-color: $secondary-hover;
+    border-color: $secondary-hover;
+    box-shadow: 0 0 0 0.2rem rgba($secondary-hover, 0.5);
+    color: $text-heading-strong;
   }
 
   &.disabled,
   &:disabled {
     background-color: $secondary;
     border-color: $secondary;
-    color: $dark;
+    color: $text-heading-strong;
   }
 
   &:not(:disabled, .disabled) {
     &:active,
     &.active {
-      background-color: $tertiary;
-      border-color: $tertiary;
+      background-color: $secondary-hover;
+      border-color: $secondary-hover;
       color: $white;
     }
   }
 }
 
 .show > .btn-secondary.dropdown-toggle {
-  background-color: $tertiary;
-  border-color: $tertiary;
+  background-color: $secondary-hover;
+  border-color: $secondary-hover;
   color: $white;
 }
 
 .btn-secondary:not(:disabled, .disabled) {
   &:active:focus,
   &.active:focus {
-    box-shadow: 0 0 0 0.2rem rgb(158 79 63 / 50%);
+    box-shadow: 0 0 0 0.2rem rgba($secondary-hover, 0.5);
   }
 }
 
 .show > .btn-secondary.dropdown-toggle:focus {
-  box-shadow: 0 0 0 0.2rem rgb(158 79 63 / 50%);
+  box-shadow: 0 0 0 0.2rem rgba($secondary-hover, 0.5);
 }
 
 .btn-success {
@@ -3599,7 +3604,7 @@ fieldset:disabled a.btn {
   &.disabled,
   &:disabled {
     background-color: transparent;
-    color: $dark;
+    color: $text-heading-strong;
   }
 
   &:not(:disabled, .disabled) {
@@ -11436,10 +11441,10 @@ button.bg-dark {
 .card-vibrant-primary {
   @extend .card-vibrant;
   background: linear-gradient(135deg, #{$primary} 0%, #{$warning} 100%) !important;
-  box-shadow: 0 8px 25px rgba(212, 160, 23, 0.3) !important;
+  box-shadow: 0 8px 25px rgba($primary, 0.3) !important;
 
   &:hover {
-    box-shadow: 0 12px 35px rgba(212, 160, 23, 0.4) !important;
+    box-shadow: 0 12px 35px rgba($primary, 0.4) !important;
   }
 }
 
@@ -11550,9 +11555,9 @@ button.bg-dark {
   border: 1px solid transparent;
 
   &.badge-vibrant-primary {
-    background-color: rgba(212, 160, 23, 0.1);
+    background-color: rgba($primary, 0.1);
     color: #{$primary};
-    border-color: rgba(212, 160, 23, 0.2);
+    border-color: rgba($primary, 0.2);
   }
 
   &.badge-vibrant-success {
@@ -12156,7 +12161,7 @@ textarea.form-control {
   inset: -1px;
   border-radius: 20px;
   padding: 1.5px; // grosor sutilmente mayor para que se perciba en todas las cards
-  background: linear-gradient(135deg, rgba(212, 160, 23, 0.6), rgba(0, 0, 0, 0.08));
+  background: linear-gradient(135deg, rgba($primary, 0.6), rgba(0, 0, 0, 0.08));
   mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -12467,7 +12472,7 @@ a.link {
 
   .method-name {
     font-weight: 500;
-    color: $dark;
+    color: $text-heading-strong;
     flex: 1;
   }
 
@@ -12500,7 +12505,7 @@ a.link {
   }
   .stats-label {
     font-weight: 500;
-    color: $dark;
+    color: $text-heading-strong;
     flex: 1;
   }
   .stats-value {
@@ -12581,7 +12586,7 @@ a.link {
   }
   .event-timestamp {
     font-weight: 500;
-    color: $dark;
+    color: $text-heading-strong;
     font-size: 0.8rem;
     font-family: 'Courier New', monospace;
   }
@@ -12615,7 +12620,7 @@ a.link {
   .event-tag i {
     margin-right: 0.2rem;
     font-size: 0.7rem;
-    color: $dark;
+    color: $text-heading-strong;
   }
   .event-tag.error-msg {
     background-color: color.mix($warning, $white, 20%);
@@ -12632,7 +12637,7 @@ a.link {
   }
   .event-tag.req-id {
     background-color: $white;
-    color: $dark;
+    color: $text-heading-strong;
     font-family: 'Courier New', monospace;
     font-size: 0.7rem;
     flex: 0 0 auto;
@@ -12721,7 +12726,7 @@ a.link {
   .event-tag.device-type.device-unknown {
     background-color: rgba($dark, 0.1);
     border-color: rgba($dark, 0.2);
-    color: $dark;
+    color: $text-heading-strong;
   }
 }
 

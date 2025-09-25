@@ -13,35 +13,53 @@ $cyan: #17a2b8;
 $white: #fff;
 $gray: #6c757d;
 $gray-dark: #343a40;
-// Paleta original vibrante y atractiva para "La cocina DE MARÍA"
-$primary: #d4a017; // Dorado original
-$secondary: #9e4f3f; // Marrón rojizo original
-$tertiary: #b47c5f; // Marrón claro original
-$quaternary: #eadaba; // Beige claro original
-$success: #28a745; // Verde original
-$info: #17a2b8; // Azul original
-$warning: #ffc107; // Amarillo original
-$danger: #dc3545; // Rojo original
-$light: #fdf3e7; // Crema original
-$dark: #3b3b3b; // Gris oscuro original
+// 🇨🇴 Paleta colombiana inspirada en gastronomía local - "La cocina DE MARÍA"
+$primary: #ffc107; // Maíz dorado vibrante
+$secondary: #4e342e; // Café colombiano oscuro
+$secondary-hover: #6d4c41; // Café colombiano más claro para hover
+$tertiary: #ff5722; // Frutas tropicales (papaya) - para promociones
+$quaternary: #ffb300; // Hover del primary (más oscuro)
+$success: #2e7d32; // Verde esmeralda
+$info: #0288d1; // Azul fresco
+$warning: #fbc02d; // Amarillo intenso
+$danger: #c62828; // Rojo vibrante
+$light: #fafafa; // Fondo claro
+$dark: #212121; // Fondo oscuro (casi negro)
 $black: #000;
-$border-subtle: #e5e7eb; // Bordes sutiles de cards/tablas
-$text-heading-strong: #2d3748; // Títulos
-$text-body: #4a5568; // Texto de contenido
-$text-muted: #6b7280; // Subtítulos/ayudas
+$border-subtle: #e0e0e0; // Bordes sutiles actualizados
+$text-heading-strong: #212121; // Títulos (casi negro)
+$text-body: #424242; // Texto de contenido (gris oscuro)
+$text-muted: #9e9e9e; // Subtítulos/ayudas (gris claro)
 $shadow-soft: rgba(0, 0, 0, 0.08); // Sombra base
 $shadow-hover: rgba(0, 0, 0, 0.12); // Sombra hover
-$glass-bg: rgba(255, 255, 255, 0.72); // Fondo glass
+$glass-bg: rgba(255, 255, 255, 0.8); // Fondo glass (más opaco para mejor contraste)
 $ring-primary-12: rgba($primary, 0.12); // Focus ring dorado suave
 $ring-primary-15: rgba($primary, 0.15); // Variante más visible
 $glow-primary-60: rgba($primary, 0.6); // Borde brillante dorado
+
+// Fondos adicionales para la nueva paleta
+$background-glass: rgba(255, 255, 255, 0.8); // Fondo glass
+$promotion: $tertiary; // Alias para promociones
+$disabled-bg: #e0e0e0; // Fondo para elementos deshabilitados
+$disabled-text: #9e9e9e; // Texto para elementos deshabilitados
+
+// Colores de botones específicos
+$btn-primary-bg: $primary;
+$btn-primary-text: $text-heading-strong; // Texto oscuro sobre fondo amarillo
+$btn-primary-hover: $quaternary;
+$btn-secondary-bg: transparent;
+$btn-secondary-border: $secondary;
+$btn-secondary-text: $secondary;
+$btn-secondary-hover: $secondary-hover;
 $breakpoint-xs: 0;
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 992px;
 $breakpoint-xl: 1200px;
-$font-family-sans-serif: 'Poppins', sans-serif;
-$headings-color: $dark;
+// 🎨 Tipografía colombiana moderna
+$font-family-sans-serif: 'Montserrat', 'Poppins', sans-serif; // Montserrat para UI moderna
+$font-family-display: 'Alegreya Sans', 'Poppins', sans-serif; // Para textos largos/menús
+$headings-color: $text-heading-strong; // Títulos en casi negro
 $enable-responsive-font-sizes: true;
 $font-family-monospace:
   sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
@@ -50,6 +68,46 @@ $border-radius: 5px;
 // Header component variables (migrated from local styles)
 $header-height: 90px;
 $header-glass-blur: 12px;
-$logo-glow: rgba($primary, 0.3);
+$logo-glow: rgba($primary, 0.3); // Dorado actualizado
 $nav-item-padding: 1rem 1.25rem;
 $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// 🌟 Variables adicionales para la nueva identidad colombiana
+$brand-golden: $primary; // Maíz dorado para branding
+$brand-coffee: $secondary; // Café para contraste
+$accent-tropical: $tertiary; // Frutas tropicales para highlights
+
+// Colores adicionales para componentes específicos
+$gray-light: #999; // Gris claro para texto secundario
+$gray-lighter: #f8f9fa; // Fondo muy claro
+$primary-dark: #b8941f; // Primary más oscuro para hover
+$primary-darker: #a67d1a; // Primary aún más oscuro para active
+$text-dark: #2c3e50; // Texto oscuro para contraste sobre fondos claros
+
+// Sombras y efectos específicos
+$shadow-light: rgba(0, 0, 0, 0.04); // Sombra muy sutil
+$shadow-medium: rgba(0, 0, 0, 0.06); // Sombra media
+$shadow-overlay: rgba(0, 0, 0, 0.35); // Overlay oscuro
+$shadow-primary-40: rgba($primary, 0.4); // Sombra dorada para efectos
+$shadow-primary-30: rgba($primary, 0.3); // Sombra dorada más sutil
+$shadow-primary-50: rgba($primary, 0.5); // Sombra dorada más intensa
+$shadow-white-10: rgba(255, 255, 255, 0.1); // Sombra blanca sutil
+$shadow-white-20: rgba(255, 255, 255, 0.2); // Sombra blanca media
+
+// Fondos específicos para barras y overlays
+$background-bar: #f8f9fae6; // Fondo de barra con alpha
+$border-light: rgba(0, 0, 0, 0.06); // Borde muy sutil
+
+// Gradientes predefinidos
+$gradient-primary: linear-gradient(135deg, #{$primary}, #{$primary-dark}); // Gradiente dorado
+$gradient-primary-hover: linear-gradient(
+  135deg,
+  #{$primary-dark},
+  #{$primary-darker}
+); // Gradiente dorado hover
+$gradient-neutral: linear-gradient(135deg, #{$gray-lighter} 0%, #{$white} 100%); // Gradiente neutro
+$gradient-dark-overlay: linear-gradient(
+  135deg,
+  rgba(44, 62, 80, 0.9) 0%,
+  rgba(52, 73, 94, 0.9) 100%
+); // Overlay oscuro
