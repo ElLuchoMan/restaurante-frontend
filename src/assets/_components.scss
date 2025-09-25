@@ -1,0 +1,98 @@
+@forward '_variables';
+@use '_variables' as *;
+
+/* ====== RE-EXPORT DE VARIABLES PARA COMPATIBILIDAD ====== */
+/* Asegurar que todas las variables estén disponibles para archivos que importen este módulo */
+
+/* ====== COMPONENTES ESPECÍFICOS PARA @EXTEND ====== */
+/* Solo las clases que realmente se usan en @extend para reducir bundle size */
+
+/* Glass navbar principal */
+.navbar-glass {
+  background: $white !important;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-radius: 25px;
+  box-shadow:
+    0 20px 60px $shadow-soft,
+    0 8px 16px rgba($primary, 0.1);
+  border: 1px solid rgba($white, 0.2);
+  transition: $transition-smooth;
+}
+
+/* Gradiente de barra superior premium */
+.premium-bar-gradient {
+  background: linear-gradient(135deg, rgba($primary, 0.95) 0%, rgba($secondary, 0.9) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 8px 32px rgba($primary, 0.15);
+}
+
+/* Efecto shimmer para barras */
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba($white, 0.1) 25%,
+      rgba($white, 0.3) 50%,
+      rgba($white, 0.1) 75%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: shimmer 3s infinite;
+    pointer-events: none;
+  }
+}
+
+/* Fondos de sección para diferentes áreas */
+.section-bg-gradient-light {
+  background: linear-gradient(135deg, #faf8f3 0%, $white 100%);
+}
+
+.section-bg-dark {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: $white;
+
+  .section-title,
+  .subtitle {
+    color: $white;
+  }
+}
+
+.section-bg-neutral {
+  background: $gray-lighter;
+}
+
+/* Caption card para carrusel con glassmorphism */
+.caption-card {
+  max-width: 900px;
+  border-radius: 16px;
+  backdrop-filter: blur(8px) saturate(120%);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba($white, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  padding: 2rem;
+  transition: $transition-smooth;
+}
+
+/* ====== ANIMACIONES NECESARIAS ====== */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
