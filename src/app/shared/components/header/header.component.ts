@@ -52,6 +52,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
         cap.getPlatform() !== 'web'
       );
       this.showHeader = !this.isNative;
+
+      // CORREGIR BUG: Limpiar estado visual al inicializar
+      setTimeout(() => {
+        const navbar = document.querySelector('.navbar');
+        navbar?.classList.remove('logging-out');
+      }, 100);
     } else {
       this.isNative = false;
       this.showHeader = true;
@@ -227,6 +233,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.isBrowser) {
       const navbar = document.querySelector('.navbar');
       navbar?.classList.add('logging-out');
+
+      // CORREGIR BUG: Remover la clase después de la animación
+      setTimeout(() => {
+        navbar?.classList.remove('logging-out');
+      }, 200); // Un poco más que la duración de la transición CSS (0.15s)
     }
 
     this.userService.logout();

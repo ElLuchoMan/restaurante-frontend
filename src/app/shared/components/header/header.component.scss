@@ -9,7 +9,7 @@
   i {
     font-size: 1.1rem;
     margin-right: 0.5rem;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 2px 4px $header-shadow-heavy);
     transition: $transition-smooth;
   }
 
@@ -21,7 +21,7 @@
 /* ====== Navbar principal con glassmorphism ====== */
 .nav-bar {
   position: relative;
-  z-index: 9999999 !important;
+  z-index: 1040;
 
   .container-lg {
     position: relative;
@@ -36,14 +36,14 @@
   overflow: visible;
   margin: 0 1rem;
   margin-top: -10px;
-  z-index: 9999999 !important;
+  z-index: 1040;
 
   /* Sobrescribir el borde del navbar-glass con un borde dorado */
-  border: 1px solid rgba($primary, 0.4) !important;
+  border: 1px solid $header-primary-40 !important;
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.08),
-    0 8px 16px rgba($primary, 0.15),
-    0 0 0 1px rgba($primary, 0.1) !important;
+    0 20px 60px $header-shadow-light,
+    0 8px 16px $header-primary-15,
+    0 0 0 1px $header-primary-10 !important;
 }
 
 /* ====== Logo premium con efectos únicos ====== */
@@ -63,7 +63,7 @@
     line-height: 1.1;
     margin: 0;
     white-space: nowrap;
-    filter: drop-shadow(0 2px 8px rgba(212, 160, 23, 0.2));
+    filter: drop-shadow(0 2px 8px $header-primary-20);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -71,14 +71,14 @@
     height: #{$header-height};
 
     .text-secondary {
-      color: #9e4f3f;
+      color: $header-coffee-accent;
       font-weight: 600;
       font-size: 0.85em;
       margin-bottom: -4px;
     }
 
     .fw-bold {
-      color: #d4a017;
+      color: $header-golden;
       font-weight: 800;
       font-size: 1.1em;
     }
@@ -92,7 +92,7 @@
     height: 180px;
     width: auto;
     z-index: 20;
-    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+    filter: drop-shadow(0 8px 16px $header-shadow-dark);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: none;
 
@@ -123,7 +123,7 @@
 
   .nav-link {
     position: relative;
-    color: #2d3748 !important;
+    color: $header-text-primary !important;
     font-weight: 600;
     font-size: 0.95rem;
     letter-spacing: 0.3px;
@@ -138,7 +138,7 @@
       position: absolute;
       inset: 0;
       border-radius: 15px;
-      background: linear-gradient(135deg, rgba(212, 160, 23, 0.1), rgba(158, 79, 63, 0.05));
+      background: $header-gradient-primary-light;
       opacity: 0;
       transition: $transition-smooth;
     }
@@ -151,13 +151,13 @@
       transform: translateX(-50%);
       width: 0;
       height: 2px;
-      background: linear-gradient(90deg, rgba(212, 160, 23, 0.8), rgba(158, 79, 63, 0.8));
+      background: $header-gradient-golden-line;
       border-radius: 1px;
       transition: $transition-smooth;
     }
 
     &:hover {
-      color: #1a202c !important;
+      color: $header-text-hover !important;
       transform: translateY(-2px);
 
       &::before {
@@ -170,12 +170,12 @@
     }
 
     &.active {
-      color: #d4a017 !important;
-      background: rgba(212, 160, 23, 0.1);
+      color: $header-golden !important;
+      background: $header-primary-10;
 
       &::after {
         width: calc(100% - 2rem);
-        background: linear-gradient(90deg, rgba(212, 160, 23, 1), rgba(158, 79, 63, 0.8));
+        background: $header-gradient-golden-active;
       }
     }
   }
@@ -203,8 +203,8 @@
 .nav-link.position-relative {
   .fas.fa-shopping-cart {
     font-size: 1.2rem;
-    color: #d4a017;
-    filter: drop-shadow(0 2px 4px rgba(212, 160, 23, 0.3));
+    color: $header-golden;
+    filter: drop-shadow(0 2px 4px $header-primary-20);
     transition: $transition-smooth;
   }
 
@@ -212,7 +212,7 @@
     position: absolute;
     top: 8px;
     right: 8px;
-    background: linear-gradient(135deg, #dc3545, #c82333);
+    background: $header-gradient-danger;
     color: white;
     font-size: 0.7rem;
     font-weight: 700;
@@ -222,13 +222,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 4px 8px $header-danger-30;
     animation: pulse 2s infinite;
   }
 
   &:hover .fas.fa-shopping-cart {
     transform: scale(1.1);
-    color: #b8900d;
+    color: $header-golden-dark;
   }
 }
 
@@ -238,39 +238,39 @@
   top: 50%;
   left: 1rem;
   transform: translateY(-50%);
-  background: linear-gradient(135deg, rgba(212, 160, 23, 0.1), rgba(158, 79, 63, 0.05));
-  border: 1px solid rgba(212, 160, 23, 0.3);
+  background: $header-gradient-primary-light;
+  border: 1px solid $header-primary-20;
   border-radius: 12px;
   padding: 0.5rem;
   transition: $transition-smooth;
   backdrop-filter: blur(4px);
 
   .hamburger-icon {
-    color: #d4a017;
+    color: $header-golden;
     font-size: 1.2rem;
     transition: $transition-smooth;
   }
 
   &:hover {
-    background: linear-gradient(135deg, rgba(212, 160, 23, 0.2), rgba(158, 79, 63, 0.1));
+    background: $header-gradient-primary-medium;
     transform: translateY(-50%) scale(1.05);
 
     .hamburger-icon {
-      color: #9e4f3f;
+      color: $header-coffee-accent;
     }
   }
 
   &[aria-expanded='true'] .hamburger-icon {
-    color: #9e4f3f;
+    color: $header-coffee-accent;
   }
 }
 
 /* ====== Alertas de conexión elegantes ====== */
 .alert-warning {
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.9), rgba(255, 235, 59, 0.8));
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  background: $header-gradient-warning;
+  border: 1px solid $header-primary-20;
   border-radius: 15px;
-  color: #856404;
+  color: $header-alert-text;
   font-weight: 600;
   backdrop-filter: blur(8px);
   animation: slideDown 0.3s ease-out;
@@ -425,7 +425,7 @@
   /* Eliminar borde dorado del navbar en mobile */
   .navbar {
     border: none !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 20px 60px $header-shadow-medium !important;
   }
 
   .navbar-collapse {
@@ -435,11 +435,11 @@
       top: 69px !important;
       left: 0 !important;
       right: 0 !important;
-      background: rgba(255, 255, 255, 0.95) !important;
+      background: $header-white-95 !important;
       backdrop-filter: blur(12px) !important;
       -webkit-backdrop-filter: blur(12px) !important;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1) !important;
-      z-index: 999998 !important;
+      box-shadow: 0 20px 60px $header-shadow-medium !important;
+      z-index: 1050;
       border-top: none !important;
       padding: 1rem !important;
     }
@@ -457,7 +457,7 @@
         border-radius: 12px;
 
         &:hover {
-          background: rgba(212, 160, 23, 0.1);
+          background: $header-primary-10;
           transform: translateX(8px);
         }
       }
@@ -493,13 +493,13 @@
   right: 0;
   bottom: 0;
   z-index: 1030;
-  background: rgba(248, 249, 250, 0.95);
+  background: $header-gray-light-95;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(212, 160, 23, 0.2);
+  border-top: 1px solid $header-primary-20;
   padding: 0.75rem 1rem;
   padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -10px 30px $header-shadow-medium;
 }
 
 .quick-actions {
@@ -513,34 +513,34 @@
     gap: 0.4rem;
     height: 72px;
     border-radius: 16px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.8));
+    background: $header-gradient-glass-white;
     backdrop-filter: blur(8px);
     box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      0 8px 24px $header-shadow-light,
+      inset 0 1px 0 $header-white-60;
     text-decoration: none;
     color: inherit;
     font-weight: 600;
     font-size: 0.85rem;
     transition: $transition-smooth;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid $header-white-30;
 
     i {
-      color: #d4a017;
+      color: $header-golden;
       font-size: 1.3rem;
-      filter: drop-shadow(0 2px 4px rgba(212, 160, 23, 0.2));
+      filter: drop-shadow(0 2px 4px $header-primary-20);
       transition: $transition-smooth;
     }
 
     &:hover {
       transform: translateY(-4px);
       box-shadow:
-        0 12px 36px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        0 12px 36px $header-shadow-strong,
+        inset 0 1px 0 $header-white-80;
 
       i {
         transform: scale(1.1);
-        color: #9e4f3f;
+        color: $header-coffee-accent;
       }
     }
 
@@ -571,10 +571,10 @@
 .navbar a:focus-visible,
 .navbar .nav-link:focus-visible,
 .navbar-toggler:focus-visible {
-  outline: 2px solid rgba(212, 160, 23, 0.8);
+  outline: 2px solid $header-primary-80;
   outline-offset: 2px;
   border-radius: 12px;
-  box-shadow: 0 0 0 4px rgba(212, 160, 23, 0.2);
+  box-shadow: 0 0 0 4px $header-primary-20;
 }
 
 /* ====== Utilidades de overflow ====== */
@@ -595,12 +595,12 @@
 
 /* ====== FORZAR HEADER SUPREMO - REGLA FINAL ====== */
 :host {
-  z-index: 99999999 !important;
+  z-index: 1040;
 
   .top-bar,
   .nav-bar,
   .navbar {
-    z-index: 99999999 !important;
+    z-index: 1040;
     position: relative !important;
   }
 

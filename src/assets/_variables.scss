@@ -111,3 +111,55 @@ $gradient-dark-overlay: linear-gradient(
   rgba(44, 62, 80, 0.9) 0%,
   rgba(52, 73, 94, 0.9) 100%
 ); // Overlay oscuro
+
+// Header específico - colores identificados en header.component.scss
+$header-text-primary: #2d3748; // Texto principal del navbar
+$header-text-hover: #1a202c; // Texto hover del navbar
+$header-coffee-accent: #9e4f3f; // Café para acentos (hover states)
+$header-golden: #d4a017; // Dorado específico del header (logo, iconos)
+$header-golden-dark: #b8900d; // Dorado oscuro para hover
+$header-alert-text: #856404; // Texto de alertas warning
+$header-danger: #dc3545; // Rojo para badges y errores
+$header-danger-dark: #c82333; // Rojo oscuro para gradientes
+
+// Colores con alpha específicos para el header
+$header-shadow-light: rgba(0, 0, 0, 0.08); // Sombra suave
+$header-shadow-medium: rgba(0, 0, 0, 0.1); // Sombra media
+$header-shadow-strong: rgba(0, 0, 0, 0.12); // Sombra fuerte
+$header-shadow-dark: rgba(0, 0, 0, 0.15); // Sombra muy fuerte
+$header-shadow-heavy: rgba(0, 0, 0, 0.3); // Sombra pesada
+$header-primary-10: rgba($primary, 0.1); // Primary muy suave
+$header-primary-15: rgba($primary, 0.15); // Primary suave
+$header-primary-20: rgba($primary, 0.2); // Primary medio
+$header-primary-40: rgba($primary, 0.4); // Primary fuerte
+$header-primary-80: rgba($primary, 0.8); // Primary muy fuerte
+$header-coffee-05: rgba($header-coffee-accent, 0.05); // Café muy suave
+$header-coffee-10: rgba($header-coffee-accent, 0.1); // Café suave
+$header-white-30: rgba(255, 255, 255, 0.3); // Blanco suave
+$header-white-60: rgba(255, 255, 255, 0.6); // Blanco medio
+$header-white-80: rgba(255, 255, 255, 0.8); // Blanco fuerte
+$header-white-95: rgba(255, 255, 255, 0.95); // Blanco muy fuerte
+$header-gray-light-80: rgba(248, 249, 250, 0.8); // Gris claro con alpha
+$header-gray-light-95: rgba(248, 249, 250, 0.95); // Gris claro fuerte
+$header-danger-30: rgba($header-danger, 0.3); // Rojo suave para sombras
+
+// Gradientes específicos del header
+$header-gradient-primary-light: linear-gradient(135deg, $header-primary-10, $header-coffee-05);
+$header-gradient-primary-medium: linear-gradient(135deg, $header-primary-20, $header-coffee-10);
+$header-gradient-golden-line: linear-gradient(
+  90deg,
+  $header-primary-80,
+  rgba($header-coffee-accent, 0.8)
+);
+$header-gradient-golden-active: linear-gradient(
+  90deg,
+  $header-golden,
+  rgba($header-coffee-accent, 0.8)
+);
+$header-gradient-danger: linear-gradient(135deg, $header-danger, $header-danger-dark);
+$header-gradient-warning: linear-gradient(135deg, rgba($primary, 0.9), rgba(255, 235, 59, 0.8));
+$header-gradient-glass-white: linear-gradient(
+  135deg,
+  rgba(255, 255, 255, 0.9),
+  $header-gray-light-80
+);
