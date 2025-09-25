@@ -112,7 +112,7 @@ describe('shared mocks', () => {
   });
 
   it('restaurante mocks', () => {
-    expect(mockRestaurantesResponse.data[0].nombreRestaurante).toBe('La cocina de María');
+    expect(mockRestaurantesResponse.data[0].nombreRestaurante).toBe('El fogón de María');
     expect(mockRestauranteResponse.data.restauranteId).toBe(1);
     expect(mockCambioHorarioResponse.data.cambioHorarioId).toBe(1);
     expect(mockCambioHorarioAbiertoResponse.data.abierto).toBe(false);

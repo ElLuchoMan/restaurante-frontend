@@ -7,7 +7,7 @@ export const mockRestaurantesResponse: ApiResponse<Restaurante[]> = {
   data: [
     {
       restauranteId: 1,
-      nombreRestaurante: 'La cocina de María',
+      nombreRestaurante: 'El fogón de María',
       horaApertura: '08:00:00',
       diasLaborales: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
     },
@@ -31,7 +31,7 @@ export const mockRestauranteResponse: ApiResponse<Restaurante> = {
   message: 'Restaurante encontrado',
   data: {
     restauranteId: 1,
-    nombreRestaurante: 'La cocina de María',
+    nombreRestaurante: 'El fogón de María',
     horaApertura: '0000-01-01 08:00:00 +0000 UTC',
     diasLaborales: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
   },

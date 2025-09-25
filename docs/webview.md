@@ -10,7 +10,7 @@ Capacitor permite crear proyectos Android/iOS que renderizan tu app web.
 
 ```bash
 npm i -D @capacitor/cli @capacitor/core
-npx cap init cocina.maria.app "La Cocina de María"
+npx cap init cocina.maria.app "El Fogón de María"
 ```
 
 2) Elegir origen de la web en el contenedor
@@ -24,7 +24,7 @@ npx cap init cocina.maria.app "La Cocina de María"
 
     const config: CapacitorConfig = {
       appId: 'cocina.maria.app',
-      appName: 'La Cocina de María',
+      appName: 'El Fogón de María',
       webDir: 'dist/restaurante-frontend/browser'
     };
     export default config;
@@ -38,7 +38,7 @@ npx cap init cocina.maria.app "La Cocina de María"
 
     const config: CapacitorConfig = {
       appId: 'cocina.maria.app',
-      appName: 'La Cocina de María',
+      appName: 'El Fogón de María',
       webDir: 'dist/restaurante-frontend/browser',
       server: {
         url: 'https://TU-SITIO.netlify.app',

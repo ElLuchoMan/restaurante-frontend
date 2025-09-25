@@ -216,7 +216,7 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     if (img) {
       // Cambiar a logo como fallback
       img.src = 'assets/img/logo2.webp';
-      img.alt = 'La cocina DE MARÍA - Logo';
+      img.alt = 'El fogón DE MARÍA - Logo';
       // Añadir clase para estilos específicos del fallback
       img.classList.add('fallback-logo');
     }

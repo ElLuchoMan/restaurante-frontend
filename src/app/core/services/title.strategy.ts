@@ -4,7 +4,7 @@ import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class AppTitleStrategy extends TitleStrategy {
-  private readonly prefix = 'La cocina de María';
+  private readonly prefix = 'El fogón de María';
 
   constructor(private readonly title: Title) {
     super();

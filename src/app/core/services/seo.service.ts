@@ -46,11 +46,11 @@ export class SeoService {
       jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'Menu',
-        name: 'Menú - La cocina de María',
+        name: 'Menú - El fogón de María',
         description: 'Platos tradicionales colombianos y opciones reinventadas',
         provider: {
           '@type': 'Restaurant',
-          name: 'La cocina de María',
+          name: 'El fogón de María',
           address: {
             '@type': 'PostalAddress',
             streetAddress: 'Calle 78a # 62 - 48',
@@ -63,7 +63,7 @@ export class SeoService {
       jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'Place',
-        name: 'La cocina de María - Ubicación',
+        name: 'El fogón de María - Ubicación',
         address: {
           '@type': 'PostalAddress',
           streetAddress: 'Calle 78a # 62 - 48',

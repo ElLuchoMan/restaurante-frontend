@@ -23,7 +23,7 @@ describe('AppTitleStrategy', () => {
   it('setea prefijo cuando no hay título de ruta', () => {
     // buildTitle devolvería undefined => prefijo
     strat.updateTitle(createSnapshot());
-    expect(setTitleSpy).toHaveBeenCalledWith('La cocina de María');
+    expect(setTitleSpy).toHaveBeenCalledWith('El fogón de María');
   });
 
   it('concatena prefijo con título cuando existe', () => {
@@ -31,6 +31,6 @@ describe('AppTitleStrategy', () => {
     const snap: any = createSnapshot();
     jest.spyOn(AppTitleStrategy.prototype as any, 'buildTitle').mockReturnValue('Página X');
     strat.updateTitle(snap);
-    expect(setTitleSpy).toHaveBeenCalledWith('La cocina de María — Página X');
+    expect(setTitleSpy).toHaveBeenCalledWith('El fogón de María — Página X');
   });
 });
