@@ -21,26 +21,8 @@
   width: 100%;
 }
 
-.btn-icon {
-  background: none;
-  border: none;
-  color: var(--quaternary);
-  cursor: pointer;
-  font-size: 1.25rem;
-  line-height: 1;
-  padding: 0.25rem 0.5rem;
-  transition: color 0.2s ease;
-
-  &_plus {
-    @extend .btn-icon;
-
-    color: var(--primary);
-  }
-
-  &:hover {
-    color: var(--secondary);
-  }
-}
+/* Los estilos .btn-icon están disponibles globalmente en _base.scss */
+/* Para el botón plus, usar la clase: btn-icon btn-icon-plus */
 
 .resumen h4 {
   font-weight: bold;
@@ -58,10 +40,7 @@
     max-width: 100vw;
   }
 
-  .btn-icon {
-    font-size: 1rem;
-    padding: 0.2rem 0.4rem;
-  }
+  /* Los estilos responsive de .btn-icon se aplican automáticamente */
 
   .resumen {
     align-items: center;

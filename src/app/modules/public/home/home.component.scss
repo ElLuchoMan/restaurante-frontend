@@ -93,10 +93,7 @@
   line-height: 1.15;
 }
 
-.btn-lg-mobile {
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-}
+/* Usar clases estándar: .btn .btn-primary o .btn .btn-secondary */
 
 /* Los estilos .control-circle están disponibles globalmente en _base.scss */
 
@@ -211,10 +208,7 @@
   .caption-eyebrow {
     font-size: 1.25rem;
   }
-  .btn-lg-mobile {
-    padding: 0.75rem 2.5rem;
-    font-size: 1.125rem;
-  }
+  /* Usar tamaños estándar de Bootstrap: .btn-lg si es necesario */
 }
 
 // Desktop (>= lg): carrusel a pantalla completa
@@ -364,40 +358,7 @@
     opacity: 0.9;
   }
 
-  .cta-buttons {
-    .btn {
-      padding: 0.75rem 2rem;
-      font-weight: 600;
-      border-radius: 50px;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
-
-      &.btn-primary {
-        background: $gradient-primary;
-        border-color: $primary;
-        color: $white;
-
-        &:hover {
-          background: $gradient-primary-hover;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px $shadow-primary-40;
-        }
-      }
-
-      &.btn-secondary {
-        background: transparent;
-        border-color: $white;
-        color: $white;
-
-        &:hover {
-          background: $white;
-          color: $text-dark;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px $shadow-white-20;
-        }
-      }
-    }
-  }
+  /* Usar clases estándar: .btn .btn-primary y .btn .btn-secondary */
 }
 
 /* La animación pulse está disponible globalmente desde _base.scss */
@@ -416,11 +377,7 @@
     font-size: 2rem;
   }
 
-  .home-cta .btn {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
+  /* Para full-width en mobile usar: .d-block .w-100 .d-md-inline-block .w-md-auto */
 }
 
 // Estilos para logo fallback cuando las imágenes no cargan

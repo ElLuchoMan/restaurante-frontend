@@ -22,11 +22,9 @@
     width: auto;
     object-fit: contain;
   }
-  .btn-link {
-    color: inherit;
-    i {
-      font-size: 18px;
-    }
+  /* Los estilos .btn-link.btn-link-neutral están disponibles globalmente en _base.scss */
+  .btn-link i {
+    font-size: 18px;
   }
   .badge.cart-badge.topbar {
     position: absolute;

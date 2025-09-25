@@ -130,12 +130,4 @@
   justify-content: flex-end;
 }
 
-.btn-link {
-  color: var(--primary);
-  font-weight: 600;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
+/* Los estilos .btn-link están disponibles globalmente en _base.scss */
