@@ -1,15 +1,10 @@
 @use '../../../../assets/styles.scss' as *;
 
-/* Los estilos de .section-title ahora están estandarizados en _base.scss */
-
-// Evita flash blanco entre slides forzando crossfade
+// ====== HERO CAROUSEL ======
 .home-hero {
-  margin-bottom: 0; // eliminar gap extra debajo del héroe
+  margin-bottom: 0;
   padding-bottom: 0;
 }
-
-// Topbar del home eliminada - en navegadores web siempre existe header principal
-// En webview se usa native-topbar global
 
 #header-carousel {
   .carousel-item {
@@ -23,33 +18,32 @@
       position: relative;
       opacity: 1;
     }
-  }
 
-  // Fix para NgOptimizedImage - mantener aspect ratio natural
-  .carousel-item img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    max-width: 100%;
-    display: block;
-  }
+    img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      max-width: 100%;
+      display: block;
+    }
 
-  // Específico para imágenes con ngSrc (NgOptimizedImage)
-  .carousel-item img[ngSrc] {
-    width: 100% !important;
-    height: auto !important;
-    object-fit: cover !important;
-    max-width: 100% !important;
-    // Mantener aspect ratio natural de la imagen
-    aspect-ratio: 1200 / 686 !important; // ratio de las imágenes del carousel
+    // NgOptimizedImage específico
+    img[ngSrc] {
+      width: 100% !important;
+      height: auto !important;
+      object-fit: cover !important;
+      max-width: 100% !important;
+      aspect-ratio: 1200 / 686 !important;
+    }
   }
 }
 
 .carousel-caption {
-  // Quita overlay global heredado de assets para evitar doble fondo
   background: transparent !important;
-  inset: 0; // mantener área completa para centrar contenido correctamente
+  inset: 0;
 }
+
+// Overlay para WebView nativo
 .is-native .home-hero::after {
   content: '';
   position: absolute;
@@ -61,14 +55,12 @@
   pointer-events: none;
 }
 
-// Clase img-responsive compatible con NgOptimizedImage
 .img-responsive {
   width: 100%;
   height: auto;
   max-width: 100%;
   object-fit: cover;
 
-  // En desktop (web), permitir que las imágenes del carrusel ocupen toda la pantalla
   @media (min-width: 992px) {
     #header-carousel & {
       height: 100vh;
@@ -76,8 +68,7 @@
   }
 }
 
-/* Los estilos .caption-card están disponibles globalmente en _base.scss */
-
+// ====== CAPTION STYLES ======
 .caption-eyebrow {
   color: $white;
   text-transform: uppercase;
@@ -93,13 +84,8 @@
   line-height: 1.15;
 }
 
-/* Usar clases estándar: .btn .btn-primary o .btn .btn-secondary */
-
-/* Los estilos .control-circle están disponibles globalmente en _base.scss */
-
-// Sección About
+// ====== SECCIONES PRINCIPALES ======
 .home-about {
-  // Por defecto (desktop/tablet): respetar diseño previo
   .about-image {
     min-height: 400px;
     height: 100%;
@@ -117,200 +103,16 @@
   }
 }
 
-// Ajustes específicos para pantallas pequeñas
-@media (max-width: 576px) {
-  // Héroe más compacto y legible
-  #header-carousel {
-    // Limitar altura del contenedor en móvil para mejor UX
-    max-height: 50vh;
-    overflow: hidden;
-
-    .carousel-item img {
-      width: 100%;
-      height: auto;
-      min-height: 250px;
-      object-fit: cover;
-    }
-
-    // NgOptimizedImage: mantener aspect ratio mientras se adapta al contenedor
-    .carousel-item img[ngSrc] {
-      width: 100% !important;
-      height: auto !important;
-      min-height: 250px !important;
-      object-fit: cover !important;
-      object-position: center !important;
-    }
-
-    .carousel-caption {
-      bottom: 0.75rem;
-    }
-  }
-
-  // Ocultar flechas en mobile (deslizable por touch)
-  .carousel-control-prev,
-  .carousel-control-next {
-    display: none;
-  }
-
-  #header-carousel .carousel-caption {
-    padding-bottom: 1.5rem;
-  }
-
-  /* Ajuste responsivo del .control-circle ya está en _base.scss */
-
-  .home-about {
-    padding-top: 1rem !important;
-    .container {
-      padding-top: 0.5rem !important;
-      padding-bottom: 0.5rem !important;
-    }
-    .section-title {
-      font-size: clamp(1.4rem, 4.8vw, 2.2rem);
-      margin-bottom: 1.1rem !important;
-      .subtitle {
-        display: inline-block;
-        font-weight: 600;
-        font-size: clamp(1rem, 3.8vw, 1.25rem);
-      }
-    }
-    .about-image {
-      min-height: 260px;
-    }
-    // reducir padding vertical en los bloques
-    [class*='py-4'] {
-      padding-top: 1rem !important;
-      padding-bottom: 1rem !important;
-    }
-    // reducir separación del grid
-    .g-4 {
-      gap: 1rem !important;
-    }
-    // Asegurar centrado del botón en mobile y desktop
-    .btn.btn-primary.mx-auto,
-    .btn.btn-primary.d-block.mx-auto,
-    .btn.btn-primary.btn-sm.d-block.mx-auto {
-      display: block;
-      width: max-content;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: center;
-    }
-  }
-}
-
-// Restituir medidas de desktop (>= md) al estilo original
-@media (min-width: 768px) {
-  .caption-title {
-    // Aproxima a Bootstrap .display-3
-    font-size: 4.5rem;
-    line-height: 1.2;
-  }
-  .caption-eyebrow {
-    font-size: 1.25rem;
-  }
-  /* Usar tamaños estándar de Bootstrap: .btn-lg si es necesario */
-}
-
-// Desktop (>= lg): carrusel a pantalla completa
-@media (min-width: 992px) {
-  #header-carousel {
-    // Ocupar todo el alto de pantalla disponible en desktop
-    height: 100vh;
-    overflow: hidden;
-
-    .carousel-item img {
-      width: 100%;
-      height: 100vh;
-      object-fit: cover;
-    }
-
-    // NgOptimizedImage: mantener aspect ratio mientras ocupa toda la pantalla
-    .carousel-item img[ngSrc] {
-      width: 100% !important;
-      height: 100vh !important;
-      object-fit: cover !important;
-      object-position: center !important;
-    }
-
-    .carousel-caption {
-      bottom: 2rem;
-    }
-  }
-}
-// En desktop evitamos blur para mayor nitidez
-.bg-text.caption-card {
-  @media (min-width: 992px) {
-    backdrop-filter: none;
-  }
-}
-
-// Acciones rápidas
-.quick-actions {
-  margin-top: 0.75rem;
-  margin-bottom: 1.25rem;
-  .qa-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    height: 60px; // barra más baja
-    border-radius: 12px;
-    background: $white;
-    box-shadow: 0 2px 8px $shadow-medium;
-    text-decoration: none;
-    color: inherit;
-    font-weight: 600;
-    i {
-      color: var(--bs-secondary, #{$primary});
-      font-size: 1.1rem;
-    }
-  }
-
-  @media (min-width: 768px) {
-    // menos prominente en desktop
-    .qa-item {
-      height: 64px;
-    }
-  }
-}
-
-// Barra fija inferior (solo mobile)
-.quick-actions-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1030; // sobre el contenido pero bajo offcanvas/menus
-  background: $background-bar;
-  border-top: 1px solid $border-light;
-  backdrop-filter: blur(4px);
-  padding-top: 0.4rem;
-  padding-bottom: max(env(safe-area-inset-bottom), 0.55rem);
-  transition:
-    transform 0.2s ease-in-out,
-    opacity 0.2s ease-in-out;
-  &.qa-hidden {
-    transform: translateY(100%);
-    opacity: 0;
-    pointer-events: none;
-  }
-}
-
-// Sección de estadísticas (solo webview)
+// Secciones con solo @extend
 .home-stats {
   @extend .section-bg-gradient-light;
   border-top: 1px solid $shadow-light;
   border-bottom: 1px solid $shadow-light;
-
-  /* Los estilos .stat-card están disponibles globalmente en _base.scss */
 }
 
-// Sección de Ofertas Especiales
 .home-offers {
   @extend .section-bg-gradient-light;
 
-  /* Los estilos .offer-card y .offer-badge ahora están disponibles globalmente en _base.scss */
   .offer-price {
     margin-bottom: 1rem;
 
@@ -329,21 +131,14 @@
   }
 }
 
-// Galería de Platos
 .home-gallery {
   @extend .section-bg-neutral;
-
-  /* Los estilos .gallery-item están disponibles globalmente en _base.scss */
 }
 
-// Testimonios
 .home-testimonials {
   @extend .section-bg-dark;
-
-  /* Los estilos .testimonial-card están disponibles globalmente en _base.scss */
 }
 
-// Call to Action
 .home-cta {
   @extend .section-bg-dark;
 
@@ -357,13 +152,176 @@
     font-size: 1.2rem;
     opacity: 0.9;
   }
-
-  /* Usar clases estándar: .btn .btn-primary y .btn .btn-secondary */
 }
 
-/* La animación pulse está disponible globalmente desde _base.scss */
+// ====== QUICK ACTIONS (MOBILE) ======
+.quick-actions {
+  margin-top: 0.75rem;
+  margin-bottom: 1.25rem;
 
-// Responsive adjustments
+  .qa-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    height: 60px;
+    border-radius: 12px;
+    background: $white;
+    box-shadow: 0 2px 8px $shadow-medium;
+    text-decoration: none;
+    color: inherit;
+    font-weight: 600;
+
+    i {
+      color: var(--bs-secondary, #{$primary});
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .qa-item {
+      height: 64px;
+    }
+  }
+}
+
+.quick-actions-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1030;
+  background: $background-bar;
+  border-top: 1px solid $border-light;
+  backdrop-filter: blur(4px);
+  padding-top: 0.4rem;
+  padding-bottom: max(env(safe-area-inset-bottom), 0.55rem);
+  transition:
+    transform 0.2s ease-in-out,
+    opacity 0.2s ease-in-out;
+
+  &.qa-hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+// ====== FALLBACK LOGO ======
+.fallback-logo {
+  object-fit: contain !important;
+  background: $gradient-neutral;
+  padding: 2rem;
+  border: 2px dashed $shadow-primary-30;
+  border-radius: 8px;
+
+  .carousel-item & {
+    background: $gradient-dark-overlay;
+    padding: 4rem 2rem;
+  }
+
+  .offer-image &,
+  .gallery-item & {
+    background: $gradient-neutral;
+    padding: 2rem;
+  }
+
+  .testimonial-author & {
+    background: $shadow-white-10;
+    border: 2px solid $shadow-primary-50;
+    border-radius: 50%;
+    padding: 0.5rem;
+  }
+}
+
+// ====== RESPONSIVE DESIGN ======
+@media (max-width: 576px) {
+  #header-carousel {
+    max-height: 50vh;
+    overflow: hidden;
+
+    .carousel-item img {
+      width: 100%;
+      height: auto;
+      min-height: 250px;
+      object-fit: cover;
+    }
+
+    .carousel-item img[ngSrc] {
+      width: 100% !important;
+      height: auto !important;
+      min-height: 250px !important;
+      object-fit: cover !important;
+      object-position: center !important;
+    }
+
+    .carousel-caption {
+      bottom: 0.75rem;
+      padding-bottom: 1.5rem;
+    }
+  }
+
+  .carousel-control-prev,
+  .carousel-control-next {
+    display: none;
+  }
+
+  .home-about {
+    padding-top: 1rem !important;
+
+    .container {
+      padding-top: 0.5rem !important;
+      padding-bottom: 0.5rem !important;
+    }
+
+    .section-title {
+      font-size: clamp(1.4rem, 4.8vw, 2.2rem);
+      margin-bottom: 1.1rem !important;
+
+      .subtitle {
+        display: inline-block;
+        font-weight: 600;
+        font-size: clamp(1rem, 3.8vw, 1.25rem);
+      }
+    }
+
+    .about-image {
+      min-height: 260px;
+    }
+
+    [class*='py-4'] {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
+    }
+
+    .g-4 {
+      gap: 1rem !important;
+    }
+
+    .btn.btn-primary.mx-auto,
+    .btn.btn-primary.d-block.mx-auto,
+    .btn.btn-primary.btn-sm.d-block.mx-auto {
+      display: block;
+      width: max-content;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .caption-title {
+    font-size: 4.5rem;
+    line-height: 1.2;
+  }
+
+  .caption-eyebrow {
+    font-size: 1.25rem;
+  }
+}
+
 @media (max-width: 768px) {
   .home-offers .offer-card {
     margin-bottom: 1.5rem;
@@ -376,38 +334,32 @@
   .home-cta .cta-title {
     font-size: 2rem;
   }
-
-  /* Para full-width en mobile usar: .d-block .w-100 .d-md-inline-block .w-md-auto */
 }
 
-// Estilos para logo fallback cuando las imágenes no cargan
-.fallback-logo {
-  object-fit: contain !important;
-  background: $gradient-neutral;
-  padding: 2rem;
-  border: 2px dashed $shadow-primary-30;
-  border-radius: 8px;
+@media (min-width: 992px) {
+  #header-carousel {
+    height: 100vh;
+    overflow: hidden;
 
-  // Para carrusel
-  .carousel-item & {
-    background: $gradient-dark-overlay;
-    padding: 4rem 2rem;
+    .carousel-item img {
+      width: 100%;
+      height: 100vh;
+      object-fit: cover;
+    }
+
+    .carousel-item img[ngSrc] {
+      width: 100% !important;
+      height: 100vh !important;
+      object-fit: cover !important;
+      object-position: center !important;
+    }
+
+    .carousel-caption {
+      bottom: 2rem;
+    }
   }
 
-  // Para ofertas y galería
-  .offer-image &,
-  .gallery-item & {
-    background: $gradient-neutral;
-    padding: 2rem;
-  }
-
-  // Para testimonios (avatares)
-  .testimonial-author & {
-    background: $shadow-white-10;
-    border: 2px solid $shadow-primary-50;
-    border-radius: 50%;
-    padding: 0.5rem;
+  .bg-text.caption-card {
+    backdrop-filter: none;
   }
 }
-
-// espaciador eliminado (se maneja con IntersectionObserver)
