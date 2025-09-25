@@ -5695,7 +5695,7 @@ input {
 }
 
 .subtitle {
-  color: $text-muted;
+  color: $text-dark; // Mejor contraste sobre fondo blanco
   margin: 0;
 }
 
@@ -13076,13 +13076,19 @@ a.link {
   text-transform: uppercase;
   z-index: 2;
 
+  /* Fondo por defecto para "¡NUEVO!" */
+  background: linear-gradient(135deg, $success, #219a52);
+  box-shadow: 0 2px 8px rgba($success, 0.3);
+
   &.hot {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     animation: pulse 2s infinite;
+    box-shadow: 0 2px 8px rgba(#e74c3c, 0.3);
   }
 
   &.weekend {
     background: linear-gradient(135deg, $primary, #b8941f);
+    box-shadow: 0 2px 8px rgba($primary, 0.3);
   }
 }
 

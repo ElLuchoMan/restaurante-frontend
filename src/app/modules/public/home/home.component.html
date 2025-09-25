@@ -1,115 +1,35 @@
-<!-- La topbar del home se eliminó porque en navegadores web siempre existe el header principal -->
-<!-- En webview se usa la native-topbar global, por eso no necesitamos topbar aquí -->
-
-<div class="container-fluid p-0 home-hero" aria-label="Promociones destacadas">
-  <div
-    id="header-carousel"
-    class="carousel slide carousel-fade"
-    data-bs-ride="carousel"
-    data-bs-interval="5000"
-    data-bs-pause="false"
-    data-bs-wrap="true"
-  >
-    <div class="carousel-inner" role="listbox">
-      <div
-        class="carousel-item active"
-        role="group"
-        aria-roledescription="slide"
-        aria-label="1 de 3"
-      >
-        <img
-          class="w-100 img-responsive"
-          ngSrc="assets/img/carousel-1-1200.webp"
-          rawSrcset="assets/img/carousel-1-768.webp 768w, assets/img/carousel-1-1200.webp 1200w"
-          sizes="100vw"
-          alt="Carrusel 1"
-          priority
-          width="1200"
-          height="686"
-          (error)="onImageError($event)"
-        />
-        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-          <div class="p-3 bg-text caption-card">
-            <h2 class="caption-eyebrow mb-2">Tradición Colombiana reinventada</h2>
-            <p class="caption-title mb-3">Un bocado de innovación</p>
-            <a routerLink="/menu" class="btn btn-primary btn-lg-mobile mt-1" aria-label="Ver menú"
-              >Ver Menú</a
-            >
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item" role="group" aria-roledescription="slide" aria-label="2 de 3">
-        <img
-          class="w-100 img-responsive"
-          ngSrc="assets/img/carousel-2-1200.webp"
-          rawSrcset="assets/img/carousel-2-768.webp 768w, assets/img/carousel-2-1200.webp 1200w"
-          sizes="100vw"
-          alt="Carrusel 2"
-          loading="lazy"
-          decoding="async"
-          width="1200"
-          height="686"
-          (error)="onImageError($event)"
-        />
-        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-          <div class="p-3 bg-text caption-card">
-            <h2 class="caption-eyebrow mb-2">Sabores auténticos</h2>
-            <p class="caption-title mb-3">Lo mejor de nuestra tierra</p>
-            <a routerLink="/menu" class="btn btn-primary btn-lg-mobile mt-1" aria-label="Ver menú"
-              >Ver Menú</a
-            >
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item" role="group" aria-roledescription="slide" aria-label="3 de 3">
-        <img
-          class="w-100 img-responsive"
-          ngSrc="assets/img/carousel-3-1200.webp"
-          rawSrcset="assets/img/carousel-3-768.webp 768w, assets/img/carousel-3-1200.webp 1200w"
-          sizes="100vw"
-          alt="Carrusel 3"
-          loading="lazy"
-          decoding="async"
-          width="1200"
-          height="686"
-          (error)="onImageError($event)"
-        />
-        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-          <div class="p-3 bg-text caption-card">
-            <h2 class="caption-eyebrow mb-2">Para los más arriesgados</h2>
-            <p class="caption-title mb-3">Descubre sabores únicos</p>
-            <a routerLink="/menu" class="btn btn-primary btn-lg-mobile mt-1" aria-label="Ver menú"
-              >Ver Menú</a
-            >
-          </div>
-        </div>
+<!-- Hero simplificado - 1 slide potente en lugar de carrusel repetitivo -->
+<div class="container-fluid p-0 home-hero" aria-label="Bienvenida a El fogón DE MARÍA">
+  <div class="hero-single position-relative">
+    <img
+      class="img-responsive"
+      ngSrc="assets/img/carousel-1-1200.webp"
+      rawSrcset="assets/img/carousel-1-768.webp 768w, assets/img/carousel-1-1200.webp 1200w"
+      sizes="100vw"
+      alt="El fogón DE MARÍA - Restaurante colombiano"
+      priority
+      fill
+      (error)="onImageError($event)"
+    />
+    <div
+      class="hero-caption d-flex flex-column align-items-center justify-content-center position-absolute top-0 start-0 w-100 h-100"
+    >
+      <div class="p-3 bg-text caption-card text-center">
+        <h1 class="caption-eyebrow mb-2">El fogón DE MARÍA</h1>
+        <p class="caption-title mb-3">Tradición colombiana reinventada</p>
+        <a
+          routerLink="/menu"
+          class="btn btn-primary btn-lg mt-1"
+          aria-label="Descubrir nuestro menú"
+          >Descubrir Menú</a
+        >
       </div>
     </div>
-    <a
-      class="carousel-control-prev"
-      href="#header-carousel"
-      data-bs-slide="prev"
-      aria-label="Anterior"
-    >
-      <div class="btn btn-secondary px-0 control-circle">
-        <span class="carousel-control-prev-icon mb-n1"></span>
-      </div>
-    </a>
-    <a
-      class="carousel-control-next"
-      href="#header-carousel"
-      data-bs-slide="next"
-      aria-label="Siguiente"
-    >
-      <div class="btn btn-secondary px-0 control-circle">
-        <span class="carousel-control-next-icon mb-n1"></span>
-      </div>
-    </a>
   </div>
 </div>
 
-<!-- Sección de estadísticas destacadas -->
-<div class="container-fluid py-4 home-stats" *ngIf="isWebView">
+<!-- Sección de estadísticas destacadas - Ahora visible siempre para credibilidad -->
+<div class="container-fluid py-4 home-stats">
   <div class="container">
     <div class="row g-3">
       <div class="col-6 col-md-3">
@@ -177,11 +97,11 @@
           <div class="offer-content">
             <h3>Combo Tradicional</h3>
             <p>Bandeja paisa + bebida + postre</p>
-            <div class="offer-price">
+            <div class="price-display">
               <span class="old-price">$35.000</span>
               <span class="new-price">$28.000</span>
             </div>
-            <a routerLink="/menu" class="btn btn-primary btn-sm">Ver Menú</a>
+            <a routerLink="/menu" class="btn btn-primary btn-sm">Pedir Ahora</a>
           </div>
         </div>
       </div>
@@ -199,10 +119,10 @@
           <div class="offer-content">
             <h3>2x1 en Bebidas</h3>
             <p>Válido en jugos naturales y gaseosas</p>
-            <div class="offer-price">
+            <div class="price-display">
               <span class="new-price">Desde $8.000</span>
             </div>
-            <a routerLink="/menu" class="btn btn-secondary btn-sm">Aprovechar</a>
+            <a routerLink="/menu" class="btn btn-secondary btn-sm">Aprovechar Oferta</a>
           </div>
         </div>
       </div>
@@ -220,10 +140,10 @@
           <div class="offer-content">
             <h3>Brunch Especial</h3>
             <p>Desayuno + almuerzo fusión</p>
-            <div class="offer-price">
+            <div class="price-display">
               <span class="new-price">$22.000</span>
             </div>
-            <a routerLink="/menu" class="btn btn-primary btn-sm">Descubrir</a>
+            <a routerLink="/menu" class="btn btn-primary btn-sm">Probar Brunch</a>
           </div>
         </div>
       </div>
@@ -242,22 +162,28 @@
       </div>
     </div>
     <div class="row align-items-stretch g-4">
-      <div class="col-12 col-md-6 col-lg-4 py-4 text-center text-md-start">
-        <h3 class="font-weight-bold mb-2">Acerca de nosotros</h3>
-        <p class="text-muted lead-sm mb-3">Tradición y creatividad en un bocado</p>
-        <p>
-          Celebramos la riqueza de la gastronomía colombiana reinventando platos tradicionales con
-          un toque innovador, sin dejar atrás las opciones clásicas que todos aman. Desde
-          hamburguesas con arepas hasta tacos y burritos con sabores locales, ofrecemos una
-          experiencia única que combina tradición y creatividad, diseñada para sorprender y deleitar
-          a todos nuestros comensales.
+      <div class="col-12 col-md-6 col-lg-4 py-4">
+        <h3 class="font-weight-bold mb-3">El fogón DE MARÍA</h3>
+        <p class="text-muted lead-sm mb-3">Tradición colombiana reinventada</p>
+        <p class="mb-3">
+          Celebramos la riqueza de nuestra gastronomía reinventando platos tradicionales con un
+          toque innovador, sin olvidar los clásicos que todos aman.
         </p>
-        <a
-          routerLink="/nosotros"
-          class="btn btn-secondary mt-2"
-          aria-label="Leer más sobre nosotros"
-          >Leer Más</a
-        >
+        <div class="feature-highlights">
+          <p class="text-muted mb-2 feature-item">
+            <i class="fa fa-utensils text-secondary me-3"></i
+            ><strong>Platos únicos:</strong> Hamburguesas con arepa, tacos costeños
+          </p>
+          <p class="text-muted mb-2 feature-item">
+            <i class="fa fa-leaf text-secondary me-3"></i
+            ><strong>Ingredientes frescos:</strong> Productos locales de calidad
+          </p>
+          <p class="text-muted mb-3 feature-item">
+            <i class="fa fa-heart text-secondary me-3"></i
+            ><strong>Experiencia única:</strong> Tradición + innovación en cada bocado
+          </p>
+        </div>
+        <!-- Botón "Leer Más" eliminado para reducir CTAs y evitar competencia -->
       </div>
       <div class="col-12 col-md-6 col-lg-4">
         <div class="position-relative about-image rounded overflow-hidden">
@@ -276,27 +202,31 @@
       </div>
 
       <div class="col-12 col-lg-4 py-4">
-        <h3 class="font-weight-bold mb-3 text-center text-lg-start">Lo que nos hace únicos</h3>
-        <p>
-          En nuestro restaurante, tradición e innovación se unen para ofrecer sabores únicos.
-          Disfruta de opciones tradicionales y platos reinventados que resaltan lo mejor de la
+        <h3 class="font-weight-bold mb-3">¿Por qué elegirnos?</h3>
+        <p class="mb-4">
+          Tradición e innovación se unen para crear sabores únicos que resaltan lo mejor de la
           gastronomía colombiana.
         </p>
-        <p class="text-muted mb-2 feature-item">
-          <i class="fa fa-check text-secondary mr-3"></i>Platos internacionales reinventandos
-        </p>
-        <p class="text-muted mb-2 feature-item">
-          <i class="fa fa-check text-secondary mr-3"></i>Ingredientes locales y frescos
-        </p>
-        <p class="text-muted mb-3 feature-item">
-          <i class="fa fa-check text-secondary mr-3"></i>Experiencia gastronómica única y auténtica
-        </p>
+        <div class="why-choose-us">
+          <p class="text-muted mb-3 feature-item">
+            <i class="fa fa-medal text-secondary me-3"></i
+            ><strong>Calidad garantizada:</strong> 4.8★ de calificación
+          </p>
+          <p class="text-muted mb-3 feature-item">
+            <i class="fa fa-clock text-secondary me-3"></i><strong>Entrega rápida:</strong> 25min
+            promedio
+          </p>
+          <p class="text-muted mb-4 feature-item">
+            <i class="fa fa-users text-secondary me-3"></i><strong>Confianza:</strong> +1000
+            clientes satisfechos
+          </p>
+        </div>
         <div class="text-center">
           <a
             routerLink="/menu"
             class="btn btn-primary mt-2 d-inline-block"
-            aria-label="Descubrir más del menú"
-            >Descubre Más</a
+            aria-label="Explorar nuestro menú innovador"
+            >Explorar Menú</a
           >
         </div>
       </div>
@@ -501,8 +431,8 @@
   </div>
 </div>
 
-<!-- Acciones rápidas: solo mobile web (invitados). En webview ya existe global -->
-<div class="quick-actions-bar d-md-none" *ngIf="(isLoggedOut$ | async) && !isWebView">
+<!-- Acciones rápidas: mobile web para todos los usuarios. En webview ya existe global -->
+<div class="quick-actions-bar d-md-none" *ngIf="!isWebView">
   <nav class="container quick-actions" aria-label="Acciones rápidas">
     <div class="row g-3">
       <div class="col-3">
@@ -523,12 +453,20 @@
           <span>Ubicación</span>
         </a>
       </div>
-      <div class="col-3">
+      <div class="col-3" *ngIf="isLoggedOut$ | async; else profileLink">
         <a routerLink="/login" class="qa-item" aria-label="Iniciar sesión">
           <i class="fa fa-sign-in-alt" aria-hidden="true"></i>
           <span>Login</span>
         </a>
       </div>
+      <ng-template #profileLink>
+        <div class="col-3">
+          <a routerLink="/client/profile" class="qa-item" aria-label="Mi perfil">
+            <i class="fa fa-user" aria-hidden="true"></i>
+            <span>Perfil</span>
+          </a>
+        </div>
+      </ng-template>
     </div>
   </nav>
 </div>

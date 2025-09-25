@@ -1,44 +1,55 @@
 @use '../../../../assets/_components.scss' as *;
 
-// ====== HERO CAROUSEL ======
+// ====== HERO SIMPLIFICADO ======
 .home-hero {
-  margin-bottom: 0;
-  padding-bottom: 0;
+  // FORZAR pegado al header - INCREMENTADO
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-top: -35px !important; // MÁS AGRESIVO
+
+  // POSITION para forzar ubicación - INCREMENTADO
+  position: relative !important;
+  top: -20px !important; // MÁS FUERZA
+  z-index: 1;
+
+  // TRANSFORM adicional - INCREMENTADO
+  transform: translateY(-15px) !important;
 }
 
-#header-carousel {
-  .carousel-item {
-    transition: opacity 0.8s ease-in-out;
-    display: block;
-    position: absolute;
-    inset: 0;
-    opacity: 0;
+// FORZAR container-fluid sin espacios - INCREMENTADO
+.home-hero.container-fluid {
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-top: -40px !important; // MÁS AGRESIVO AÚN
+  position: relative !important;
+  top: -25px !important; // MÁS FUERZA
+}
 
-    &.active {
-      position: relative;
-      opacity: 1;
-    }
+.hero-single {
+  // FORZAR hero-single pegado - INCREMENTADO
+  position: relative !important;
+  width: 100% !important;
+  height: 96dvh !important; // Altura completa del viewport
+  margin: 0 !important;
+  margin-top: -25px !important; // MÁS FUERZA
+  padding: 0 !important;
+  top: -20px !important; // MÁS FUERZA
+  overflow: hidden !important;
 
-    img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-      max-width: 100%;
-      display: block;
-    }
+  img {
+    // Con fill, la imagen se posiciona absolutamente
+    object-fit: cover !important;
+    object-position: center !important;
+  }
 
-    // NgOptimizedImage específico
-    img[ngSrc] {
-      width: 100% !important;
-      height: auto !important;
-      object-fit: cover !important;
-      max-width: 100% !important;
-      aspect-ratio: 1200 / 686 !important;
-    }
+  // NgOptimizedImage con fill
+  img[ngSrc] {
+    object-fit: cover !important;
+    object-position: center !important;
   }
 }
 
-.carousel-caption {
+.hero-caption {
   background: transparent !important;
   inset: 0;
 }
@@ -81,14 +92,11 @@
 
 // Secciones con solo @extend
 .home-stats {
-  @extend .section-bg-gradient-light;
-  border-top: 1px solid $shadow-light;
-  border-bottom: 1px solid $shadow-light;
+  // Sin fondo - cards flotantes como en login
 }
 
 .home-offers {
-  @extend .section-bg-gradient-light;
-
+  // Sin fondo - cards flotantes como en login
   // Los estilos .price-display (con .old-price y .new-price) ahora están globales en _base.scss
 }
 
@@ -129,18 +137,18 @@
 
 // ====== RESPONSIVE DESIGN ======
 @media (max-width: 576px) {
-  #header-carousel {
+  .hero-single {
     max-height: 50vh;
     overflow: hidden;
 
-    .carousel-item img {
+    img {
       width: 100%;
       height: auto;
       min-height: 250px;
       object-fit: cover;
     }
 
-    .carousel-item img[ngSrc] {
+    img[ngSrc] {
       width: 100% !important;
       height: auto !important;
       min-height: 250px !important;
@@ -148,15 +156,10 @@
       object-position: center !important;
     }
 
-    .carousel-caption {
+    .hero-caption {
       bottom: 0.75rem;
       padding-bottom: 1.5rem;
     }
-  }
-
-  .carousel-control-prev,
-  .carousel-control-next {
-    display: none;
   }
 
   .home-about {
@@ -222,24 +225,24 @@
 }
 
 @media (min-width: 992px) {
-  #header-carousel {
+  .hero-single {
     height: 100vh;
     overflow: hidden;
 
-    .carousel-item img {
+    img {
       width: 100%;
       height: 100vh;
       object-fit: cover;
     }
 
-    .carousel-item img[ngSrc] {
+    img[ngSrc] {
       width: 100% !important;
       height: 100vh !important;
       object-fit: cover !important;
       object-position: center !important;
     }
 
-    .carousel-caption {
+    .hero-caption {
       bottom: 2rem;
     }
   }

@@ -5,7 +5,6 @@ import {
   ChangeDetectorRef,
   Component,
   Inject,
-  makeStateKey,
   OnDestroy,
   OnInit,
   PLATFORM_ID,
@@ -20,7 +19,7 @@ import { UserService } from '../../../core/services/user.service';
 import { ProductoVendido } from '../../../shared/models/telemetry.model';
 import { clearBlobUrlCache, getSafeImageSrc } from '../../../shared/utils/image.utils';
 
-const HOME_STATE = makeStateKey<string>('home_bootstrap');
+// HOME_STATE ya no necesario - hero simplificado sin carrusel
 
 @Component({
   selector: 'app-home',
@@ -91,31 +90,7 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    // Marcar que el carrusel ya fue inicializado en SSR y evitar doble trabajo en hidratación
-    if (!this.ts.hasKey(HOME_STATE)) {
-      this.ts.set(HOME_STATE, 'init');
-    } else {
-      return;
-    }
-    const el = document.getElementById('header-carousel');
-    if (!el) return;
-    const Bootstrap = (
-      window as unknown as {
-        bootstrap?: { Carousel?: new (...args: unknown[]) => { cycle: () => void } };
-      }
-    ).bootstrap;
-    const Carousel = Bootstrap?.Carousel;
-    if (Carousel) {
-      const instance = new Carousel(el, {
-        interval: 5000,
-        ride: true,
-        pause: false,
-        wrap: true,
-        touch: true,
-      });
-      setTimeout(() => instance.cycle(), 100);
-    }
-
+    // Hero simplificado - ya no necesitamos lógica de carrusel Bootstrap
     this.initFooterObserver();
   }
 
