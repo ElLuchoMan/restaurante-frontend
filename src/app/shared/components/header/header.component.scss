@@ -55,7 +55,7 @@
   z-index: 15;
 
   .logo-text {
-    font-family: 'Poppins', sans-serif;
+    font-family: $font-family-display; // Alegreya Sans para el logo
     font-weight: 700;
     font-size: clamp(1.5rem, 3vw, 2.5rem);
     position: relative;
@@ -111,62 +111,8 @@
   /* Comportamiento responsivo simplificado - eliminado el media query problemático */
 
   .nav-link {
-    position: relative;
-    color: $header-text-primary !important;
-    font-weight: 600;
-    font-size: 0.95rem;
-    letter-spacing: 0.3px;
-    padding: $nav-item-padding;
-    border-radius: 15px;
-    transition: $transition-smooth;
-    white-space: nowrap;
-    text-decoration: none !important;
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 15px;
-      background: $header-gradient-primary-light;
-      opacity: 0;
-      transition: $transition-smooth;
-    }
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 2px;
-      background: $header-gradient-golden-line;
-      border-radius: 1px;
-      transition: $transition-smooth;
-    }
-
-    &:hover {
-      color: $header-text-hover !important;
-      transform: translateY(-2px);
-
-      &::before {
-        opacity: 1;
-      }
-
-      &::after {
-        width: calc(100% - 2rem);
-      }
-    }
-
-    &.active {
-      color: $header-golden !important;
-      background: $header-primary-10;
-
-      &::after {
-        width: calc(100% - 2rem);
-        background: $header-gradient-golden-active;
-      }
-    }
+    // Usar la clase global .nav-link-premium de _base.scss
+    @extend .nav-link-premium;
   }
 }
 
@@ -197,23 +143,7 @@
     transition: $transition-smooth;
   }
 
-  .cart-badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: $header-gradient-danger;
-    color: white;
-    font-size: 0.7rem;
-    font-weight: 700;
-    min-width: 20px;
-    height: 20px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 8px $header-danger-30;
-    animation: pulse 2s infinite;
-  }
+  // Los estilos .cart-badge ahora están globales en _base.scss
 
   &:hover .fas.fa-shopping-cart {
     transform: scale(1.1);
@@ -223,46 +153,23 @@
 
 /* ====== Mobile hamburger premium ====== */
 .mobile-hamburger-btn {
+  // Usar la clase global .mobile-hamburger-btn de _base.scss como base
+  @extend .mobile-hamburger-btn;
+  // Posicionamiento específico para el header
   position: absolute;
   top: 50%;
   left: 1rem;
   transform: translateY(-50%);
-  background: $header-gradient-primary-light;
-  border: 1px solid $header-primary-20;
-  border-radius: 12px;
-  padding: 0.5rem;
-  transition: $transition-smooth;
-  backdrop-filter: blur(4px);
-
-  .hamburger-icon {
-    color: $header-golden;
-    font-size: 1.2rem;
-    transition: $transition-smooth;
-  }
 
   &:hover {
-    background: $header-gradient-primary-medium;
-    transform: translateY(-50%) scale(1.05);
-
-    .hamburger-icon {
-      color: $header-coffee-accent;
-    }
-  }
-
-  &[aria-expanded='true'] .hamburger-icon {
-    color: $header-coffee-accent;
+    transform: translateY(-50%) scale(1.05); // Mantener el posicionamiento vertical
   }
 }
 
 /* ====== Alertas de conexión elegantes ====== */
 .alert-warning {
-  background: $header-gradient-warning;
-  border: 1px solid $header-primary-20;
-  border-radius: 15px;
-  color: $header-alert-text;
-  font-weight: 600;
-  backdrop-filter: blur(8px);
-  animation: slideDown 0.3s ease-out;
+  // Usar la clase global .alert-connection de _base.scss
+  @extend .alert-connection;
 }
 
 /* ====== Responsive design SIMPLE - SOLO DESKTOP ====== */
@@ -410,83 +317,24 @@
 }
 
 /* ====== Quick Actions Bar (WebView nativo) ====== */
-.quick-actions-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1030;
-  background: $header-gray-light-95;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid $header-primary-20;
-  padding: 0.75rem 1rem;
-  padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
-  box-shadow: 0 -10px 30px $header-shadow-medium;
-}
+// Los estilos .quick-actions-bar ahora están globales en _base.scss como .quick-actions-bar.webview-variant
 
 .quick-actions {
   margin: 0;
-
-  .qa-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    height: 72px;
-    border-radius: 16px;
-    background: $header-gradient-glass-white;
-    backdrop-filter: blur(8px);
-    box-shadow:
-      0 8px 24px $header-shadow-light,
-      inset 0 1px 0 $header-white-60;
-    text-decoration: none;
-    color: inherit;
-    font-weight: 600;
-    font-size: 0.85rem;
-    transition: $transition-smooth;
-    border: 1px solid $header-white-30;
-
-    i {
-      color: $header-golden;
-      font-size: 1.3rem;
-      filter: drop-shadow(0 2px 4px $header-primary-20);
-      transition: $transition-smooth;
-    }
-
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow:
-        0 12px 36px $header-shadow-strong,
-        inset 0 1px 0 $header-white-80;
-
-      i {
-        transform: scale(1.1);
-        color: $header-coffee-accent;
-      }
-    }
-
-    &:active {
-      transform: translateY(-2px);
-    }
-  }
+  // Los estilos .qa-item específicos para WebView ahora están globales en .quick-actions-bar.webview-variant
 }
 
 /* Las animaciones shimmer, pulse, slideDown y fadeInScale ahora están disponibles globalmente desde _base.scss */
 
 /* ====== Clases de animación para transiciones ====== */
 .logo-container.transitioning {
-  .logo-text,
-  .logo-img {
-    animation: fadeInScale 0.3s ease-out;
-  }
+  // Usar la clase global .transitioning de _base.scss
+  @extend .transitioning;
 }
 
 .navbar.logging-out {
-  opacity: 0.7;
-  transform: translateY(-5px);
-  transition: all 0.15s ease-out;
+  // Usar la clase global .logging-out de _base.scss
+  @extend .logging-out;
 }
 
 /* ====== Estados de focus mejorados ====== */
@@ -494,10 +342,8 @@
 .navbar a:focus-visible,
 .navbar .nav-link:focus-visible,
 .navbar-toggler:focus-visible {
-  outline: 2px solid $header-primary-80;
-  outline-offset: 2px;
-  border-radius: 12px;
-  box-shadow: 0 0 0 4px $header-primary-20;
+  // Usar la clase global .focus-premium de _base.scss
+  @extend .focus-premium;
 }
 
 /* ====== Utilidades de overflow ====== */

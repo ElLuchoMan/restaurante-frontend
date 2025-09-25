@@ -55,34 +55,10 @@
   pointer-events: none;
 }
 
-.img-responsive {
-  width: 100%;
-  height: auto;
-  max-width: 100%;
-  object-fit: cover;
-
-  @media (min-width: 992px) {
-    #header-carousel & {
-      height: 100vh;
-    }
-  }
-}
+// Los estilos .img-responsive ahora están globales en _base.scss
 
 // ====== CAPTION STYLES ======
-.caption-eyebrow {
-  color: $white;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.caption-title {
-  color: $white;
-  font-weight: 700;
-  font-size: clamp(1.5rem, 5vw, 2.75rem);
-  line-height: 1.15;
-}
+// Los estilos .caption-eyebrow y .caption-title ahora están globales en _base.scss
 
 // ====== SECCIONES PRINCIPALES ======
 .home-about {
@@ -113,22 +89,7 @@
 .home-offers {
   @extend .section-bg-gradient-light;
 
-  .offer-price {
-    margin-bottom: 1rem;
-
-    .old-price {
-      text-decoration: line-through;
-      color: $gray-light;
-      font-size: 0.9rem;
-      margin-right: 0.5rem;
-    }
-
-    .new-price {
-      color: var(--bs-primary);
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-  }
+  // Los estilos .price-display (con .old-price y .new-price) ahora están globales en _base.scss
 }
 
 .home-gallery {
@@ -158,82 +119,13 @@
 .quick-actions {
   margin-top: 0.75rem;
   margin-bottom: 1.25rem;
-
-  .qa-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    height: 60px;
-    border-radius: 12px;
-    background: $white;
-    box-shadow: 0 2px 8px $shadow-medium;
-    text-decoration: none;
-    color: inherit;
-    font-weight: 600;
-
-    i {
-      color: var(--bs-secondary, #{$primary});
-      font-size: 1.1rem;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .qa-item {
-      height: 64px;
-    }
-  }
+  // Los estilos .qa-item ahora están globales en _base.scss
 }
 
-.quick-actions-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1030;
-  background: $background-bar;
-  border-top: 1px solid $border-light;
-  backdrop-filter: blur(4px);
-  padding-top: 0.4rem;
-  padding-bottom: max(env(safe-area-inset-bottom), 0.55rem);
-  transition:
-    transform 0.2s ease-in-out,
-    opacity 0.2s ease-in-out;
-
-  &.qa-hidden {
-    transform: translateY(100%);
-    opacity: 0;
-    pointer-events: none;
-  }
-}
+// Los estilos .quick-actions-bar ahora están globales en _base.scss
 
 // ====== FALLBACK LOGO ======
-.fallback-logo {
-  object-fit: contain !important;
-  background: $gradient-neutral;
-  padding: 2rem;
-  border: 2px dashed $shadow-primary-30;
-  border-radius: 8px;
-
-  .carousel-item & {
-    background: $gradient-dark-overlay;
-    padding: 4rem 2rem;
-  }
-
-  .offer-image &,
-  .gallery-item & {
-    background: $gradient-neutral;
-    padding: 2rem;
-  }
-
-  .testimonial-author & {
-    background: $shadow-white-10;
-    border: 2px solid $shadow-primary-50;
-    border-radius: 50%;
-    padding: 0.5rem;
-  }
-}
+// Los estilos .fallback-logo ahora están globales en _base.scss
 
 // ====== RESPONSIVE DESIGN ======
 @media (max-width: 576px) {
@@ -312,14 +204,7 @@
 }
 
 @media (min-width: 768px) {
-  .caption-title {
-    font-size: 4.5rem;
-    line-height: 1.2;
-  }
-
-  .caption-eyebrow {
-    font-size: 1.25rem;
-  }
+  // Los estilos responsive de .caption-title y .caption-eyebrow ahora están globales en _base.scss
 }
 
 @media (max-width: 768px) {

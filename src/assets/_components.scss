@@ -87,6 +87,103 @@
   transition: $transition-smooth;
 }
 
+/* ====== CLASES PARA @EXTEND ESPECÍFICAS DE HEADER ====== */
+
+/* Navigation Link Premium - para @extend */
+.nav-link-premium {
+  position: relative;
+  color: $header-text-primary !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  padding: $nav-item-padding;
+  border-radius: 15px;
+  transition: $transition-smooth;
+  white-space: nowrap;
+  text-decoration: none !important;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 15px;
+    background: $header-gradient-primary-light;
+    opacity: 0;
+    transition: $transition-smooth;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: $header-gradient-golden-line;
+    border-radius: 1px;
+    transition: $transition-smooth;
+  }
+
+  &:hover {
+    color: $header-text-hover !important;
+    transform: translateY(-2px);
+
+    &::before {
+      opacity: 1;
+    }
+
+    &::after {
+      width: calc(100% - 2rem);
+    }
+  }
+
+  &.active {
+    color: $header-golden !important;
+    background: $header-primary-10;
+
+    &::after {
+      width: calc(100% - 2rem);
+      background: $header-gradient-golden-active;
+    }
+  }
+}
+
+/* Alert Connection - para @extend */
+.alert-connection {
+  background: $header-gradient-warning;
+  border: 1px solid $header-primary-20;
+  border-radius: 15px;
+  color: $header-alert-text;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Animation States - para @extend */
+.logging-out {
+  opacity: 0.7;
+  transform: translateY(-5px);
+  transition: all 0.15s ease-out;
+}
+
+.transitioning {
+  .logo-text,
+  .logo-img {
+    animation: fadeInScale 0.3s ease-out;
+  }
+}
+
+/* Focus Premium - para @extend */
+.focus-premium {
+  &:focus-visible {
+    outline: 2px solid $header-primary-80;
+    outline-offset: 2px;
+    border-radius: 12px;
+    box-shadow: 0 0 0 4px $header-primary-20;
+  }
+}
+
 /* ====== ANIMACIONES NECESARIAS ====== */
 @keyframes shimmer {
   0% {
@@ -94,5 +191,27 @@
   }
   100% {
     transform: translateX(100%);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

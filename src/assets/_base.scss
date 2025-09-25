@@ -43,7 +43,7 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 992px;
   --breakpoint-xl: 1200px;
-  --font-family-sans-serif: 'Poppins', sans-serif;
+  --font-family-sans-serif: #{$font-family-sans-serif};
   --font-family-monospace:
     sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
   /* Alturas por defecto (ajustables por contexto) */
@@ -78,7 +78,7 @@
 }
 
 html {
-  font-family: Poppins, sans-serif;
+  font-family: $font-family-sans-serif;
   line-height: 1.15;
   -webkit-tap-highlight-color: rgb(0 0 0 / 0%);
   text-size-adjust: 100%;
@@ -100,7 +100,7 @@ section {
 body {
   background-color: #f3f6ff;
   color: #555;
-  font-family: Poppins, sans-serif;
+  font-family: $font-family-sans-serif;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
@@ -240,8 +240,14 @@ a {
 
 /* Hint de webfonts para evitar FOIT si se agregan fuentes propias */
 @font-face {
-  font-family: 'Poppins';
-  src: local('Poppins');
+  font-family: 'Montserrat';
+  src: local('Montserrat');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Alegreya Sans';
+  src: local('Alegreya Sans');
   font-display: swap;
 }
 
@@ -7229,7 +7235,7 @@ a.close.disabled {
 
 .tooltip {
   display: block;
-  font-family: Poppins, sans-serif;
+  font-family: $font-family-sans-serif;
   font-size: 0.875rem;
   font-style: normal;
   font-weight: 400;
@@ -7356,7 +7362,7 @@ a.close.disabled {
   border: 1px solid rgb(0 0 0 / 20%);
   border-radius: 0.3rem;
   display: block;
-  font-family: Poppins, sans-serif;
+  font-family: $font-family-sans-serif;
   font-size: 0.875rem;
   font-style: normal;
   font-weight: 400;
@@ -13295,3 +13301,278 @@ a.link {
     height: 38px;
   }
 }
+
+/* ====== COMPONENTES REUTILIZABLES GLOBALES ====== */
+/* Estos estilos se mueven desde componentes específicos para ser reutilizables */
+
+/* ====== CAPTION SYSTEM (CAROUSEL) ====== */
+.caption-eyebrow {
+  color: $white;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  font-size: 0.95rem;
+
+  @media (min-width: 768px) {
+    font-size: 1.25rem;
+  }
+}
+
+.caption-title {
+  color: $white;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 5vw, 2.75rem);
+  line-height: 1.15;
+
+  @media (min-width: 768px) {
+    font-size: 4.5rem;
+    line-height: 1.2;
+  }
+}
+
+/* ====== PRICE DISPLAY SYSTEM ====== */
+.price-display {
+  margin-bottom: 1rem;
+
+  .old-price {
+    text-decoration: line-through;
+    color: $gray-light;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+  }
+
+  .new-price {
+    color: var(--bs-primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+}
+
+/* ====== RESPONSIVE IMAGE SYSTEM ====== */
+.img-responsive {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: cover;
+
+  /* Carousel específico */
+  #header-carousel & {
+    @media (min-width: 992px) {
+      height: 100vh;
+    }
+  }
+
+  /* NgOptimizedImage específico */
+  &[ngSrc] {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover !important;
+    max-width: 100% !important;
+    aspect-ratio: 1200 / 686 !important;
+  }
+}
+
+/* ====== QUICK ACTIONS SYSTEM ====== */
+.qa-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  height: 60px;
+  border-radius: 12px;
+  background: $white;
+  box-shadow: 0 2px 8px $shadow-medium;
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+  transition: $transition-smooth;
+
+  i {
+    color: var(--bs-secondary, #{$primary});
+    font-size: 1.1rem;
+    transition: $transition-smooth;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px $shadow-medium;
+  }
+
+  @media (min-width: 768px) {
+    height: 64px;
+  }
+}
+
+/* Quick Actions Bar (WebView y Mobile) */
+.quick-actions-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1030;
+  background: $background-bar;
+  border-top: 1px solid $border-light;
+  backdrop-filter: blur(4px);
+  padding-top: 0.4rem;
+  padding-bottom: max(env(safe-area-inset-bottom), 0.55rem);
+  transition:
+    transform 0.2s ease-in-out,
+    opacity 0.2s ease-in-out;
+
+  &.qa-hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* WebView variant - más sofisticado */
+  &.webview-variant {
+    background: $header-gray-light-95;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid $header-primary-20;
+    padding: 0.75rem 1rem;
+    padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+    box-shadow: 0 -10px 30px $header-shadow-medium;
+
+    .qa-item {
+      height: 72px;
+      border-radius: 16px;
+      background: $header-gradient-glass-white;
+      backdrop-filter: blur(8px);
+      box-shadow:
+        0 8px 24px $header-shadow-light,
+        inset 0 1px 0 $header-white-60;
+      font-size: 0.85rem;
+      border: 1px solid $header-white-30;
+
+      i {
+        color: $header-golden;
+        font-size: 1.3rem;
+        filter: drop-shadow(0 2px 4px $header-primary-20);
+      }
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow:
+          0 12px 36px $header-shadow-strong,
+          inset 0 1px 0 $header-white-80;
+
+        i {
+          transform: scale(1.1);
+          color: $header-coffee-accent;
+        }
+      }
+
+      &:active {
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
+
+/* ====== FALLBACK SYSTEM ====== */
+.fallback-logo {
+  object-fit: contain !important;
+  background: $gradient-neutral;
+  padding: 2rem;
+  border: 2px dashed $shadow-primary-30;
+  border-radius: 8px;
+
+  /* Carousel variant */
+  .carousel-item & {
+    background: $gradient-dark-overlay;
+    padding: 4rem 2rem;
+  }
+
+  /* Gallery/offer variant */
+  .offer-image &,
+  .gallery-item & {
+    background: $gradient-neutral;
+    padding: 2rem;
+  }
+
+  /* Avatar variant */
+  .testimonial-author & {
+    background: $shadow-white-10;
+    border: 2px solid $shadow-primary-50;
+    border-radius: 50%;
+    padding: 0.5rem;
+  }
+}
+
+/* ====== BADGE SYSTEM ====== */
+.cart-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: $header-gradient-danger;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px $header-danger-30;
+  animation: pulse 2s infinite;
+}
+
+/* ====== ALERT SYSTEM ====== */
+/* Movido a _components.scss para @extend */
+
+/* ====== MOBILE NAVIGATION ====== */
+.mobile-hamburger-btn {
+  background: $header-gradient-primary-light;
+  border: 1px solid $header-primary-20;
+  border-radius: 12px;
+  padding: 0.5rem;
+  transition: $transition-smooth;
+  backdrop-filter: blur(4px);
+
+  .hamburger-icon {
+    color: $header-golden;
+    font-size: 1.2rem;
+    transition: $transition-smooth;
+  }
+
+  &:hover {
+    background: $header-gradient-primary-medium;
+    transform: scale(1.05);
+
+    .hamburger-icon {
+      color: $header-coffee-accent;
+    }
+  }
+
+  &[aria-expanded='true'] .hamburger-icon {
+    color: $header-coffee-accent;
+  }
+}
+
+/* ====== NAVIGATION LINK SYSTEM ====== */
+/* Movido a _components.scss para @extend */
+
+/* ====== ANIMATION STATES ====== */
+/* Movido a _components.scss para @extend */
+
+/* ====== FOCUS STATES MEJORADOS ====== */
+/* Movido a _components.scss para @extend */
+
+/* ====== ANIMACIONES GLOBALES ====== */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* slideDown y fadeInScale movidos a _components.scss */
