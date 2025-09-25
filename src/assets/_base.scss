@@ -2818,19 +2818,19 @@ fieldset:disabled a.btn {
 }
 
 .btn-primary {
-  background-color: $primary;
+  background-color: $primary; /* ✅ Color sólido estándar */
   border-color: $primary;
   color: $text-heading-strong; /* Texto oscuro para accesibilidad */
 
   &:hover {
-    background-color: $quaternary;
+    background-color: $quaternary; /* ✅ Color sólido hover estándar */
     border-color: $quaternary;
     color: $text-heading-strong;
   }
 
   &:focus,
   &.focus {
-    background-color: $quaternary;
+    background-color: $quaternary; /* ✅ Color sólido consistente */
     border-color: $quaternary;
     box-shadow: 0 0 0 0.2rem rgba($primary, 0.5);
     color: $text-heading-strong;
@@ -2838,15 +2838,15 @@ fieldset:disabled a.btn {
 
   &.disabled,
   &:disabled {
-    background-color: $quaternary;
-    border-color: $quaternary;
+    background-color: $primary; /* ✅ Color sólido para disabled */
+    border-color: $primary;
     color: $text-heading-strong;
   }
 
   &:not(:disabled, .disabled) {
     &:active,
     &.active {
-      background-color: $quaternary;
+      background-color: $quaternary; /* ✅ Color sólido para active */
       border-color: $quaternary;
       color: $text-heading-strong;
     }
@@ -2863,9 +2863,9 @@ fieldset:disabled a.btn {
 }
 
 .show > .btn-primary.dropdown-toggle {
-  background-color: $quaternary;
+  background-color: $quaternary; /* ✅ Color sólido consistente */
   border-color: $quaternary;
-  color: $dark;
+  color: $text-heading-strong; /* Consistente con otros estados */
 }
 
 .btn-primary:not(:disabled, .disabled) {
