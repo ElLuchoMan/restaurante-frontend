@@ -1,23 +1,19 @@
 @use '../../../../assets/styles.scss' as *;
 
-/* ====== Botón de login con barra de progreso 0-50-100% ====== */
-/* Efecto de llenado según campos completados */
-
 .btn.btn-primary.btn-cta {
   position: relative;
   overflow: hidden;
-  background-color: $primary; /* Color base estándar */
+  background-color: $primary;
   border-color: $primary;
-  color: $white; /* ✅ Texto blanco */
+  color: $white;
   transition: all 0.3s ease;
 
-  /* Barra de progreso que se llena según campos completados */
   .progress-bg {
     position: absolute;
     top: 0;
     left: 0;
     height: 100%;
-    width: var(--progress, 0%); /* ✅ Se llena de 0% → 50% → 100% */
+    width: var(--progress, 0%);
     background: linear-gradient(90deg, $quaternary 0%, $primary-dark 100%);
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
@@ -25,31 +21,29 @@
     opacity: 0.3; /* Sutil para no ocultar el texto */
   }
 
-  /* Estados normales sin cambiar el fondo base */
   &:hover {
     background-color: $quaternary;
     border-color: $quaternary;
-    color: $white; /* ✅ Texto blanco en hover */
-  }
+    color: $white;
 
-  &:focus,
-  &.focus {
-    background-color: $quaternary;
-    border-color: $quaternary;
-    color: $white; /* ✅ Texto blanco en focus */
-    box-shadow: 0 0 0 0.2rem rgba($primary, 0.5);
-  }
+    &:focus,
+    &.focus {
+      background-color: $quaternary;
+      border-color: $quaternary;
+      color: $white;
+      box-shadow: 0 0 0 0.2rem rgba($primary, 0.5);
+    }
 
-  &:disabled {
-    background-color: $primary;
-    border-color: $primary;
-    color: $white; /* ✅ Texto blanco cuando está deshabilitado */
-    opacity: 0.65;
-  }
+    &:disabled {
+      background-color: $primary;
+      border-color: $primary;
+      color: $white;
+      opacity: 0.65;
+    }
 
-  /* Asegurar que el texto esté por encima de la barra */
-  span:not(.progress-bg) {
-    position: relative;
-    z-index: 2;
+    span:not(.progress-bg) {
+      position: relative;
+      z-index: 2;
+    }
   }
 }
