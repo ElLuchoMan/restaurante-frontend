@@ -108,18 +108,7 @@
   align-items: center;
   gap: 0.5rem;
 
-  /* Prevenir overflow en casos críticos */
-  @media (min-width: 992px) and (max-width: 1100px) {
-    overflow: hidden !important; /* Evitar scroll horizontal */
-    flex-wrap: nowrap !important; /* No envolver elementos */
-    width: 100%; /* Asegurar que ocupe todo el ancho disponible */
-
-    .nav-link {
-      white-space: nowrap !important; /* No partir el texto */
-      overflow: hidden !important; /* Ocultar texto excedente */
-      flex-shrink: 1 !important; /* Permitir compresión */
-    }
-  }
+  /* Comportamiento responsivo simplificado - eliminado el media query problemático */
 
   .nav-link {
     position: relative;
@@ -278,92 +267,26 @@
 
 /* ====== Responsive design SIMPLE - SOLO DESKTOP ====== */
 
-/* Solo para pantallas medianas de desktop donde hay problemas */
+/* Pantallas medianas de desktop - valores moderados */
 @media (min-width: 992px) and (max-width: 1200px) {
   .navbar-nav .nav-link {
-    padding: 0.7rem 0.8rem; /* Ligeramente más compacto */
-    font-size: 0.9rem;
+    padding: 0.8rem 1rem; /* Más generoso que antes */
+    font-size: 0.9rem; /* Tamaño legible */
   }
 
   .logo-container {
-    flex-grow: 0.7; /* Reducir un poco el logo */
+    flex-grow: 0.8; /* Logo de tamaño razonable */
   }
 
   .menu-left,
   .menu-right {
-    margin: 0 0.5rem; /* Reducir también en este rango - más cerca del logo */
+    margin: 0 1rem; /* Espaciado adecuado */
   }
 }
 
-/* Solo para el rango más crítico */
-@media (min-width: 992px) and (max-width: 1100px) {
-  .navbar-nav {
-    gap: 0.2rem !important; /* Gap ultra-pequeño */
-  }
+/* Rango crítico eliminado - comportamiento más natural */
 
-  .navbar-nav .nav-link {
-    padding: 0.5rem 0.3rem !important; /* Super compacto para todos */
-    font-size: 0.75rem !important;
-    font-weight: 600;
-    letter-spacing: -0.2px; /* Comprimir ligeramente */
-  }
-
-  .logo-container {
-    flex-grow: 0.45 !important; /* Logo muy pequeño */
-  }
-
-  .menu-left,
-  .menu-right {
-    margin: 0 0.1rem !important; /* Márgenes súper pequeños - más pegado al logo */
-    min-width: 0;
-    flex-shrink: 2; /* Permitir mucha compresión */
-  }
-
-  .navbar {
-    padding-left: 0.3rem !important;
-    padding-right: 0.3rem !important;
-    overflow: hidden !important; /* Prevenir overflow del navbar completo */
-  }
-
-  /* Forzar que el contenido del navbar no se desborde */
-  .navbar-collapse {
-    overflow: hidden !important;
-    width: 100% !important;
-  }
-}
-
-/* Para casos extremos donde aún se desborda */
-@media (min-width: 992px) and (max-width: 1050px) {
-  .navbar-nav {
-    gap: 0.1rem !important; /* Gap súper mínimo */
-  }
-
-  .navbar-nav .nav-link {
-    padding: 0.5rem 0.25rem !important; /* Ultra-compacto para todos */
-    font-size: 0.7rem !important;
-    letter-spacing: -0.3px !important; /* Comprimir más las letras */
-  }
-
-  .logo-container {
-    flex-grow: 0.4 !important; /* Logo muy pequeño */
-  }
-
-  .menu-left,
-  .menu-right {
-    margin: 0 0.05rem !important; /* Prácticamente pegado al logo */
-  }
-
-  .navbar {
-    padding-left: 0.25rem !important;
-    padding-right: 0.25rem !important;
-    overflow: hidden !important; /* Prevenir overflow total */
-  }
-
-  .navbar-collapse {
-    overflow: hidden !important;
-    width: 100% !important;
-  }
-}
+/* Casos extremos eliminados - mejor UX */
 
 @media (max-width: 1200px) {
   .logo-container {
