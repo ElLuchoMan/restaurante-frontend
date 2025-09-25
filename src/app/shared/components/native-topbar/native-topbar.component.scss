@@ -1,4 +1,4 @@
-@use '../../../../assets/styles.scss' as *;
+@use '../../../../assets/_variables.scss' as *;
 
 // Solo aplicar estilos en webview (el componente ya tiene *ngIf="isWebView")
 .home-topbar {
@@ -8,10 +8,10 @@
   right: 0;
   z-index: 1040;
   height: var(--native-topbar-h); // altura visual fija; el main compensa con padding-top dinámico
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba($white, 0.95);
   backdrop-filter: blur(12px) saturate(180%);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 1px 20px rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid $shadow-soft;
+  box-shadow: 0 1px 20px $shadow-light;
   .container {
     height: var(--native-topbar-h);
     display: flex;
@@ -30,8 +30,8 @@
     position: absolute;
     top: -6px;
     right: -10px;
-    background: var(--bs-secondary, #c79a2f);
-    color: #fff;
+    background: $primary;
+    color: $white;
   }
 }
 
@@ -41,7 +41,7 @@
   left: 0;
   right: 0;
   height: 6px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0));
+  background: linear-gradient(180deg, $shadow-light, transparent);
   pointer-events: none;
 }
 
