@@ -163,3 +163,21 @@ $header-gradient-glass-white: linear-gradient(
   rgba(255, 255, 255, 0.9),
   $header-gray-light-80
 );
+
+// Colores oficiales de Instagram
+$instagram-purple: #833ab4; // Violeta profundo
+$instagram-magenta: #c13584; // Rosa magenta
+$instagram-pink: #e1306c; // Rosa vibrante
+$instagram-orange: #f56040; // Naranja coral
+
+// Gradiente oficial de Instagram
+$instagram-gradient: linear-gradient(
+  135deg,
+  $instagram-purple,
+  $instagram-magenta,
+  $instagram-pink,
+  $instagram-orange
+);
+
+// Sombra específica de Instagram
+$instagram-shadow: rgba($instagram-pink, 0.3);
