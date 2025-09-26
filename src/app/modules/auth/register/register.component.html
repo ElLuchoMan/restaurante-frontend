@@ -1,10 +1,19 @@
-<!-- Bootstrap JS ya está incluido globalmente en angular.json -->
-<div class="container-fluid py-5">
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-lg-6">
-        <h1 class="text-center mb-4">Registro</h1>
-        <div class="card p-5">
+<section class="auth-hero page-shell">
+  <div class="container h-100">
+    <div class="row justify-content-center h-100">
+      <div class="col-lg-6 col-md-8 d-flex flex-column align-items-center justify-content-center">
+        <header class="text-center mb-4">
+          <h1 class="section-title">Registro</h1>
+          <p class="subtitle">Únete a nuestra familia gastronómica.</p>
+        </header>
+
+        <div
+          class="card-glass glow-border rise-on-mount p-4 p-md-5 w-100"
+          role="region"
+          aria-labelledby="register-title"
+        >
+          <div class="particles-bg" aria-hidden="true"></div>
+          <h2 id="register-title" class="visually-hidden">Formulario de registro</h2>
           <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
             <div class="form-group custom-control custom-checkbox" *ngIf="isAdmin()">
               <input
@@ -17,21 +26,41 @@
                 >¿Registrar un trabajador?</label
               >
             </div>
-            <div class="form-group">
-              <label for="documento">Documento</label>
-              <input
-                type="number"
-                id="documento"
-                formControlName="documento"
-                class="form-control"
-                placeholder="0000000000"
-                [attr.aria-invalid]="
-                  registerForm.get('documento')?.invalid && registerForm.get('documento')?.touched
-                    ? 'true'
-                    : null
-                "
-                aria-describedby="reg-documento-error"
-              />
+            <div class="form-group mb-3">
+              <div class="input-float">
+                <span
+                  class="icon"
+                  aria-hidden="true"
+                  [class.icon-active]="documentoFocused || registerForm.get('documento')?.value"
+                  ><i class="fa-solid fa-id-card"></i
+                ></span>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  id="documento"
+                  class="form-control"
+                  formControlName="documento"
+                  placeholder=" "
+                  autocomplete="username"
+                  (focus)="documentoFocused = true"
+                  (blur)="documentoFocused = false"
+                  [attr.aria-invalid]="
+                    registerForm.get('documento')?.invalid && registerForm.get('documento')?.touched
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="reg-documento-error"
+                />
+                <label for="documento" class="float-label">Documento</label>
+                <div
+                  class="validation-icon"
+                  *ngIf="
+                    registerForm.get('documento')?.valid && registerForm.get('documento')?.value
+                  "
+                >
+                  <i class="fa-solid fa-check"></i>
+                </div>
+              </div>
               <div
                 *ngIf="
                   registerForm.get('documento')?.invalid && registerForm.get('documento')?.touched
@@ -43,71 +72,134 @@
                 El documento es obligatorio.
               </div>
             </div>
-            <div class="form-group">
-              <label for="nombre">Nombre</label>
-              <input
-                type="text"
-                id="nombre"
-                formControlName="nombre"
-                class="form-control"
-                placeholder="Juan"
-                [attr.aria-invalid]="
-                  registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched
-                    ? 'true'
-                    : null
-                "
-                aria-describedby="reg-nombre-error"
-              />
-              <div
-                *ngIf="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched"
-                id="reg-nombre-error"
-                class="text-danger"
-                role="alert"
-              >
-                El nombre es obligatorio.
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <div class="input-float">
+                    <span
+                      class="icon"
+                      aria-hidden="true"
+                      [class.icon-active]="nombreFocused || registerForm.get('nombre')?.value"
+                      ><i class="fa-solid fa-user"></i
+                    ></span>
+                    <input
+                      type="text"
+                      id="nombre"
+                      class="form-control"
+                      formControlName="nombre"
+                      placeholder=" "
+                      autocomplete="given-name"
+                      (focus)="nombreFocused = true"
+                      (blur)="nombreFocused = false"
+                      [attr.aria-invalid]="
+                        registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched
+                          ? 'true'
+                          : null
+                      "
+                      aria-describedby="reg-nombre-error"
+                    />
+                    <label for="nombre" class="float-label">Nombre</label>
+                    <div
+                      class="validation-icon"
+                      *ngIf="registerForm.get('nombre')?.valid && registerForm.get('nombre')?.value"
+                    >
+                      <i class="fa-solid fa-check"></i>
+                    </div>
+                  </div>
+                  <div
+                    *ngIf="
+                      registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched
+                    "
+                    id="reg-nombre-error"
+                    class="text-danger"
+                    role="alert"
+                  >
+                    El nombre es obligatorio.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <div class="input-float">
+                    <span
+                      class="icon"
+                      aria-hidden="true"
+                      [class.icon-active]="apellidoFocused || registerForm.get('apellido')?.value"
+                      ><i class="fa-solid fa-user"></i
+                    ></span>
+                    <input
+                      type="text"
+                      id="apellido"
+                      class="form-control"
+                      formControlName="apellido"
+                      placeholder=" "
+                      autocomplete="family-name"
+                      (focus)="apellidoFocused = true"
+                      (blur)="apellidoFocused = false"
+                      [attr.aria-invalid]="
+                        registerForm.get('apellido')?.invalid &&
+                        registerForm.get('apellido')?.touched
+                          ? 'true'
+                          : null
+                      "
+                      aria-describedby="reg-apellido-error"
+                    />
+                    <label for="apellido" class="float-label">Apellido</label>
+                    <div
+                      class="validation-icon"
+                      *ngIf="
+                        registerForm.get('apellido')?.valid && registerForm.get('apellido')?.value
+                      "
+                    >
+                      <i class="fa-solid fa-check"></i>
+                    </div>
+                  </div>
+                  <div
+                    *ngIf="
+                      registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched
+                    "
+                    id="reg-apellido-error"
+                    class="text-danger"
+                    role="alert"
+                  >
+                    El apellido es obligatorio.
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="apellido">Apellido</label>
-              <input
-                type="text"
-                id="apellido"
-                formControlName="apellido"
-                class="form-control"
-                placeholder="Pérez"
-                [attr.aria-invalid]="
-                  registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched
-                    ? 'true'
-                    : null
-                "
-                aria-describedby="reg-apellido-error"
-              />
-              <div
-                *ngIf="
-                  registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched
-                "
-                id="reg-apellido-error"
-                class="text-danger"
-                role="alert"
-              >
-                El apellido es obligatorio.
+            <div class="form-group mb-3">
+              <div class="input-float">
+                <span
+                  class="icon"
+                  aria-hidden="true"
+                  [class.icon-active]="telefonoFocused || registerForm.get('telefono')?.value"
+                  ><i class="fa-solid fa-phone"></i
+                ></span>
+                <input
+                  type="tel"
+                  inputmode="tel"
+                  id="telefono"
+                  class="form-control"
+                  formControlName="telefono"
+                  placeholder=" "
+                  autocomplete="tel"
+                  (focus)="telefonoFocused = true"
+                  (blur)="telefonoFocused = false"
+                  [attr.aria-invalid]="
+                    registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="reg-telefono-error"
+                />
+                <label for="telefono" class="float-label">Teléfono</label>
+                <div
+                  class="validation-icon"
+                  *ngIf="registerForm.get('telefono')?.valid && registerForm.get('telefono')?.value"
+                >
+                  <i class="fa-solid fa-check"></i>
+                </div>
               </div>
-            </div>
-            <div class="form-group">
-              <label for="telefono">Teléfono</label>
-              <input
-                type="text"
-                id="telefono"
-                formControlName="telefono"
-                class="form-control"
-                placeholder="3100000000"
-                [attr.aria-invalid]="
-                  registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched
-                    ? 'true'
-                    : null
-                "
-                aria-describedby="reg-telefono-error"
-              />
               <div
                 *ngIf="
                   registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched
@@ -119,114 +211,250 @@
                 El teléfono es obligatorio.
               </div>
             </div>
-            <div class="form-group" *ngIf="!esTrabajador">
-              <label for="observaciones">Observaciones</label>
-              <textarea
-                class="form-control"
-                placeholder="Observaciones"
-                formControlName="observaciones"
-                id="floatingTextarea2"
-                style="height: 38px"
-              ></textarea>
+            <div class="form-group mb-3" *ngIf="!esTrabajador">
+              <div class="input-float">
+                <span class="icon" aria-hidden="true"><i class="fa-solid fa-comment"></i></span>
+                <textarea
+                  class="form-control"
+                  placeholder=" "
+                  formControlName="observaciones"
+                  id="observaciones"
+                  rows="3"
+                  style="resize: vertical; min-height: 80px"
+                ></textarea>
+                <label for="observaciones" class="float-label">Observaciones (Opcional)</label>
+              </div>
             </div>
             <div *ngIf="!esTrabajador">
-              <div class="form-group">
-                <label for="direccion">Dirección</label>
-                <input
-                  type="text"
-                  id="direccion"
-                  formControlName="direccion"
-                  class="form-control"
-                  placeholder="Calle 1 # 2 - 3"
-                  [attr.aria-invalid]="
+              <div class="form-group mb-3">
+                <div class="input-float">
+                  <span
+                    class="icon"
+                    aria-hidden="true"
+                    [class.icon-active]="direccionFocused || registerForm.get('direccion')?.value"
+                    ><i class="fa-solid fa-map-marker-alt"></i
+                  ></span>
+                  <input
+                    type="text"
+                    id="direccion"
+                    class="form-control"
+                    formControlName="direccion"
+                    placeholder=" "
+                    autocomplete="street-address"
+                    (focus)="direccionFocused = true"
+                    (blur)="direccionFocused = false"
+                    [attr.aria-invalid]="
+                      registerForm.get('direccion')?.invalid &&
+                      registerForm.get('direccion')?.touched
+                        ? 'true'
+                        : null
+                    "
+                    aria-describedby="reg-direccion-error"
+                  />
+                  <label for="direccion" class="float-label">Dirección</label>
+                  <div
+                    class="validation-icon"
+                    *ngIf="
+                      registerForm.get('direccion')?.valid && registerForm.get('direccion')?.value
+                    "
+                  >
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                </div>
+                <div
+                  *ngIf="
                     registerForm.get('direccion')?.invalid && registerForm.get('direccion')?.touched
-                      ? 'true'
-                      : null
                   "
-                  aria-describedby="reg-direccion-error"
-                />
+                  id="reg-direccion-error"
+                  class="text-danger"
+                  role="alert"
+                >
+                  La dirección es obligatoria.
+                </div>
               </div>
-              <div
-                *ngIf="
-                  registerForm.get('direccion')?.invalid && registerForm.get('direccion')?.touched
-                "
-                id="reg-direccion-error"
-                class="text-danger"
-                role="alert"
-              >
-                El dirección es obligatoria.
-              </div>
-              <div class="form-group">
-                <label for="correo">Correo</label>
-                <input
-                  type="text"
-                  id="correo"
-                  formControlName="correo"
-                  class="form-control"
-                  placeholder="ejemplo@correo.com"
-                  [attr.aria-invalid]="
-                    registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched
-                      ? 'true'
-                      : null
-                  "
-                  aria-describedby="reg-correo-error"
-                />
-              </div>
-              <div
-                *ngIf="registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched"
-                id="reg-correo-error"
-                class="text-danger"
-                role="alert"
-              >
-                El correo es obligatorio.
+              <div class="form-group mb-3">
+                <div class="input-float">
+                  <span
+                    class="icon"
+                    aria-hidden="true"
+                    [class.icon-active]="correoFocused || registerForm.get('correo')?.value"
+                    ><i class="fa-solid fa-envelope"></i
+                  ></span>
+                  <input
+                    type="email"
+                    inputmode="email"
+                    id="correo"
+                    class="form-control"
+                    formControlName="correo"
+                    placeholder=" "
+                    autocomplete="email"
+                    (focus)="correoFocused = true"
+                    (blur)="correoFocused = false"
+                    [attr.aria-invalid]="
+                      registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched
+                        ? 'true'
+                        : null
+                    "
+                    aria-describedby="reg-correo-error"
+                  />
+                  <label for="correo" class="float-label">Correo electrónico</label>
+                  <div
+                    class="validation-icon"
+                    *ngIf="registerForm.get('correo')?.valid && registerForm.get('correo')?.value"
+                  >
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                </div>
+                <div
+                  *ngIf="registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched"
+                  id="reg-correo-error"
+                  class="text-danger"
+                  role="alert"
+                >
+                  El correo es obligatorio y debe ser válido.
+                </div>
               </div>
             </div>
             <div *ngIf="esTrabajador">
-              <div class="form-group">
-                <label for="fechaNacimiento">Fecha de Nacimiento</label>
-                <input
-                  type="date"
-                  id="fechaNacimiento"
-                  formControlName="fechaNacimiento"
-                  class="form-control"
-                />
-              </div>
-              <div class="form-group">
-                <div class="custom-control switch">
-                  <input type="checkbox" class="switch-input" id="nuevo" formControlName="nuevo" />
-                  <label class="switch-label" for="nuevo">¿Nuevo?</label>
+              <div class="form-group mb-3">
+                <div class="input-float">
+                  <span
+                    class="icon"
+                    aria-hidden="true"
+                    [class.icon-active]="
+                      fechaNacimientoFocused || registerForm.get('fechaNacimiento')?.value
+                    "
+                    ><i class="fa-solid fa-calendar"></i
+                  ></span>
+                  <input
+                    type="date"
+                    id="fechaNacimiento"
+                    class="form-control"
+                    formControlName="fechaNacimiento"
+                    placeholder=" "
+                    (focus)="fechaNacimientoFocused = true"
+                    (blur)="fechaNacimientoFocused = false"
+                    [attr.aria-invalid]="
+                      registerForm.get('fechaNacimiento')?.invalid &&
+                      registerForm.get('fechaNacimiento')?.touched
+                        ? 'true'
+                        : null
+                    "
+                    aria-describedby="reg-fecha-error"
+                  />
+                  <label for="fechaNacimiento" class="float-label">Fecha de Nacimiento</label>
+                  <div
+                    class="validation-icon"
+                    *ngIf="
+                      registerForm.get('fechaNacimiento')?.valid &&
+                      registerForm.get('fechaNacimiento')?.value
+                    "
+                  >
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                </div>
+                <div
+                  *ngIf="
+                    registerForm.get('fechaNacimiento')?.invalid &&
+                    registerForm.get('fechaNacimiento')?.touched
+                  "
+                  id="reg-fecha-error"
+                  class="text-danger"
+                  role="alert"
+                >
+                  La fecha de nacimiento es obligatoria.
                 </div>
               </div>
-              <div class="form-group">
-                <label for="sueldo">Sueldo</label>
-                <input
-                  type="number"
-                  id="sueldo"
-                  formControlName="sueldo"
-                  class="form-control"
-                  placeholder="1000000"
-                />
+              <div class="form-group mb-3">
+                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded">
+                  <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-star text-warning me-2"></i>
+                    <span class="fw-medium">¿Es un empleado nuevo?</span>
+                  </div>
+                  <div class="custom-control switch">
+                    <input
+                      type="checkbox"
+                      class="switch-input"
+                      id="nuevo"
+                      formControlName="nuevo"
+                    />
+                    <label class="switch-label" for="nuevo">Nuevo</label>
+                  </div>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="rol">Rol</label>
-                <select
-                  id="rol"
-                  formControlName="rol"
-                  class="form-control"
-                  [ngClass]="{
-                    'is-invalid':
-                      registerForm.get('rol')?.invalid && registerForm.get('rol')?.touched,
-                  }"
-                  [attr.aria-invalid]="
-                    registerForm.get('rol')?.invalid && registerForm.get('rol')?.touched
-                      ? 'true'
-                      : null
-                  "
-                  aria-describedby="reg-rol-error"
+              <div class="form-group mb-3">
+                <div class="input-float">
+                  <span
+                    class="icon"
+                    aria-hidden="true"
+                    [class.icon-active]="sueldoFocused || registerForm.get('sueldo')?.value"
+                    ><i class="fa-solid fa-dollar-sign"></i
+                  ></span>
+                  <input
+                    type="number"
+                    inputmode="numeric"
+                    id="sueldo"
+                    class="form-control"
+                    formControlName="sueldo"
+                    placeholder=" "
+                    (focus)="sueldoFocused = true"
+                    (blur)="sueldoFocused = false"
+                    [attr.aria-invalid]="
+                      registerForm.get('sueldo')?.invalid && registerForm.get('sueldo')?.touched
+                        ? 'true'
+                        : null
+                    "
+                    aria-describedby="reg-sueldo-error"
+                  />
+                  <label for="sueldo" class="float-label">Sueldo (COP)</label>
+                  <div
+                    class="validation-icon"
+                    *ngIf="registerForm.get('sueldo')?.valid && registerForm.get('sueldo')?.value"
+                  >
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                </div>
+                <div
+                  *ngIf="registerForm.get('sueldo')?.invalid && registerForm.get('sueldo')?.touched"
+                  id="reg-sueldo-error"
+                  class="text-danger"
+                  role="alert"
                 >
-                  <option value="" disabled selected>Seleccione un rol</option>
-                  <option *ngFor="let rol of roles" [value]="rol">{{ rol }}</option>
-                </select>
+                  El sueldo es obligatorio.
+                </div>
+              </div>
+              <div class="form-group mb-3">
+                <div class="input-float">
+                  <span
+                    class="icon"
+                    aria-hidden="true"
+                    [class.icon-active]="rolFocused || registerForm.get('rol')?.value"
+                    ><i class="fa-solid fa-user-tie"></i
+                  ></span>
+                  <select
+                    id="rol"
+                    class="form-control"
+                    formControlName="rol"
+                    (focus)="rolFocused = true"
+                    (blur)="rolFocused = false"
+                    [attr.aria-invalid]="
+                      registerForm.get('rol')?.invalid && registerForm.get('rol')?.touched
+                        ? 'true'
+                        : null
+                    "
+                    aria-describedby="reg-rol-error"
+                  >
+                    <option value="" disabled>Seleccione un rol</option>
+                    <option *ngFor="let rol of roles" [value]="rol">{{ rol }}</option>
+                  </select>
+                  <label for="rol" class="float-label">Rol del Empleado</label>
+                  <div
+                    class="validation-icon"
+                    *ngIf="registerForm.get('rol')?.valid && registerForm.get('rol')?.value"
+                  >
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                </div>
                 <div
                   *ngIf="registerForm.get('rol')?.invalid && registerForm.get('rol')?.touched"
                   id="reg-rol-error"
@@ -236,76 +464,160 @@
                   Por favor selecciona un rol.
                 </div>
               </div>
-              <div class="form-group">
-                <label for="horaEntrada">Hora Entrada</label>
-                <select
-                  id="horaEntrada"
-                  formControlName="horaEntrada"
-                  class="form-control"
-                  [ngClass]="{
-                    'is-invalid':
-                      registerForm.get('horaEntrada')?.invalid &&
-                      registerForm.get('horaEntrada')?.touched,
-                  }"
-                >
-                  <option value="" disabled selected>Seleccione una hora</option>
-                  <option *ngFor="let hora of horasEntradaDisponibles" [value]="hora">
-                    {{ hora }}
-                  </option>
-                </select>
-                <div
-                  *ngIf="
-                    registerForm.get('horaEntrada')?.invalid &&
-                    registerForm.get('horaEntrada')?.touched
-                  "
-                  class="invalid-feedback"
-                >
-                  Por favor selecciona una hora.
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <div class="input-float">
+                      <span
+                        class="icon"
+                        aria-hidden="true"
+                        [class.icon-active]="
+                          horaEntradaFocused || registerForm.get('horaEntrada')?.value
+                        "
+                        ><i class="fa-solid fa-clock"></i
+                      ></span>
+                      <select
+                        id="horaEntrada"
+                        class="form-control"
+                        formControlName="horaEntrada"
+                        (focus)="horaEntradaFocused = true"
+                        (blur)="horaEntradaFocused = false"
+                        [attr.aria-invalid]="
+                          registerForm.get('horaEntrada')?.invalid &&
+                          registerForm.get('horaEntrada')?.touched
+                            ? 'true'
+                            : null
+                        "
+                        aria-describedby="reg-hora-entrada-error"
+                      >
+                        <option value="" disabled>Seleccione una hora</option>
+                        <option *ngFor="let hora of horasEntradaDisponibles" [value]="hora">
+                          {{ hora }}
+                        </option>
+                      </select>
+                      <label for="horaEntrada" class="float-label">Hora de Entrada</label>
+                      <div
+                        class="validation-icon"
+                        *ngIf="
+                          registerForm.get('horaEntrada')?.valid &&
+                          registerForm.get('horaEntrada')?.value
+                        "
+                      >
+                        <i class="fa-solid fa-check"></i>
+                      </div>
+                    </div>
+                    <div
+                      *ngIf="
+                        registerForm.get('horaEntrada')?.invalid &&
+                        registerForm.get('horaEntrada')?.touched
+                      "
+                      id="reg-hora-entrada-error"
+                      class="text-danger"
+                      role="alert"
+                    >
+                      Por favor selecciona una hora de entrada.
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="form-group">
-                <label for="horaSalida">Hora Salida</label>
-                <select
-                  id="horaSalida"
-                  formControlName="horaSalida"
-                  class="form-control"
-                  [ngClass]="{
-                    'is-invalid':
-                      registerForm.get('horaSalida')?.invalid &&
-                      registerForm.get('horaSalida')?.touched,
-                  }"
-                >
-                  <option value="" disabled selected>Seleccione una hora</option>
-                  <option *ngFor="let hora of horasSalidaDisponibles" [value]="hora">
-                    {{ hora }}
-                  </option>
-                </select>
-                <div
-                  *ngIf="
-                    registerForm.get('horaSalida')?.invalid &&
-                    registerForm.get('horaSalida')?.touched
-                  "
-                  class="invalid-feedback"
-                >
-                  Por favor selecciona una hora.
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <div class="input-float">
+                      <span
+                        class="icon"
+                        aria-hidden="true"
+                        [class.icon-active]="
+                          horaSalidaFocused || registerForm.get('horaSalida')?.value
+                        "
+                        ><i class="fa-solid fa-clock"></i
+                      ></span>
+                      <select
+                        id="horaSalida"
+                        class="form-control"
+                        formControlName="horaSalida"
+                        (focus)="horaSalidaFocused = true"
+                        (blur)="horaSalidaFocused = false"
+                        [attr.aria-invalid]="
+                          registerForm.get('horaSalida')?.invalid &&
+                          registerForm.get('horaSalida')?.touched
+                            ? 'true'
+                            : null
+                        "
+                        aria-describedby="reg-hora-salida-error"
+                      >
+                        <option value="" disabled>Seleccione una hora</option>
+                        <option *ngFor="let hora of horasSalidaDisponibles" [value]="hora">
+                          {{ hora }}
+                        </option>
+                      </select>
+                      <label for="horaSalida" class="float-label">Hora de Salida</label>
+                      <div
+                        class="validation-icon"
+                        *ngIf="
+                          registerForm.get('horaSalida')?.valid &&
+                          registerForm.get('horaSalida')?.value
+                        "
+                      >
+                        <i class="fa-solid fa-check"></i>
+                      </div>
+                    </div>
+                    <div
+                      *ngIf="
+                        registerForm.get('horaSalida')?.invalid &&
+                        registerForm.get('horaSalida')?.touched
+                      "
+                      id="reg-hora-salida-error"
+                      class="text-danger"
+                      role="alert"
+                    >
+                      Por favor selecciona una hora de salida.
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="password">Contraseña</label>
-              <input
-                type="password"
-                id="password"
-                formControlName="password"
-                class="form-control"
-                placeholder="******"
-                [attr.aria-invalid]="
-                  registerForm.get('password')?.invalid && registerForm.get('password')?.touched
-                    ? 'true'
-                    : null
-                "
-                aria-describedby="reg-password-error"
-              />
+            <div class="form-group mb-4">
+              <div class="input-float">
+                <span
+                  class="icon"
+                  aria-hidden="true"
+                  [class.icon-active]="passwordFocused || registerForm.get('password')?.value"
+                  ><i class="fa-solid fa-lock"></i
+                ></span>
+                <input
+                  [type]="isPasswordVisible ? 'text' : 'password'"
+                  id="password"
+                  class="form-control"
+                  autocomplete="new-password"
+                  formControlName="password"
+                  placeholder=" "
+                  (focus)="passwordFocused = true"
+                  (blur)="passwordFocused = false"
+                  [attr.aria-invalid]="
+                    registerForm.get('password')?.invalid && registerForm.get('password')?.touched
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="reg-password-error"
+                />
+                <label for="password" class="float-label">Contraseña</label>
+                <button
+                  type="button"
+                  class="toggle-btn"
+                  (click)="togglePasswordVisibility()"
+                  [attr.aria-pressed]="isPasswordVisible"
+                  [attr.aria-label]="
+                    isPasswordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                  "
+                >
+                  <i class="fa-solid" [ngClass]="isPasswordVisible ? 'fa-eye-slash' : 'fa-eye'"></i>
+                </button>
+                <div
+                  class="validation-icon"
+                  *ngIf="registerForm.get('password')?.valid && registerForm.get('password')?.value"
+                >
+                  <i class="fa-solid fa-check"></i>
+                </div>
+              </div>
               <div
                 *ngIf="
                   registerForm.get('password')?.invalid && registerForm.get('password')?.touched
@@ -314,19 +626,33 @@
                 class="text-danger"
                 role="alert"
               >
-                La contraseña es obligatoria.
+                La contraseña es obligatoria y debe tener al menos 5 caracteres.
               </div>
             </div>
             <button
               type="submit"
-              class="btn btn-primary btn-block"
-              [disabled]="registerForm.invalid"
+              class="btn btn-primary btn-cta btn-block d-flex align-items-center justify-content-center gap-2"
+              [disabled]="registerForm.invalid || isSubmitting"
             >
-              {{ esTrabajador ? 'Registrar Trabajador' : 'Registrar Cliente' }}
+              <span class="progress-bg" [style.--progress]="progress"></span>
+              <span *ngIf="!isSubmitting">{{
+                esTrabajador ? 'Registrar Trabajador' : 'Registrar Cliente'
+              }}</span>
+              <span
+                *ngIf="isSubmitting"
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-live="polite"
+                aria-label="Registrando usuario"
+              ></span>
             </button>
+
+            <a class="link mt-4" routerLink="/login"
+              >¿Ya tienes una cuenta? <br />Inicia sesión aquí</a
+            >
           </form>
         </div>
       </div>
     </div>
   </div>
-</div>
+</section>

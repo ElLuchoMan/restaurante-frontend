@@ -21,6 +21,23 @@ import { ClienteService } from './../../../core/services/cliente.service';
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {
+  // Focus states para las animaciones de los inputs
+  documentoFocused = false;
+  nombreFocused = false;
+  apellidoFocused = false;
+  telefonoFocused = false;
+  direccionFocused = false;
+  correoFocused = false;
+  passwordFocused = false;
+  fechaNacimientoFocused = false;
+  sueldoFocused = false;
+  rolFocused = false;
+  horaEntradaFocused = false;
+  horaSalidaFocused = false;
+  isPasswordVisible = false;
+  isSubmitting = false;
+  progress = 0;
+
   registerForm: FormGroup<{
     documento: FormControl<string>;
     nombre: FormControl<string>;
@@ -126,6 +143,11 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.registerForm.invalid || this.isSubmitting) return;
+
+    this.isSubmitting = true;
+    this.progress = 30; // Progreso inicial
+
     const values = this.registerForm.getRawValue();
     const formattedFechaIngreso = this.formatDatePipe.transform(new Date());
 
@@ -147,16 +169,24 @@ export class RegisterComponent implements OnInit {
         fechaIngreso: formattedFechaIngreso,
         fechaNacimiento: formattedFechaNacimiento,
       };
+      this.progress = 70; // Progreso medio
+
       this.trabajadorService.registroTrabajador(trabajador).subscribe({
         next: (response) => {
+          this.progress = 100; // Completado
+          this.isSubmitting = false;
+
           if (response?.code === 201) {
             this.toastr.success(response?.message);
             this.router.navigate(['/']);
           } else {
             this.toastr.error(response?.message || 'Ocurrió un error desconocido', 'Error');
+            this.progress = 0; // Reset en error
           }
         },
         error: (err) => {
+          this.progress = 0; // Reset en error
+          this.isSubmitting = false;
           this.toastr.error(err.message, 'Error');
         },
       });
@@ -171,19 +201,31 @@ export class RegisterComponent implements OnInit {
         telefono: values.telefono,
         observaciones: values.observaciones,
       };
+      this.progress = 70; // Progreso medio
+
       this.clienteService.registroCliente(cliente).subscribe({
         next: (response) => {
+          this.progress = 100; // Completado
+          this.isSubmitting = false;
+
           if (response?.code === 201) {
             this.toastr.success('Cliente registrado con éxito');
             this.router.navigate(['/']);
           } else {
             this.toastr.error(response.message || 'Ocurrió un error', 'Error');
+            this.progress = 0; // Reset en error
           }
         },
         error: (err) => {
+          this.progress = 0; // Reset en error
+          this.isSubmitting = false;
           this.toastr.error(err.message, 'Error');
         },
       });
     }
+  }
+
+  togglePasswordVisibility(): void {
+    this.isPasswordVisible = !this.isPasswordVisible;
   }
 }
