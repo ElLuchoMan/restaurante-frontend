@@ -464,112 +464,210 @@
                   Por favor selecciona un rol.
                 </div>
               </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group mb-3">
-                    <div class="input-float">
-                      <span
-                        class="icon"
-                        aria-hidden="true"
-                        [class.icon-active]="
-                          horaEntradaFocused || registerForm.get('horaEntrada')?.value
-                        "
-                        ><i class="fa-solid fa-clock"></i
-                      ></span>
-                      <select
-                        id="horaEntrada"
-                        class="form-control"
-                        formControlName="horaEntrada"
-                        (focus)="horaEntradaFocused = true"
-                        (blur)="horaEntradaFocused = false"
-                        [attr.aria-invalid]="
-                          registerForm.get('horaEntrada')?.invalid &&
-                          registerForm.get('horaEntrada')?.touched
-                            ? 'true'
-                            : null
-                        "
-                        aria-describedby="reg-hora-entrada-error"
-                      >
-                        <option value="" disabled>Seleccione una hora</option>
-                        <option *ngFor="let hora of horasEntradaDisponibles" [value]="hora">
-                          {{ hora }}
-                        </option>
-                      </select>
-                      <label for="horaEntrada" class="float-label">Hora de Entrada</label>
-                      <div
-                        class="validation-icon"
-                        *ngIf="
-                          registerForm.get('horaEntrada')?.valid &&
-                          registerForm.get('horaEntrada')?.value
-                        "
-                      >
-                        <i class="fa-solid fa-check"></i>
-                      </div>
+              <!-- Sistema de Horarios Simplificado -->
+              <div class="form-group mb-4">
+                <div class="schedule-header mb-4">
+                  <div class="d-flex align-items-center">
+                    <div class="schedule-icon">
+                      <i class="fa-solid fa-clock"></i>
                     </div>
-                    <div
-                      *ngIf="
-                        registerForm.get('horaEntrada')?.invalid &&
-                        registerForm.get('horaEntrada')?.touched
-                      "
-                      id="reg-hora-entrada-error"
-                      class="text-danger"
-                      role="alert"
-                    >
-                      Por favor selecciona una hora de entrada.
+                    <div class="ms-3">
+                      <h5 class="mb-1 fw-bold">Horario de Trabajo</h5>
+                      <p class="text-muted mb-0 small">
+                        Define los horarios laborales del empleado
+                      </p>
                     </div>
                   </div>
                 </div>
-                <div class="col-md-6">
-                  <div class="form-group mb-3">
-                    <div class="input-float">
-                      <span
-                        class="icon"
-                        aria-hidden="true"
-                        [class.icon-active]="
-                          horaSalidaFocused || registerForm.get('horaSalida')?.value
-                        "
-                        ><i class="fa-solid fa-clock"></i
-                      ></span>
-                      <select
-                        id="horaSalida"
-                        class="form-control"
-                        formControlName="horaSalida"
-                        (focus)="horaSalidaFocused = true"
-                        (blur)="horaSalidaFocused = false"
-                        [attr.aria-invalid]="
-                          registerForm.get('horaSalida')?.invalid &&
-                          registerForm.get('horaSalida')?.touched
-                            ? 'true'
-                            : null
-                        "
-                        aria-describedby="reg-hora-salida-error"
-                      >
-                        <option value="" disabled>Seleccione una hora</option>
-                        <option *ngFor="let hora of horasSalidaDisponibles" [value]="hora">
-                          {{ hora }}
-                        </option>
-                      </select>
-                      <label for="horaSalida" class="float-label">Hora de Salida</label>
-                      <div
-                        class="validation-icon"
-                        *ngIf="
-                          registerForm.get('horaSalida')?.valid &&
-                          registerForm.get('horaSalida')?.value
-                        "
-                      >
-                        <i class="fa-solid fa-check"></i>
+
+                <!-- Horario General -->
+                <div class="schedule-general mb-4">
+                  <h6 class="mb-3 d-flex align-items-center">
+                    <i class="fa-solid fa-calendar-week text-primary me-2"></i>
+                    Horario General
+                  </h6>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <div class="input-float">
+                        <span class="icon" aria-hidden="true">
+                          <i class="fa-solid fa-sun"></i>
+                        </span>
+                        <input
+                          type="time"
+                          id="horarioGeneralInicio"
+                          class="form-control"
+                          [value]="horarioGeneral.horaInicio"
+                          (change)="onHorarioGeneralChange('inicio', $event)"
+                        />
+                        <label for="horarioGeneralInicio" class="float-label"
+                          >Hora de Entrada</label
+                        >
                       </div>
                     </div>
+                    <div class="col-md-6 mb-3">
+                      <div class="input-float">
+                        <span class="icon" aria-hidden="true">
+                          <i class="fa-solid fa-moon"></i>
+                        </span>
+                        <input
+                          type="time"
+                          id="horarioGeneralFin"
+                          class="form-control"
+                          [value]="horarioGeneral.horaFin"
+                          (change)="onHorarioGeneralChange('fin', $event)"
+                        />
+                        <label for="horarioGeneralFin" class="float-label">Hora de Salida</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="duration-display"
+                    *ngIf="horarioGeneral.horaInicio && horarioGeneral.horaFin"
+                  >
+                    <small class="text-primary">
+                      <i class="fa-solid fa-clock me-1"></i>
+                      Jornada:
+                      {{ calculateDuration(horarioGeneral.horaInicio, horarioGeneral.horaFin) }}
+                    </small>
+                  </div>
+                </div>
+
+                <!-- Switch para Horarios Diferentes -->
+                <div class="schedule-different mb-4">
+                  <div class="switch-card">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <div class="switch-info">
+                        <h6 class="mb-1">
+                          <i class="fa-solid fa-calendar-days text-warning me-2"></i>
+                          Horarios diferentes por días
+                        </h6>
+                        <p class="text-muted small mb-0">
+                          Activar si necesitas horarios específicos para ciertos días
+                        </p>
+                      </div>
+                      <div class="switch-toggle">
+                        <label class="switch-elegant" for="horariosDiferentes">
+                          <input
+                            type="checkbox"
+                            id="horariosDiferentes"
+                            [checked]="horariosDiferentes"
+                            (change)="onHorariosDiferentesChange($event)"
+                          />
+                          <span class="slider"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Personalización por Días (Solo si está activado) -->
+                <div class="schedule-custom" *ngIf="horariosDiferentes">
+                  <h6 class="mb-3 d-flex align-items-center">
+                    <i class="fa-solid fa-calendar-check text-success me-2"></i>
+                    Personalizar Días Específicos
+                  </h6>
+
+                  <!-- Selector de Días -->
+                  <div class="days-selector mb-4">
+                    <div class="row">
+                      <div
+                        class="col-6 col-md-4 col-lg-3"
+                        *ngFor="let dia of diasSemana; trackBy: trackByDia"
+                      >
+                        <div class="day-checkbox">
+                          <input
+                            type="checkbox"
+                            [id]="'dia-' + dia"
+                            [checked]="diasPersonalizados[dia]"
+                            (change)="onDiaPersonalizadoChange(dia, $event)"
+                            class="form-check-input"
+                          />
+                          <label [for]="'dia-' + dia" class="form-check-label">
+                            {{ dia }}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Horarios Específicos para Días Seleccionados -->
+                  <div class="custom-schedules">
                     <div
-                      *ngIf="
-                        registerForm.get('horaSalida')?.invalid &&
-                        registerForm.get('horaSalida')?.touched
-                      "
-                      id="reg-hora-salida-error"
-                      class="text-danger"
-                      role="alert"
+                      *ngFor="let dia of diasSemana"
+                      class="day-custom-card mb-3"
+                      [style.display]="diasPersonalizados[dia] ? 'block' : 'none'"
                     >
-                      Por favor selecciona una hora de salida.
+                      <div class="day-custom-header">
+                        <h6 class="mb-2">
+                          <i class="fa-solid fa-calendar-day text-primary me-2"></i>
+                          {{ dia }}
+                        </h6>
+
+                        <!-- Switch Día Libre -->
+                        <div class="day-free-switch">
+                          <label class="switch-small" [for]="'diaLibre-' + dia">
+                            <input
+                              type="checkbox"
+                              [id]="'diaLibre-' + dia"
+                              [checked]="horariosPersonalizados[dia].diaLibre"
+                              (change)="onDiaLibreChange(dia, $event)"
+                            />
+                            <span class="slider-small"></span>
+                            <span class="switch-label-small">{{
+                              horariosPersonalizados[dia].diaLibre ? 'Día libre' : 'Laborar'
+                            }}</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <!-- Horarios del Día -->
+                      <div class="day-time-inputs" *ngIf="!horariosPersonalizados[dia].diaLibre">
+                        <div class="row">
+                          <div class="col-6">
+                            <label class="small text-muted mb-1">Entrada</label>
+                            <input
+                              type="time"
+                              class="form-control form-control-sm"
+                              [value]="horariosPersonalizados[dia].horaInicio"
+                              (change)="onHorarioPersonalizadoChange(dia, 'inicio', $event)"
+                            />
+                          </div>
+                          <div class="col-6">
+                            <label class="small text-muted mb-1">Salida</label>
+                            <input
+                              type="time"
+                              class="form-control form-control-sm"
+                              [value]="horariosPersonalizados[dia].horaFin"
+                              (change)="onHorarioPersonalizadoChange(dia, 'fin', $event)"
+                            />
+                          </div>
+                        </div>
+                        <div
+                          class="custom-duration mt-2"
+                          *ngIf="
+                            horariosPersonalizados[dia].horaInicio &&
+                            horariosPersonalizados[dia].horaFin
+                          "
+                        >
+                          <small class="text-success">
+                            <i class="fa-solid fa-clock me-1"></i>
+                            {{
+                              calculateDuration(
+                                horariosPersonalizados[dia].horaInicio,
+                                horariosPersonalizados[dia].horaFin
+                              )
+                            }}
+                          </small>
+                        </div>
+                      </div>
+
+                      <!-- Mensaje Día Libre -->
+                      <div class="day-free-message" *ngIf="horariosPersonalizados[dia].diaLibre">
+                        <i class="fa-solid fa-bed text-success me-2"></i>
+                        <span class="text-muted">Sin horario - Día libre</span>
+                      </div>
                     </div>
                   </div>
                 </div>

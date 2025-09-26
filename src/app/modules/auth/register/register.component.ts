@@ -4,10 +4,12 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
+import { HorarioTrabajadorService } from '../../../core/services/horario-trabajador.service';
 import { TrabajadorService } from '../../../core/services/trabajador.service';
 import { UserService } from '../../../core/services/user.service';
-import { RolTrabajador } from '../../../shared/constants';
+import { DiaSemana, RolTrabajador } from '../../../shared/constants';
 import { Cliente } from '../../../shared/models/cliente.model';
+import { HorarioTrabajador } from '../../../shared/models/horario-trabajador.model';
 import { Trabajador } from '../../../shared/models/trabajador.model';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
 import { ClienteService } from './../../../core/services/cliente.service';
@@ -32,11 +34,45 @@ export class RegisterComponent implements OnInit {
   fechaNacimientoFocused = false;
   sueldoFocused = false;
   rolFocused = false;
-  horaEntradaFocused = false;
-  horaSalidaFocused = false;
   isPasswordVisible = false;
   isSubmitting = false;
   progress = 0;
+
+  // Sistema de horarios simplificado
+  diasSemana = Object.values(DiaSemana);
+
+  // Horario general (por defecto para toda la semana)
+  horarioGeneral = {
+    horaInicio: '08:00',
+    horaFin: '17:00',
+  };
+
+  // Switch para activar horarios personalizados por día
+  horariosDiferentes = false;
+
+  // Días seleccionados para personalizar
+  diasPersonalizados: { [key in DiaSemana]: boolean } = {
+    [DiaSemana.DiaLunes]: false,
+    [DiaSemana.DiaMartes]: false,
+    [DiaSemana.DiaMiercoles]: false,
+    [DiaSemana.DiaJueves]: false,
+    [DiaSemana.DiaViernes]: false,
+    [DiaSemana.DiaSabado]: false,
+    [DiaSemana.DiaDomingo]: false,
+  };
+
+  // Horarios específicos solo para días personalizados
+  horariosPersonalizados: {
+    [key in DiaSemana]: { diaLibre: boolean; horaInicio: string; horaFin: string };
+  } = {
+    [DiaSemana.DiaLunes]: { diaLibre: false, horaInicio: '08:00', horaFin: '17:00' },
+    [DiaSemana.DiaMartes]: { diaLibre: false, horaInicio: '08:00', horaFin: '17:00' },
+    [DiaSemana.DiaMiercoles]: { diaLibre: false, horaInicio: '08:00', horaFin: '17:00' },
+    [DiaSemana.DiaJueves]: { diaLibre: false, horaInicio: '08:00', horaFin: '17:00' },
+    [DiaSemana.DiaViernes]: { diaLibre: false, horaInicio: '08:00', horaFin: '17:00' },
+    [DiaSemana.DiaSabado]: { diaLibre: false, horaInicio: '08:00', horaFin: '17:00' },
+    [DiaSemana.DiaDomingo]: { diaLibre: true, horaInicio: '', horaFin: '' },
+  };
 
   registerForm: FormGroup<{
     documento: FormControl<string>;
@@ -52,8 +88,6 @@ export class RegisterComponent implements OnInit {
     fechaNacimiento: FormControl<string>;
     nuevo: FormControl<boolean>;
     rol: FormControl<string>;
-    horaEntrada: FormControl<string>;
-    horaSalida: FormControl<string>;
   }> = new FormGroup({
     documento: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     nombre: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -71,17 +105,14 @@ export class RegisterComponent implements OnInit {
     fechaNacimiento: new FormControl('', { nonNullable: true }),
     nuevo: new FormControl(true, { nonNullable: true }),
     rol: new FormControl('', { nonNullable: true }),
-    horaEntrada: new FormControl('', { nonNullable: true }),
-    horaSalida: new FormControl('', { nonNullable: true }),
   });
 
   roles: string[] = [];
-  horasEntradaDisponibles: string[] = ['08:00', '12:00', '16:00'];
-  horasSalidaDisponibles: string[] = ['17:00', '20:00', '22:00'];
 
   constructor(
     private userService: UserService,
     private trabajadorService: TrabajadorService,
+    private horarioTrabajadorService: HorarioTrabajadorService,
     private clienteService: ClienteService,
     private toastr: ToastrService,
     private router: Router,
@@ -163,7 +194,7 @@ export class RegisterComponent implements OnInit {
         restauranteId: 1,
         rol: (values.rol as unknown as RolTrabajador) || RolTrabajador.RolMesero,
         nuevo: values.nuevo,
-        horario: `${values.horaEntrada} - ${values.horaSalida}`,
+        horario: 'Definido por días', // Los horarios se manejan por separado
         sueldo: Number(values.sueldo),
         telefono: values.telefono,
         fechaIngreso: formattedFechaIngreso,
@@ -172,16 +203,27 @@ export class RegisterComponent implements OnInit {
       this.progress = 70; // Progreso medio
 
       this.trabajadorService.registroTrabajador(trabajador).subscribe({
-        next: (response) => {
-          this.progress = 100; // Completado
-          this.isSubmitting = false;
-
+        next: async (response) => {
           if (response?.code === 201) {
-            this.toastr.success(response?.message);
-            this.router.navigate(['/']);
+            this.progress = 80; // Trabajador creado, ahora crear horarios
+
+            try {
+              // Crear horarios del trabajador
+              await this.crearHorariosTrabajador(Number(values.documento));
+
+              this.progress = 100; // Completado
+              this.isSubmitting = false;
+              this.toastr.success('Trabajador y horarios registrados con éxito');
+              this.router.navigate(['/']);
+            } catch (error) {
+              this.progress = 0;
+              this.isSubmitting = false;
+              this.toastr.error('Trabajador creado, pero error al crear horarios', 'Error');
+            }
           } else {
-            this.toastr.error(response?.message || 'Ocurrió un error desconocido', 'Error');
             this.progress = 0; // Reset en error
+            this.isSubmitting = false;
+            this.toastr.error(response?.message || 'Ocurrió un error desconocido', 'Error');
           }
         },
         error: (err) => {
@@ -227,5 +269,138 @@ export class RegisterComponent implements OnInit {
 
   togglePasswordVisibility(): void {
     this.isPasswordVisible = !this.isPasswordVisible;
+  }
+
+  trackByDia(index: number, dia: DiaSemana): string {
+    return dia;
+  }
+
+  calculateDuration(horaInicio: string, horaFin: string): string {
+    if (!horaInicio || !horaFin) return '';
+
+    const [inicioHora, inicioMin] = horaInicio.split(':').map(Number);
+    const [finHora, finMin] = horaFin.split(':').map(Number);
+
+    const inicioMinutos = inicioHora * 60 + inicioMin;
+    const finMinutos = finHora * 60 + finMin;
+
+    const duracionMinutos = finMinutos - inicioMinutos;
+    const horas = Math.floor(duracionMinutos / 60);
+    const minutos = duracionMinutos % 60;
+
+    if (horas === 0) return `${minutos}min`;
+    if (minutos === 0) return `${horas}h`;
+    return `${horas}h ${minutos}min`;
+  }
+
+  // Métodos para el nuevo sistema de horarios
+  onHorariosDiferentesChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.horariosDiferentes = target.checked;
+
+    // Si se desactiva, resetear días personalizados
+    if (!target.checked) {
+      this.diasPersonalizados = Object.keys(this.diasPersonalizados).reduce(
+        (acc, dia) => {
+          acc[dia as DiaSemana] = false;
+          return acc;
+        },
+        {} as { [key in DiaSemana]: boolean },
+      );
+    }
+  }
+
+  onHorarioGeneralChange(tipo: 'inicio' | 'fin', event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (tipo === 'inicio') {
+      this.horarioGeneral.horaInicio = target.value;
+    } else {
+      this.horarioGeneral.horaFin = target.value;
+    }
+  }
+
+  onDiaPersonalizadoChange(dia: DiaSemana, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.diasPersonalizados[dia] = target.checked;
+
+    // Si se marca el día, copiar el horario general como base
+    if (target.checked) {
+      this.horariosPersonalizados[dia] = {
+        diaLibre: false,
+        horaInicio: this.horarioGeneral.horaInicio,
+        horaFin: this.horarioGeneral.horaFin,
+      };
+    }
+  }
+
+  onDiaLibreChange(dia: DiaSemana, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.horariosPersonalizados[dia].diaLibre = target.checked;
+
+    if (target.checked) {
+      // Si es día libre, limpiar las horas
+      this.horariosPersonalizados[dia].horaInicio = '';
+      this.horariosPersonalizados[dia].horaFin = '';
+    } else {
+      // Si no es día libre, poner horarios por defecto
+      this.horariosPersonalizados[dia].horaInicio = this.horarioGeneral.horaInicio;
+      this.horariosPersonalizados[dia].horaFin = this.horarioGeneral.horaFin;
+    }
+  }
+
+  onHorarioPersonalizadoChange(dia: DiaSemana, tipo: 'inicio' | 'fin', event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (tipo === 'inicio') {
+      this.horariosPersonalizados[dia].horaInicio = target.value;
+    } else {
+      this.horariosPersonalizados[dia].horaFin = target.value;
+    }
+  }
+
+  private async crearHorariosTrabajador(documentoTrabajador: number): Promise<void> {
+    const horariosParaCrear: HorarioTrabajador[] = [];
+
+    for (const dia of this.diasSemana) {
+      let horario;
+
+      if (this.horariosDiferentes && this.diasPersonalizados[dia]) {
+        // Usar horario personalizado para este día
+        horario = this.horariosPersonalizados[dia];
+      } else if (!this.horariosDiferentes || !this.diasPersonalizados[dia]) {
+        // Usar horario general para este día
+        horario = {
+          diaLibre: false,
+          horaInicio: this.horarioGeneral.horaInicio,
+          horaFin: this.horarioGeneral.horaFin,
+        };
+      } else {
+        // Día personalizado pero sin horario definido, usar general
+        horario = {
+          diaLibre: false,
+          horaInicio: this.horarioGeneral.horaInicio,
+          horaFin: this.horarioGeneral.horaFin,
+        };
+      }
+
+      // Solo crear horario si no es día libre y tiene horas válidas
+      if (!horario.diaLibre && horario.horaInicio && horario.horaFin) {
+        horariosParaCrear.push({
+          documentoTrabajador,
+          dia,
+          horaInicio: horario.horaInicio + ':00', // Agregar segundos
+          horaFin: horario.horaFin + ':00', // Agregar segundos
+        });
+      }
+    }
+
+    // Crear todos los horarios
+    for (const horarioData of horariosParaCrear) {
+      try {
+        await this.horarioTrabajadorService.create(horarioData).toPromise();
+      } catch (error) {
+        console.error('Error creando horario para', horarioData.dia, error);
+        throw error;
+      }
+    }
   }
 }
