@@ -2,50 +2,52 @@
   <nav class="container quick-actions" aria-roledescription="Dock de accesos">
     <div class="qa-dock">
       <div class="row">
-        <div class="col-3">
-          <a routerLink="/menu" class="qa-item" aria-label="Ir al menú">
+        <div
+          *ngFor="let action of quickActions"
+          class="col"
+          [ngClass]="'col-' + 12 / quickActions.length"
+        >
+          <!-- Enlaces normales -->
+          <a
+            *ngIf="!action.isButton"
+            [routerLink]="action.route"
+            class="qa-item"
+            [attr.aria-label]="'Ir a ' + action.label"
+          >
             <div class="qa-icon-wrapper">
-              <i class="fa fa-utensils" aria-hidden="true"></i>
-              <span class="qa-badge qa-new">Nuevo</span>
+              <i [class]="action.icon" aria-hidden="true"></i>
+              <span
+                *ngIf="action.badge && action.badge > 0"
+                class="qa-badge"
+                [attr.aria-label]="action.badge + ' notificaciones'"
+              >
+                {{ action.badge }}
+              </span>
             </div>
-            <span>Menú</span>
+            <span>{{ action.label }}</span>
           </a>
-        </div>
-        <div class="col-3">
-          <a routerLink="/reservas/crear" class="qa-item" aria-label="Crear reserva">
+
+          <!-- Botones para acciones especiales -->
+          <button
+            *ngIf="action.isButton"
+            type="button"
+            class="qa-item w-100"
+            [attr.aria-label]="action.label"
+            (click)="onActionClick(action)"
+          >
             <div class="qa-icon-wrapper">
-              <i class="fa fa-calendar" aria-hidden="true"></i>
+              <i [class]="action.icon" aria-hidden="true"></i>
+              <span
+                *ngIf="action.badge && action.badge > 0"
+                class="qa-badge"
+                [attr.aria-label]="action.badge + ' notificaciones'"
+              >
+                {{ action.badge }}
+              </span>
             </div>
-            <span>Reservar</span>
-          </a>
+            <span>{{ action.label }}</span>
+          </button>
         </div>
-        <div class="col-3">
-          <a routerLink="/ubicacion" class="qa-item" aria-label="Ver ubicación">
-            <div class="qa-icon-wrapper">
-              <i class="fa fa-map-marker-alt" aria-hidden="true"></i>
-            </div>
-            <span>Ubicación</span>
-          </a>
-        </div>
-        <div class="col-3" *ngIf="isLoggedOut$ | async; else logoutBtn">
-          <a routerLink="/login" class="qa-item" aria-label="Iniciar sesión">
-            <i class="fa fa-sign-in-alt" aria-hidden="true"></i>
-            <span>Login</span>
-          </a>
-        </div>
-        <ng-template #logoutBtn>
-          <div class="col-3">
-            <button
-              type="button"
-              class="qa-item w-100"
-              aria-label="Cerrar sesión"
-              (click)="onLogout()"
-            >
-              <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-              <span>Logout</span>
-            </button>
-          </div>
-        </ng-template>
       </div>
     </div>
   </nav>

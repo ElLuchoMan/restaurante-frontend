@@ -45,7 +45,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Mostrar header clásico solo en navegadores; en nativo usamos topbar
     if (this.isBrowser) {
-      const cap: any = (window as any).Capacitor;
+      const cap = (window as Window & { Capacitor?: { getPlatform?: () => string } }).Capacitor;
       this.isNative = !!(
         cap &&
         typeof cap.getPlatform === 'function' &&
@@ -181,41 +181,70 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private generateMenu(): void {
-    let menuItems: MenuItem[] = [
-      { label: 'Inicio', route: '/home', priority: 1 },
-      { label: 'Menú', route: '/menu', priority: 2 },
-      { label: 'Ubicación', route: '/ubicacion', priority: 2 },
-      { label: 'Reservas', route: '/reservas', priority: 4 },
-      { label: 'Galería', route: '/gallery', priority: 5 },
-    ];
+    let menuItems: MenuItem[] = [];
 
     if (!this.userRole) {
-      menuItems.push({ label: 'Login', route: '/login', priority: 99 });
+      // NO AUTENTICADO
+      menuItems = [
+        { label: 'Inicio', route: '/home', priority: 1 },
+        { label: 'Menú', route: '/menu', priority: 2 },
+        { label: 'Ubicación', route: '/ubicacion', priority: 3 },
+        { label: 'Reservas', route: '/reservas', priority: 4 },
+        { label: 'Galería', route: '/gallery', priority: 5 },
+        { label: 'Login', route: '/login', priority: 99 },
+      ];
     } else {
-      menuItems.push({ label: 'Logout', route: '/logout', priority: 99 });
-
+      // AUTENTICADO - por rol
       if (this.userRole === 'Cliente') {
-        menuItems.unshift({ label: 'Perfil', route: 'cliente/perfil', priority: 7 });
-        menuItems.unshift({ label: '🛒', route: 'cliente/carrito-cliente', priority: 8 });
-        menuItems = menuItems.filter((item) => item.label !== 'Inicio');
-        menuItems = menuItems.filter((item) => item.label !== 'Ubicación');
-        // menuItems = menuItems.filter((item) => item.label !== 'Galería');
+        // CLIENTE: Menú | Ubicación | Reservas | Galería | Perfil | 🛒 | Logout
+        menuItems = [
+          { label: 'Menú', route: '/menu', priority: 1 },
+          { label: 'Reservas', route: '/reservas', priority: 2 },
+          { label: 'Galería', route: '/gallery', priority: 3 },
+          { label: 'Perfil', route: '/cliente/perfil', priority: 4 },
+          { label: '🛒', route: '/cliente/carrito-cliente', priority: 5 },
+          { label: 'Logout', route: '/logout', priority: 99 },
+        ];
       } else if (this.userRole === 'Administrador') {
-        menuItems.unshift({ label: 'Registrar', route: 'admin/registro-admin', priority: 6 });
-        menuItems = menuItems.filter((item) => item.label !== 'Inicio');
-        menuItems = menuItems.filter((item) => item.label !== 'Galería');
-        menuItems = menuItems.filter((item) => item.label !== 'Menú');
-        menuItems = menuItems.filter((item) => item.label !== 'Ubicación');
-        menuItems.unshift({ label: 'Domicilios', route: '/domicilios/consultar', priority: 3 });
-        menuItems.unshift({ label: 'Productos', route: '/admin/productos/', priority: 3 });
-        menuItems.unshift({ label: 'Telemetría', route: '/admin/telemetria/', priority: 3 });
-      } else if (this.userRole === 'Mesero') {
-        menuItems.push({ label: 'Pedidos', route: '/pedidos', priority: 8 });
+        // ADMIN: Telemetría | Productos | Reservas | Registro | Logout
+        menuItems = [
+          { label: 'Acciones', route: '/admin/acciones', priority: 1 },
+          { label: 'Reservas', route: '/reservas', priority: 2 },
+          { label: 'Registro', route: '/admin/registro-admin', priority: 3 },
+          { label: 'Logout', route: '/logout', priority: 99 },
+        ];
       } else if (this.userRole === 'Domiciliario') {
-        menuItems.push({ label: 'Domicilios', route: '/trabajador/domicilios/tomar', priority: 8 });
-        menuItems = menuItems.filter((item) => item.label !== 'Galería');
-        menuItems = menuItems.filter((item) => item.label !== 'Menú');
-        menuItems = menuItems.filter((item) => item.label !== 'Reservas');
+        // DOMICILIARIO: Domicilios | Menú | Mi perfil | Logout
+        menuItems = [
+          { label: 'Domicilios', route: '/trabajador/domicilios/tomar', priority: 1 },
+          { label: 'Menú', route: '/menu', priority: 2 },
+          { label: 'Mi perfil', route: '/trabajador/perfil', priority: 3 },
+          { label: 'Logout', route: '/logout', priority: 99 },
+        ];
+      } else if (this.userRole === 'Mesero') {
+        // MESERO: Pedidos | Menú | Mi perfil | Logout
+        menuItems = [
+          { label: 'Pedidos', route: '/trabajador/pedidos', priority: 1 },
+          { label: 'Menú', route: '/menu', priority: 2 },
+          { label: 'Mi perfil', route: '/trabajador/perfil', priority: 3 },
+          { label: 'Logout', route: '/logout', priority: 99 },
+        ];
+      } else if (this.userRole === 'Cocinero') {
+        // COCINERO: Pedidos | Menú | Mi perfil | Logout
+        menuItems = [
+          { label: 'Pedidos', route: '/trabajador/pedidos', priority: 1 },
+          { label: 'Menú', route: '/menu', priority: 2 },
+          { label: 'Mi perfil', route: '/trabajador/perfil', priority: 3 },
+          { label: 'Logout', route: '/logout', priority: 99 },
+        ];
+      } else if (this.userRole === 'Oficios Varios') {
+        // OFICIOS VARIOS: Menú | Mi perfil | Galería | Logout
+        menuItems = [
+          { label: 'Menú', route: '/menu', priority: 1 },
+          { label: 'Mi perfil', route: '/trabajador/perfil', priority: 2 },
+          { label: 'Galería', route: '/gallery', priority: 3 },
+          { label: 'Logout', route: '/logout', priority: 99 },
+        ];
       }
     }
 

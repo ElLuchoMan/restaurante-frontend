@@ -5,13 +5,23 @@ import {
   HostListener,
   Inject,
   OnDestroy,
+  OnInit,
   PLATFORM_ID,
   ViewEncapsulation,
 } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { map, Observable } from 'rxjs';
+import { map, Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { UserService } from '../../../core/services/user.service';
+
+export interface QuickActionItem {
+  label: string;
+  route: string;
+  icon: string;
+  badge?: number;
+  isButton?: boolean;
+}
 
 @Component({
   selector: 'app-quick-actions',
@@ -21,14 +31,18 @@ import { UserService } from '../../../core/services/user.service';
   styleUrls: ['./quick-actions.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class QuickActionsComponent implements AfterViewInit, OnDestroy {
+export class QuickActionsComponent implements OnInit, AfterViewInit, OnDestroy {
   private footerObserver?: IntersectionObserver;
   private barEl?: HTMLElement | null;
   private mainEl?: HTMLElement | null;
   private teardownFns: Array<() => void> = [];
   private keyboardOpen = false;
   private footerVisible = false;
+  private destroy$ = new Subject<void>();
+
   isLoggedOut$!: Observable<boolean>;
+  userRole: string | null = null;
+  quickActions: QuickActionItem[] = [];
   private isBrowser: boolean;
 
   constructor(
@@ -40,9 +54,79 @@ export class QuickActionsComponent implements AfterViewInit, OnDestroy {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
+  ngOnInit(): void {
+    // Detectar cambios en el rol del usuario
+    this.userService
+      .getAuthState()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isLoggedIn) => {
+        this.userRole = isLoggedIn ? this.userService.getUserRole() : null;
+        this.generateQuickActions();
+      });
+  }
+
+  private generateQuickActions(): void {
+    if (!this.userRole) {
+      // NO AUTENTICADO: Menú | Reservas | Ubicación | Login
+      this.quickActions = [
+        { label: 'Menú', route: '/menu', icon: 'fa fa-utensils' },
+        { label: 'Reservas', route: '/reservas', icon: 'fa fa-calendar' },
+        { label: 'Ubicación', route: '/ubicacion', icon: 'fa fa-map-marker-alt' },
+        { label: 'Login', route: '/login', icon: 'fa fa-sign-in-alt' },
+      ];
+    } else if (this.userRole === 'Cliente') {
+      // CLIENTE: Menú | Reservas | Ubicación | Galería
+      this.quickActions = [
+        { label: 'Menú', route: '/menu', icon: 'fa fa-utensils' },
+        { label: 'Reservas', route: '/reservas', icon: 'fa fa-calendar' },
+        { label: 'Ubicación', route: '/ubicacion', icon: 'fa fa-map-marker-alt' },
+        { label: 'Galería', route: '/gallery', icon: 'fa fa-images' },
+      ];
+    } else if (this.userRole === 'Administrador') {
+      // ADMIN: Menú | Reservas | Logout
+      this.quickActions = [
+        { label: 'Menú', route: '/menu', icon: 'fa fa-utensils' },
+        { label: 'Reservas', route: '/reservas', icon: 'fa fa-calendar' },
+        { label: 'Logout', route: '/logout', icon: 'fa fa-sign-out-alt', isButton: true },
+      ];
+    } else if (this.userRole === 'Domiciliario') {
+      // DOMICILIARIO: Domicilios | Menú | Mi perfil | Logout
+      this.quickActions = [
+        { label: 'Domicilios', route: '/trabajador/domicilios/tomar', icon: 'fa fa-motorcycle' },
+        { label: 'Menú', route: '/menu', icon: 'fa fa-utensils' },
+        { label: 'Mi perfil', route: '/trabajador/perfil', icon: 'fa fa-user' },
+        { label: 'Logout', route: '/logout', icon: 'fa fa-sign-out-alt', isButton: true },
+      ];
+    } else if (this.userRole === 'Mesero' || this.userRole === 'Cocinero') {
+      // MESERO/COCINERO: Pedidos | Menú | Mi perfil | Logout
+      this.quickActions = [
+        { label: 'Pedidos', route: '/trabajador/pedidos', icon: 'fa fa-clipboard-list' },
+        { label: 'Menú', route: '/menu', icon: 'fa fa-utensils' },
+        { label: 'Mi perfil', route: '/trabajador/perfil', icon: 'fa fa-user' },
+        { label: 'Logout', route: '/logout', icon: 'fa fa-sign-out-alt', isButton: true },
+      ];
+    } else if (this.userRole === 'Oficios Varios') {
+      // OFICIOS VARIOS: Menú | Mi perfil | Galería | Logout
+      this.quickActions = [
+        { label: 'Menú', route: '/menu', icon: 'fa fa-utensils' },
+        { label: 'Mi perfil', route: '/trabajador/perfil', icon: 'fa fa-user' },
+        { label: 'Galería', route: '/gallery', icon: 'fa fa-images' },
+        { label: 'Logout', route: '/logout', icon: 'fa fa-sign-out-alt', isButton: true },
+      ];
+    }
+  }
+
   onLogout(): void {
     this.userService.logout();
     this.router.navigate(['/home']);
+  }
+
+  onActionClick(action: QuickActionItem): void {
+    if (action.isButton && action.route === '/logout') {
+      this.onLogout();
+    } else {
+      this.router.navigate([action.route]);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -185,6 +269,9 @@ export class QuickActionsComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+
     if (this.footerObserver) this.footerObserver.disconnect();
     if (this.mainEl) this.mainEl.style.paddingBottom = '';
     for (const off of this.teardownFns) {
