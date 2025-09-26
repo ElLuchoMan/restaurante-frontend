@@ -86,6 +86,7 @@ export class QuickActionsComponent implements OnInit, AfterViewInit, OnDestroy {
       // ADMIN: Menú | Reservas | Logout
       this.quickActions = [
         { label: 'Menú', route: '/menu', icon: 'fa fa-utensils' },
+        { label: 'Registro', route: '/admin/registro-admin', icon: 'fa fa-address-card' },
         { label: 'Reservas', route: '/reservas', icon: 'fa fa-calendar' },
         { label: 'Logout', route: '/logout', icon: 'fa fa-sign-out-alt', isButton: true },
       ];
