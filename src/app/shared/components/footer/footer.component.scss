@@ -215,9 +215,9 @@
 
   &.instagram {
     &:hover {
-      background: $gradient-primary;
+      background: linear-gradient(135deg, #833ab4, #c13584, #e1306c, #f56040);
       color: $white;
-      border-color: $primary;
+      border-color: #e1306c;
     }
   }
 
@@ -721,12 +721,12 @@
   }
 
   &.instagram {
-    background: $gradient-primary !important;
+    background: linear-gradient(135deg, #833ab4, #c13584, #e1306c, #f56040) !important;
     color: $white !important;
 
     &:hover {
       transform: scale(1.1) !important;
-      box-shadow: 0 4px 12px $shadow-primary-30 !important;
+      box-shadow: 0 4px 12px rgba(225, 48, 108, 0.3) !important;
     }
   }
 }
