@@ -166,7 +166,7 @@
     align-items: center;
 
     .form-check-input {
-      margin: 0 50px 0 0; // ↑ aún MÁS espacio (1.25rem para palabras largas)
+      margin: 0 50px 0 0;
       flex-shrink: 0;
 
       &:checked {
@@ -350,4 +350,27 @@
   i {
     font-size: 1.2rem;
   }
+}
+
+// Estilos específicos para validación de contraseñas
+.form-control[aria-invalid='true'] {
+  border-color: $danger;
+
+  &:focus {
+    border-color: $danger;
+    box-shadow: 0 0 0 0.2rem rgba($danger, 0.25);
+  }
+}
+
+// Ícono de validación para contraseñas que coinciden
+.validation-icon {
+  i.fa-check {
+    color: $success;
+  }
+}
+
+// Estilos para mostrar error de contraseñas no coinciden
+#confirmPassword[aria-invalid='true'] {
+  border-color: $danger;
+  background-color: rgba($danger, 0.05);
 }

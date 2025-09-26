@@ -1,6 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
@@ -31,12 +38,14 @@ export class RegisterComponent implements OnInit {
   direccionFocused = false;
   correoFocused = false;
   passwordFocused = false;
+  confirmPasswordFocused = false;
   fechaNacimientoFocused = false;
   sueldoFocused = false;
   rolFocused = false;
   isPasswordVisible = false;
   isSubmitting = false;
   progress = 0;
+  formProgress = 0; // Progreso dinámico del formulario
 
   // Sistema de horarios simplificado
   diasSemana = Object.values(DiaSemana);
@@ -81,6 +90,7 @@ export class RegisterComponent implements OnInit {
     direccion: FormControl<string>;
     correo: FormControl<string>;
     password: FormControl<string>;
+    confirmPassword: FormControl<string>;
     esTrabajador: FormControl<boolean>;
     sueldo: FormControl<number | null>;
     telefono: FormControl<string>;
@@ -88,24 +98,34 @@ export class RegisterComponent implements OnInit {
     fechaNacimiento: FormControl<string>;
     nuevo: FormControl<boolean>;
     rol: FormControl<string>;
-  }> = new FormGroup({
-    documento: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    nombre: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    apellido: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    direccion: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    correo: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email],
-    }),
-    password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    esTrabajador: new FormControl(false, { nonNullable: true }),
-    sueldo: new FormControl<number | null>(null),
-    telefono: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    observaciones: new FormControl('', { nonNullable: true }),
-    fechaNacimiento: new FormControl('', { nonNullable: true }),
-    nuevo: new FormControl(true, { nonNullable: true }),
-    rol: new FormControl('', { nonNullable: true }),
-  });
+  }> = new FormGroup(
+    {
+      documento: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      nombre: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      apellido: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      direccion: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      correo: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.email],
+      }),
+      password: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.minLength(5)],
+      }),
+      confirmPassword: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      esTrabajador: new FormControl(false, { nonNullable: true }),
+      sueldo: new FormControl<number | null>(null),
+      telefono: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      observaciones: new FormControl('', { nonNullable: true }),
+      fechaNacimiento: new FormControl('', { nonNullable: true }),
+      nuevo: new FormControl(true, { nonNullable: true }),
+      rol: new FormControl('', { nonNullable: true }),
+    },
+    { validators: this.passwordMatchValidator },
+  );
 
   roles: string[] = [];
 
@@ -158,7 +178,18 @@ export class RegisterComponent implements OnInit {
           .get(ctrl as keyof typeof this.registerForm.controls)
           ?.updateValueAndValidity();
       });
+
+      // Recalcular progreso después de cambiar tipo de formulario
+      this.updateFormProgress();
     });
+
+    // Suscribirse a todos los cambios del formulario para actualizar progreso
+    this.registerForm.valueChanges.subscribe(() => {
+      this.updateFormProgress();
+    });
+
+    // Calcular progreso inicial
+    this.updateFormProgress();
   }
 
   isAdmin(): boolean {
@@ -271,6 +302,33 @@ export class RegisterComponent implements OnInit {
     this.isPasswordVisible = !this.isPasswordVisible;
   }
 
+  // Validador personalizado para verificar que las contraseñas coincidan
+  passwordMatchValidator(form: AbstractControl): ValidationErrors | null {
+    const password = form.get('password')?.value;
+    const confirmPassword = form.get('confirmPassword')?.value;
+
+    if (password && confirmPassword && password !== confirmPassword) {
+      return { passwordMismatch: true };
+    }
+
+    return null;
+  }
+
+  // Verificar si las contraseñas no coinciden para mostrar error específico
+  get passwordMismatch(): boolean {
+    const password = this.registerForm.get('password')?.value;
+    const confirmPassword = this.registerForm.get('confirmPassword')?.value;
+    const confirmControl = this.registerForm.get('confirmPassword');
+
+    return !!(
+      password &&
+      confirmPassword &&
+      password !== confirmPassword &&
+      confirmControl?.touched &&
+      this.registerForm.hasError('passwordMismatch')
+    );
+  }
+
   trackByDia(index: number, dia: DiaSemana): string {
     return dia;
   }
@@ -291,6 +349,67 @@ export class RegisterComponent implements OnInit {
     if (horas === 0) return `${minutos}min`;
     if (minutos === 0) return `${horas}h`;
     return `${horas}h ${minutos}min`;
+  }
+
+  // Calcular progreso del formulario dinámicamente
+  updateFormProgress(): void {
+    const values = this.registerForm.getRawValue();
+    let completedFields = 0;
+    let totalFields = 0;
+
+    // Campos base (para todos)
+    const baseFields = [
+      'documento',
+      'nombre',
+      'apellido',
+      'telefono',
+      'password',
+      'confirmPassword',
+    ];
+
+    if (values.esTrabajador) {
+      // Campos para trabajadores
+      const trabajadorFields = [...baseFields, 'fechaNacimiento', 'sueldo', 'rol'];
+      totalFields = trabajadorFields.length;
+
+      // Contar campos completados
+      trabajadorFields.forEach((field) => {
+        const control = this.registerForm.get(field);
+        if (control?.value && control.valid) {
+          completedFields++;
+        }
+      });
+
+      // Agregar progreso de horarios si está configurado
+      if (this.horarioGeneral.horaInicio && this.horarioGeneral.horaFin) {
+        completedFields += 0.5; // Horario general vale medio punto
+      }
+
+      if (this.horariosDiferentes) {
+        const diasConfigurados = Object.keys(this.diasPersonalizados).filter(
+          (dia) => this.diasPersonalizados[dia as DiaSemana],
+        ).length;
+        if (diasConfigurados > 0) {
+          completedFields += 0.5; // Configuración personalizada vale medio punto
+          totalFields += 1; // Agregar campo adicional para horarios
+        }
+      }
+    } else {
+      // Campos para clientes
+      const clienteFields = [...baseFields, 'direccion', 'correo', 'observaciones'];
+      totalFields = clienteFields.length;
+
+      // Contar campos completados
+      clienteFields.forEach((field) => {
+        const control = this.registerForm.get(field);
+        if (control?.value && control.valid) {
+          completedFields++;
+        }
+      });
+    }
+
+    // Calcular porcentaje (0-85% máximo para activar botón gradualmente)
+    this.formProgress = Math.min(85, Math.round((completedFields / totalFields) * 85));
   }
 
   // Métodos para el nuevo sistema de horarios
@@ -317,6 +436,8 @@ export class RegisterComponent implements OnInit {
     } else {
       this.horarioGeneral.horaFin = target.value;
     }
+    // Actualizar progreso cuando cambian los horarios
+    this.updateFormProgress();
   }
 
   onDiaPersonalizadoChange(dia: DiaSemana, event: Event): void {
@@ -331,6 +452,8 @@ export class RegisterComponent implements OnInit {
         horaFin: this.horarioGeneral.horaFin,
       };
     }
+    // Actualizar progreso cuando cambian los días personalizados
+    this.updateFormProgress();
   }
 
   onDiaLibreChange(dia: DiaSemana, event: Event): void {
@@ -346,6 +469,8 @@ export class RegisterComponent implements OnInit {
       this.horariosPersonalizados[dia].horaInicio = this.horarioGeneral.horaInicio;
       this.horariosPersonalizados[dia].horaFin = this.horarioGeneral.horaFin;
     }
+    // Actualizar progreso cuando cambian los días libres
+    this.updateFormProgress();
   }
 
   onHorarioPersonalizadoChange(dia: DiaSemana, tipo: 'inicio' | 'fin', event: Event): void {
@@ -355,6 +480,8 @@ export class RegisterComponent implements OnInit {
     } else {
       this.horariosPersonalizados[dia].horaFin = target.value;
     }
+    // Actualizar progreso cuando cambian horarios personalizados
+    this.updateFormProgress();
   }
 
   private async crearHorariosTrabajador(documentoTrabajador: number): Promise<void> {

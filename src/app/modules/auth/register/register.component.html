@@ -727,22 +727,90 @@
                 La contraseña es obligatoria y debe tener al menos 5 caracteres.
               </div>
             </div>
+
+            <!-- Confirmar Contraseña -->
+            <div class="form-group mb-4">
+              <div class="input-float">
+                <span
+                  class="icon"
+                  aria-hidden="true"
+                  [class.icon-active]="
+                    confirmPasswordFocused || registerForm.get('confirmPassword')?.value
+                  "
+                >
+                  <i class="fa-solid fa-lock-open"></i>
+                </span>
+                <input
+                  [type]="isPasswordVisible ? 'text' : 'password'"
+                  id="confirmPassword"
+                  class="form-control"
+                  autocomplete="new-password"
+                  formControlName="confirmPassword"
+                  placeholder=" "
+                  (focus)="confirmPasswordFocused = true"
+                  (blur)="confirmPasswordFocused = false"
+                  [attr.aria-invalid]="
+                    (registerForm.get('confirmPassword')?.invalid &&
+                      registerForm.get('confirmPassword')?.touched) ||
+                    passwordMismatch
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="reg-confirm-password-error"
+                />
+                <label for="confirmPassword" class="float-label">Repetir Contraseña</label>
+                <div
+                  class="validation-icon"
+                  *ngIf="
+                    registerForm.get('confirmPassword')?.valid &&
+                    registerForm.get('confirmPassword')?.value &&
+                    !passwordMismatch
+                  "
+                >
+                  <i class="fa-solid fa-check"></i>
+                </div>
+              </div>
+              <div
+                *ngIf="passwordMismatch"
+                id="reg-confirm-password-error"
+                class="text-danger"
+                role="alert"
+              >
+                Las contraseñas no coinciden.
+              </div>
+              <div
+                *ngIf="
+                  !passwordMismatch &&
+                  registerForm.get('confirmPassword')?.invalid &&
+                  registerForm.get('confirmPassword')?.touched
+                "
+                id="reg-confirm-password-error"
+                class="text-danger"
+                role="alert"
+              >
+                Por favor, repite la contraseña.
+              </div>
+            </div>
             <button
               type="submit"
               class="btn btn-primary btn-cta btn-block d-flex align-items-center justify-content-center gap-2"
               [disabled]="registerForm.invalid || isSubmitting"
             >
-              <span class="progress-bg" [style.--progress]="progress"></span>
+              <span
+                class="progress-bg"
+                [style.--progress]="isSubmitting ? progress + '%' : formProgress + '%'"
+              ></span>
               <span *ngIf="!isSubmitting">{{
                 esTrabajador ? 'Registrar Trabajador' : 'Registrar Cliente'
               }}</span>
-              <span
-                *ngIf="isSubmitting"
-                class="spinner-border spinner-border-sm"
-                role="status"
-                aria-live="polite"
-                aria-label="Registrando usuario"
-              ></span>
+              <span *ngIf="isSubmitting" class="d-flex align-items-center gap-2">
+                <div
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></div>
+                <span>Registrando...</span>
+              </span>
             </button>
 
             <a class="link mt-4" routerLink="/login"
