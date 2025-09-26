@@ -1,52 +1,245 @@
-<div class="container-fluid footer bg-light pt-3 pb-5">
-  <div class="container text-center py-5">
-    <div class="row">
-      <div class="col-12 mb-4">
-        <a href="index.html" class="navbar-brand m-0">
-          <h1 class="m-0 mt-n2 display-5 text-primary">
-            <span class="text-secondary">El fogón</span>DE MARÍA
-          </h1>
-        </a>
-      </div>
-      <div class="col-12 mb-4">
-        <a class="btn btn-outline-secondary btn-social mr-2" href="#" target="_blank" rel="noopener"
-          ><i class="fab fa-facebook-f"></i
-        ></a>
-        <a class="btn btn-outline-secondary btn-social" href="#" target="_blank" rel="noopener"
-          ><i class="fab fa-instagram"></i
-        ></a>
-      </div>
-
-      <div class="col-12 mt-2 mb-4" *ngIf="!esPaginaUbicacion()">
-        <div class="row">
-          <div class="col-sm-6 text-center text-sm-right border-right mb-3 mb-sm-0">
-            <h5 class="font-weight-bold mb-2">Ubicación</h5>
-            <p class="mb-1">Calle 78 a # 62 - 48</p>
-            <p class="mb-1">Bogotá, Colombia</p>
-            <p class="mb-1">Tel: 2408689</p>
+<!-- Footer moderno con glassmorphism -->
+<footer class="footer-modern" role="contentinfo" aria-label="Pie de página">
+  <div class="container-fluid footer-container">
+    <div class="footer-glass">
+      <div class="container">
+        <!-- Logo principal - WEB -->
+        <div class="row footer-header" *ngIf="!isWebView">
+          <div class="col-12 text-center mb-4">
+            <a routerLink="/" class="footer-brand" aria-label="Ir a inicio">
+              <h1 class="footer-logo mb-0">
+                <span class="text-coffee">El fogón</span>
+                <span class="text-golden">DE MARÍA</span>
+              </h1>
+              <p class="footer-tagline mb-0">Auténtica cocina colombiana</p>
+            </a>
           </div>
-          <div class="col-sm-6 text-center text-sm-left">
-            <h5 class="font-weight-bold mb-2">Horario de Atención para hoy</h5>
-            <p class="mb-1">Estado: {{ estado }}</p>
-            <p class="mb-1" *ngIf="estado == 'Abierto'">Hora Apertura: {{ horaApertura }}</p>
-            <p class="mb-1" *ngIf="estado == 'Abierto'">Hora Cierre: {{ horaCierre }}</p>
+        </div>
+
+        <!-- Redes sociales - WEB -->
+        <div class="row footer-social" *ngIf="!isWebView">
+          <div class="col-12 text-center mb-4">
+            <div class="social-container">
+              <a
+                href="https://facebook.com/elfogondemaria"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="social-link facebook"
+                aria-label="Síguenos en Facebook"
+              >
+                <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                <span class="social-text">Facebook</span>
+              </a>
+              <a
+                href="https://instagram.com/elfogondemaria"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="social-link instagram"
+                aria-label="Síguenos en Instagram"
+              >
+                <i class="fab fa-instagram" aria-hidden="true"></i>
+                <span class="social-text">Instagram</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Header compacto - WEBVIEW SOLAMENTE -->
+        <div class="row footer-header-webview" *ngIf="isWebView">
+          <div class="col-12">
+            <div class="webview-header-container">
+              <!-- Logo compacto -->
+              <div class="webview-brand-section">
+                <a routerLink="/" class="footer-brand-webview" aria-label="Ir a inicio">
+                  <h2 class="footer-logo-webview">
+                    <span class="text-coffee">El fogón</span
+                    ><span class="text-golden">DE MARÍA</span>
+                  </h2>
+                  <p class="footer-tagline-webview">Auténtica cocina colombiana</p>
+                </a>
+              </div>
+
+              <!-- Redes compactas -->
+              <div class="webview-social-section">
+                <div class="social-container-webview">
+                  <a
+                    href="https://facebook.com/elfogondemaria"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-icon-webview facebook"
+                    aria-label="Facebook"
+                  >
+                    <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                  </a>
+                  <a
+                    href="https://instagram.com/elfogondemaria"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-icon-webview instagram"
+                    aria-label="Instagram"
+                  >
+                    <i class="fab fa-instagram" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de contacto y horarios - WEB -->
+        <div class="row footer-info" *ngIf="!esPaginaUbicacion() && !isWebView">
+          <div class="col-lg-6 mb-3">
+            <!-- Información de contacto -->
+            <div class="info-card location-card">
+              <div class="info-header">
+                <i class="fas fa-map-marker-alt info-icon" aria-hidden="true"></i>
+                <h5 class="info-title">Ubicación</h5>
+              </div>
+              <div class="info-content">
+                <p class="info-text">
+                  <i class="fas fa-home info-mini-icon" aria-hidden="true"></i>
+                  Calle 78 a # 62 - 48
+                </p>
+                <p class="info-text">
+                  <i class="fas fa-city info-mini-icon" aria-hidden="true"></i>
+                  Bogotá, Colombia
+                </p>
+                <p class="info-text">
+                  <i class="fas fa-phone info-mini-icon" aria-hidden="true"></i>
+                  <a href="tel:2408689" class="phone-link">240 8689</a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6 mb-3">
+            <!-- Horarios de atención -->
+            <div class="info-card schedule-card">
+              <div class="info-header">
+                <i class="fas fa-clock info-icon" aria-hidden="true"></i>
+                <h5 class="info-title">Horario</h5>
+              </div>
+              <div class="info-content">
+                <div
+                  class="status-indicator"
+                  [class.open]="estado === 'Abierto'"
+                  [class.closed]="estado !== 'Abierto'"
+                >
+                  <i
+                    class="fas status-icon"
+                    [class.fa-circle-check]="estado === 'Abierto'"
+                    [class.fa-circle-xmark]="estado !== 'Abierto'"
+                    aria-hidden="true"
+                  ></i>
+                  <span class="status-text">{{ estado }}</span>
+                </div>
+                <div class="schedule-details" *ngIf="estado === 'Abierto'">
+                  <p class="info-text">
+                    <i class="fas fa-clock info-mini-icon" aria-hidden="true"></i>
+                    {{ horaApertura }} - {{ horaCierre }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de contacto y horarios - WEBVIEW (2 cards lado a lado) -->
+        <div class="row footer-info" *ngIf="!esPaginaUbicacion() && isWebView">
+          <div class="col-6">
+            <!-- Información de contacto -->
+            <div class="info-card location-card webview-card">
+              <div class="info-header">
+                <i class="fas fa-map-marker-alt info-icon" aria-hidden="true"></i>
+                <h5 class="info-title">Ubicación</h5>
+              </div>
+              <div class="info-content">
+                <p class="info-text">
+                  <i class="fas fa-home info-mini-icon" aria-hidden="true"></i>
+                  Calle 78 a # 62 - 48
+                </p>
+                <p class="info-text">
+                  <i class="fas fa-city info-mini-icon" aria-hidden="true"></i>
+                  Bogotá, Colombia
+                </p>
+                <p class="info-text">
+                  <i class="fas fa-phone info-mini-icon" aria-hidden="true"></i>
+                  <a href="tel:2408689" class="phone-link">240 8689</a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <!-- Horarios de atención -->
+            <div class="info-card schedule-card webview-card">
+              <div class="info-header">
+                <i class="fas fa-clock info-icon" aria-hidden="true"></i>
+                <h5 class="info-title">Horario</h5>
+              </div>
+              <div class="info-content">
+                <div
+                  class="status-indicator"
+                  [class.open]="estado === 'Abierto'"
+                  [class.closed]="estado !== 'Abierto'"
+                >
+                  <i
+                    class="fas status-icon"
+                    [class.fa-circle-check]="estado === 'Abierto'"
+                    [class.fa-circle-xmark]="estado !== 'Abierto'"
+                    aria-hidden="true"
+                  ></i>
+                  <span class="status-text">{{ estado }}</span>
+                </div>
+                <div class="schedule-details" *ngIf="estado === 'Abierto'">
+                  <p class="info-text">
+                    <i class="fas fa-clock info-mini-icon" aria-hidden="true"></i>
+                    {{ horaApertura }} - {{ horaCierre }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Copyright y créditos -->
+        <div class="row footer-bottom">
+          <div class="col-12">
+            <div class="copyright-section">
+              <div class="copyright-divider"></div>
+              <p class="copyright-text">
+                © {{ currentYear }}
+                <span class="brand-name">El fogón DE MARÍA</span>
+                - Todos los derechos reservados
+              </p>
+              <div class="credits-container">
+                <span class="credits-text">Desarrollado con ❤️ por </span>
+                <a
+                  href="https://github.com/ElLuchoMan"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="developer-link"
+                  aria-label="Visitar GitHub de ElLuchoMan"
+                >
+                  <i class="fab fa-github" aria-hidden="true"></i>
+                  ElLuchoMan
+                </a>
+                <span class="separator">•</span>
+                <a
+                  href="https://www.linkedin.com/in/baluisto/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="developer-link"
+                  aria-label="Visitar LinkedIn de Alejandro Luis"
+                >
+                  <i class="fab fa-linkedin" aria-hidden="true"></i>
+                  Alejandro Luis
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="col-12">
-        <p class="m-0">
-          &copy;
-          <a href="https://github.com/ElLuchoMan" target="_blank" rel="noopener">ElLuchoMan</a>.
-          Todos los derechos reservados<a
-            href="https://www.linkedin.com/in/baluisto/"
-            target="_blank"
-            rel="noopener"
-          >
-            Alejandro Luis</a
-          >
-        </p>
-      </div>
     </div>
   </div>
-</div>
+</footer>

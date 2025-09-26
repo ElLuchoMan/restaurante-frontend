@@ -1,9 +1,1217 @@
 @use '../../../../assets/_variables.scss' as *;
-.footer {
-  // Reservar espacio cuando exista barra de quick-actions en mobile
+@use 'sass:color';
+
+// 🏢 Footer moderno con glassmorphism - "El fogón DE MARÍA"
+.footer-modern {
+  position: relative;
+  margin-top: auto;
+
+  // ✨ Espaciado para WebView y quick-actions
   @media (max-width: 576px) {
-    padding-bottom: calc(
-      env(safe-area-inset-bottom) + 130px
-    ); // más espacio para no tapar el crédito
+    padding-bottom: calc(env(safe-area-inset-bottom) + 120px); // Menos espacio, footer más compacto
+  }
+}
+
+.footer-container {
+  background: linear-gradient(135deg, $light 0%, $header-gray-light-95 100%);
+  position: relative;
+  overflow: hidden;
+
+  // Efecto sutil de partículas - más suave
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      radial-gradient(circle at 20% 50%, $ring-primary-15 0%, transparent 70%),
+      radial-gradient(circle at 80% 50%, $header-coffee-05 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+.footer-glass {
+  position: relative;
+  z-index: 2;
+  padding: 2rem 0 1.5rem;
+  backdrop-filter: blur(8px);
+  background: $header-white-80;
+  border-top: 1px solid $ring-primary-15;
+
+  @media (min-width: 768px) {
+    padding: 2.5rem 0 2rem;
+  }
+
+  @media (min-width: 992px) {
+    padding: 3rem 0 2.5rem;
+  }
+}
+
+// 🏷️ Logo y branding
+.footer-header {
+  position: relative;
+  margin-bottom: 1rem;
+
+  @media (min-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+
+  @media (min-width: 992px) {
+    margin-bottom: 2rem;
+  }
+}
+
+.footer-brand {
+  display: inline-block;
+  text-decoration: none;
+  transition: $transition-smooth;
+  position: relative;
+
+  // Efecto de brillo al hover
+  &::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: $gradient-primary;
+    border-radius: 20px;
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+
+    &::after {
+      opacity: 0.1;
+    }
+
+    .footer-logo {
+      .text-coffee {
+        color: $header-coffee-accent !important;
+      }
+
+      .text-golden {
+        color: $header-golden !important;
+        text-shadow: 0 0 10px $shadow-primary-30;
+      }
+    }
+
+    .footer-tagline {
+      color: $text-heading-strong !important;
+    }
+  }
+}
+
+.footer-logo {
+  font-family: $font-family-display;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.5rem;
+
+  .text-coffee {
+    color: $header-text-primary;
+    transition: color 0.3s ease;
+  }
+
+  .text-golden {
+    color: $header-golden;
+    transition: all 0.3s ease;
+  }
+
+  @media (min-width: 768px) {
+    font-size: clamp(2rem, 3vw, 2.8rem);
+  }
+}
+
+.footer-tagline {
+  font-size: 0.95rem;
+  color: $text-body;
+  font-style: italic;
+  font-weight: 400;
+  opacity: 0.9;
+  transition: color 0.3s ease;
+
+  @media (min-width: 768px) {
+    font-size: 1rem;
+  }
+}
+
+// 🌐 Redes sociales
+.footer-social {
+  margin-bottom: 1rem;
+
+  @media (min-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+
+  @media (min-width: 992px) {
+    margin-bottom: 2rem;
+  }
+}
+
+.social-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  @media (min-width: 768px) {
+    gap: 1.5rem;
+  }
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: $header-white-95;
+  border: 1px solid $ring-primary-15;
+  border-radius: 25px;
+  text-decoration: none;
+  color: $text-body;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+
+  i {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+  }
+
+  .social-text {
+    font-family: $font-family-sans-serif;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    text-decoration: none;
+    box-shadow: 0 8px 25px $ring-primary-15;
+    border-color: $shadow-primary-30;
+
+    i {
+      transform: scale(1.1);
+    }
+  }
+
+  &.facebook {
+    &:hover {
+      background: linear-gradient(135deg, $info, color.adjust($info, $lightness: 10%));
+      color: $white;
+      border-color: $info;
+    }
+  }
+
+  &.instagram {
+    &:hover {
+      background: $gradient-primary;
+      color: $white;
+      border-color: $primary;
+    }
+  }
+
+  @media (min-width: 768px) {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+
+    i {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+// 📍 Información de contacto
+.footer-info {
+  margin-bottom: 1rem;
+
+  @media (min-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+
+  @media (min-width: 992px) {
+    margin-bottom: 2rem;
+  }
+}
+
+.info-card {
+  background: $header-white-95;
+  backdrop-filter: blur(10px);
+  border: 1px solid $border-light;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px $shadow-medium;
+    border-color: $ring-primary-15;
+  }
+
+  @media (min-width: 768px) {
+    padding: 1.25rem;
+    border-radius: 16px;
+  }
+
+  @media (min-width: 992px) {
+    padding: 1.5rem;
+  }
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid $border-light;
+
+  @media (min-width: 768px) {
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+.info-icon {
+  font-size: 1rem;
+  color: $header-golden;
+  background: $ring-primary-15;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  .info-card:hover & {
+    transform: scale(1.1);
+    background: $shadow-primary-30;
+    color: $white;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 1.1rem;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  @media (min-width: 992px) {
+    font-size: 1.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+.info-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $text-heading-strong;
+  margin: 0;
+  font-family: $font-family-sans-serif;
+
+  @media (min-width: 768px) {
+    font-size: 1.1rem;
+  }
+
+  @media (min-width: 992px) {
+    font-size: 1.2rem;
+  }
+}
+
+.info-content {
+  .info-text {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+    color: $text-body;
+    line-height: 1.3;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (min-width: 768px) {
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    @media (min-width: 992px) {
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+    }
+  }
+}
+
+.info-mini-icon {
+  font-size: 0.8rem;
+  color: $header-golden;
+  width: 1.2rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.phone-link {
+  color: $text-body;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $header-golden;
+    text-decoration: underline;
+  }
+}
+
+// 📍 Información de contacto - WEB Y WEB MOBILE ORIGINAL
+.footer-info {
+  margin-bottom: 1rem;
+
+  @media (min-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+
+  @media (min-width: 992px) {
+    margin-bottom: 2rem;
+  }
+}
+
+.info-card {
+  background: $header-white-95;
+  backdrop-filter: blur(10px);
+  border: 1px solid $border-light;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px $shadow-medium;
+    border-color: $ring-primary-15;
+  }
+
+  @media (min-width: 768px) {
+    padding: 1.25rem;
+    border-radius: 16px;
+  }
+
+  @media (min-width: 992px) {
+    padding: 1.5rem;
+  }
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid $border-light;
+
+  @media (min-width: 768px) {
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+.info-icon {
+  font-size: 1rem;
+  color: $header-golden;
+  background: $ring-primary-15;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  .info-card:hover & {
+    transform: scale(1.1);
+    background: $shadow-primary-30;
+    color: $white;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 1.1rem;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  @media (min-width: 992px) {
+    font-size: 1.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+.info-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $text-heading-strong;
+  margin: 0;
+  font-family: $font-family-sans-serif;
+
+  @media (min-width: 768px) {
+    font-size: 1.1rem;
+  }
+
+  @media (min-width: 992px) {
+    font-size: 1.2rem;
+  }
+}
+
+.info-content {
+  .info-text {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+    color: $text-body;
+    line-height: 1.3;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (min-width: 768px) {
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    @media (min-width: 992px) {
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+    }
+  }
+}
+
+.info-mini-icon {
+  font-size: 0.8rem;
+  color: $header-golden;
+  width: 1.2rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.phone-link {
+  color: $text-body;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $header-golden;
+    text-decoration: underline;
+  }
+}
+
+// ⏰ Estado del restaurante
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &.open {
+    background: color.adjust($success, $lightness: 45%);
+    border: 1px solid color.adjust($success, $lightness: 20%);
+    color: color.adjust($success, $lightness: -20%);
+
+    .status-icon {
+      color: $success;
+    }
+  }
+
+  &.closed {
+    background: color.adjust($danger, $lightness: 45%);
+    border: 1px solid color.adjust($danger, $lightness: 20%);
+    color: color.adjust($danger, $lightness: -20%);
+
+    .status-icon {
+      color: $danger;
+    }
+  }
+}
+
+.status-icon {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+
+  .status-indicator:hover & {
+    transform: scale(1.1);
+  }
+}
+
+.status-text {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.schedule-details {
+  animation: fadeInUp 0.3s ease;
+}
+
+// 🎯 WEBVIEW CARDS - Mismas cards elegantes pero compactas lado a lado
+.webview-card {
+  // Mantener todos los estilos base de .info-card pero más compacto
+  padding: 0.75rem !important;
+
+  .info-header {
+    margin-bottom: 0.5rem !important;
+    padding-bottom: 0.4rem !important;
+    gap: 0.4rem !important;
+  }
+
+  .info-icon {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .info-title {
+    font-size: 0.9rem !important;
+  }
+
+  .info-content {
+    .info-text {
+      margin-bottom: 0.3rem !important;
+      font-size: 0.8rem !important;
+      gap: 0.35rem !important;
+    }
+  }
+
+  .info-mini-icon {
+    font-size: 0.75rem !important;
+    width: 1rem !important;
+  }
+
+  // Estado compacto para WebView
+  .status-indicator {
+    padding: 0.5rem 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+    border-radius: 8px !important;
+  }
+
+  .status-icon {
+    font-size: 0.9rem !important;
+  }
+
+  .status-text {
+    font-size: 0.85rem !important;
+  }
+
+  // Hover más sutil en WebView
+  &:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px $shadow-medium !important;
+  }
+}
+
+// 🚀 WEBVIEW HEADER REORGANIZADO - Logo + Redes lado a lado
+.footer-header-webview {
+  margin-bottom: 0.75rem !important;
+}
+
+.webview-header-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.75rem 1rem !important;
+  background: $header-white-95 !important;
+  border: 1px solid $border-light !important;
+  border-radius: 16px !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+// 🏷️ LOGO WEBVIEW - Lado izquierdo compacto
+.webview-brand-section {
+  flex: 1 !important;
+  text-align: left !important;
+}
+
+.footer-brand-webview {
+  text-decoration: none !important;
+  display: block !important;
+}
+
+.footer-logo-webview {
+  font-size: 1.1rem !important;
+  font-weight: 800 !important;
+  margin-bottom: 0.1rem !important;
+  line-height: 1.1 !important;
+  font-family: $font-family-sans-serif !important;
+
+  .text-coffee {
+    color: $brand-coffee !important;
+  }
+
+  .text-golden {
+    color: $header-golden !important;
+    margin-left: 0.15rem !important;
+  }
+}
+
+.footer-tagline-webview {
+  font-size: 0.7rem !important;
+  color: $text-muted !important;
+  margin: 0 !important;
+  font-style: italic !important;
+  font-weight: 500 !important;
+}
+
+// 📱 REDES SOCIALES WEBVIEW - Lado derecho compacto
+.webview-social-section {
+  flex-shrink: 0 !important;
+}
+
+.social-container-webview {
+  display: flex !important;
+  gap: 0.5rem !important;
+  align-items: center !important;
+}
+
+.social-icon-webview {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  border-radius: 50% !important;
+  text-decoration: none !important;
+  transition: all 0.3s ease !important;
+  font-size: 0.85rem !important;
+
+  &.facebook {
+    background: linear-gradient(135deg, $info, color.adjust($info, $lightness: 10%)) !important;
+    color: $white !important;
+
+    &:hover {
+      transform: scale(1.1) !important;
+      box-shadow: 0 4px 12px color.adjust($info, $lightness: -10%, $alpha: -0.5) !important;
+    }
+  }
+
+  &.instagram {
+    background: $gradient-primary !important;
+    color: $white !important;
+
+    &:hover {
+      transform: scale(1.1) !important;
+      box-shadow: 0 4px 12px $shadow-primary-30 !important;
+    }
+  }
+}
+
+// 📋 Card compacta de información - SOLO WEBVIEW
+.info-card-compact {
+  background: $header-white-95;
+  border: 1px solid $border-light;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: nowrap;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px $shadow-medium;
+    border-color: $ring-primary-15;
+  }
+
+  @media (max-width: 767px) {
+    padding: 0.5rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    border-radius: 8px;
+
+    &:hover {
+      transform: none; // Sin hover en mobile
+    }
+  }
+}
+
+.info-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+
+  @media (max-width: 767px) {
+    gap: 0.25rem;
+  }
+}
+
+.info-icon-inline {
+  font-size: 1rem;
+  color: $header-golden;
+  flex-shrink: 0;
+  width: 1.25rem;
+  text-align: center;
+
+  @media (max-width: 767px) {
+    font-size: 0.8rem;
+    width: 1rem;
+  }
+}
+
+.info-details {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+
+  @media (max-width: 399px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
+.info-label {
+  font-size: 0.8rem;
+  color: $text-muted;
+  font-weight: 600;
+  white-space: nowrap;
+
+  @media (max-width: 767px) {
+    font-size: 0.7rem;
+  }
+
+  @media (max-width: 399px) {
+    font-size: 0.65rem;
+  }
+}
+
+.info-value {
+  font-size: 0.85rem;
+  color: $text-body;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media (max-width: 767px) {
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 399px) {
+    font-size: 0.7rem;
+  }
+}
+
+.phone-link-compact {
+  font-size: 0.85rem;
+  color: $header-golden;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $primary;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 767px) {
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 399px) {
+    font-size: 0.7rem;
+  }
+}
+
+.info-separator {
+  width: 1px;
+  height: 24px;
+  background: $border-light;
+  flex-shrink: 0;
+
+  @media (max-width: 767px) {
+    height: 20px;
+  }
+
+  @media (max-width: 479px) {
+    display: none;
+  }
+}
+
+.status-compact {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &.open {
+    .status-icon-small {
+      color: $success;
+    }
+    .status-text-small {
+      color: color.adjust($success, $lightness: -20%);
+    }
+  }
+
+  &.closed {
+    .status-icon-small {
+      color: $danger;
+    }
+    .status-text-small {
+      color: color.adjust($danger, $lightness: -20%);
+    }
+  }
+
+  @media (max-width: 767px) {
+    gap: 0.25rem;
+  }
+}
+
+.status-icon-small {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+
+  @media (max-width: 767px) {
+    font-size: 0.7rem;
+  }
+}
+
+.status-text-small {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  @media (max-width: 767px) {
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 399px) {
+    font-size: 0.7rem;
+  }
+}
+
+.schedule-inline {
+  font-size: 0.75rem;
+  color: $text-body;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: 0.25rem;
+
+  @media (max-width: 767px) {
+    font-size: 0.7rem;
+  }
+
+  @media (max-width: 399px) {
+    font-size: 0.65rem;
+  }
+
+  &::before {
+    content: '(';
+    color: $text-muted;
+  }
+
+  &::after {
+    content: ')';
+    color: $text-muted;
+  }
+}
+
+// 📄 Copyright y créditos
+.footer-bottom {
+  border-top: 1px solid $border-light;
+  padding-top: 1.5rem;
+  margin-top: 1rem;
+}
+
+.copyright-section {
+  text-align: center;
+  position: relative;
+}
+
+.copyright-divider {
+  width: 60px;
+  height: 2px;
+  background: $gradient-primary;
+  margin: 0 auto 1.5rem;
+  border-radius: 1px;
+
+  @media (min-width: 768px) {
+    width: 80px;
+  }
+}
+
+.copyright-text {
+  font-size: 0.9rem;
+  color: $text-body;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+
+  .brand-name {
+    color: $header-golden;
+    font-weight: 600;
+    font-family: $font-family-display;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 1rem;
+  }
+}
+
+.credits-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+
+  @media (min-width: 768px) {
+    font-size: 0.9rem;
+  }
+}
+
+.credits-text {
+  color: $text-muted;
+}
+
+.separator {
+  color: $text-muted;
+  font-weight: 300;
+}
+
+.developer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: $text-body;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+
+  i {
+    font-size: 0.9rem;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    background: $ring-primary-15;
+    color: $header-golden;
+    text-decoration: none;
+    transform: translateY(-1px);
+
+    i {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// 🎭 Animaciones
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// 📱 WEBVIEW ESPECÍFICO - Layout reorganizado y elegante
+.is-native {
+  .footer-modern {
+    .footer-glass {
+      padding: 1rem 0 0.75rem !important;
+    }
+
+    .footer-header-webview {
+      margin-bottom: 0.5rem !important;
+    }
+
+    .footer-info {
+      margin-bottom: 0.5rem !important;
+    }
+
+    // Copyright SÚPER compacto en línea
+    .footer-bottom {
+      padding-top: 0.5rem !important;
+      margin-top: 0.5rem !important;
+    }
+
+    .copyright-divider {
+      width: 30px !important;
+      height: 1px !important;
+      margin-bottom: 0.5rem !important;
+    }
+
+    .copyright-text {
+      font-size: 0.7rem !important;
+      margin-bottom: 0.3rem !important;
+      line-height: 1.2 !important;
+    }
+
+    .credits-container {
+      flex-direction: row !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: 0.4rem !important;
+      font-size: 0.65rem !important;
+
+      .separator {
+        display: inline-block !important;
+        width: 3px !important;
+        height: 3px !important;
+        background: $text-muted !important;
+        border-radius: 50% !important;
+      }
+    }
+
+    .developer-link {
+      padding: 0.1rem 0.25rem !important;
+      font-size: 0.65rem !important;
+
+      i {
+        font-size: 0.65rem !important;
+      }
+    }
+  }
+}
+
+// 📱 WebView SÚPER COMPACTO - Minimalista (mantener por compatibilidad)
+@media (max-width: 767px) {
+  // Footer ultra compacto
+  .footer-glass {
+    padding: 1rem 0 0.75rem !important;
+  }
+
+  .footer-header {
+    margin-bottom: 0.5rem !important;
+  }
+
+  // Logo más pequeño
+  .footer-logo {
+    font-size: clamp(1.25rem, 3vw, 1.5rem) !important;
+    line-height: 1 !important;
+  }
+
+  .footer-tagline {
+    font-size: 0.75rem !important;
+    margin-top: 0.25rem !important;
+  }
+
+  .footer-social {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .footer-info {
+    margin-bottom: 0.5rem !important;
+  }
+
+  // Redes sociales más pequeñas
+  .social-container {
+    gap: 0.5rem;
+
+    .social-link {
+      padding: 0.5rem 0.75rem !important;
+      font-size: 0.75rem !important;
+      border-radius: 15px !important;
+
+      i {
+        font-size: 0.9rem !important;
+      }
+    }
+  }
+
+  // Copyright compacto
+  .footer-bottom {
+    padding-top: 0.75rem !important;
+    margin-top: 0.5rem !important;
+  }
+
+  .copyright-divider {
+    width: 40px !important;
+    height: 1px !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .copyright-text {
+    font-size: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .credits-container {
+    flex-direction: column;
+    gap: 0.25rem !important;
+    font-size: 0.7rem !important;
+
+    .separator {
+      display: none;
+    }
+  }
+
+  .developer-link {
+    padding: 0.15rem 0.3rem !important;
+
+    i {
+      font-size: 0.7rem !important;
+    }
+  }
+}
+
+// 💫 Efectos especiales para pantallas grandes
+@media (min-width: 1200px) {
+  .footer-container {
+    &::before {
+      background:
+        radial-gradient(circle at 15% 40%, $ring-primary-15 0%, transparent 40%),
+        radial-gradient(circle at 85% 60%, $header-coffee-05 0%, transparent 40%),
+        radial-gradient(circle at 50% 20%, $header-primary-10 0%, transparent 30%),
+        radial-gradient(circle at 30% 80%, $shadow-primary-30 0%, transparent 20%);
+    }
+  }
+
+  .info-card {
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px $shadow-medium;
+    }
+  }
+
+  .social-link {
+    &:hover {
+      transform: translateY(-3px);
+    }
   }
 }
