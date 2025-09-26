@@ -1,4 +1,5 @@
 @use '../../../../assets/_components.scss' as *;
+@use 'sass:color';
 
 // ====== HERO SIMPLIFICADO ======
 .home-hero {
@@ -72,6 +73,233 @@
 // Los estilos .caption-eyebrow y .caption-title ahora están globales en _base.scss
 
 // ====== SECCIONES PRINCIPALES ======
+// Margen superior para WebView nativo (topbar)
+.webview-top-margin {
+  margin-top: 4rem !important; // Espacio para topbar nativa
+}
+
+// ====== CARRUSEL HORIZONTAL PARA WEBVIEW ======
+.home-offers .horizontal-carousel,
+.home-gallery .horizontal-carousel {
+  width: 100vw !important; // Ancho completo del viewport
+  margin-left: calc(-50vw + 50%) !important; // Escapar del container Bootstrap
+  overflow: hidden !important;
+
+  .carousel-container {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 0 1rem 0 !important;
+    width: 100% !important;
+    height: auto !important;
+
+    // Forzar horizontal MUY agresivo
+    > div {
+      display: inline-block !important;
+      vertical-align: top !important;
+      flex: 0 0 auto !important;
+      float: none !important;
+
+      // Padding solo en primera y última card
+      &:first-child {
+        margin-left: 1rem !important;
+      }
+
+      &:last-child {
+        margin-right: 1rem !important;
+        padding-right: 0 !important;
+      }
+    }
+
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $primary;
+      border-radius: 3px;
+
+      &:hover {
+        background: color.adjust($primary, $lightness: -10%);
+      }
+    }
+  }
+}
+
+.offer-card-mobile {
+  min-width: 240px !important;
+  max-width: 240px !important;
+  width: 240px !important;
+  flex: 0 0 240px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  display: inline-block !important;
+  vertical-align: top !important;
+  background: $white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  scroll-snap-align: start;
+  position: relative;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+
+  .offer-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: $white;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    z-index: 2;
+
+    // Reutilizar estilos de badges existentes
+    background: linear-gradient(135deg, $success, #219a52);
+
+    &.hot {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+    }
+
+    &.weekend {
+      background: linear-gradient(135deg, $primary, #b8941f);
+    }
+  }
+
+  .offer-image-mobile {
+    height: 140px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .offer-content-mobile {
+    padding: 1rem;
+
+    h4 {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    p {
+      margin-bottom: 0.75rem;
+      color: $text-muted;
+      font-size: 0.85rem;
+    }
+
+    .price-mobile {
+      margin-bottom: 0.75rem;
+
+      .old-price {
+        text-decoration: line-through;
+        color: $gray-light;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+      }
+
+      .new-price {
+        color: $primary;
+        font-weight: 700;
+        font-size: 1rem;
+      }
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// ====== PRODUCTS CARDS PARA WEBVIEW ======
+.product-card-mobile {
+  min-width: 180px !important;
+  max-width: 180px !important;
+  width: 180px !important;
+  flex: 0 0 180px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  display: inline-block !important;
+  vertical-align: top !important;
+  background: $white;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  scroll-snap-align: start;
+  position: relative;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+
+  .product-image-mobile {
+    height: 120px;
+    overflow: hidden;
+    position: relative;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-overlay-mobile {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+
+      .product-price {
+        background: rgba($primary, 0.9);
+        color: $white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .product-content-mobile {
+    padding: 0.75rem;
+
+    h5 {
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    p {
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+      color: $text-muted;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.4rem;
+      font-size: 0.75rem;
+    }
+  }
+}
+
 .home-about {
   .about-image {
     min-height: 400px;

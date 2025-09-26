@@ -1,5 +1,9 @@
-<!-- Hero simplificado - 1 slide potente en lugar de carrusel repetitivo -->
-<div class="container-fluid p-0 home-hero" aria-label="Bienvenida a El fogón DE MARÍA">
+<!-- Hero simplificado - Solo para WEB, no para WebView nativo -->
+<div
+  class="container-fluid p-0 home-hero"
+  *ngIf="!isWebView"
+  aria-label="Bienvenida a El fogón DE MARÍA"
+>
   <div class="hero-single position-relative">
     <img
       class="img-responsive"
@@ -28,8 +32,8 @@
   </div>
 </div>
 
-<!-- Sección de estadísticas destacadas - Ahora visible siempre para credibilidad -->
-<div class="container-fluid py-4 home-stats">
+<!-- Sección de estadísticas destacadas - Solo para WEB, innecesario en WebView -->
+<div class="container-fluid py-4 home-stats" *ngIf="!isWebView">
   <div class="container">
     <div class="row g-3">
       <div class="col-6 col-md-3">
@@ -73,7 +77,7 @@
 </div>
 
 <!-- Sección de Ofertas Especiales -->
-<div class="container-fluid py-5 home-offers">
+<div class="container-fluid py-5 home-offers" [class.webview-top-margin]="isWebView">
   <div class="container">
     <div class="row justify-content-center mb-4">
       <div class="col-lg-8 text-center">
@@ -82,7 +86,8 @@
         </h2>
       </div>
     </div>
-    <div class="row g-4">
+    <!-- Vista WEB: Grid responsivo -->
+    <div class="row g-4" *ngIf="!isWebView">
       <div class="col-md-6 col-lg-4">
         <div class="offer-card">
           <div class="offer-badge">¡NUEVO!</div>
@@ -148,11 +153,75 @@
         </div>
       </div>
     </div>
+
+    <!-- Vista WEBVIEW: Carrusel horizontal compacto -->
+    <div class="horizontal-carousel" *ngIf="isWebView">
+      <div class="carousel-container">
+        <div class="offer-card-mobile">
+          <div class="offer-badge">¡NUEVO!</div>
+          <div class="offer-image-mobile">
+            <img
+              src="assets/img/product-1.webp"
+              alt="Combo Tradicional"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+          </div>
+          <div class="offer-content-mobile">
+            <h4>Combo Tradicional</h4>
+            <p class="small">Bandeja paisa + bebida + postre</p>
+            <div class="price-mobile">
+              <span class="old-price">$35.000</span>
+              <span class="new-price">$28.000</span>
+            </div>
+            <a routerLink="/menu" class="btn btn-primary btn-sm">Pedir</a>
+          </div>
+        </div>
+        <div class="offer-card-mobile">
+          <div class="offer-badge hot">🔥 HOT</div>
+          <div class="offer-image-mobile">
+            <img
+              src="assets/img/product-2.webp"
+              alt="2x1 Bebidas"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+          </div>
+          <div class="offer-content-mobile">
+            <h4>2x1 en Bebidas</h4>
+            <p class="small">Válido en jugos naturales y gaseosas</p>
+            <div class="price-mobile">
+              <span class="new-price">Desde $8.000</span>
+            </div>
+            <a routerLink="/menu" class="btn btn-secondary btn-sm">Aprovechar</a>
+          </div>
+        </div>
+        <div class="offer-card-mobile">
+          <div class="offer-badge weekend">FIN DE SEMANA</div>
+          <div class="offer-image-mobile">
+            <img
+              src="assets/img/product-3.webp"
+              alt="Brunch Especial"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+          </div>
+          <div class="offer-content-mobile">
+            <h4>Brunch Especial</h4>
+            <p class="small">Desayuno + almuerzo fusión</p>
+            <div class="price-mobile">
+              <span class="new-price">$22.000</span>
+            </div>
+            <a routerLink="/menu" class="btn btn-primary btn-sm">Probar</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Eliminado espaciador: la barra ahora se oculta al ver el footer -->
-<div class="container-fluid py-5 home-about">
+<!-- Sección About - Solo para WEB, demasiado texto para WebView -->
+<div class="container-fluid py-5 home-about" *ngIf="!isWebView">
   <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-lg-8">
@@ -244,7 +313,8 @@
         </h2>
       </div>
     </div>
-    <div class="row g-3">
+    <!-- Vista WEB: Grid responsivo -->
+    <div class="row g-3" *ngIf="!isWebView">
       <!-- Loading state -->
       <ng-container *ngIf="loadingProductos">
         <div class="col-12 text-center py-4">
@@ -288,12 +358,6 @@
             />
             <div class="gallery-overlay">
               <h4>{{ producto.nombreProducto }}</h4>
-              <p>
-                {{ producto.cantidadVendida }} vendidos
-                <span class="d-block fw-bold text-warning">
-                  ${{ producto.precio | number: '1.0-0' }}
-                </span>
-              </p>
             </div>
           </div>
         </div>
@@ -309,14 +373,140 @@
         </div>
       </ng-container>
     </div>
+
+    <!-- Vista WEBVIEW: Carrusel horizontal compacto para platos estrella -->
+    <div class="horizontal-carousel" *ngIf="isWebView">
+      <!-- Loading state -->
+      <div class="text-center py-4" *ngIf="loadingProductos">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando productos populares...</span>
+        </div>
+        <p class="mt-2 text-muted small">Cargando platos...</p>
+      </div>
+
+      <!-- Error state -->
+      <div class="text-center py-4" *ngIf="errorProductos && !loadingProductos">
+        <p class="text-warning small mb-2">No pudimos cargar los platos</p>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-primary"
+          (click)="loadProductosPopulares()"
+        >
+          Reintentar
+        </button>
+      </div>
+
+      <!-- Success state - Productos dinámicos en carrusel -->
+      <div
+        class="carousel-container"
+        *ngIf="!loadingProductos && !errorProductos && productosPopulares.length > 0"
+      >
+        <div
+          class="product-card-mobile"
+          *ngFor="let producto of productosPopulares; let i = index; trackBy: trackByProductoId"
+        >
+          <div class="product-image-mobile">
+            <img
+              [src]="getProductImageSrcByIndex(producto, i)"
+              [alt]="producto.nombreProducto"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+            <div class="product-overlay-mobile">
+              <span class="product-price">${{ producto.precio | number: '1.0-0' }}</span>
+            </div>
+          </div>
+          <div class="product-content-mobile">
+            <h5>{{ producto.nombreProducto }}</h5>
+            <a routerLink="/menu" class="btn btn-outline-primary btn-sm">Ver</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fallback cuando no hay productos -->
+      <div
+        class="text-center py-4"
+        *ngIf="!loadingProductos && !errorProductos && productosPopulares.length === 0"
+      >
+        <p class="text-muted small">No hay productos disponibles</p>
+      </div>
+    </div>
     <div class="text-center mt-4">
       <a routerLink="/menu" class="btn btn-primary btn-lg">Ver Menú Completo</a>
     </div>
   </div>
 </div>
 
-<!-- Sección de Testimonios -->
-<div class="container-fluid py-5 home-testimonials">
+<!-- Info rápida de contacto - Solo para WebView -->
+<div class="container-fluid py-4" *ngIf="isWebView">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-6">
+        <a routerLink="/ubicacion" class="quick-info-card text-decoration-none">
+          <div class="card h-100 text-center">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <i class="fa fa-map-marker-alt text-primary mb-2" style="font-size: 1.5rem"></i>
+              <h6 class="mb-1">Ubicación</h6>
+              <p class="small text-muted mb-0">Calle 78a # 62 - 48, Bogotá, Colombia</p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-6">
+        <a href="tel:3042449339" class="quick-info-card text-decoration-none">
+          <div class="card h-100 text-center">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <i class="fa fa-phone text-success mb-2" style="font-size: 1.5rem"></i>
+              <h6 class="mb-1">Llamar</h6>
+              <p class="small text-muted mb-0">3042449339</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Acceso directo al carrito - Solo para WebView si hay items -->
+<div class="container-fluid py-3" *ngIf="isWebView && cartCount > 0">
+  <div class="container">
+    <a routerLink="/client/carrito" class="btn btn-success w-100 py-3">
+      <i class="fa fa-shopping-cart me-2"></i>
+      Ver mi carrito ({{ cartCount }} {{ cartCount === 1 ? 'item' : 'items' }})
+    </a>
+  </div>
+</div>
+
+<!-- Acceso rápido para usuarios logueados - Solo para WebView -->
+<div class="container-fluid py-3" *ngIf="isWebView && !(isLoggedOut$ | async)">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-6">
+        <a routerLink="/cliente/mis-pedidos" class="text-decoration-none">
+          <div class="card h-100 text-center">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <i class="fa fa-history text-info mb-2" style="font-size: 1.5rem"></i>
+              <h6 class="mb-0">Mis Pedidos</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-6">
+        <a routerLink="/cliente/perfil" class="text-decoration-none">
+          <div class="card h-100 text-center">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <i class="fa fa-user text-warning mb-2" style="font-size: 1.5rem"></i>
+              <h6 class="mb-0">Mi Perfil</h6>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sección de Testimonios - Solo para WEB, no crítico en WebView -->
+<div class="container-fluid py-5 home-testimonials" *ngIf="!isWebView">
   <div class="container">
     <div class="row justify-content-center mb-4">
       <div class="col-lg-8 text-center">
@@ -411,8 +601,8 @@
   </div>
 </div>
 
-<!-- Call to Action Principal -->
-<div class="container-fluid py-5 home-cta">
+<!-- Call to Action Principal - Solo para WEB, redundante en WebView -->
+<div class="container-fluid py-5 home-cta" *ngIf="!isWebView">
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-8 text-center">
