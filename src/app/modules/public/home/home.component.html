@@ -565,70 +565,94 @@
   </div>
 </div>
 
-<!-- Info rápida de contacto - Solo para WebView -->
-<div class="container-fluid py-4" *ngIf="isWebView">
+<!-- Acciones rápidas unificadas - Solo para WebView -->
+<div
+  class="container-fluid py-4 webview-cards-container"
+  *ngIf="isWebView && webViewCards.length > 0"
+>
   <div class="container">
-    <div class="row g-3">
-      <div class="col-6">
-        <a routerLink="/ubicacion" class="quick-info-card text-decoration-none">
-          <div class="card h-100 text-center">
-            <div class="card-body d-flex flex-column justify-content-center">
-              <i class="fa fa-map-marker-alt text-primary mb-2" style="font-size: 1.5rem"></i>
-              <h6 class="mb-1">Ubicación</h6>
-              <p class="small text-muted mb-0">Calle 78a # 62 - 48, Bogotá, Colombia</p>
+    <div class="row g-3 justify-content-center">
+      <ng-container *ngFor="let card of webViewCards; let i = index">
+        <div [class]="getColumnClass(totalCardsCount)">
+          <!-- Card de Ubicación -->
+          <a *ngIf="card.type === 'ubicacion'" routerLink="/ubicacion" class="text-decoration-none">
+            <div class="card h-100 text-center webview-unified-card">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <i class="fa" [ngClass]="[card.icon, card.color]"></i>
+                <h6 class="mb-1 mt-2">{{ card.title }}</h6>
+                <p class="small text-muted mb-0">Calle 78a # 62 - 48, Bogotá, Colombia</p>
+              </div>
             </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-6">
-        <a href="tel:3042449339" class="quick-info-card text-decoration-none">
-          <div class="card h-100 text-center">
-            <div class="card-body d-flex flex-column justify-content-center">
-              <i class="fa fa-phone text-success mb-2" style="font-size: 1.5rem"></i>
-              <h6 class="mb-1">Llamar</h6>
-              <p class="small text-muted mb-0">3042449339</p>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
+          </a>
 
-<!-- Acceso directo al carrito - Solo para WebView si hay items -->
-<div class="container-fluid py-3" *ngIf="isWebView && cartCount > 0">
-  <div class="container">
-    <a routerLink="/client/carrito" class="btn btn-success w-100 py-3">
-      <i class="fa fa-shopping-cart me-2"></i>
-      Ver mi carrito ({{ cartCount }} {{ cartCount === 1 ? 'item' : 'items' }})
-    </a>
-  </div>
-</div>
+          <!-- Card de Llamar -->
+          <a *ngIf="card.type === 'llamar'" href="tel:3042449339" class="text-decoration-none">
+            <div class="card h-100 text-center webview-unified-card">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <i class="fa" [ngClass]="[card.icon, card.color]"></i>
+                <h6 class="mb-1 mt-2">{{ card.title }}</h6>
+                <p class="small text-muted mb-0">3042449339</p>
+              </div>
+            </div>
+          </a>
 
-<!-- Acceso rápido para usuarios logueados - Solo para WebView -->
-<div class="container-fluid py-3" *ngIf="isWebView && !(isLoggedOut$ | async)">
-  <div class="container">
-    <div class="row g-3">
-      <div class="col-6">
-        <a routerLink="/cliente/mis-pedidos" class="text-decoration-none">
-          <div class="card h-100 text-center">
-            <div class="card-body d-flex flex-column justify-content-center">
-              <i class="fa fa-history text-info mb-2" style="font-size: 1.5rem"></i>
-              <h6 class="mb-0">Mis Pedidos</h6>
+          <!-- Card de Carrito -->
+          <a
+            *ngIf="card.type === 'carrito'"
+            routerLink="/client/carrito"
+            class="text-decoration-none"
+          >
+            <div class="card h-100 text-center webview-unified-card">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <i class="fa" [ngClass]="[card.icon, card.color]"></i>
+                <h6 class="mb-0 mt-2">{{ card.title }}</h6>
+              </div>
             </div>
-          </div>
-        </a>
-      </div>
-      <div class="col-6">
-        <a routerLink="/cliente/perfil" class="text-decoration-none">
-          <div class="card h-100 text-center">
-            <div class="card-body d-flex flex-column justify-content-center">
-              <i class="fa fa-user text-warning mb-2" style="font-size: 1.5rem"></i>
-              <h6 class="mb-0">Mi Perfil</h6>
+          </a>
+
+          <!-- Card de Mis Pedidos -->
+          <a
+            *ngIf="card.type === 'pedidos'"
+            routerLink="/cliente/mis-pedidos"
+            class="text-decoration-none"
+          >
+            <div class="card h-100 text-center webview-unified-card">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <i class="fa" [ngClass]="[card.icon, card.color]"></i>
+                <h6 class="mb-0 mt-2">{{ card.title }}</h6>
+              </div>
             </div>
-          </div>
-        </a>
-      </div>
+          </a>
+
+          <!-- Card de Mi Perfil (Cliente) -->
+          <a
+            *ngIf="card.type === 'perfil-cliente'"
+            routerLink="/cliente/perfil"
+            class="text-decoration-none"
+          >
+            <div class="card h-100 text-center webview-unified-card">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <i class="fa" [ngClass]="[card.icon, card.color]"></i>
+                <h6 class="mb-0 mt-2">{{ card.title }}</h6>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card de Mi Perfil (Trabajador) -->
+          <a
+            *ngIf="card.type === 'perfil-trabajador'"
+            routerLink="/trabajador/perfil"
+            class="text-decoration-none"
+          >
+            <div class="card h-100 text-center webview-unified-card">
+              <div class="card-body d-flex flex-column justify-content-center">
+                <i class="fa" [ngClass]="[card.icon, card.color]"></i>
+                <h6 class="mb-0 mt-2">{{ card.title }}</h6>
+              </div>
+            </div>
+          </a>
+        </div>
+      </ng-container>
     </div>
   </div>
 </div>

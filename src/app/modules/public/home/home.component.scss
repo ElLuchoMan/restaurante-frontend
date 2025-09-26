@@ -717,3 +717,266 @@
     backdrop-filter: none;
   }
 }
+
+// Alineación perfecta del contenedor padre - VERTICAL
+.webview-cards-container {
+  .container {
+    // El row principal debe alinear desde arriba REALMENTE
+    .row.g-3.justify-content-center {
+      // ✨ ALINEACIÓN VERTICAL FORZADA
+      display: flex !important;
+      align-items: flex-start !important; // Todas desde arriba
+      align-content: flex-start !important; // Contenido desde arriba
+      justify-items: center !important;
+
+      // Forzar que TODAS las columnas estén en la misma línea base
+      > div {
+        // ✨ COLUMNAS PERFECTAMENTE ALINEADAS
+        display: flex !important;
+        align-items: flex-start !important; // DESDE ARRIBA
+        justify-content: center !important;
+        vertical-align: top !important; // Forzar alineación vertical
+
+        // Resetear cualquier margen/padding que desalinee
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+
+        // El enlace NO debe afectar la alineación
+        > a {
+          display: block !important; // Block para mantener alineación
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+      }
+    }
+  }
+}
+
+// Cards unificadas para todas las acciones rápidas - WebView
+.webview-unified-card {
+  transition: all 0.3s ease;
+  border: 1px solid rgba($primary, 0.15);
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(8px);
+
+  // ✨ ALTURA FIJA FORZADA - SÚPER AGRESIVA
+  height: 140px !important;
+  max-height: 140px !important;
+  min-height: 140px !important;
+
+  // ✨ ALINEACIÓN VERTICAL PERFECTA
+  align-self: flex-start !important; // Alinear desde arriba
+  margin: 0 !important; // Sin márgenes que desalineen
+
+  // ✨ POSICIONAMIENTO EXACTO
+  position: relative !important;
+  top: 0 !important;
+  transform: translateY(0) !important; // Resetear cualquier transform
+
+  // ✨ FORZAR QUE TODAS TENGAN EL MISMO PUNTO DE INICIO
+  vertical-align: top !important;
+  baseline-shift: baseline !important;
+
+  &:hover {
+    transform: translateY(-3px); // Solo en hover
+    border-color: rgba($primary, 0.3);
+    box-shadow: 0 8px 25px rgba($primary, 0.15);
+
+    .card-body i {
+      transform: scale(1.1);
+    }
+  }
+
+  .card-body {
+    padding: 1rem !important;
+    height: 100% !important; // Ocupar toda la altura disponible
+    max-height: 140px !important; // Limitar altura máxima
+    overflow: hidden !important; // Forzar que nada se salga
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important; // Incluir padding en altura
+
+    i {
+      transition: transform 0.3s ease;
+      display: block !important;
+      margin: 0 auto 0.5rem auto !important;
+      font-size: 1.8rem !important;
+      line-height: 1 !important;
+      flex-shrink: 0 !important; // Nunca se encoja
+      width: auto !important;
+      height: auto !important;
+    }
+
+    h6 {
+      font-weight: 600 !important;
+      color: $text-heading-strong !important;
+      font-size: 0.9rem !important;
+      margin: 0 0 0.25rem 0 !important;
+      flex-shrink: 0 !important; // Nunca se encoja
+      white-space: nowrap !important; // No permitir quiebre de línea
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      max-width: 100% !important;
+    }
+
+    p {
+      font-size: 0.8rem !important;
+      line-height: 1.2 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important; // Máximo 2 líneas
+      -webkit-box-orient: vertical !important;
+      flex-grow: 1 !important; // Ocupar espacio restante
+      max-height: 2.4rem !important; // Limitar altura del párrafo (2 líneas)
+    }
+  }
+}
+
+// Control de alineación específico por número de columnas - VERTICAL
+.webview-cards-container .row .col-6,
+.webview-cards-container .row .col-4,
+.webview-cards-container .row .col-8 {
+  // ✨ ALINEACIÓN VERTICAL FORZADA PARA CADA COLUMNA
+  display: flex !important;
+  align-items: flex-start !important; // DESDE ARRIBA
+  justify-content: center !important;
+  vertical-align: top !important;
+
+  // ✨ ELIMINAR CUALQUIER ESPACIO QUE DESALINEE
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 15px !important; // Solo padding inferior para separación
+
+  // ✨ POSICIONAMIENTO VERTICAL EXACTO
+  position: relative !important;
+  top: 0 !important;
+
+  // Los enlaces NO deben cambiar la posición vertical
+  > a {
+    display: block !important; // Block en lugar de flex
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+  }
+}
+
+// ✨ RESET COMPLETO DE BOOTSTRAP Y ESTILOS QUE INTERFIEREN
+.webview-cards-container .row.g-3 > [class*='col-'] {
+  // Eliminar TODOS los estilos de Bootstrap que afecten posición vertical
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+
+  // Forzar posición vertical exacta
+  position: relative !important;
+  top: 0 !important;
+  vertical-align: top !important;
+
+  // Flexbox para centrar horizontalmente SIN afectar vertical
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important; // Desde arriba
+
+  // El enlace debe mantener la posición
+  > a {
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important; // Static para no afectar posición
+
+    // La card debe estar en posición exacta
+    .webview-unified-card {
+      // ✨ POSICIÓN VERTICAL FORZADA
+      margin: 0 !important;
+      top: 0 !important;
+      transform: translateY(0) !important; // Estado inicial sin transform
+    }
+  }
+}
+
+// Responsive para cards unificadas en móvil
+@media (max-width: 575px) {
+  .webview-unified-card {
+    // ✨ ALTURA FIJA FORZADA - MÓVIL
+    height: 120px !important;
+    max-height: 120px !important;
+    min-height: 120px !important;
+
+    .card-body {
+      padding: 0.75rem 0.5rem !important;
+      max-height: 120px !important;
+
+      i {
+        font-size: 1.5rem !important;
+        margin: 0 auto 0.4rem auto !important;
+      }
+
+      h6 {
+        font-size: 0.85rem !important;
+        margin: 0 0 0.2rem 0 !important;
+      }
+
+      p {
+        font-size: 0.75rem !important;
+        line-height: 1.1 !important;
+        -webkit-line-clamp: 2 !important;
+        max-height: 2.2rem !important; // Ajuste para móvil
+      }
+    }
+  }
+}
+
+// Ajustes específicos para layout dinámico de 3 cards
+@media (max-width: 767px) {
+  // En móvil, si son 3 cards, que se vean 2 arriba y 1 abajo centrada
+  .row .col-4:nth-child(3) {
+    margin: 0 auto;
+    max-width: 50%;
+  }
+}
+
+// Ajustes para layout de 4 cards en tablets pequeños
+@media (min-width: 576px) and (max-width: 767px) {
+  // En tablets pequeños, mantener 2 columnas máximo
+  .row .col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  // Altura intermedia para tablets
+  .webview-unified-card {
+    // ✨ ALTURA FIJA FORZADA - TABLET
+    height: 130px !important;
+    max-height: 130px !important;
+    min-height: 130px !important;
+
+    .card-body {
+      padding: 0.875rem 0.75rem !important;
+      max-height: 130px !important;
+
+      i {
+        font-size: 1.6rem !important;
+        margin: 0 auto 0.45rem auto !important;
+      }
+
+      h6 {
+        font-size: 0.875rem !important;
+        margin: 0 0 0.225rem 0 !important;
+      }
+
+      p {
+        font-size: 0.775rem !important;
+        line-height: 1.15 !important;
+        max-height: 2.3rem !important; // Ajuste para tablet
+      }
+    }
+  }
+}
