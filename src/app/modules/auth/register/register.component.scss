@@ -33,7 +33,7 @@
       background-color: $quaternary;
       border-color: $quaternary;
       color: $white;
-      box-shadow: 0 0 0 0.2rem rgba($primary, 0.5);
+      box-shadow: 0 0 0 0.2rem $shadow-primary-50;
     }
 
     &:disabled {
@@ -62,23 +62,23 @@
     justify-content: center;
     color: $white;
     font-size: 1.1rem;
-    box-shadow: 0 3px 10px rgba($primary, 0.25);
+    box-shadow: 0 3px 10px $header-primary-20;
   }
 }
 
 // Horario General
 .schedule-general {
-  background: rgba($white, 0.6);
+  background: $header-white-60;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba($primary, 0.15);
+  border: 1px solid $ring-primary-15;
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 15px rgba($primary, 0.08);
+  box-shadow: 0 2px 15px $header-primary-10;
 
   .duration-display {
     text-align: center;
     padding: 0.75rem;
-    background: rgba($primary, 0.08);
+    background: $header-primary-10;
     border-radius: 8px;
     margin-top: 1rem;
     font-weight: 600;
@@ -87,16 +87,16 @@
 
 // Switch para activar horarios diferentes
 .switch-card {
-  background: rgba($white, 0.8);
+  background: $header-white-80;
   backdrop-filter: blur(6px);
-  border: 1px solid rgba($warning, 0.2);
+  border: 1px solid $header-primary-20;
   border-radius: 12px;
   padding: 1.25rem;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba($warning, 0.4);
-    box-shadow: 0 4px 20px rgba($warning, 0.15);
+    border-color: $header-primary-40;
+    box-shadow: 0 4px 20px $ring-primary-15;
   }
 }
 
@@ -129,7 +129,7 @@
     display: inline-block;
     width: 50px;
     height: 26px;
-    background: rgba($gray-light, 0.4);
+    background: $header-shadow-light;
     border-radius: 26px;
     transition: all 0.3s ease;
 
@@ -143,15 +143,15 @@
       background: $white;
       border-radius: 50%;
       transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba($black, 0.2);
+      box-shadow: 0 2px 4px $header-shadow-medium;
     }
   }
 }
 
 // Selector de días para personalizar - compacto
 .days-selector {
-  background: rgba($success, 0.03);
-  border: 1px solid rgba($success, 0.15);
+  background: $shadow-light;
+  border: 1px solid $border-light;
   border-radius: 10px;
   padding: 1rem;
 
@@ -185,7 +185,7 @@
       margin-left: 19px;
 
       &:hover {
-        background: rgba($success, 0.08);
+        background: $shadow-medium;
       }
     }
   }
@@ -230,17 +230,17 @@
 
 // Cards para días personalizados
 .day-custom-card {
-  background: rgba($white, 0.9);
+  background: $header-white-95;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba($gray-light, 0.25);
+  border: 1px solid $border-light;
   border-radius: 10px;
   padding: 1rem;
-  box-shadow: 0 2px 12px rgba($black, 0.06);
+  box-shadow: 0 2px 12px $shadow-medium;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba($primary, 0.3);
-    box-shadow: 0 4px 20px rgba($black, 0.1);
+    border-color: $shadow-primary-30;
+    box-shadow: 0 4px 20px $header-shadow-medium;
   }
 }
 
@@ -250,7 +250,7 @@
   justify-content: space-between;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba($gray-light, 0.2);
+  border-bottom: 1px solid $border-light;
 
   h6 {
     margin: 0;
@@ -289,7 +289,7 @@
     display: inline-block;
     width: 36px;
     height: 20px;
-    background: rgba($gray-light, 0.4);
+    background: $header-shadow-light;
     border-radius: 20px;
     transition: all 0.3s ease;
     margin-right: 0.5rem;
@@ -304,7 +304,7 @@
       background: $white;
       border-radius: 50%;
       transition: all 0.3s ease;
-      box-shadow: 0 1px 3px rgba($black, 0.2);
+      box-shadow: 0 1px 3px $header-shadow-medium;
     }
   }
 
@@ -321,19 +321,19 @@
   .form-control-sm {
     font-size: 0.85rem;
     padding: 0.5rem 0.75rem;
-    border-color: rgba($gray-light, 0.4);
+    border-color: $border-light;
     transition: all 0.2s ease;
 
     &:focus {
       border-color: $primary;
-      box-shadow: 0 0 0 2px rgba($primary, 0.1);
+      box-shadow: 0 0 0 2px $header-primary-10;
     }
   }
 
   .custom-duration {
     text-align: center;
     padding: 0.5rem;
-    background: rgba($success, 0.08);
+    background: $shadow-medium;
     border-radius: 6px;
   }
 }
@@ -342,7 +342,7 @@
 .day-free-message {
   text-align: center;
   padding: 1rem;
-  background: rgba($success, 0.05);
+  background: $shadow-light;
   border-radius: 8px;
   color: $text-muted;
   font-style: italic;
@@ -358,7 +358,7 @@
 
   &:focus {
     border-color: $danger;
-    box-shadow: 0 0 0 0.2rem rgba($danger, 0.25);
+    box-shadow: 0 0 0 0.2rem $header-danger-30;
   }
 }
 
@@ -372,5 +372,5 @@
 // Estilos para mostrar error de contraseñas no coinciden
 #confirmPassword[aria-invalid='true'] {
   border-color: $danger;
-  background-color: rgba($danger, 0.05);
+  background-color: $shadow-light;
 }

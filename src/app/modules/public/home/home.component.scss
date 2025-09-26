@@ -63,7 +63,7 @@
   right: 0;
   bottom: 0;
   height: 96px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, $shadow-overlay 100%);
+  background: linear-gradient(180deg, transparent 0%, $shadow-overlay 100%);
   pointer-events: none;
 }
 
@@ -122,7 +122,7 @@
     }
 
     &::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1);
+      background: $header-shadow-medium;
       border-radius: 3px;
     }
 
@@ -148,7 +148,7 @@
   vertical-align: top !important;
   background: $white;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px $header-shadow-medium;
   overflow: hidden;
   scroll-snap-align: start;
   position: relative;
@@ -168,14 +168,14 @@
     z-index: 2;
 
     // Reutilizar estilos de badges existentes
-    background: linear-gradient(135deg, $success, #219a52);
+    background: linear-gradient(135deg, $success, color.adjust($success, $lightness: -5%));
 
     &.hot {
-      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      background: linear-gradient(135deg, $danger, color.adjust($danger, $lightness: -5%));
     }
 
     &.weekend {
-      background: linear-gradient(135deg, $primary, #b8941f);
+      background: linear-gradient(135deg, $primary, $primary-dark);
     }
   }
 
@@ -242,7 +242,7 @@
   vertical-align: top !important;
   background: $white;
   border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 3px 10px $shadow-soft;
   overflow: hidden;
   scroll-snap-align: start;
   position: relative;
@@ -266,7 +266,7 @@
       right: 8px;
 
       .product-price {
-        background: rgba($primary, 0.9);
+        background: $header-primary-80;
         color: $white;
         padding: 4px 8px;
         border-radius: 12px;
@@ -367,7 +367,7 @@
     }
 
     &::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1);
+      background: $header-shadow-medium;
       border-radius: 3px;
     }
 
@@ -394,8 +394,8 @@
   vertical-align: top !important;
   background: $white;
   border-radius: 20px; // Usar el estilo oficial de la marca
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08); // Sombra oficial
-  border: 1px solid #e5e7eb; // Borde oficial
+  box-shadow: 0 20px 50px $shadow-soft;
+  border: 1px solid $border-subtle;
   overflow: hidden;
   scroll-snap-align: start;
   position: relative;
@@ -416,14 +416,14 @@
     z-index: 2;
 
     // Reutilizar estilos de badges existentes
-    background: linear-gradient(135deg, $success, #219a52);
+    background: linear-gradient(135deg, $success, color.adjust($success, $lightness: -5%));
 
     &.hot {
-      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      background: linear-gradient(135deg, $danger, color.adjust($danger, $lightness: -5%));
     }
 
     &.weekend {
-      background: linear-gradient(135deg, $primary, #b8941f);
+      background: linear-gradient(135deg, $primary, $primary-dark);
     }
   }
 
@@ -445,12 +445,12 @@
       margin-bottom: 0.75rem;
       font-size: 1.1rem;
       font-weight: 600;
-      color: #2d3748; // Color oficial para títulos
+      color: $text-heading-strong;
     }
 
     p {
       margin-bottom: 1rem;
-      color: #4a5568; // Color oficial para contenido
+      color: $text-body;
       font-size: 0.9rem;
     }
 
@@ -492,8 +492,8 @@
   vertical-align: top !important;
   background: $white;
   border-radius: 20px; // Usar el estilo oficial de la marca
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08); // Sombra oficial
-  border: 1px solid #e5e7eb; // Borde oficial
+  box-shadow: 0 20px 50px $shadow-soft;
+  border: 1px solid $border-subtle;
   overflow: hidden;
   scroll-snap-align: start;
   position: relative;
@@ -505,7 +505,7 @@
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 25px 60px $shadow-hover;
   }
 
   .product-image-web-mobile {
@@ -525,7 +525,7 @@
       right: 12px;
 
       .product-price {
-        background: rgba($primary, 0.95);
+        background: $header-primary-80;
         color: $white;
         padding: 6px 12px;
         border-radius: 16px;
@@ -543,7 +543,7 @@
       font-size: 1rem;
       font-weight: 600;
       line-height: 1.3;
-      color: #2d3748; // Color oficial para títulos
+      color: $text-heading-strong;
     }
 
     .btn {
@@ -757,8 +757,8 @@
 // Cards unificadas para todas las acciones rápidas - WebView
 .webview-unified-card {
   transition: all 0.3s ease;
-  border: 1px solid rgba($primary, 0.15);
-  background: rgba($white, 0.95);
+  border: 1px solid $ring-primary-15;
+  background: $header-white-95;
   backdrop-filter: blur(8px);
 
   // ✨ ALTURA FIJA FORZADA - SÚPER AGRESIVA
@@ -781,8 +781,8 @@
 
   &:hover {
     transform: translateY(-3px); // Solo en hover
-    border-color: rgba($primary, 0.3);
-    box-shadow: 0 8px 25px rgba($primary, 0.15);
+    border-color: $shadow-primary-30;
+    box-shadow: 0 8px 25px $ring-primary-15;
 
     .card-body i {
       transform: scale(1.1);
