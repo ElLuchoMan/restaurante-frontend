@@ -31,6 +31,7 @@ import { clearBlobUrlCache, getSafeImageSrc } from '../../../shared/utils/image.
 export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
   isLoggedOut$: Observable<boolean>;
   isWebView = false;
+  isMobile = false;
   cartCount = 0;
 
   // Productos populares dinámicos
@@ -66,6 +67,9 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
       if (this.isWebView) {
         document.body.classList.add('is-native');
       }
+
+      // Detectar dispositivos móviles en Web (no WebView)
+      this.detectMobileDevice();
     }
     // Contador de carrito para topbar nativa
     this.cartService.count$?.subscribe?.((n) => (this.cartCount = n ?? 0));
@@ -211,5 +215,33 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
    */
   getProductImageSrcByIndex(producto: ProductoVendido, index: number): string {
     return getSafeImageSrc(producto.imagen, index + 1); // +1 para que empiece desde 1, no 0
+  }
+
+  /**
+   * Detecta si el dispositivo es móvil usando breakpoints y user agent
+   */
+  private detectMobileDevice(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    // Usar el breakpoint oficial de la app: < 992px (Bootstrap lg)
+    const isMobileViewport = window.innerWidth < 992;
+
+    // Detectar dispositivos móviles por user agent como fallback
+    const mobileUserAgents = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+    const isMobileUserAgent = mobileUserAgents.test(navigator.userAgent);
+
+    // Es móvil si el viewport es pequeño O es un dispositivo móvil
+    this.isMobile = isMobileViewport || isMobileUserAgent;
+
+    // Listener para cambios de tamaño de ventana
+    window.addEventListener('resize', () => {
+      const wasMobile = this.isMobile;
+      this.isMobile = window.innerWidth < 992 || isMobileUserAgent;
+
+      // Solo detectar cambios si realmente cambió el estado móvil
+      if (wasMobile !== this.isMobile) {
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

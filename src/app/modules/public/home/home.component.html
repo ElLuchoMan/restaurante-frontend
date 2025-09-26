@@ -86,8 +86,8 @@
         </h2>
       </div>
     </div>
-    <!-- Vista WEB: Grid responsivo -->
-    <div class="row g-4" *ngIf="!isWebView">
+    <!-- Vista WEB DESKTOP: Grid responsivo -->
+    <div class="row g-4" *ngIf="!isWebView && !isMobile">
       <div class="col-md-6 col-lg-4">
         <div class="offer-card">
           <div class="offer-badge">¡NUEVO!</div>
@@ -149,6 +149,70 @@
               <span class="new-price">$22.000</span>
             </div>
             <a routerLink="/menu" class="btn btn-primary btn-sm">Probar Brunch</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista WEB MOBILE: Carrusel horizontal para dispositivos móviles -->
+    <div class="horizontal-carousel mobile-web" *ngIf="!isWebView && isMobile">
+      <div class="carousel-container">
+        <div class="offer-card-web-mobile">
+          <div class="offer-badge">¡NUEVO!</div>
+          <div class="offer-image-web-mobile">
+            <img
+              src="assets/img/product-1.webp"
+              alt="Combo Tradicional"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+          </div>
+          <div class="offer-content-web-mobile">
+            <h4>Combo Tradicional</h4>
+            <p class="small">Bandeja paisa + bebida + postre</p>
+            <div class="price-web-mobile">
+              <span class="old-price">$35.000</span>
+              <span class="new-price">$28.000</span>
+            </div>
+            <a routerLink="/menu" class="btn btn-primary btn-sm">Pedir Ahora</a>
+          </div>
+        </div>
+        <div class="offer-card-web-mobile">
+          <div class="offer-badge hot">🔥 HOT</div>
+          <div class="offer-image-web-mobile">
+            <img
+              src="assets/img/product-2.webp"
+              alt="2x1 Bebidas"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+          </div>
+          <div class="offer-content-web-mobile">
+            <h4>2x1 en Bebidas</h4>
+            <p class="small">Válido en jugos naturales y gaseosas</p>
+            <div class="price-web-mobile">
+              <span class="new-price">Desde $8.000</span>
+            </div>
+            <a routerLink="/menu" class="btn btn-secondary btn-sm">Aprovechar</a>
+          </div>
+        </div>
+        <div class="offer-card-web-mobile">
+          <div class="offer-badge weekend">FIN DE SEMANA</div>
+          <div class="offer-image-web-mobile">
+            <img
+              src="assets/img/product-3.webp"
+              alt="Brunch Especial"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+          </div>
+          <div class="offer-content-web-mobile">
+            <h4>Brunch Especial</h4>
+            <p class="small">Desayuno + almuerzo fusión</p>
+            <div class="price-web-mobile">
+              <span class="new-price">$22.000</span>
+            </div>
+            <a routerLink="/menu" class="btn btn-primary btn-sm">Probar</a>
           </div>
         </div>
       </div>
@@ -313,8 +377,8 @@
         </h2>
       </div>
     </div>
-    <!-- Vista WEB: Grid responsivo -->
-    <div class="row g-3" *ngIf="!isWebView">
+    <!-- Vista WEB DESKTOP: Grid responsivo -->
+    <div class="row g-3" *ngIf="!isWebView && !isMobile">
       <!-- Loading state -->
       <ng-container *ngIf="loadingProductos">
         <div class="col-12 text-center py-4">
@@ -372,6 +436,70 @@
           </div>
         </div>
       </ng-container>
+    </div>
+
+    <!-- Vista WEB MOBILE: Carrusel horizontal para dispositivos móviles -->
+    <div class="horizontal-carousel mobile-web" *ngIf="!isWebView && isMobile">
+      <!-- Loading state -->
+      <div class="text-center py-4" *ngIf="loadingProductos">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando productos populares...</span>
+        </div>
+        <p class="mt-2 text-muted small">Cargando platos...</p>
+      </div>
+
+      <!-- Error state -->
+      <div class="text-center py-4" *ngIf="errorProductos && !loadingProductos">
+        <div class="alert alert-warning small" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          No pudimos cargar los platos
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-primary ms-2"
+            (click)="loadProductosPopulares()"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+
+      <!-- Success state - Productos dinámicos en carrusel -->
+      <div
+        class="carousel-container"
+        *ngIf="!loadingProductos && !errorProductos && productosPopulares.length > 0"
+      >
+        <div
+          class="product-card-web-mobile"
+          *ngFor="let producto of productosPopulares; let i = index; trackBy: trackByProductoId"
+        >
+          <div class="product-image-web-mobile">
+            <img
+              [src]="getProductImageSrcByIndex(producto, i)"
+              [alt]="producto.nombreProducto"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+            <div class="product-overlay-web-mobile">
+              <span class="product-price">${{ producto.precio | number: '1.0-0' }}</span>
+            </div>
+          </div>
+          <div class="product-content-web-mobile">
+            <h5>{{ producto.nombreProducto }}</h5>
+            <a routerLink="/menu" class="btn btn-outline-primary btn-sm">Ver Menú</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fallback cuando no hay productos -->
+      <div
+        class="text-center py-4"
+        *ngIf="!loadingProductos && !errorProductos && productosPopulares.length === 0"
+      >
+        <div class="alert alert-info small" role="alert">
+          <i class="fas fa-info-circle me-2"></i>
+          No hay productos disponibles en este momento.
+        </div>
+      </div>
     </div>
 
     <!-- Vista WEBVIEW: Carrusel horizontal compacto para platos estrella -->
@@ -621,8 +749,8 @@
   </div>
 </div>
 
-<!-- Acciones rápidas: mobile web para todos los usuarios. En webview ya existe global -->
-<div class="quick-actions-bar d-md-none" *ngIf="!isWebView">
+<!-- Acciones rápidas: Solo para WebView nativo -->
+<div class="quick-actions-bar" *ngIf="isWebView">
   <nav class="container quick-actions" aria-label="Acciones rápidas">
     <div class="row g-3">
       <div class="col-3">
