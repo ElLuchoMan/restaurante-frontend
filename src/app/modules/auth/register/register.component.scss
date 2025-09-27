@@ -1,54 +1,7 @@
 @use '../../../../assets/_variables.scss' as *;
 @use 'sass:color';
 
-// Botón CTA con progress bar igual al login
-.btn.btn-primary.btn-cta {
-  position: relative;
-  overflow: hidden;
-  background-color: $primary;
-  border-color: $primary;
-  color: $white;
-  transition: all 0.3s ease;
-
-  .progress-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: var(--progress, 0%);
-    background: linear-gradient(90deg, $quaternary 0%, $primary-dark 100%);
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0.3; /* Sutil para no ocultar el texto */
-  }
-
-  &:hover {
-    background-color: $quaternary;
-    border-color: $quaternary;
-    color: $white;
-
-    &:focus,
-    &.focus {
-      background-color: $quaternary;
-      border-color: $quaternary;
-      color: $white;
-      box-shadow: 0 0 0 0.2rem $shadow-primary-50;
-    }
-
-    &:disabled {
-      background-color: $primary;
-      border-color: $primary;
-      color: $white;
-      opacity: 0.65;
-    }
-
-    span:not(.progress-bg) {
-      position: relative;
-      z-index: 2;
-    }
-  }
-}
+// ✅ Progress Button System movido a _base.scss como .btn-progress
 
 // Sistema de horarios simplificado y progresivo
 .schedule-header {
@@ -85,68 +38,7 @@
   }
 }
 
-// Switch para activar horarios diferentes
-.switch-card {
-  background: $header-white-80;
-  backdrop-filter: blur(6px);
-  border: 1px solid $header-primary-20;
-  border-radius: 12px;
-  padding: 1.25rem;
-  transition: all 0.3s ease;
-
-  &:hover {
-    border-color: $header-primary-40;
-    box-shadow: 0 4px 20px $ring-primary-15;
-  }
-}
-
-.switch-elegant {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-
-  input[type='checkbox'] {
-    opacity: 0;
-    width: 0;
-    height: 0;
-
-    &:checked + .slider {
-      background: linear-gradient(
-        135deg,
-        $success 0%,
-        color.adjust($success, $lightness: -10%) 100%
-      );
-
-      &:before {
-        transform: translateX(24px);
-      }
-    }
-  }
-
-  .slider {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 26px;
-    background: $header-shadow-light;
-    border-radius: 26px;
-    transition: all 0.3s ease;
-
-    &:before {
-      content: '';
-      position: absolute;
-      height: 20px;
-      width: 20px;
-      left: 3px;
-      top: 3px;
-      background: $white;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px $header-shadow-medium;
-    }
-  }
-}
+// ✅ Switch System movido a _base.scss como .switch, .switch-card
 
 // Selector de días para personalizar - compacto
 .days-selector {
@@ -258,63 +150,7 @@
   }
 }
 
-// Switch pequeño para días libres
-.switch-small {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-  font-size: 0.85rem;
-
-  input[type='checkbox'] {
-    opacity: 0;
-    width: 0;
-    height: 0;
-
-    &:checked + .slider-small {
-      background: linear-gradient(
-        135deg,
-        $success 0%,
-        color.adjust($success, $lightness: -10%) 100%
-      );
-
-      &:before {
-        transform: translateX(16px);
-      }
-    }
-  }
-
-  .slider-small {
-    position: relative;
-    display: inline-block;
-    width: 36px;
-    height: 20px;
-    background: $header-shadow-light;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-    margin-right: 0.5rem;
-
-    &:before {
-      content: '';
-      position: absolute;
-      height: 14px;
-      width: 14px;
-      left: 3px;
-      top: 3px;
-      background: $white;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-      box-shadow: 0 1px 3px $header-shadow-medium;
-    }
-  }
-
-  .switch-label-small {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: $text-muted;
-    min-width: 70px;
-  }
-}
+// ✅ Switch Small System movido a _base.scss como .switch-sm
 
 // Inputs de tiempo para días específicos
 .day-time-inputs {

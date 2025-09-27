@@ -548,14 +548,14 @@
                         </p>
                       </div>
                       <div class="switch-toggle">
-                        <label class="switch-elegant" for="horariosDiferentes">
+                        <label class="switch" for="horariosDiferentes">
                           <input
                             type="checkbox"
                             id="horariosDiferentes"
                             [checked]="horariosDiferentes"
                             (change)="onHorariosDiferentesChange($event)"
                           />
-                          <span class="slider"></span>
+                          <span class="switch-slider"></span>
                         </label>
                       </div>
                     </div>
@@ -607,15 +607,15 @@
 
                         <!-- Switch Día Libre -->
                         <div class="day-free-switch">
-                          <label class="switch-small" [for]="'diaLibre-' + dia">
+                          <label class="switch-sm" [for]="'diaLibre-' + dia">
                             <input
                               type="checkbox"
                               [id]="'diaLibre-' + dia"
                               [checked]="horariosPersonalizados[dia].diaLibre"
                               (change)="onDiaLibreChange(dia, $event)"
                             />
-                            <span class="slider-small"></span>
-                            <span class="switch-label-small">{{
+                            <span class="switch-slider-sm"></span>
+                            <span class="switch-label-sm">{{
                               horariosPersonalizados[dia].diaLibre ? 'Día libre' : 'Laborar'
                             }}</span>
                           </label>
@@ -793,7 +793,7 @@
             </div>
             <button
               type="submit"
-              class="btn btn-primary btn-cta btn-block d-flex align-items-center justify-content-center gap-2"
+              class="btn btn-primary btn-progress btn-block d-flex align-items-center justify-content-center gap-2"
               [disabled]="registerForm.invalid || isSubmitting"
             >
               <span

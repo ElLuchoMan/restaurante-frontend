@@ -66,7 +66,7 @@
                     href="https://facebook.com/elfogondemaria"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="social-icon-webview facebook"
+                    class="social-icon social-icon-sm facebook"
                     aria-label="Facebook"
                   >
                     <i class="fab fa-facebook-f" aria-hidden="true"></i>
@@ -75,7 +75,7 @@
                     href="https://instagram.com/elfogondemaria"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="social-icon-webview instagram"
+                    class="social-icon social-icon-sm instagram"
                     aria-label="Instagram"
                   >
                     <i class="fab fa-instagram" aria-hidden="true"></i>
@@ -121,9 +121,9 @@
               </div>
               <div class="info-content">
                 <div
-                  class="status-indicator"
-                  [class.open]="estado === 'Abierto'"
-                  [class.closed]="estado !== 'Abierto'"
+                  class="status-badge"
+                  [class.status-open]="estado === 'Abierto'"
+                  [class.status-closed]="estado !== 'Abierto'"
                 >
                   <i
                     class="fas status-icon"
@@ -179,9 +179,9 @@
               </div>
               <div class="info-content">
                 <div
-                  class="status-indicator"
-                  [class.open]="estado === 'Abierto'"
-                  [class.closed]="estado !== 'Abierto'"
+                  class="status-badge"
+                  [class.status-open]="estado === 'Abierto'"
+                  [class.status-closed]="estado !== 'Abierto'"
                 >
                   <i
                     class="fas status-icon"

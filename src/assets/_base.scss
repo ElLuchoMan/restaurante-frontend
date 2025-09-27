@@ -13582,3 +13582,1220 @@ a.link {
 }
 
 /* slideDown y fadeInScale movidos a _components.scss */
+
+/* ====== WEBVIEW COMPONENTS SYSTEM ====== */
+/* Sistema de componentes específicos para WebView nativo - El fogón DE MARÍA */
+
+// Margen superior para compensar topbar nativa
+.mt-webview-topbar {
+  margin-top: 4rem !important; // Espacio para topbar nativa
+}
+
+// Cards unificadas para WebView - Altura fija y alineación perfecta
+.card-webview-unified {
+  transition: all 0.3s ease;
+  border: 1px solid $ring-primary-15;
+  background: $header-white-95;
+  backdrop-filter: blur(8px);
+
+  // ✨ ALTURA FIJA FORZADA - Todas las cards iguales
+  height: 140px !important;
+  max-height: 140px !important;
+  min-height: 140px !important;
+
+  // ✨ ALINEACIÓN VERTICAL PERFECTA
+  align-self: flex-start !important;
+  margin: 0 !important;
+  position: relative !important;
+  top: 0 !important;
+  vertical-align: top !important;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: $shadow-primary-30;
+    box-shadow: 0 8px 25px $ring-primary-15;
+
+    .card-body i {
+      transform: scale(1.1);
+    }
+  }
+
+  .card-body {
+    padding: 1rem !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+
+    // Iconos centrados y responsivos
+    i {
+      font-size: clamp(1.5rem, 4vw, 2rem) !important;
+      margin-bottom: 0.5rem !important;
+      color: $primary !important;
+      flex-shrink: 0 !important;
+      transition: all 0.3s ease !important;
+    }
+
+    // Títulos sin wrapping
+    h6 {
+      font-size: clamp(0.8rem, 2.5vw, 0.9rem) !important;
+      font-weight: 600 !important;
+      color: $text-heading-strong !important;
+      margin-bottom: 0.4rem !important;
+      flex-shrink: 0 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      width: 100% !important;
+    }
+
+    // Párrafos limitados a 2 líneas
+    p {
+      font-size: clamp(0.7rem, 2vw, 0.75rem) !important;
+      color: $text-body !important;
+      margin: 0 !important;
+      line-height: 1.3 !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+      max-height: 2.6rem !important;
+    }
+  }
+
+  // Responsive heights para diferentes dispositivos
+  @media (max-width: 575px) {
+    height: 120px !important;
+    max-height: 120px !important;
+    min-height: 120px !important;
+  }
+
+  @media (min-width: 576px) and (max-width: 991px) {
+    height: 130px !important;
+    max-height: 130px !important;
+    min-height: 130px !important;
+  }
+}
+
+// 🚫 DESACTIVADO - CONFLICTO CON ESTILOS DEL COMPONENTE
+/*
+.grid-webview-aligned {
+  // ESTILOS MOVIDOS AL COMPONENTE HOME PARA EVITAR CONFLICTOS
+}
+*/
+
+/* ====== PROGRESS BUTTON SYSTEM ====== */
+/* Botones con barra de progreso integrada - El fogón DE MARÍA */
+
+.btn-progress {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  .progress-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--progress, 0%);
+    background: linear-gradient(90deg, $quaternary 0%, $primary-dark 100%);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.3; /* Sutil para no ocultar el texto */
+  }
+
+  // Texto siempre visible encima del progress
+  span:not(.progress-bg) {
+    position: relative;
+    z-index: 2;
+  }
+
+  &:hover {
+    .progress-bg {
+      opacity: 0.4;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+
+    .progress-bg {
+      opacity: 0.2;
+    }
+  }
+
+  // Variantes de colores
+  &.btn-primary {
+    background-color: $primary;
+    border-color: $primary;
+    color: $white;
+
+    &:hover {
+      background-color: $quaternary;
+      border-color: $quaternary;
+      color: $white;
+
+      &:focus,
+      &.focus {
+        box-shadow: 0 0 0 0.2rem $shadow-primary-50;
+      }
+    }
+  }
+
+  &.btn-success {
+    background-color: $success;
+    border-color: $success;
+
+    .progress-bg {
+      background: linear-gradient(
+        90deg,
+        color.adjust($success, $lightness: 10%) 0%,
+        color.adjust($success, $lightness: -10%) 100%
+      );
+    }
+  }
+
+  &.btn-danger {
+    background-color: $danger;
+    border-color: $danger;
+
+    .progress-bg {
+      background: linear-gradient(
+        90deg,
+        color.adjust($danger, $lightness: 10%) 0%,
+        color.adjust($danger, $lightness: -10%) 100%
+      );
+    }
+  }
+}
+
+/* ====== SOCIAL ICONS SYSTEM ====== */
+/* Iconos de redes sociales reutilizables - El fogón DE MARÍA */
+
+.social-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  color: $white;
+
+  &.facebook {
+    background: linear-gradient(135deg, $info, color.adjust($info, $lightness: 10%));
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px color.adjust($info, $lightness: -10%, $alpha: -0.5);
+    }
+  }
+
+  &.instagram {
+    background: $instagram-gradient;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px $instagram-shadow;
+    }
+  }
+
+  &.twitter {
+    background: linear-gradient(
+      135deg,
+      $twitter-blue,
+      color.adjust($twitter-blue, $lightness: 10%)
+    );
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px $twitter-shadow;
+    }
+  }
+
+  &.youtube {
+    background: linear-gradient(135deg, $youtube-red, color.adjust($youtube-red, $lightness: 10%));
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px $youtube-shadow;
+    }
+  }
+
+  &.whatsapp {
+    background: linear-gradient(
+      135deg,
+      $whatsapp-green,
+      color.adjust($whatsapp-green, $lightness: 10%)
+    );
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px $whatsapp-shadow;
+    }
+  }
+
+  // Variante compacta
+  &.social-icon-sm {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.85rem;
+  }
+
+  // Variante grande
+  &.social-icon-lg {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.25rem;
+  }
+}
+
+// Variante con texto (para web)
+.social-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  color: $white;
+  font-weight: 500;
+
+  &.facebook {
+    background: linear-gradient(135deg, $info, color.adjust($info, $lightness: 10%));
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px color.adjust($info, $lightness: -10%, $alpha: -0.3);
+    }
+  }
+
+  &.instagram {
+    background: $instagram-gradient;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px $instagram-shadow;
+    }
+  }
+
+  i {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .social-text {
+    white-space: nowrap;
+  }
+}
+
+// Container específico para WebView (más compacto)
+.social-container-webview {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+// Utilidades para diferentes layouts
+.social-row {
+  .social-container {
+    justify-content: flex-start;
+    gap: 0.75rem;
+  }
+}
+
+.social-center {
+  .social-container {
+    justify-content: center;
+  }
+}
+
+.social-end {
+  .social-container {
+    justify-content: flex-end;
+  }
+}
+
+/* ====== STATUS INDICATORS SYSTEM ====== */
+/* Indicadores de estado reutilizables - El fogón DE MARÍA */
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+
+  &.status-open {
+    background: color.adjust($success, $lightness: 45%);
+    border-color: color.adjust($success, $lightness: 20%);
+    color: color.adjust($success, $lightness: -20%);
+
+    .status-icon {
+      color: $success;
+    }
+  }
+
+  &.status-closed {
+    background: color.adjust($danger, $lightness: 45%);
+    border-color: color.adjust($danger, $lightness: 20%);
+    color: color.adjust($danger, $lightness: -20%);
+
+    .status-icon {
+      color: $danger;
+    }
+  }
+
+  &.status-warning {
+    background: color.adjust($warning, $lightness: 45%);
+    border-color: color.adjust($warning, $lightness: 20%);
+    color: color.adjust($warning, $lightness: -30%);
+
+    .status-icon {
+      color: $warning;
+    }
+  }
+
+  &.status-info {
+    background: color.adjust($info, $lightness: 45%);
+    border-color: color.adjust($info, $lightness: 20%);
+    color: color.adjust($info, $lightness: -20%);
+
+    .status-icon {
+      color: $info;
+    }
+  }
+
+  &.status-processing {
+    background: color.adjust($primary, $lightness: 45%);
+    border-color: color.adjust($primary, $lightness: 20%);
+    color: color.adjust($primary, $lightness: -20%);
+
+    .status-icon {
+      color: $primary;
+      animation: pulse 2s infinite;
+    }
+  }
+
+  // Variantes de tamaño
+  &.status-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    gap: 0.35rem;
+
+    .status-icon {
+      font-size: 0.8rem;
+    }
+  }
+
+  &.status-lg {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    border-radius: 16px;
+    gap: 0.75rem;
+
+    .status-icon {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+.status-icon {
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.status-text {
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+// Versión compacta inline (para espacios pequeños)
+.status-compact {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+
+  &.status-open {
+    .status-icon {
+      color: $success;
+    }
+    .status-text {
+      color: color.adjust($success, $lightness: -20%);
+    }
+  }
+
+  &.status-closed {
+    .status-icon {
+      color: $danger;
+    }
+    .status-text {
+      color: color.adjust($danger, $lightness: -20%);
+    }
+  }
+
+  .status-icon {
+    font-size: 0.8rem;
+  }
+
+  .status-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// Utilidades específicas para mostrar tiempo/horarios
+.schedule-time {
+  font-size: 0.85rem;
+  color: $text-body;
+  margin-left: 0.25rem;
+
+  &::before {
+    content: '(';
+    color: $text-muted;
+  }
+
+  &::after {
+    content: ')';
+    color: $text-muted;
+  }
+}
+
+/* ====== SWITCHES SYSTEM ====== */
+/* Switches elegantes reutilizables - El fogón DE MARÍA */
+
+// Container con glassmorphism para switches
+.switch-card {
+  background: $header-white-80;
+  backdrop-filter: blur(6px);
+  border: 1px solid $header-primary-20;
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: $header-primary-40;
+    box-shadow: 0 4px 20px $ring-primary-15;
+  }
+}
+
+// Switch principal elegante
+.switch {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: 0.75rem;
+
+  input[type='checkbox'] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .switch-slider {
+      background: linear-gradient(
+        135deg,
+        $success 0%,
+        color.adjust($success, $lightness: -10%) 100%
+      );
+
+      &::before {
+        transform: translateX(24px);
+      }
+    }
+
+    &:focus + .switch-slider {
+      box-shadow: 0 0 0 3px $ring-primary-15;
+    }
+
+    &:disabled + .switch-slider {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .switch-slider {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    background: $header-shadow-light;
+    border-radius: 26px;
+    transition: all 0.3s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      top: 3px;
+      background: $white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px $header-shadow-medium;
+    }
+  }
+
+  .switch-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: $text-heading-strong;
+    cursor: pointer;
+  }
+
+  // Variante con label a la izquierda
+  &.switch-label-left {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+
+  // Switch deshabilitado
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+
+    .switch-label {
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Switch pequeño para espacios compactos
+.switch-sm {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.85rem;
+  gap: 0.5rem;
+
+  input[type='checkbox'] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .switch-slider-sm {
+      background: linear-gradient(
+        135deg,
+        $success 0%,
+        color.adjust($success, $lightness: -10%) 100%
+      );
+
+      &::before {
+        transform: translateX(16px);
+      }
+    }
+
+    &:focus + .switch-slider-sm {
+      box-shadow: 0 0 0 2px $ring-primary-15;
+    }
+  }
+
+  .switch-slider-sm {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    background: $header-shadow-light;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    margin-right: 0.5rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      top: 3px;
+      background: $white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px $header-shadow-medium;
+    }
+  }
+
+  .switch-label-sm {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: $text-muted;
+    min-width: 70px;
+    cursor: pointer;
+  }
+}
+
+// Switch extra grande para configuraciones importantes
+.switch-lg {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: 1rem;
+
+  input[type='checkbox'] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .switch-slider-lg {
+      background: linear-gradient(
+        135deg,
+        $success 0%,
+        color.adjust($success, $lightness: -10%) 100%
+      );
+
+      &::before {
+        transform: translateX(32px);
+      }
+    }
+
+    &:focus + .switch-slider-lg {
+      box-shadow: 0 0 0 4px $ring-primary-15;
+    }
+  }
+
+  .switch-slider-lg {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 32px;
+    background: $header-shadow-light;
+    border-radius: 32px;
+    transition: all 0.3s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      height: 24px;
+      width: 24px;
+      left: 4px;
+      top: 4px;
+      background: $white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 6px $header-shadow-medium;
+    }
+  }
+
+  .switch-label-lg {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $text-heading-strong;
+    cursor: pointer;
+  }
+}
+
+// Variantes de colores para diferentes contextos
+.switch-primary {
+  input[type='checkbox']:checked + .switch-slider,
+  input[type='checkbox']:checked + .switch-slider-sm,
+  input[type='checkbox']:checked + .switch-slider-lg {
+    background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: -10%) 100%);
+  }
+}
+
+.switch-danger {
+  input[type='checkbox']:checked + .switch-slider,
+  input[type='checkbox']:checked + .switch-slider-sm,
+  input[type='checkbox']:checked + .switch-slider-lg {
+    background: linear-gradient(135deg, $danger 0%, color.adjust($danger, $lightness: -10%) 100%);
+  }
+}
+
+.switch-warning {
+  input[type='checkbox']:checked + .switch-slider,
+  input[type='checkbox']:checked + .switch-slider-sm,
+  input[type='checkbox']:checked + .switch-slider-lg {
+    background: linear-gradient(135deg, $warning 0%, color.adjust($warning, $lightness: -10%) 100%);
+  }
+}
+
+/* ====== INFO CARDS SYSTEM ====== */
+/* Cards de información reutilizables - El fogón DE MARÍA */
+
+.info-card {
+  background: $header-white-95;
+  backdrop-filter: blur(10px);
+  border: 1px solid $border-light;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px $shadow-medium;
+    border-color: $ring-primary-15;
+
+    .info-icon {
+      transform: scale(1.1);
+      background: $shadow-primary-30;
+      color: $white;
+    }
+  }
+
+  // Variantes de tamaño
+  &.info-card-sm {
+    padding: 0.75rem;
+    border-radius: 8px;
+
+    .info-header {
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.4rem;
+      gap: 0.4rem;
+    }
+
+    .info-icon {
+      width: 1.75rem;
+      height: 1.75rem;
+      font-size: 0.9rem;
+    }
+
+    .info-title {
+      font-size: 0.9rem;
+    }
+  }
+
+  &.info-card-lg {
+    padding: 1.5rem;
+    border-radius: 16px;
+
+    .info-header {
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      gap: 0.75rem;
+    }
+
+    .info-icon {
+      width: 2.75rem;
+      height: 2.75rem;
+      font-size: 1.25rem;
+    }
+
+    .info-title {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid $border-light;
+
+  @media (min-width: 768px) {
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+.info-icon {
+  font-size: 1rem;
+  color: $header-golden;
+  background: $ring-primary-15;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  @media (min-width: 768px) {
+    font-size: 1.1rem;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  @media (min-width: 992px) {
+    font-size: 1.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+.info-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $text-heading-strong;
+  margin: 0;
+  font-family: $font-family-sans-serif;
+
+  @media (min-width: 768px) {
+    font-size: 1.1rem;
+  }
+
+  @media (min-width: 992px) {
+    font-size: 1.2rem;
+  }
+}
+
+.info-content {
+  .info-text {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+    color: $text-body;
+    line-height: 1.3;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (min-width: 768px) {
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    @media (min-width: 992px) {
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+    }
+  }
+}
+
+.info-mini-icon {
+  font-size: 0.8rem;
+  color: $header-golden;
+  width: 1.2rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+// Links específicos para info cards
+.info-link {
+  color: $text-body;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $header-golden;
+    text-decoration: underline;
+  }
+}
+
+/* ====== HORIZONTAL CAROUSEL SYSTEM ====== */
+/* Carruseles horizontales reutilizables - El fogón DE MARÍA */
+
+.carousel-horizontal {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+
+  // Versión fullwidth que escapa del container Bootstrap
+  &.carousel-fullwidth {
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+  }
+
+  // Versión contenida dentro del padding del container
+  &.carousel-contained {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 0 1rem !important;
+  }
+
+  .carousel-track {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    scroll-snap-type: x mandatory;
+    gap: 1rem !important;
+    padding: 0 0 1rem 0 !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+
+    // Smooth scrolling en WebKit
+    -webkit-overflow-scrolling: touch;
+
+    // Hide scrollbar
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    // Padding lateral para el primer y último elemento
+    .carousel-item:first-child {
+      margin-left: 1rem !important;
+    }
+
+    .carousel-item:last-child {
+      margin-right: 1rem !important;
+    }
+  }
+
+  .carousel-item {
+    flex: 0 0 auto !important;
+    scroll-snap-align: start;
+    display: inline-block !important;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+  }
+
+  // Variantes de tamaño para diferentes tipos de cards
+  &.carousel-lg .carousel-item {
+    min-width: 280px !important;
+    max-width: 280px !important;
+    width: 280px !important;
+  }
+
+  &.carousel-md .carousel-item {
+    min-width: 240px !important;
+    max-width: 240px !important;
+    width: 240px !important;
+  }
+
+  &.carousel-sm .carousel-item {
+    min-width: 180px !important;
+    max-width: 180px !important;
+    width: 180px !important;
+  }
+
+  &.carousel-xs .carousel-item {
+    min-width: 140px !important;
+    max-width: 140px !important;
+    width: 140px !important;
+  }
+
+  // Responsive behavior
+  @media (max-width: 576px) {
+    &.carousel-responsive {
+      .carousel-item {
+        min-width: 160px !important;
+        max-width: 160px !important;
+        width: 160px !important;
+      }
+    }
+  }
+
+  @media (min-width: 577px) and (max-width: 768px) {
+    &.carousel-responsive {
+      .carousel-item {
+        min-width: 200px !important;
+        max-width: 200px !important;
+        width: 200px !important;
+      }
+    }
+  }
+
+  @media (min-width: 769px) {
+    &.carousel-responsive {
+      .carousel-item {
+        min-width: 240px !important;
+        max-width: 240px !important;
+        width: 240px !important;
+      }
+    }
+  }
+}
+
+// Cards específicas para carouseles
+.carousel-card {
+  border-radius: 12px;
+  border: 1px solid $border-light;
+  background: $white;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: 100%;
+
+  &:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: $ring-primary-15;
+  }
+
+  // Variantes para diferentes tipos de contenido
+  &.carousel-card-offer {
+    background: linear-gradient(135deg, $header-white-95, $header-primary-10);
+    border-color: $ring-primary-15;
+
+    .card-header {
+      background: linear-gradient(135deg, $primary, $quaternary);
+      color: $white;
+      padding: 0.75rem;
+      font-weight: 600;
+      text-align: center;
+    }
+  }
+
+  &.carousel-card-product {
+    background: $white;
+    border-color: $border-light;
+
+    .card-image {
+      position: relative;
+      overflow: hidden;
+      height: 150px;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $text-heading-strong;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .card-description {
+    font-size: 0.8rem;
+    color: $text-body;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-price {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .original-price {
+      font-size: 0.8rem;
+      color: $text-muted;
+      text-decoration: line-through;
+    }
+
+    .current-price {
+      font-size: 1rem;
+      font-weight: 700;
+      color: $primary;
+    }
+  }
+}
+
+// Controles de navegación opcionales
+.carousel-controls {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+
+  &.carousel-prev {
+    left: 10px;
+  }
+
+  &.carousel-next {
+    right: 10px;
+  }
+
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: $white;
+    border: 1px solid $border-light;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background: $primary;
+      color: $white;
+      transform: scale(1.1);
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    display: none; // Ocultar en móvil, usar scroll touch
+  }
+}
+
+// Indicadores de progreso opcionales
+.carousel-indicators {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &.active {
+      background: $white;
+      transform: scale(1.25);
+    }
+  }
+}

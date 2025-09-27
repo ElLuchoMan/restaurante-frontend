@@ -181,3 +181,13 @@ $instagram-gradient: linear-gradient(
 
 // Sombra específica de Instagram
 $instagram-shadow: rgba($instagram-pink, 0.3);
+
+// Colores oficiales de otras redes sociales
+$twitter-blue: #1da1f2;
+$youtube-red: #ff0000;
+$whatsapp-green: #25d366;
+
+// Sombras específicas de redes sociales
+$twitter-shadow: rgba($twitter-blue, 0.3);
+$youtube-shadow: rgba($youtube-red, 0.3);
+$whatsapp-shadow: rgba($whatsapp-green, 0.3);

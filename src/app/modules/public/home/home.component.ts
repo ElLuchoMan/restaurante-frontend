@@ -41,25 +41,6 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     return !role || !Object.values(RolTrabajador).includes(role as RolTrabajador);
   }
 
-  // Calcular clases de columna dinámicamente según número de cards
-  getColumnClass(totalCards: number): string {
-    switch (totalCards) {
-      case 1:
-        return 'col-8 col-sm-6 col-md-4'; // Card sola centrada
-      case 2:
-        return 'col-6'; // 50% cada una (lado a lado)
-      case 3:
-        return 'col-4'; // 33.33% cada una (3 en línea)
-      case 4:
-        return 'col-6'; // 50% cada una (2x2 filas)
-      case 5:
-      case 6:
-        return 'col-4'; // 33.33% cada una (máximo 3 por fila)
-      default:
-        return 'col-6 col-md-4'; // Fallback responsive
-    }
-  }
-
   // Verificar si el usuario está logueado
   get isLoggedIn(): boolean {
     return !!this.userService.getUserRole();
@@ -134,6 +115,23 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
   // Contar número total de cards
   get totalCardsCount(): number {
     return this.webViewCards.length;
+  }
+
+  // Obtener clase CSS para layout según número de cards
+  get cardsLayoutClass(): string {
+    const count = this.totalCardsCount;
+    switch (count) {
+      case 2:
+        return 'cards-2'; // 2 cards = 50% cada una
+      case 3:
+        return 'cards-3'; // 3 cards = 33.33% cada una
+      case 4:
+      case 5:
+      case 6:
+        return 'cards-multi'; // 4+ cards = 2 líneas
+      default:
+        return 'cards-default';
+    }
   }
 
   // Productos populares dinámicos

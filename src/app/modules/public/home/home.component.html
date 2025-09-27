@@ -77,7 +77,7 @@
 </div>
 
 <!-- Sección de Ofertas Especiales -->
-<div class="container-fluid py-5 home-offers" [class.webview-top-margin]="isWebView">
+<div class="container-fluid py-5 home-offers" [class.mt-webview-topbar]="isWebView">
   <div class="container">
     <div class="row justify-content-center mb-4">
       <div class="col-lg-8 text-center">
@@ -155,9 +155,9 @@
     </div>
 
     <!-- Vista WEB MOBILE: Carrusel horizontal para dispositivos móviles -->
-    <div class="horizontal-carousel mobile-web" *ngIf="!isWebView && isMobile">
-      <div class="carousel-container">
-        <div class="offer-card-web-mobile">
+    <div class="carousel-horizontal carousel-contained carousel-md" *ngIf="!isWebView && isMobile">
+      <div class="carousel-track">
+        <div class="carousel-item offer-card-web-mobile">
           <div class="offer-badge">¡NUEVO!</div>
           <div class="offer-image-web-mobile">
             <img
@@ -177,7 +177,7 @@
             <a routerLink="/menu" class="btn btn-primary btn-sm">Pedir Ahora</a>
           </div>
         </div>
-        <div class="offer-card-web-mobile">
+        <div class="carousel-item offer-card-web-mobile">
           <div class="offer-badge hot">🔥 HOT</div>
           <div class="offer-image-web-mobile">
             <img
@@ -196,7 +196,7 @@
             <a routerLink="/menu" class="btn btn-secondary btn-sm">Aprovechar</a>
           </div>
         </div>
-        <div class="offer-card-web-mobile">
+        <div class="carousel-item offer-card-web-mobile">
           <div class="offer-badge weekend">FIN DE SEMANA</div>
           <div class="offer-image-web-mobile">
             <img
@@ -219,9 +219,9 @@
     </div>
 
     <!-- Vista WEBVIEW: Carrusel horizontal compacto -->
-    <div class="horizontal-carousel" *ngIf="isWebView">
-      <div class="carousel-container">
-        <div class="offer-card-mobile">
+    <div class="carousel-horizontal carousel-fullwidth carousel-md" *ngIf="isWebView">
+      <div class="carousel-track">
+        <div class="carousel-item offer-card-mobile">
           <div class="offer-badge">¡NUEVO!</div>
           <div class="offer-image-mobile">
             <img
@@ -241,7 +241,7 @@
             <a routerLink="/menu" class="btn btn-primary btn-sm">Pedir</a>
           </div>
         </div>
-        <div class="offer-card-mobile">
+        <div class="carousel-item offer-card-mobile">
           <div class="offer-badge hot">🔥 HOT</div>
           <div class="offer-image-mobile">
             <img
@@ -260,7 +260,7 @@
             <a routerLink="/menu" class="btn btn-secondary btn-sm">Aprovechar</a>
           </div>
         </div>
-        <div class="offer-card-mobile">
+        <div class="carousel-item offer-card-mobile">
           <div class="offer-badge weekend">FIN DE SEMANA</div>
           <div class="offer-image-mobile">
             <img
@@ -439,7 +439,7 @@
     </div>
 
     <!-- Vista WEB MOBILE: Carrusel horizontal para dispositivos móviles -->
-    <div class="horizontal-carousel mobile-web" *ngIf="!isWebView && isMobile">
+    <div class="carousel-horizontal carousel-contained carousel-sm" *ngIf="!isWebView && isMobile">
       <!-- Loading state -->
       <div class="text-center py-4" *ngIf="loadingProductos">
         <div class="spinner-border text-primary" role="status">
@@ -465,11 +465,11 @@
 
       <!-- Success state - Productos dinámicos en carrusel -->
       <div
-        class="carousel-container"
+        class="carousel-track"
         *ngIf="!loadingProductos && !errorProductos && productosPopulares.length > 0"
       >
         <div
-          class="product-card-web-mobile"
+          class="carousel-item product-card-web-mobile"
           *ngFor="let producto of productosPopulares; let i = index; trackBy: trackByProductoId"
         >
           <div class="product-image-web-mobile">
@@ -503,7 +503,7 @@
     </div>
 
     <!-- Vista WEBVIEW: Carrusel horizontal compacto para platos estrella -->
-    <div class="horizontal-carousel" *ngIf="isWebView">
+    <div class="carousel-horizontal carousel-fullwidth carousel-sm" *ngIf="isWebView">
       <!-- Loading state -->
       <div class="text-center py-4" *ngIf="loadingProductos">
         <div class="spinner-border text-primary" role="status">
@@ -526,11 +526,11 @@
 
       <!-- Success state - Productos dinámicos en carrusel -->
       <div
-        class="carousel-container"
+        class="carousel-track"
         *ngIf="!loadingProductos && !errorProductos && productosPopulares.length > 0"
       >
         <div
-          class="product-card-mobile"
+          class="carousel-item product-card-mobile"
           *ngFor="let producto of productosPopulares; let i = index; trackBy: trackByProductoId"
         >
           <div class="product-image-mobile">
@@ -566,18 +566,15 @@
 </div>
 
 <!-- Acciones rápidas unificadas - Solo para WebView -->
-<div
-  class="container-fluid py-4 webview-cards-container"
-  *ngIf="isWebView && webViewCards.length > 0"
->
+<div class="container-fluid py-4 grid-webview-aligned" *ngIf="isWebView && webViewCards.length > 0">
   <div class="container">
-    <div class="row g-3 justify-content-center">
+    <div class="row g-3 justify-content-center" [ngClass]="cardsLayoutClass">
       <ng-container *ngFor="let card of webViewCards; let i = index">
-        <div [class]="getColumnClass(totalCardsCount)">
+        <div>
           <!-- Card de Ubicación -->
           <a *ngIf="card.type === 'ubicacion'" routerLink="/ubicacion" class="text-decoration-none">
-            <div class="card h-100 text-center webview-unified-card">
-              <div class="card-body d-flex flex-column justify-content-center">
+            <div class="text-center card-webview-unified">
+              <div class="card-content d-flex flex-column justify-content-center">
                 <i class="fa" [ngClass]="[card.icon, card.color]"></i>
                 <h6 class="mb-1 mt-2">{{ card.title }}</h6>
                 <p class="small text-muted mb-0">Calle 78a # 62 - 48, Bogotá, Colombia</p>
@@ -587,8 +584,8 @@
 
           <!-- Card de Llamar -->
           <a *ngIf="card.type === 'llamar'" href="tel:3042449339" class="text-decoration-none">
-            <div class="card h-100 text-center webview-unified-card">
-              <div class="card-body d-flex flex-column justify-content-center">
+            <div class="text-center card-webview-unified">
+              <div class="card-content d-flex flex-column justify-content-center">
                 <i class="fa" [ngClass]="[card.icon, card.color]"></i>
                 <h6 class="mb-1 mt-2">{{ card.title }}</h6>
                 <p class="small text-muted mb-0">3042449339</p>
@@ -602,8 +599,8 @@
             routerLink="/client/carrito"
             class="text-decoration-none"
           >
-            <div class="card h-100 text-center webview-unified-card">
-              <div class="card-body d-flex flex-column justify-content-center">
+            <div class="text-center card-webview-unified">
+              <div class="card-content d-flex flex-column justify-content-center">
                 <i class="fa" [ngClass]="[card.icon, card.color]"></i>
                 <h6 class="mb-0 mt-2">{{ card.title }}</h6>
               </div>
@@ -616,8 +613,8 @@
             routerLink="/cliente/mis-pedidos"
             class="text-decoration-none"
           >
-            <div class="card h-100 text-center webview-unified-card">
-              <div class="card-body d-flex flex-column justify-content-center">
+            <div class="text-center card-webview-unified">
+              <div class="card-content d-flex flex-column justify-content-center">
                 <i class="fa" [ngClass]="[card.icon, card.color]"></i>
                 <h6 class="mb-0 mt-2">{{ card.title }}</h6>
               </div>
@@ -630,8 +627,8 @@
             routerLink="/cliente/perfil"
             class="text-decoration-none"
           >
-            <div class="card h-100 text-center webview-unified-card">
-              <div class="card-body d-flex flex-column justify-content-center">
+            <div class="text-center card-webview-unified">
+              <div class="card-content d-flex flex-column justify-content-center">
                 <i class="fa" [ngClass]="[card.icon, card.color]"></i>
                 <h6 class="mb-0 mt-2">{{ card.title }}</h6>
               </div>
@@ -644,8 +641,8 @@
             routerLink="/trabajador/perfil"
             class="text-decoration-none"
           >
-            <div class="card h-100 text-center webview-unified-card">
-              <div class="card-body d-flex flex-column justify-content-center">
+            <div class="text-center card-webview-unified">
+              <div class="card-content d-flex flex-column justify-content-center">
                 <i class="fa" [ngClass]="[card.icon, card.color]"></i>
                 <h6 class="mb-0 mt-2">{{ card.title }}</h6>
               </div>
