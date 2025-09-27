@@ -1,243 +1,285 @@
-<div class="container col-md-5 mt-4">
-  <h1 class="text-center mb-4">Crear Reserva</h1>
-  <div class="card card-normal p-5">
-    <form (ngSubmit)="onSubmit()" #reservaForm="ngForm">
-      <div class="form-group" *ngIf="mostrarCampo">
-        <div class="input-float">
-          <input
-            type="text"
-            id="nombreCompleto"
-            name="nombreCompleto"
-            [(ngModel)]="nombreCompleto"
-            required
-            class="form-control"
-            required
-            #campoNombreCompleto="ngModel"
-            placeholder=" "
-            [attr.aria-invalid]="
-              campoNombreCompleto.invalid && campoNombreCompleto.touched ? 'true' : null
-            "
-            [attr.aria-describedby]="
-              campoNombreCompleto.invalid && campoNombreCompleto.touched
-                ? 'nombreCompleto-error'
-                : null
-            "
-          />
-          <label class="float-label" for="nombreCompleto">Nombre Completo</label>
-        </div>
-        <div
-          *ngIf="campoNombreCompleto.invalid && campoNombreCompleto.touched"
-          class="text-danger"
-          id="nombreCompleto-error"
-          role="alert"
-        >
-          El nombre es obligatorio.
-        </div>
-      </div>
+<section class="page-shell">
+  <div class="container h-100">
+    <div class="row justify-content-center h-100">
+      <div class="col-lg-6 col-md-8 d-flex flex-column align-items-center justify-content-center">
+        <header class="text-center mb-4">
+          <h1 class="section-title">Crear Reserva</h1>
+          <p class="subtitle">Reserva tu mesa con facilidad.</p>
+        </header>
 
-      <div class="form-group" *ngIf="mostrarCampo">
-        <div class="input-float">
-          <input
-            type="text"
-            id="telefono"
-            name="telefono"
-            [(ngModel)]="telefono"
-            required
-            class="form-control"
-            required
-            #campoTelefono="ngModel"
-            placeholder=" "
-            [attr.aria-invalid]="campoTelefono.invalid && campoTelefono.touched ? 'true' : null"
-            [attr.aria-describedby]="
-              campoTelefono.invalid && campoTelefono.touched ? 'telefono-error' : null
-            "
-          />
-          <label class="float-label" for="telefono">Teléfono</label>
-        </div>
         <div
-          *ngIf="campoTelefono.invalid && campoTelefono.touched"
-          class="text-danger"
-          id="telefono-error"
-          role="alert"
+          class="card-glass glow-border rise-on-mount p-4 p-md-5 w-100"
+          role="region"
+          aria-labelledby="crear-reserva-title"
         >
-          El teléfono es obligatorio.
-        </div>
-      </div>
+          <div class="particles-bg" aria-hidden="true"></div>
+          <h2 id="crear-reserva-title" class="visually-hidden">Formulario para crear reserva</h2>
 
-      <div class="form-group" *ngIf="mostrarCampo">
-        <div class="input-float">
-          <input
-            type="number"
-            id="documentoCliente"
-            name="documentoCliente"
-            class="form-control"
-            [(ngModel)]="documentoCliente"
-            required
-            #campoDocumentoCliente="ngModel"
-            placeholder=" "
-            autocomplete="document"
-            [attr.aria-invalid]="
-              campoDocumentoCliente.invalid && campoDocumentoCliente.touched ? 'true' : null
-            "
-            [attr.aria-describedby]="
-              campoDocumentoCliente.invalid && campoDocumentoCliente.touched
-                ? 'documentoCliente-error'
-                : null
-            "
-          />
-          <label class="float-label" for="documentoCliente">Documento</label>
-        </div>
-        <div
-          *ngIf="campoDocumentoCliente.invalid && campoDocumentoCliente.touched"
-          class="text-danger"
-          id="documentoCliente-error"
-          role="alert"
-        >
-          El documento es obligatorio.
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="fechaReserva">Fecha de la Reserva</label>
-            <input
-              type="date"
-              id="fechaReserva"
-              name="fechaReserva"
-              [(ngModel)]="fechaReserva"
-              required
-              class="form-control"
-              required
-              #campoFecha="ngModel"
-              [attr.aria-invalid]="campoFecha.invalid && campoFecha.touched ? 'true' : null"
-              [attr.aria-describedby]="
-                campoFecha.invalid && campoFecha.touched ? 'fechaReserva-error' : null
-              "
-            />
-            <div
-              *ngIf="campoFecha.invalid && campoFecha.touched"
-              class="text-danger"
-              id="fechaReserva-error"
-              role="alert"
-            >
-              La fecha es obligatoria.
+          <form (ngSubmit)="onSubmit()" #reservaForm="ngForm" novalidate>
+            <div class="form-group mb-3" *ngIf="mostrarCampo">
+              <div class="input-float">
+                <span class="icon" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+                <input
+                  type="text"
+                  id="nombreCompleto"
+                  name="nombreCompleto"
+                  [(ngModel)]="nombreCompleto"
+                  required
+                  class="form-control"
+                  #campoNombreCompleto="ngModel"
+                  placeholder=" "
+                  [attr.aria-invalid]="
+                    campoNombreCompleto.invalid && campoNombreCompleto.touched ? 'true' : null
+                  "
+                  [attr.aria-describedby]="
+                    campoNombreCompleto.invalid && campoNombreCompleto.touched
+                      ? 'nombreCompleto-error'
+                      : null
+                  "
+                />
+                <label class="float-label" for="nombreCompleto">Nombre Completo</label>
+              </div>
+              <div
+                *ngIf="campoNombreCompleto.invalid && campoNombreCompleto.touched"
+                class="text-danger"
+                id="nombreCompleto-error"
+                role="alert"
+              >
+                El nombre es obligatorio.
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="horaReserva">Hora de la Reserva</label>
-            <input
-              type="time"
-              id="horaReserva"
-              name="horaReserva"
-              [(ngModel)]="horaReserva"
-              required
-              class="form-control"
-              required
-              #campoHora="ngModel"
-              [attr.aria-invalid]="campoHora.invalid && campoHora.touched ? 'true' : null"
-              [attr.aria-describedby]="
-                campoHora.invalid && campoHora.touched ? 'horaReserva-error' : null
-              "
-            />
-            <div
-              *ngIf="campoHora.invalid && campoHora.touched"
-              class="text-danger"
-              id="horaReserva-error"
-              role="alert"
-            >
-              La hora es obligatoria.
+
+            <div class="form-group mb-3" *ngIf="mostrarCampo">
+              <div class="input-float">
+                <span class="icon" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
+                <input
+                  type="tel"
+                  inputmode="tel"
+                  id="telefono"
+                  name="telefono"
+                  [(ngModel)]="telefono"
+                  required
+                  class="form-control"
+                  #campoTelefono="ngModel"
+                  placeholder=" "
+                  [attr.aria-invalid]="
+                    campoTelefono.invalid && campoTelefono.touched ? 'true' : null
+                  "
+                  [attr.aria-describedby]="
+                    campoTelefono.invalid && campoTelefono.touched ? 'telefono-error' : null
+                  "
+                />
+                <label class="float-label" for="telefono">Teléfono</label>
+              </div>
+              <div
+                *ngIf="campoTelefono.invalid && campoTelefono.touched"
+                class="text-danger"
+                id="telefono-error"
+                role="alert"
+              >
+                El teléfono es obligatorio.
+              </div>
             </div>
-          </div>
+
+            <div class="form-group mb-3" *ngIf="mostrarCampo">
+              <div class="input-float">
+                <span class="icon" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span>
+                <input
+                  type="number"
+                  id="documentoContacto"
+                  name="documentoContacto"
+                  class="form-control"
+                  [(ngModel)]="documentoContacto"
+                  required
+                  #campoDocumentoContacto="ngModel"
+                  placeholder=" "
+                  autocomplete="username"
+                  [attr.aria-invalid]="
+                    campoDocumentoContacto.invalid && campoDocumentoContacto.touched ? 'true' : null
+                  "
+                  [attr.aria-describedby]="
+                    campoDocumentoContacto.invalid && campoDocumentoContacto.touched
+                      ? 'documentoContacto-error'
+                      : null
+                  "
+                />
+                <label class="float-label" for="documentoContacto">Documento</label>
+              </div>
+              <div
+                *ngIf="campoDocumentoContacto.invalid && campoDocumentoContacto.touched"
+                class="text-danger"
+                id="documentoContacto-error"
+                role="alert"
+              >
+                El documento es obligatorio.
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <div class="input-float">
+                    <span class="icon" aria-hidden="true"
+                      ><i class="fa-solid fa-calendar-day"></i
+                    ></span>
+                    <input
+                      type="date"
+                      id="fechaReserva"
+                      name="fechaReserva"
+                      [(ngModel)]="fechaReserva"
+                      required
+                      class="form-control"
+                      #campoFecha="ngModel"
+                      [attr.aria-invalid]="campoFecha.invalid && campoFecha.touched ? 'true' : null"
+                      [attr.aria-describedby]="
+                        campoFecha.invalid && campoFecha.touched ? 'fechaReserva-error' : null
+                      "
+                    />
+                    <label class="float-label" for="fechaReserva">Fecha de la Reserva</label>
+                  </div>
+                  <div
+                    *ngIf="campoFecha.invalid && campoFecha.touched"
+                    class="text-danger"
+                    id="fechaReserva-error"
+                    role="alert"
+                  >
+                    La fecha es obligatoria.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <div class="input-float">
+                    <span class="icon" aria-hidden="true"><i class="fa-solid fa-clock"></i></span>
+                    <input
+                      type="time"
+                      id="horaReserva"
+                      name="horaReserva"
+                      [(ngModel)]="horaReserva"
+                      required
+                      class="form-control"
+                      #campoHora="ngModel"
+                      [attr.aria-invalid]="campoHora.invalid && campoHora.touched ? 'true' : null"
+                      [attr.aria-describedby]="
+                        campoHora.invalid && campoHora.touched ? 'horaReserva-error' : null
+                      "
+                    />
+                    <label class="float-label" for="horaReserva">Hora de la Reserva</label>
+                  </div>
+                  <div
+                    *ngIf="campoHora.invalid && campoHora.touched"
+                    class="text-danger"
+                    id="horaReserva-error"
+                    role="alert"
+                  >
+                    La hora es obligatoria.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <div class="input-float">
+                <span class="icon" aria-hidden="true"
+                  ><i class="fa-solid fa-people-group"></i
+                ></span>
+                <select
+                  id="personas"
+                  name="personas"
+                  [(ngModel)]="personas"
+                  (change)="checkPersonas()"
+                  required
+                  class="form-control"
+                  #campoPersonas="ngModel"
+                  [attr.aria-invalid]="
+                    campoPersonas.invalid && campoPersonas.touched ? 'true' : null
+                  "
+                  [attr.aria-describedby]="
+                    campoPersonas.invalid && campoPersonas.touched ? 'personas-error' : null
+                  "
+                >
+                  <option [value]="1">1</option>
+                  <option [value]="2">2</option>
+                  <option [value]="3">3</option>
+                  <option [value]="4">4</option>
+                  <option value="5+">5 o más</option>
+                </select>
+                <label class="float-label" for="personas">Número de Personas</label>
+              </div>
+              <div
+                *ngIf="campoPersonas.invalid && campoPersonas.touched"
+                class="text-danger"
+                id="personas-error"
+                role="alert"
+              >
+                Selecciona el número de personas.
+              </div>
+            </div>
+
+            <div class="form-group mb-3" *ngIf="mostrarInputPersonas">
+              <div class="input-float">
+                <span class="icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+                <input
+                  type="number"
+                  id="personasExtra"
+                  name="personasExtra"
+                  [(ngModel)]="personasExtra"
+                  min="5"
+                  class="form-control"
+                  #campoPersonasExtra="ngModel"
+                  placeholder=" "
+                  [attr.aria-invalid]="
+                    campoPersonasExtra.invalid && campoPersonasExtra.touched ? 'true' : null
+                  "
+                  [attr.aria-describedby]="
+                    campoPersonasExtra.invalid && campoPersonasExtra.touched
+                      ? 'personasExtra-error'
+                      : null
+                  "
+                />
+                <label class="float-label" for="personasExtra">Ingrese el número de personas</label>
+              </div>
+              <div
+                *ngIf="campoPersonasExtra.invalid && campoPersonasExtra.touched"
+                class="text-danger"
+                id="personasExtra-error"
+                role="alert"
+              >
+                Debe ser 5 o más.
+              </div>
+            </div>
+
+            <div class="text-info mb-4" *ngIf="mostrarInfoEvento">
+              Si es un evento, por favor indíquelo en las indicaciones especiales.
+            </div>
+
+            <div class="form-group mb-3">
+              <div class="input-float">
+                <span class="icon" aria-hidden="true"><i class="fa-solid fa-comment"></i></span>
+                <textarea
+                  class="form-control"
+                  id="indicaciones"
+                  name="indicaciones"
+                  [(ngModel)]="indicaciones"
+                  rows="3"
+                  placeholder=" "
+                ></textarea>
+                <label class="float-label" for="indicaciones">Indicaciones Especiales</label>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-progress btn-block d-flex align-items-center justify-content-center gap-2 mt-3"
+              [disabled]="reservaForm.invalid"
+              aria-label="Confirmar reserva"
+            >
+              <span class="progress-bg"></span>
+              <span>Reservar</span>
+            </button>
+          </form>
         </div>
       </div>
-
-      <div class="form-group">
-        <label for="personas">Número de Personas</label>
-        <select
-          id="personas"
-          name="personas"
-          [(ngModel)]="personas"
-          (change)="checkPersonas()"
-          required
-          class="form-control"
-          #campoPersonas="ngModel"
-          [attr.aria-invalid]="campoPersonas.invalid && campoPersonas.touched ? 'true' : null"
-          [attr.aria-describedby]="
-            campoPersonas.invalid && campoPersonas.touched ? 'personas-error' : null
-          "
-        >
-          <option [value]="1">1</option>
-          <option [value]="2">2</option>
-          <option [value]="3">3</option>
-          <option [value]="4">4</option>
-          <option value="5+">5 o más</option>
-        </select>
-        <div
-          *ngIf="campoPersonas.invalid && campoPersonas.touched"
-          class="text-danger"
-          id="personas-error"
-          role="alert"
-        >
-          Selecciona el número de personas.
-        </div>
-      </div>
-
-      <div class="form-group" *ngIf="mostrarInputPersonas">
-        <div class="input-float">
-          <input
-            type="number"
-            id="personasExtra"
-            name="personasExtra"
-            [(ngModel)]="personasExtra"
-            min="5"
-            class="form-control"
-            #campoPersonasExtra="ngModel"
-            placeholder=" "
-            [attr.aria-invalid]="
-              campoPersonasExtra.invalid && campoPersonasExtra.touched ? 'true' : null
-            "
-            [attr.aria-describedby]="
-              campoPersonasExtra.invalid && campoPersonasExtra.touched
-                ? 'personasExtra-error'
-                : null
-            "
-          />
-          <label class="float-label" for="personasExtra">Ingrese el número de personas</label>
-        </div>
-        <div
-          *ngIf="campoPersonasExtra.invalid && campoPersonasExtra.touched"
-          class="text-danger"
-          id="personasExtra-error"
-          role="alert"
-        >
-          Debe ser 5 o más.
-        </div>
-      </div>
-
-      <div class="text-info mb-4" *ngIf="mostrarInfoEvento">
-        Si es un evento, por favor indíquelo en las indicaciones especiales.
-      </div>
-
-      <div class="form-group">
-        <div class="input-float">
-          <textarea
-            class="form-control"
-            id="indicaciones"
-            name="indicaciones"
-            [(ngModel)]="indicaciones"
-            rows="3"
-            placeholder=" "
-          ></textarea>
-          <label class="float-label" for="indicaciones">Indicaciones Especiales</label>
-        </div>
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-block mt-5" [disabled]="reservaForm.invalid">
-        Reservar
-      </button>
-    </form>
+    </div>
   </div>
-</div>
+</section>

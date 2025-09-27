@@ -24,9 +24,11 @@ export interface ReservaPopulada extends ReservaBase {
 }
 
 // Requests deben referenciar ReservaBase según Swagger
+// Para creación, el backend puede resolver contacto automáticamente (cliente/invitado),
+// por lo que `contactoId` es opcional en el payload de create.
 export type ReservaCreate = Omit<
   ReservaBase,
-  'reservaId' | 'createdAt' | 'updatedAt' | 'updatedBy'
->;
+  'reservaId' | 'createdAt' | 'updatedAt' | 'updatedBy' | 'contactoId'
+> & { contactoId?: number };
 
 export type ReservaUpdate = Partial<ReservaBase> & { updatedBy?: string };

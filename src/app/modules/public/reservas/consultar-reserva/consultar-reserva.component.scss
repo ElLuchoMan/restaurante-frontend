@@ -1,1 +1,104 @@
 @use '../../../../../assets/_variables.scss' as *;
+
+// Lista elegante y compacta de reservas (mejor en WebView)
+.reservas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reserva-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.9rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.reserva-left {
+  min-width: 120px;
+  color: #6b7280;
+  font-size: 0.85rem;
+  line-height: 1.1;
+}
+.reserva-fecha {
+  font-weight: 600;
+  color: #374151;
+}
+.reserva-hora {
+  font-variant-numeric: tabular-nums;
+}
+
+.reserva-center {
+  display: flex;
+  flex-direction: column;
+}
+.reserva-cliente {
+  font-weight: 600;
+  color: #2d3748;
+}
+.reserva-telefono {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.reserva-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.reserva-right .estado {
+  font-weight: 600;
+}
+.reserva-right .pax {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  transition: transform 0.15s ease;
+}
+.btn-icon.ok {
+  color: #22c55e;
+}
+.btn-icon.cancel {
+  color: #ef4444;
+}
+.btn-icon:active {
+  transform: scale(0.95);
+}
+
+// Responsive para WebView / móvil
+@media (max-width: 576px) {
+  .reserva-item {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'center right'
+      'left right';
+    padding: 0.75rem 0.9rem;
+  }
+  .reserva-left {
+    grid-area: left;
+    min-width: 0;
+    font-size: 0.8rem;
+  }
+  .reserva-center {
+    grid-area: center;
+  }
+  .reserva-right {
+    grid-area: right;
+    gap: 0.4rem;
+  }
+}

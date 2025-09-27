@@ -209,7 +209,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         // ADMIN: Telemetría | Productos | Reservas | Registro | Logout
         menuItems = [
           { label: 'Acciones', route: '/admin/acciones', priority: 1 },
-          { label: 'Reservas', route: '/reservas', priority: 2 },
+          { label: 'Reservas', route: '/admin/reservas', priority: 2 },
           { label: 'Registro', route: '/admin/registro-admin', priority: 3 },
           { label: 'Logout', route: '/logout', priority: 99 },
         ];

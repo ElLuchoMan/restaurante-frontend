@@ -26,7 +26,7 @@ export class CrearReservaComponent implements OnInit {
   horaReserva: string = '';
   personas: string = '';
   indicaciones: string = '';
-  documentoCliente: string = '';
+  documentoContacto: string = '';
   userId: number = 0;
   nombreTrabajador: string = '';
   rol: string | null = '';
@@ -110,25 +110,39 @@ export class CrearReservaComponent implements OnInit {
     const [anio, mes, dia] = this.fechaReserva.split('-');
     const fechaReservaFormateada = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
 
-    const base: ReservaCreate & { documentoCliente?: number } = {
+    // Construir payload de acuerdo a guía actualizada
+    const base: ReservaCreate & {
+      documentoCliente?: number | null;
+      documentoContacto?: number | null;
+      nombreCompleto?: string;
+      telefono?: string;
+    } = {
       estadoReserva: estadoReserva.PENDIENTE,
       fechaReserva: fechaReservaFormateada,
       horaReserva: this.horaReserva,
       indicaciones: this.indicaciones,
       personas: totalPersonas,
       restauranteId: 1,
-      contactoId: 1,
     };
 
-    if (!this.esAdmin) {
-      const doc = Number(this.documentoCliente);
-      if (!isNaN(doc)) (base as any).documentoCliente = doc;
+    if (userRole === 'Cliente') {
+      // Usuario loggeado: enviar documento del JWT
+      if (typeof this.userId === 'number' && !isNaN(this.userId) && this.userId > 0) {
+        base.documentoCliente = this.userId;
+      }
+    } else {
+      // Invitado o administrador: enviar datos completos de contacto
+      const docContacto = Number(this.documentoContacto);
+      base.nombreCompleto = this.nombreCompleto;
+      base.telefono = this.telefono || undefined;
+      base.documentoContacto = !isNaN(docContacto) ? docContacto : null;
     }
 
     this.reservaService.crearReserva(base).subscribe({
       next: (response) => {
         this.toastr.success('Reserva creada exitosamente', 'Éxito');
-        this.router.navigate(['/reservas']);
+        // Refrescar el formulario como indicó el usuario
+        this.router.navigate(['/reservas/crear']);
       },
       error: (error) => {
         this.logger.log(LogLevel.ERROR, 'Error al crear la reserva', error);

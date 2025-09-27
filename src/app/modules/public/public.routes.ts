@@ -9,7 +9,6 @@ import { HomeComponent } from './home/home.component';
 import { OfflineComponent } from './offline/offline.component';
 import { ConsultarReservaComponent } from './reservas/consultar-reserva/consultar-reserva.component';
 import { CrearReservaComponent } from './reservas/crear-reserva/crear-reserva.component';
-import { MenuReservasComponent } from './reservas/menu-reservas/menu-reservas.component';
 import { ReservasDelDiaComponent } from './reservas/reservas-del-dia/reservas-del-dia.component';
 
 export const publicRoutes: Routes = [
@@ -44,26 +43,22 @@ export const publicRoutes: Routes = [
     title: 'Ver Productos',
     data: { description: 'Explora nuestros platos: tradición colombiana y opciones reinventadas.' },
   },
+  // Redirección: el antiguo menú de reservas ya no está aquí
+  { path: 'reservas', redirectTo: 'reservas/crear', pathMatch: 'full' },
+  { path: 'reservas/crear', component: CrearReservaComponent, title: 'Crear Reserva' },
   {
-    path: 'reservas',
-    component: MenuReservasComponent,
-    children: [
-      {
-        path: 'consultar',
-        component: ConsultarReservaComponent,
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['Administrador', 'Cliente'] },
-        title: 'Consultar Reservas',
-      },
-      {
-        path: 'hoy',
-        component: ReservasDelDiaComponent,
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['Administrador'] },
-        title: 'Reservas del Día',
-      },
-      { path: 'crear', component: CrearReservaComponent },
-    ],
+    path: 'reservas/consultar',
+    component: ConsultarReservaComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Administrador', 'Cliente'] },
+    title: 'Consultar Reservas',
+  },
+  {
+    path: 'reservas/hoy',
+    component: ReservasDelDiaComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Administrador'] },
+    title: 'Reservas del Día',
   },
   {
     path: 'domicilios',

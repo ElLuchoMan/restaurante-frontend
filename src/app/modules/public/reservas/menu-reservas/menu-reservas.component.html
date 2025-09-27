@@ -1,14 +1,85 @@
-<div class="container mt-5 col-md-5" *ngIf="mostrarMenu">
-  <h1 class="text-center mb-4">Gestión Reservas</h1>
+<section class="page-shell" *ngIf="mostrarMenu">
+  <div class="container">
+    <h2 class="section-title text-center mb-2">Gestión Reservas</h2>
+    <p class="subtitle text-center mb-4">Administra, consulta y crea reservas con un solo clic</p>
 
-  <div class="card card-normal p-5">
-    <div class="column d-flex flex-column">
-      <button class="btn btn-primary" (click)="irA('consultar')">Consultar Reserva</button>
-      <button class="btn btn-primary mt-4" (click)="irA('hoy')">Consultar reservas del día</button>
-      <button class="btn btn-primary mt-4" (click)="irA('crear')">Crear Reserva</button>
+    <div class="menu-surface card-glass glow-border rise-on-mount">
+      <div class="row g-4 action-grid">
+        <div class="col-12 col-md-4">
+          <a
+            class="action-card info-card info-card-lg text-decoration-none"
+            role="button"
+            tabindex="0"
+            aria-label="Consultar reservas"
+            (click)="irA('consultar')"
+          >
+            <div class="info-header">
+              <i class="info-icon fa fa-search"></i>
+              <div class="info-title">
+                <h5 class="mb-0">Consultar</h5>
+                <p class="subtitle mb-0">Busca por documento o fecha</p>
+              </div>
+            </div>
+            <div class="info-content">
+              <div class="info-text">
+                <i class="info-mini-icon fa fa-filter"></i>
+                <span>Filtros dinámicos y resultados enriquecidos</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <a
+            class="action-card info-card info-card-lg text-decoration-none"
+            role="button"
+            tabindex="0"
+            aria-label="Reservas del día"
+            (click)="irA('hoy')"
+          >
+            <div class="info-header">
+              <i class="info-icon fa fa-calendar-day"></i>
+              <div class="info-title">
+                <h5 class="mb-0">Del día</h5>
+                <p class="subtitle mb-0">Panorama en tiempo real</p>
+              </div>
+            </div>
+            <div class="info-content">
+              <div class="info-text">
+                <i class="info-mini-icon fa fa-bolt"></i>
+                <span>Acciones rápidas para confirmar o cancelar</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <a
+            class="action-card info-card info-card-lg text-decoration-none"
+            role="button"
+            tabindex="0"
+            aria-label="Crear reserva"
+            (click)="irA('crear')"
+          >
+            <div class="info-header">
+              <i class="info-icon fa fa-plus"></i>
+              <div class="info-title">
+                <h5 class="mb-0">Crear</h5>
+                <p class="subtitle mb-0">Cliente registrado o invitado</p>
+              </div>
+            </div>
+            <div class="info-content">
+              <div class="info-text">
+                <i class="info-mini-icon fa fa-magic"></i>
+                <span>Formulario smart con validaciones y accesibilidad</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
 <div class="container-fluid" *ngIf="!mostrarMenu">
   <div class="volver-container" *ngIf="esAdmin" (click)="volver()">

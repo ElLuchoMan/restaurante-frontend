@@ -1,1 +1,162 @@
 @use '../../../../../assets/_variables.scss' as *;
+
+// Reutiliza los estilos de lista elegantes del componente de consulta
+.reservas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reserva-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.8rem 0.9rem; /* compactar card */
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+.hora-badge {
+  background: #f3f4f6;
+  color: #374151;
+  display: none;
+}
+
+/* Header sticky con blur suave */
+.reservas-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+}
+
+.reserva-left {
+  min-width: 90px;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+.reserva-center {
+  display: flex;
+  flex-direction: column;
+}
+.reserva-cliente {
+  font-weight: 600;
+  color: #2d3748;
+}
+.reserva-telefono {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+.reserva-indicaciones {
+  color: #4b5563;
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+
+.reserva-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.reserva-right .estado {
+  font-weight: 600;
+}
+.reserva-right .pax {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  transition: transform 0.15s ease;
+}
+.btn-icon.ok {
+  color: #22c55e;
+}
+.btn-icon.cancel {
+  color: #ef4444;
+}
+.btn-icon:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 576px) {
+  .reserva-item {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'center right' 'left right';
+    padding: 0.65rem 0.8rem;
+  }
+  .reserva-left {
+    grid-area: left;
+    min-width: 0;
+    font-size: 0.8rem;
+  }
+  .reserva-center {
+    grid-area: center;
+  }
+  .reserva-indicaciones {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .reserva-right {
+    grid-area: right;
+    gap: 0.35rem;
+    flex-wrap: wrap; /* permitir salto cuando falte espacio */
+    justify-content: flex-end;
+    max-width: 96px; /* más compacto para evitar desborde */
+    overflow: hidden; /* evita que los elementos se salgan */
+    min-width: 0;
+    align-content: flex-end; /* empujar líneas hacia abajo */
+  }
+  .reserva-right .estado {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.45rem;
+    white-space: nowrap;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .reserva-right .pax {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.45rem;
+  }
+  .btn-icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+  }
+  /* Mostrar hora como badge y ocultar la fila de hora en móvil */
+  /* Orden requerido: Estado (1) > Pax (2) > Hora (3) > Acciones (4) */
+  .estado {
+    order: 1;
+  }
+  .pax {
+    order: 2;
+  }
+  .hora-badge {
+    display: inline-flex;
+    align-items: center;
+    order: 3;
+  }
+  .btn-icon {
+    order: 4;
+  }
+  .reserva-left {
+    display: none;
+  }
+}

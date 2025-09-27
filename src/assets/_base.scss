@@ -11946,9 +11946,9 @@ textarea.form-control {
 }
 
 .input-float .form-control {
-  padding: 15px 80px 0 50px;
+  padding: 18px 88px 10px 52px; // más espacio para evitar cortes en web/web mobile
   height: auto;
-  min-height: 52px;
+  min-height: 56px; // altura mínima mayor para distintos motores
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   background: rgba(255, 255, 255, 0.9);
@@ -11982,7 +11982,7 @@ textarea.form-control {
 
 .input-float .form-control:focus + .float-label,
 .input-float .form-control:not(:placeholder-shown) + .float-label {
-  top: 4px;
+  top: 6px; // bajar un poco el label activo
   left: 46px;
   transform: translateY(0);
   font-size: 12px;

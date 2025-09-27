@@ -1,70 +1,54 @@
-<div class="container">
-  <div class="card card-normal p-5">
-    <h2 class="text-center mb-4" *ngIf="reservas.length !== 0">Reservas del {{ fechaHoy }}</h2>
+<section class="page-shell">
+  <div class="container">
+    <div class="card-glass p-3 mb-3" *ngIf="reservas.length !== 0">
+      <div class="reservas-header">
+        <h2 class="section-title text-center mb-1">Reservas del {{ fechaHoy }}</h2>
+        <p class="subtitle text-center mb-0">Resumen en tiempo real</p>
+      </div>
 
-    <div class="table-container">
-      <table class="table table-bordered text-center" *ngIf="reservas.length !== 0">
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Teléfono</th>
-            <th>Personas</th>
-            <th>Hora</th>
-            <th>Indicaciones</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let reserva of reservas; let i = index">
-            <td>{{ reserva.nombreCompleto }}</td>
-            <td>{{ reserva.telefono }}</td>
-            <td>{{ reserva.personas }}</td>
-            <td>{{ reserva.horaReserva }}</td>
-            <td class="text-left">{{ reserva.indicaciones }}</td>
-            <td>
-              <span
-                class="badge"
-                [ngClass]="{
-                  'bg-warning': reserva.estadoReserva === 'PENDIENTE',
-                  'bg-success': reserva.estadoReserva === 'CONFIRMADA',
-                  'bg-secondary': reserva.estadoReserva === 'CUMPLIDA',
-                  'bg-danger': reserva.estadoReserva === 'CANCELADA',
-                }"
-              >
-                {{ reserva.estadoReserva }}
-              </span>
-            </td>
-            <td class="text-center">
-              <button
-                class="btn-no-bg tooltip-btn text-info"
-                (click)="confirmarReserva(reserva)"
-                data-tooltip="Confirmar Reserva"
-              >
-                <i class="fas fa-check"></i>
-              </button>
-              <button
-                class="btn-no-bg tooltip-btn text-danger mx-1"
-                (click)="cancelarReserva(reserva)"
-                data-tooltip="Cancelar Reserva"
-              >
-                <i class="fas fa-times"></i>
-              </button>
-              <button
-                class="btn-no-bg tooltip-btn text-success"
-                (click)="cumplirReserva(reserva)"
-                data-tooltip="Marcar como Cumplida"
-              >
-                <i class="fas fa-check-double"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="reservas-list" aria-label="Reservas del día">
+        <div class="reserva-item" *ngFor="let r of reservas; let i = index">
+          <div class="reserva-left">
+            <div class="reserva-hora">{{ r.horaReserva }}</div>
+          </div>
+          <div class="reserva-center">
+            <div class="reserva-cliente">{{ r.nombreCompleto }}</div>
+            <div class="reserva-telefono">{{ r.telefono }}</div>
+            <div class="reserva-indicaciones" *ngIf="r.indicaciones">{{ r.indicaciones }}</div>
+          </div>
+          <div class="reserva-right">
+            <span
+              class="badge estado"
+              [ngClass]="{
+                'bg-warning': r.estadoReserva === 'PENDIENTE',
+                'bg-success': r.estadoReserva === 'CONFIRMADA',
+                'bg-secondary': r.estadoReserva === 'CUMPLIDA',
+                'bg-danger': r.estadoReserva === 'CANCELADA',
+              }"
+              >{{ r.estadoReserva }}</span
+            >
+            <span class="badge bg-secondary pax"
+              ><i class="fas fa-user me-1"></i>{{ r.personas }}</span
+            >
+            <span class="badge hora-badge"
+              ><i class="far fa-clock me-1"></i>{{ r.horaReserva }}</span
+            >
+            <button class="btn-icon ok" (click)="confirmarReserva(r)" aria-label="Confirmar">
+              <i class="fas fa-check"></i>
+            </button>
+            <button class="btn-icon cancel" (click)="cancelarReserva(r)" aria-label="Cancelar">
+              <i class="fas fa-times"></i>
+            </button>
+            <button class="btn-icon ok" (click)="cumplirReserva(r)" aria-label="Cumplida">
+              <i class="fas fa-check-double"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div *ngIf="reservas.length === 0" class="alert alert-info text-center mt-4">
       No hay reservas para hoy.
     </div>
   </div>
-</div>
+</section>

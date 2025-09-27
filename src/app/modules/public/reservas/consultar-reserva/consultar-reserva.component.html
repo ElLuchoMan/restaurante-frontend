@@ -1,155 +1,135 @@
-<div class="container mt-4">
-  <h1 class="text-center mb-4">
-    {{ esAdmin ? 'Buscar Reservas' : 'Mis reservas' }}
-  </h1>
+<section class="page-shell">
+  <div class="container">
+    <h2 class="section-title text-center mb-2">
+      {{ esAdmin ? 'Buscar Reservas' : 'Mis reservas' }}
+    </h2>
+    <p class="subtitle text-center mb-4">Consulta por documento, por fecha o ambos</p>
 
-  <div class="card card-normal p-4" *ngIf="mostrarFiltros">
-    <div class="filtro-container">
-      <label><strong>Buscar por:</strong></label>
+    <div class="card-glass glow-border p-3" *ngIf="mostrarFiltros">
+      <div class="row g-2 align-items-center">
+        <!-- Switches a la izquierda -->
+        <div class="col-auto d-flex flex-wrap align-items-center gap-3">
+          <div class="custom-control switch mb-0">
+            <input
+              type="checkbox"
+              class="switch-input"
+              id="busquedaDocumento"
+              [(ngModel)]="buscarPorDocumento"
+              (change)="actualizarTipoBusqueda()"
+            />
+            <label class="switch-label" for="busquedaDocumento">Documento</label>
+          </div>
+          <div class="custom-control switch mb-0">
+            <input
+              type="checkbox"
+              class="switch-input"
+              id="busquedaFecha"
+              [(ngModel)]="buscarPorFecha"
+              (change)="actualizarTipoBusqueda()"
+            />
+            <label class="switch-label" for="busquedaFecha">Fecha</label>
+          </div>
+        </div>
 
-      <div class="control check mx-2">
-        <input
-          class="check-input"
-          type="checkbox"
-          id="busquedaDocumento"
-          [(ngModel)]="buscarPorDocumento"
-          (change)="actualizarTipoBusqueda()"
-        />
-        <label class="check-label" for="busquedaDocumento">Documento</label>
-      </div>
+        <!-- Campo Documento -->
+        <div class="col-12 col-sm-6 col-lg-4" *ngIf="buscarPorDocumento">
+          <div class="input-float">
+            <span class="icon" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span>
+            <input
+              type="number"
+              id="documentoCliente"
+              name="documentoCliente"
+              class="form-control form-control-sm"
+              [(ngModel)]="documentoCliente"
+              (input)="documentoCliente = ('' + ($any($event.target)?.value ?? '')).trim()"
+              placeholder=" "
+              #campoDocumento="ngModel"
+              [attr.aria-invalid]="campoDocumento.invalid && campoDocumento.touched ? 'true' : null"
+              [attr.aria-describedby]="
+                campoDocumento.invalid && campoDocumento.touched ? 'documentoCliente-error' : null
+              "
+            />
+            <label class="float-label" for="documentoCliente">Documento</label>
+          </div>
+        </div>
 
-      <div class="control check mx-2">
-        <input
-          class="check-input"
-          type="checkbox"
-          id="busquedaFecha"
-          [(ngModel)]="buscarPorFecha"
-          (change)="actualizarTipoBusqueda()"
-        />
-        <label class="check-label" for="busquedaFecha">Fecha</label>
+        <!-- Campo Fecha -->
+        <div class="col-12 col-sm-6 col-lg-3" *ngIf="buscarPorFecha">
+          <div class="input-float">
+            <span class="icon" aria-hidden="true"><i class="fa-solid fa-calendar"></i></span>
+            <input
+              type="date"
+              id="fechaReserva"
+              name="fechaReserva"
+              class="form-control form-control-sm"
+              [(ngModel)]="fechaReserva"
+              #campoFecha="ngModel"
+              placeholder=" "
+              [attr.aria-invalid]="campoFecha.invalid && campoFecha.touched ? 'true' : null"
+              [attr.aria-describedby]="
+                campoFecha.invalid && campoFecha.touched ? 'fechaReserva-error' : null
+              "
+            />
+            <label class="float-label" for="fechaReserva">Fecha</label>
+          </div>
+        </div>
+
+        <!-- Botón al final de la fila -->
+        <div class="col-auto ms-auto d-grid">
+          <button
+            class="btn btn-primary btn-progress btn-sm"
+            [disabled]="!(buscarPorDocumento || buscarPorFecha)"
+            (click)="buscarReserva()"
+            aria-label="Buscar Reservas"
+          >
+            <span class="progress-bg"></span>
+            <i class="fas fa-search me-2"></i>Buscar
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="d-flex align-items-center mt-3">
-      <div class="form-group flex-grow-1 mr-2" *ngIf="buscarPorDocumento">
-        <input
-          type="number"
-          id="documentoCliente"
-          name="documentoCliente"
-          class="form-control"
-          [(ngModel)]="documentoCliente"
-          (input)="documentoCliente = ('' + ($any($event.target)?.value ?? '')).trim()"
-          placeholder="1000000000"
-          #campoDocumento="ngModel"
-          [attr.aria-invalid]="campoDocumento.invalid && campoDocumento.touched ? 'true' : null"
-          [attr.aria-describedby]="
-            campoDocumento.invalid && campoDocumento.touched ? 'documentoCliente-error' : null
-          "
-        />
-        <div
-          *ngIf="campoDocumento.invalid && campoDocumento.touched"
-          class="text-danger"
-          id="documentoCliente-error"
-          role="alert"
-        >
-          Documento inválido.
-        </div>
-      </div>
-
-      <div class="form-group flex-grow-1 mr-2" *ngIf="buscarPorFecha">
-        <input
-          type="date"
-          id="fechaReserva"
-          name="fechaReserva"
-          class="form-control"
-          [(ngModel)]="fechaReserva"
-          #campoFecha="ngModel"
-          [attr.aria-invalid]="campoFecha.invalid && campoFecha.touched ? 'true' : null"
-          [attr.aria-describedby]="
-            campoFecha.invalid && campoFecha.touched ? 'fechaReserva-error' : null
-          "
-        />
-        <div
-          *ngIf="campoFecha.invalid && campoFecha.touched"
-          class="text-danger"
-          id="fechaReserva-error"
-          role="alert"
-        >
-          Fecha inválida.
-        </div>
-      </div>
-
-      <button
-        class="btn-no-bg tooltip-btn search"
-        *ngIf="buscarPorDocumento || buscarPorFecha"
-        (click)="buscarReserva()"
-        data-tooltip="Buscar Reservas"
-      >
-        <i class="fas fa-search"></i>
-      </button>
-    </div>
-  </div>
-
-  <div class="card card-normal p-4 mt-4" *ngIf="reservas.length > 0">
-    <h2 class="text-center mb-4">Resultados</h2>
-
-    <div class="table-container">
-      <table class="table table-bordered text-center">
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Teléfono</th>
-            <th>Personas</th>
-            <th>Fecha</th>
-            <th>Hora</th>
-            <th>Estado</th>
-            <th *ngIf="esAdmin">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let reserva of reservas">
-            <td>{{ reserva.nombreCompleto }}</td>
-            <td>{{ reserva.telefono }}</td>
-            <td>{{ reserva.personas }}</td>
-            <td>{{ reserva.fechaReserva }}</td>
-            <td>{{ reserva.horaReserva }}</td>
-            <td>
-              <span
-                class="badge"
-                [ngClass]="{
-                  'bg-warning': reserva.estadoReserva === 'PENDIENTE',
-                  'bg-success': reserva.estadoReserva === 'CONFIRMADA',
-                  'bg-secondary': reserva.estadoReserva === 'CUMPLIDA',
-                  'bg-danger': reserva.estadoReserva === 'CANCELADA',
-                }"
-              >
-                {{ reserva.estadoReserva }}
-              </span>
-            </td>
-
-            <td *ngIf="esAdmin">
-              <button
-                class="btn-no-bg tooltip-btn text-info"
-                (click)="confirmarReserva(reserva)"
-                data-tooltip="Confirmar Reserva"
-              >
+    <div class="list-surface mt-4" *ngIf="reservas.length > 0">
+      <h2 class="text-center mb-3">Resultados</h2>
+      <div class="reservas-list" aria-label="Lista de reservas">
+        <div class="reserva-item" *ngFor="let r of reservas">
+          <div class="reserva-left">
+            <div class="reserva-fecha">{{ r.fechaReserva }}</div>
+            <div class="reserva-hora">{{ r.horaReserva }}</div>
+          </div>
+          <div class="reserva-center">
+            <div class="reserva-cliente">{{ r.nombreCompleto }}</div>
+            <div class="reserva-telefono">{{ r.telefono }}</div>
+          </div>
+          <div class="reserva-right">
+            <span
+              class="badge estado"
+              [ngClass]="{
+                'bg-warning': r.estadoReserva === 'PENDIENTE',
+                'bg-success': r.estadoReserva === 'CONFIRMADA',
+                'bg-secondary': r.estadoReserva === 'CUMPLIDA',
+                'bg-danger': r.estadoReserva === 'CANCELADA',
+              }"
+              >{{ r.estadoReserva }}</span
+            >
+            <span class="badge bg-secondary pax"
+              ><i class="fas fa-user me-1"></i>{{ r.personas }}</span
+            >
+            <ng-container *ngIf="esAdmin">
+              <button class="btn-icon ok" (click)="confirmarReserva(r)" aria-label="Confirmar">
                 <i class="fas fa-check"></i>
               </button>
-              <button
-                class="btn-no-bg tooltip-btn text-danger"
-                (click)="cancelarReserva(reserva)"
-                data-tooltip="Cancelar Reserva"
-              >
+              <button class="btn-icon cancel" (click)="cancelarReserva(r)" aria-label="Cancelar">
                 <i class="fas fa-times"></i>
               </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info text-center mt-4" *ngIf="mostrarMensaje && reservas.length === 0">
+      No se han encontrado reservas con los criterios seleccionados.
     </div>
   </div>
-
-  <div class="alert alert-info text-center mt-4" *ngIf="mostrarMensaje && reservas.length === 0">
-    No se han encontrado reservas con los criterios seleccionados.
-  </div>
-</div>
+</section>

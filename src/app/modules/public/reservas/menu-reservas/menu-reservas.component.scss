@@ -1,1 +1,30 @@
 @use '../../../../../assets/_variables.scss' as *;
+
+.menu-surface {
+  padding: 1.5rem;
+  border-radius: 16px;
+}
+
+.action-grid {
+  align-items: stretch;
+}
+
+.action-card {
+  display: block;
+  height: 100%;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  }
+}
+
+// Accesibilidad: aumentar hit area en móvil
+@media (max-width: 576px) {
+  .info-card.info-card-lg .info-header {
+    gap: 0.6rem;
+  }
+}

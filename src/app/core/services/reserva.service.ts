@@ -6,12 +6,7 @@ import { environment } from '../../../environments/environment';
 import { HandleErrorService } from '../../core/services/handle-error.service';
 import { UserService } from '../../core/services/user.service';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import {
-  ReservaBase,
-  ReservaCreate,
-  ReservaPopulada,
-  ReservaUpdate,
-} from '../../shared/models/reserva.model';
+import { ReservaCreate, ReservaPopulada, ReservaUpdate } from '../../shared/models/reserva.model';
 import { ReservaContactoService } from './reserva-contacto.service';
 
 @Injectable({
@@ -28,7 +23,12 @@ export class ReservaService {
   ) {}
 
   crearReserva(
-    reserva: ReservaCreate & { documentoCliente?: number | null },
+    reserva: ReservaCreate & {
+      documentoCliente?: number | null;
+      documentoContacto?: number | null;
+      nombreCompleto?: string;
+      telefono?: string;
+    },
   ): Observable<ApiResponse<ReservaPopulada>> {
     const userId = this.userService.getUserId?.();
     const role = this.userService.getUserRole?.();
@@ -39,7 +39,15 @@ export class ReservaService {
         .post<ApiResponse<ReservaPopulada>>(`${this.baseUrl}/reservas`, body)
         .pipe(catchError(this.handleError.handleError));
 
-    // Cliente autenticado: resolver contactoId real a partir del documento
+    // Si el formulario especifica documentoCliente o documentoContacto, respetarlo
+    if (
+      (payload.documentoCliente != null && !isNaN(Number(payload.documentoCliente))) ||
+      (payload.documentoContacto != null && !isNaN(Number(payload.documentoContacto)))
+    ) {
+      return postReserva(payload);
+    }
+
+    // Cliente autenticado sin documento explícito: resolver contactoId real a partir del token
     if (role === 'Cliente' && typeof userId === 'number' && !isNaN(userId)) {
       return this.reservaContactoService.getContactos({ documento_cliente: userId }).pipe(
         map((r) =>
@@ -61,13 +69,7 @@ export class ReservaService {
       );
     }
 
-    // Admin u otro/anónimo: permitir documentoCliente si fue provisto
-    if (payload.documentoCliente == null || isNaN(Number(payload.documentoCliente))) {
-      delete payload.documentoCliente;
-    }
-    if (payload.contactoId == null || isNaN(Number(payload.contactoId))) {
-      delete payload.contactoId;
-    }
+    // Admin u otro/anónimo sin documentos: enviar tal cual (backend valida requeridos)
 
     return postReserva(payload);
   }
@@ -75,6 +77,32 @@ export class ReservaService {
   obtenerReservas(): Observable<ApiResponse<ReservaPopulada[]>> {
     return this.http
       .get<ApiResponse<ReservaPopulada[]>>(`${this.baseUrl}/reservas`)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  // Nuevo endpoint: reservas por documento de cliente con fecha opcional
+  getReservasByCliente(
+    documentoCliente: number,
+    fecha?: string,
+  ): Observable<ApiResponse<ReservaPopulada[]>> {
+    let params = new HttpParams().set('documentoCliente', String(documentoCliente));
+    if (fecha) params = params.set('fecha', fecha);
+
+    return this.http
+      .get<ApiResponse<ReservaPopulada[]>>(`${this.baseUrl}/reservas/cliente`, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  // Nuevo endpoint universal: reservas por documento (cliente registrado o contacto)
+  getReservasByDocumento(
+    documento: number,
+    fecha?: string,
+  ): Observable<ApiResponse<ReservaPopulada[]>> {
+    let params = new HttpParams().set('documento', String(documento));
+    if (fecha) params = params.set('fecha', fecha);
+
+    return this.http
+      .get<ApiResponse<ReservaPopulada[]>>(`${this.baseUrl}/reservas/documento`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 

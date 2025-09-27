@@ -1,1 +1,17 @@
 @use '../../../../../assets/_variables.scss' as *;
+@use '../../../../../assets/_base.scss' as *;
+
+// El formulario hereda el sistema visual global (card-glass, input-float, btn-progress)
+.page-shell {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+// Ajustes mínimos locales para consistencia con Login/Registro
+.subtitle {
+  color: $text-muted;
+}
+
+.text-info {
+  color: $info;
+}
