@@ -1,18 +1,81 @@
-<div class="container mt-5 col-md-6">
-  <h1 class="text-center mb-4">Ubícanos</h1>
+<section class="page-shell">
+  <div class="container ubicacion-wrap">
+    <h2 class="section-title text-center mb-4">Ubícanos</h2>
 
-  <div class="map-container">
-    <iframe
-      [src]="ubicacionUrl"
-      loading="lazy"
-      title="Ubicación de El Fogón de María"
-      aria-label="Mapa con la ubicación de El Fogón de María"
-    ></iframe>
+    <div class="row g-4 align-items-stretch">
+      <!-- Mapa -->
+      <div class="col-12 col-lg-7">
+        <div class="map-card card-glass glow-border rise-on-mount">
+          <div class="map-embed ratio ratio-16x9">
+            <iframe
+              [src]="ubicacionUrl"
+              loading="lazy"
+              title="Ubicación de El fogón DE MARÍA"
+              aria-label="Mapa con la ubicación de El fogón DE MARÍA"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información y acciones -->
+      <div class="col-12 col-lg-5">
+        <div class="info-card card-glass" [ngClass]="{ show: mostrarInfo }">
+          <div class="info-header">
+            <i class="info-icon fa fa-map-marker-alt"></i>
+            <div class="info-title">
+              <h5 class="mb-0">El fogón DE MARÍA</h5>
+              <p class="subtitle mb-0">Auténtica cocina colombiana</p>
+            </div>
+          </div>
+
+          <div class="info-content">
+            <ul class="list-unstyled m-0">
+              <li class="d-flex align-items-start gap-2 mb-2">
+                <i class="info-mini-icon fa fa-location-dot"></i>
+                <span>Calle 78a # 62 - 48, Bogotá, Colombia</span>
+              </li>
+              <li class="d-flex align-items-start gap-2 mb-2">
+                <i class="info-mini-icon fa fa-clock"></i>
+                <span>Horario: 08:00 - 20:00</span>
+              </li>
+              <li class="d-flex align-items-start gap-2 mb-0">
+                <i class="info-mini-icon fa fa-phone"></i>
+                <span>3042449339</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="ubicacion-actions">
+            <a
+              class="btn btn-primary btn-sm"
+              [href]="mapsLink"
+              target="_blank"
+              rel="noopener"
+              aria-label="Abrir en Maps"
+            >
+              <i class="fa fa-map"></i> <span>Maps</span>
+            </a>
+            <a
+              class="btn btn-secondary btn-sm"
+              [href]="wazeLink"
+              target="_blank"
+              rel="noopener"
+              aria-label="Abrir en Waze"
+            >
+              <i class="fa fa-location-arrow"></i> <span>Waze</span>
+            </a>
+            <button
+              type="button"
+              class="btn btn-success btn-sm"
+              (click)="call()"
+              aria-label="Llamar al restaurante"
+            >
+              <i class="fa fa-phone"></i> <span>Llamar</span>
+            </button>
+            <!-- Botón Copiar eliminado por UX en WebView -->
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="info-card" [ngClass]="{ show: mostrarInfo }">
-    <h2>📌 El Fogón de María</h2>
-    <p><i class="fas fa-map-marker-alt"></i> Calle 78a # 62 - 48, Bogotá, Colombia</p>
-    <p><i class="fas fa-clock"></i> Horarios: 9:00 AM - 10:00 PM</p>
-    <p><i class="fas fa-phone-alt"></i> Teléfono: +57 304 244 9339</p>
-  </div>
-</div>
+</section>
