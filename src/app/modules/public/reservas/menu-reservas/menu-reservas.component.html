@@ -82,10 +82,5 @@
 </section>
 
 <div class="container-fluid" *ngIf="!mostrarMenu">
-  <div class="volver-container" *ngIf="esAdmin" (click)="volver()">
-    <i class="fas fa-arrow-left volver-icon"></i>
-    <span class="volver-text">Volver</span>
-  </div>
-
   <router-outlet></router-outlet>
 </div>

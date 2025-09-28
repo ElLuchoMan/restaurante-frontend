@@ -17,6 +17,13 @@
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.reserva-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
 }
 .hora-badge {
   background: #f3f4f6;
@@ -66,10 +73,18 @@
 }
 .reserva-right .estado {
   font-weight: 600;
+  line-height: 1;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
 }
 .reserva-right .pax {
   background-color: #f3f4f6;
   color: #374151;
+  line-height: 1;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-icon {

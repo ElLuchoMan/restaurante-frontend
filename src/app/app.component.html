@@ -6,6 +6,12 @@
 <app-update-banner *ngIf="!isWebView"></app-update-banner>
 <app-modal></app-modal>
 <main id="main" tabindex="-1" role="main" [class.is-webview]="isWebView">
+  <div class="container" *ngIf="showGlobalBack$ | async">
+    <div class="volver-container mt-3" (click)="goBack()">
+      <i class="fas fa-arrow-left volver-icon" aria-hidden="true"></i>
+      <span class="volver-text">Volver</span>
+    </div>
+  </div>
   <router-outlet></router-outlet>
   <div aria-live="polite" aria-atomic="true" class="sr-only" id="aria-live-region"></div>
 </main>

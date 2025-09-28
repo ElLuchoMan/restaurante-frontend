@@ -31,6 +31,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   isHome$!: Observable<boolean>;
   isLoggedOut$!: Observable<boolean>;
+  showGlobalBack$!: Observable<boolean>;
   isWebView = false;
   // Eliminado isLoggedOut$ (reversión)
   constructor(
@@ -59,6 +60,20 @@ export class AppComponent implements OnInit, OnDestroy {
       filter((e) => e instanceof NavigationEnd),
       startWith({ url: this.router.url } as NavigationEnd),
       map(() => this.router.url === '/' || this.router.url.startsWith('/home')),
+      takeUntil(this.destroy$),
+    );
+    // Mostrar botón global "Volver" en todas las vistas excepto Home, Login y Registro
+    this.showGlobalBack$ = this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      startWith({ url: this.router.url } as NavigationEnd),
+      map(() => {
+        const url = (this.router.url || '').split('?')[0];
+        const isHome = url === '/' || url.startsWith('/home');
+        const isLogin = url.startsWith('/login');
+        const isRegistro =
+          url.startsWith('/registro-cliente') || url.startsWith('/admin/registro-admin');
+        return !(isHome || isLogin || isRegistro);
+      }),
       takeUntil(this.destroy$),
     );
     this.router.events
@@ -132,6 +147,10 @@ export class AppComponent implements OnInit, OnDestroy {
         // fallback silencioso
       }
     })();
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   ngOnDestroy(): void {
