@@ -33,13 +33,28 @@
             <span class="badge hora-badge"
               ><i class="far fa-clock me-1"></i>{{ r.horaReserva }}</span
             >
-            <button class="btn-icon ok" (click)="confirmarReserva(r)" aria-label="Confirmar">
+            <button
+              class="btn-icon ok tooltip-btn"
+              (click)="confirmarReserva(r)"
+              aria-label="Confirmar"
+              data-tooltip="Confirmar"
+            >
               <i class="fas fa-check"></i>
             </button>
-            <button class="btn-icon cancel" (click)="cancelarReserva(r)" aria-label="Cancelar">
+            <button
+              class="btn-icon cancel tooltip-btn"
+              (click)="cancelarReserva(r)"
+              aria-label="Cancelar"
+              data-tooltip="Cancelar"
+            >
               <i class="fas fa-times"></i>
             </button>
-            <button class="btn-icon ok" (click)="cumplirReserva(r)" aria-label="Cumplida">
+            <button
+              class="btn-icon ok tooltip-btn"
+              (click)="cumplirReserva(r)"
+              aria-label="Cumplida"
+              data-tooltip="Marcar como cumplida"
+            >
               <i class="fas fa-check-double"></i>
             </button>
           </div>

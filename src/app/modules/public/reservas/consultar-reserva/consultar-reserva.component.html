@@ -103,23 +103,36 @@
           </div>
           <div class="reserva-right">
             <span
-              class="badge estado"
+              class="badge estado tooltip-btn"
               [ngClass]="{
                 'bg-warning': r.estadoReserva === 'PENDIENTE',
                 'bg-success': r.estadoReserva === 'CONFIRMADA',
                 'bg-secondary': r.estadoReserva === 'CUMPLIDA',
                 'bg-danger': r.estadoReserva === 'CANCELADA',
               }"
+              [attr.data-tooltip]="'Estado: ' + r.estadoReserva"
               >{{ r.estadoReserva }}</span
             >
-            <span class="badge bg-secondary pax"
+            <span
+              class="badge bg-secondary pax tooltip-btn"
+              [attr.data-tooltip]="'Personas: ' + r.personas"
               ><i class="fas fa-user me-1"></i>{{ r.personas }}</span
             >
             <ng-container *ngIf="esAdmin">
-              <button class="btn-icon ok" (click)="confirmarReserva(r)" aria-label="Confirmar">
+              <button
+                class="btn-icon ok tooltip-btn"
+                (click)="confirmarReserva(r)"
+                aria-label="Confirmar"
+                data-tooltip="Confirmar"
+              >
                 <i class="fas fa-check"></i>
               </button>
-              <button class="btn-icon cancel" (click)="cancelarReserva(r)" aria-label="Cancelar">
+              <button
+                class="btn-icon cancel tooltip-btn"
+                (click)="cancelarReserva(r)"
+                aria-label="Cancelar"
+                data-tooltip="Cancelar"
+              >
                 <i class="fas fa-times"></i>
               </button>
             </ng-container>

@@ -863,14 +863,6 @@ label {
 // DEPRECATED: Las variantes de badge viven en assets/_base.scss
 
 .tooltip-btn {
-  background: none;
-  border: none;
-  box-shadow: none;
-  cursor: pointer;
-  display: inline-block;
-  font-size: 1.5rem;
-  outline: none;
-  padding: 5px;
   position: relative;
 
   &::before {
@@ -893,6 +885,13 @@ label {
   &:hover::before {
     opacity: 1;
     visibility: visible;
+  }
+}
+
+/* Mostrar tooltips solo en escritorio */
+@media (max-width: $breakpoint-lg) {
+  .tooltip-btn::before {
+    display: none !important;
   }
 }
 
