@@ -9,7 +9,13 @@
       <div class="reservas-list" aria-label="Reservas del día">
         <div class="reserva-item" *ngFor="let r of reservas; let i = index">
           <div class="reserva-left">
-            <div class="reserva-hora">{{ r.horaReserva }}</div>
+            <div
+              class="reserva-hora tooltip-btn"
+              [attr.data-tooltip]="`Hora: ${r.horaReserva}`"
+              [attr.aria-label]="`Hora de la reserva: ${r.horaReserva}`"
+            >
+              {{ r.horaReserva }}
+            </div>
           </div>
           <div class="reserva-center">
             <div class="reserva-cliente">{{ r.nombreCompleto }}</div>
@@ -18,19 +24,27 @@
           </div>
           <div class="reserva-right">
             <span
-              class="badge estado"
+              class="badge estado tooltip-btn"
               [ngClass]="{
                 'bg-warning': r.estadoReserva === 'PENDIENTE',
                 'bg-success': r.estadoReserva === 'CONFIRMADA',
                 'bg-secondary': r.estadoReserva === 'CUMPLIDA',
                 'bg-danger': r.estadoReserva === 'CANCELADA',
               }"
+              [attr.data-tooltip]="`Estado: ${r.estadoReserva}`"
+              [attr.aria-label]="`Estado: ${r.estadoReserva}`"
               >{{ r.estadoReserva }}</span
             >
-            <span class="badge bg-secondary pax"
+            <span
+              class="badge bg-secondary pax tooltip-btn"
+              [attr.data-tooltip]="`Personas: ${r.personas}`"
+              [attr.aria-label]="`Cantidad de personas: ${r.personas}`"
               ><i class="fas fa-user me-1"></i>{{ r.personas }}</span
             >
-            <span class="badge hora-badge"
+            <span
+              class="badge hora-badge tooltip-btn"
+              [attr.data-tooltip]="`Hora: ${r.horaReserva}`"
+              [attr.aria-label]="`Hora de la reserva: ${r.horaReserva}`"
               ><i class="far fa-clock me-1"></i>{{ r.horaReserva }}</span
             >
             <button

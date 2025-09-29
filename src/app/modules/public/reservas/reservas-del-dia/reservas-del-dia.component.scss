@@ -13,8 +13,8 @@
   align-items: center;
   gap: 0.75rem 1rem;
   padding: 0.8rem 0.9rem; /* compactar card */
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: $white;
+  border: 1px solid $border-light;
   border-radius: 14px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
   transition:
@@ -26,8 +26,8 @@
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
 }
 .hora-badge {
-  background: #f3f4f6;
-  color: #374151;
+  background: $shadow-light;
+  color: $text-heading-strong;
   display: none;
 }
 
@@ -45,7 +45,7 @@
 
 .reserva-left {
   min-width: 90px;
-  color: #6b7280;
+  color: $text-muted;
   font-size: 0.9rem;
 }
 .reserva-center {
@@ -54,14 +54,14 @@
 }
 .reserva-cliente {
   font-weight: 600;
-  color: #2d3748;
+  color: $text-heading-strong;
 }
 .reserva-telefono {
-  color: #6b7280;
+  color: $text-body;
   font-size: 0.9rem;
 }
 .reserva-indicaciones {
-  color: #4b5563;
+  color: $text-body;
   font-size: 0.85rem;
   margin-top: 2px;
 }
@@ -79,8 +79,8 @@
   align-items: center;
 }
 .reserva-right .pax {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: $shadow-light;
+  color: $text-heading-strong;
   line-height: 1;
   height: 26px;
   display: inline-flex;

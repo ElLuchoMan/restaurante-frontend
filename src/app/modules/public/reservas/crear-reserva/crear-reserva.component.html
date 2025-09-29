@@ -129,6 +129,7 @@
                       [(ngModel)]="fechaReserva"
                       required
                       class="form-control"
+                      [min]="minFechaReserva"
                       #campoFecha="ngModel"
                       [attr.aria-invalid]="campoFecha.invalid && campoFecha.touched ? 'true' : null"
                       [attr.aria-describedby]="
@@ -138,12 +139,16 @@
                     <label class="float-label" for="fechaReserva">Fecha de la Reserva</label>
                   </div>
                   <div
-                    *ngIf="campoFecha.invalid && campoFecha.touched"
+                    *ngIf="(campoFecha.invalid && campoFecha.touched) || fechaNoPermitida"
                     class="text-danger"
                     id="fechaReserva-error"
                     role="alert"
                   >
-                    La fecha es obligatoria.
+                    {{
+                      fechaNoPermitida
+                        ? 'La fecha debe ser con al menos 2 días de anticipación'
+                        : 'La fecha es obligatoria.'
+                    }}
                   </div>
                 </div>
               </div>
@@ -157,8 +162,15 @@
                       name="horaReserva"
                       [(ngModel)]="horaReserva"
                       required
-                      class="form-control"
+                      class="form-control form-control-sm"
+                      step="1800"
+                      (change)="onHoraChange(horaInput)"
+                      (input)="onHoraChange(horaInput)"
+                      (blur)="onHoraChange(horaInput)"
                       #campoHora="ngModel"
+                      #horaInput
+                      (focus)="openTimePicker(horaInput)"
+                      (click)="openTimePicker(horaInput)"
                       [attr.aria-invalid]="campoHora.invalid && campoHora.touched ? 'true' : null"
                       [attr.aria-describedby]="
                         campoHora.invalid && campoHora.touched ? 'horaReserva-error' : null

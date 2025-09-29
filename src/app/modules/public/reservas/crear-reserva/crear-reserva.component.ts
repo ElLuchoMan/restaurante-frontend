@@ -36,6 +36,8 @@ export class CrearReservaComponent implements OnInit {
   mostrarInfoEvento: boolean = false;
   mostrarFormulario: boolean = false;
   esAdmin: boolean = false;
+  // Validación de anticipación mínima
+  minFechaReserva: string = '';
 
   constructor(
     private reservaService: ReservaService,
@@ -51,9 +53,18 @@ export class CrearReservaComponent implements OnInit {
     this.rol = this.userService.getUserRole() || null;
     this.esAdmin = this.rol === 'Administrador';
     this.rol === 'Cliente' ? (this.mostrarCampo = false) : (this.mostrarCampo = true);
+    // No permitir reservas para hoy ni mañana (mínimo 2 días de anticipación)
+    const hoy = new Date();
+    this.minFechaReserva = this.formatDateForInput(this.addDays(hoy, 2));
+    // Input nativo de hora con ajuste a saltos de 30 via onHoraChange
   }
 
   onSubmit(): void {
+    // Bloquear creación si no cumple anticipación mínima
+    if (this.fechaNoPermitida) {
+      this.toastr.warning('La fecha debe ser con al menos 2 días de anticipación', 'Atención');
+      return;
+    }
     const timestamp = new Date().toISOString();
     const userRole = this.rol;
     const userId = this.userService.getUserId();
@@ -141,13 +152,89 @@ export class CrearReservaComponent implements OnInit {
     this.reservaService.crearReserva(base).subscribe({
       next: (response) => {
         this.toastr.success('Reserva creada exitosamente', 'Éxito');
-        // Refrescar el formulario como indicó el usuario
-        this.router.navigate(['/reservas/crear']);
+        // Redirección según rol
+        const rolActual = this.rol || this.userService.getUserRole() || '';
+        if (rolActual === 'Administrador') {
+          this.router.navigate(['/admin/reservas']);
+        } else if (rolActual === 'Cliente') {
+          this.router.navigate(['/reservas/consultar']);
+        } else {
+          // Invitado u otro: mantener en crear
+          this.router.navigate(['/reservas/crear']);
+        }
       },
       error: (error) => {
         this.logger.log(LogLevel.ERROR, 'Error al crear la reserva', error);
         this.toastr.error(error.message, 'Error');
       },
     });
+  }
+
+  // Helpers de fecha
+  private addDays(base: Date, days: number): Date {
+    const d = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  private formatDateForInput(date: Date): string {
+    const y = date.getFullYear();
+    const m = `${date.getMonth() + 1}`.padStart(2, '0');
+    const d = `${date.getDate()}`.padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  get fechaNoPermitida(): boolean {
+    if (!this.fechaReserva) return false;
+    const parts = this.fechaReserva.split('-');
+    if (parts.length !== 3) return false;
+    const selected = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    selected.setHours(0, 0, 0, 0);
+    const min = new Date();
+    min.setHours(0, 0, 0, 0);
+    min.setDate(min.getDate() + 2);
+    return selected < min;
+  }
+
+  onHoraChange(inputEl?: HTMLInputElement): void {
+    if (!this.horaReserva) return;
+    const [hStr, mStr] = this.horaReserva.split(':');
+    let hour = Number(hStr);
+    let minute = Number(mStr);
+    if (isNaN(hour) || isNaN(minute)) return;
+
+    // Limitar a 0–23 y 0–59
+    hour = Math.max(0, Math.min(23, hour));
+    minute = Math.max(0, Math.min(59, minute));
+
+    // Redondear al valor más cercano: 00 si [0..14], 30 si [15..44], 00 de la siguiente hora si [45..59]
+    if (minute <= 14) {
+      minute = 0;
+    } else if (minute <= 44) {
+      minute = 30;
+    } else {
+      minute = 0;
+      hour = (hour + 1) % 24;
+    }
+
+    const hh = String(hour).padStart(2, '0');
+    const mm = String(minute).padStart(2, '0');
+    const normalized = `${hh}:${mm}`;
+    if (this.horaReserva !== normalized) {
+      this.horaReserva = normalized;
+      // Re-abrir el picker para reflejar la hora corregida (cuando soporte)
+      try {
+        (inputEl as any)?.showPicker?.();
+      } catch {}
+    }
+  }
+
+  openTimePicker(inputEl: HTMLInputElement): void {
+    try {
+      // showPicker está soportado en Chromium/Android; en iOS abrirá el control nativo con el foco/click
+      (inputEl as any).showPicker?.();
+    } catch {
+      // Silencioso si no existe
+    }
   }
 }

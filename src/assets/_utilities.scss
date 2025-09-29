@@ -866,10 +866,10 @@ label {
   position: relative;
 
   &::before {
-    background-color: rgb(0 0 0 / 75%);
+    background-color: rgba($black, 0.75);
     border-radius: 5px;
     bottom: 150%;
-    color: #fff;
+    color: $white;
     content: attr(data-tooltip);
     font-size: 12px;
     left: 50%;
