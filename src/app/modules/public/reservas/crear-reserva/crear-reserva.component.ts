@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
-import { ReservaService } from '../../../../core/services/reserva.service';
 import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
+import { ReservaService } from '../../../../core/services/reserva.service';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
@@ -157,12 +157,15 @@ export class CrearReservaComponent implements OnInit {
         try {
           // Solo clientes loggeados: notificar creación
           const rolActual = this.rol || this.userService.getUserRole() || '';
-          if (rolActual === 'Cliente' && response?.data) {
+          if (rolActual === 'Cliente') {
             await this.reservaNoti.notifyCreacion({
-              fechaReserva: response.data.fechaReserva || fechaReservaFormateada,
-              horaReserva: response.data.horaReserva || this.horaReserva,
-              documentoCliente: (response.data as any)?.documentoCliente ?? this.userId,
-              reservaId: (response.data as any)?.reservaId,
+              fechaReserva: (response as any)?.data?.fechaReserva || fechaReservaFormateada,
+              horaReserva: (response as any)?.data?.horaReserva || this.horaReserva,
+              documentoCliente:
+                ((response as any)?.data && (response as any).data.documentoCliente) ??
+                base.documentoCliente ??
+                this.userId,
+              reservaId: (response as any)?.data?.reservaId,
             } as any);
           }
         } catch {}
