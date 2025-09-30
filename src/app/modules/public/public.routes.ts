@@ -82,6 +82,15 @@ export const publicRoutes: Routes = [
     data: { description: 'Encuéntranos y visítanos. Estamos listos para atenderte.' },
   },
   {
+    path: 'notificaciones',
+    loadComponent: () =>
+      import('./notification-center/notification-center.component').then(
+        (c) => c.NotificationCenterComponent,
+      ),
+    title: 'Notificaciones',
+    data: { description: 'Centro de notificaciones recibidas.' },
+  },
+  {
     path: 'offline',
     component: OfflineComponent,
     title: 'Sin conexión',

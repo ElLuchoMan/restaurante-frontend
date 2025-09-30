@@ -28,6 +28,7 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
   isLoggedOut$: Observable<boolean>;
   userRole: string | null = null;
   cartCount = 0;
+  notifCount = 0;
   logoLink = '/home';
   topBarActions: TopBarAction[] = [];
   private mainEl?: HTMLElement | null;
@@ -56,6 +57,26 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
     this.mainEl = document.getElementById('main') as HTMLElement | null;
     this.applyTopPadding();
+
+    // Suscribirse a cambios del centro de notificaciones (localStorage)
+    try {
+      const { getUnseenCount } = require('../../utils/notification-center.store');
+      const update = () => {
+        try {
+          this.notifCount = getUnseenCount();
+        } catch {
+          this.notifCount = 0;
+        }
+        this.generateTopBarActions();
+      };
+      update();
+      window.addEventListener('notification-center:update', update);
+      window.addEventListener('focus', update);
+      this.destroy$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        window.removeEventListener('notification-center:update', update);
+        window.removeEventListener('focus', update);
+      });
+    } catch {}
 
     // Detectar cambios en el rol del usuario
     this.user
@@ -100,8 +121,9 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
         },
         {
           icon: 'fa fa-bell',
-          route: '/cliente/notificaciones',
+          route: '/notificaciones',
           ariaLabel: 'Notificaciones',
+          badge: this.notifCount,
         },
         {
           icon: 'fa fa-sign-out-alt',
@@ -125,8 +147,9 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
         },
         {
           icon: 'fa fa-bell',
-          route: '/admin/notificaciones',
+          route: '/notificaciones',
           ariaLabel: 'Notificaciones',
+          badge: this.notifCount,
         },
         {
           icon: 'fa fa-sign-out-alt',
@@ -145,8 +168,9 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
         },
         {
           icon: 'fa fa-bell',
-          route: '/trabajador/notificaciones',
+          route: '/notificaciones',
           ariaLabel: 'Notificaciones',
+          badge: this.notifCount,
         },
         {
           icon: 'fa fa-sign-out-alt',
@@ -165,7 +189,7 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
         },
         {
           icon: 'fa fa-bell',
-          route: '/trabajador/notificaciones',
+          route: '/notificaciones',
           ariaLabel: 'Notificaciones',
         },
         {

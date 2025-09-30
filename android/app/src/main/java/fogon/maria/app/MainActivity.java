@@ -1,4 +1,4 @@
-package cocina.maria.app;
+package fogon.maria.app;
 
 import android.os.Bundle;
 import androidx.activity.OnBackPressedCallback;
@@ -18,11 +18,12 @@ public class MainActivity extends BridgeActivity {
           public void handleOnBackPressed() {
             Bridge bridge = getBridge();
             if (bridge != null && bridge.getWebView() != null) {
-              // Delegar al historial del WebView (no cerrar la app)
-              bridge.getWebView().evaluateJavascript(
-                "(function(){history.length>1?history.back():window.dispatchEvent(new Event('popstate'));})()",
-                null
-              );
+              bridge
+                .getWebView()
+                .evaluateJavascript(
+                  "(function(){history.length>1?history.back():window.dispatchEvent(new Event('popstate'));})()",
+                  null
+                );
             }
           }
         }

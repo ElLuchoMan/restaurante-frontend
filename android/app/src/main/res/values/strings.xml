@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">El Fogón de María</string>
     <string name="title_activity_main">El Fogón de María</string>
-    <string name="package_name">cocina.maria.app</string>
-    <string name="custom_url_scheme">cocina.maria.app</string>
+    <string name="package_name">fogon.maria.app</string>
+    <string name="custom_url_scheme">fogon.maria.app</string>
 </resources>

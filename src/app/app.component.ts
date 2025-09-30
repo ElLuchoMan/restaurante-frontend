@@ -3,6 +3,7 @@ import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 
+import { NativePushService } from './core/services/native-push.service';
 import { NetworkService } from './core/services/network.service';
 import { SeoService } from './core/services/seo.service';
 import { UserService } from './core/services/user.service';
@@ -42,12 +43,25 @@ export class AppComponent implements OnInit, OnDestroy {
     private seo: SeoService,
     private location: Location,
     private userService: UserService,
+    private nativePush: NativePushService,
   ) {}
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     // Estado de sesión para condicionar barra inferior en webview
     this.isLoggedOut$ = this.userService.getAuthState().pipe(map((isAuth) => !isAuth));
+    // Re-registrar push con documento cuando el usuario inicia sesión
+    this.userService
+      .getAuthState()
+      .pipe(
+        filter((isAuth) => !!isAuth),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(async () => {
+        try {
+          await this.nativePush.init();
+        } catch {}
+      });
     // Detectar entorno nativo (Capacitor) para mostrar barra transversal solo en webview
     const cap: any = (window as any).Capacitor;
     this.isWebView = !!(
@@ -119,6 +133,13 @@ export class AppComponent implements OnInit, OnDestroy {
     window.addEventListener('popstate', () => {
       if (history.length <= 1) this.router.navigate(['/home']);
     });
+
+    // Inicializar push nativo solo en WebView
+    (async () => {
+      try {
+        await this.nativePush.init();
+      } catch {}
+    })();
 
     // Capturar botón físico atrás con @capacitor/app (más fiable)
     (async () => {

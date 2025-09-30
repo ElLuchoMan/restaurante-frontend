@@ -3,8 +3,9 @@ import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
-import { ReservaService } from '../../../../core/services/reserva.service';
 import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
+import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
+import { ReservaService } from '../../../../core/services/reserva.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { ReservaPopulada } from '../../../../shared/models/reserva.model';
 
@@ -24,6 +25,7 @@ export class ReservasDelDiaComponent implements OnInit {
     private reservaContactoService: ReservaContactoService,
     private toastr: ToastrService,
     private logger: LoggingService,
+    private reservaNoti: ReservaNotificationsService,
   ) {}
 
   ngOnInit(): void {
@@ -141,11 +143,22 @@ export class ReservasDelDiaComponent implements OnInit {
     };
 
     this.reservaService.actualizarReserva(Number(reserva.reservaId), payload).subscribe({
-      next: () => {
+      next: async () => {
         this.toastr.success(
           `Reserva marcada como ${reserva.estadoReserva}`,
           'Actualización Exitosa',
         );
+        try {
+          await this.reservaNoti.notifyEstadoCambio(
+            {
+              fechaReserva: fechaISO,
+              horaReserva: reserva.horaReserva,
+              documentoCliente: reserva.documentoCliente || null,
+              reservaId: reserva.reservaId,
+            } as any,
+            reserva.estadoReserva as any,
+          );
+        } catch {}
         const idx = this.reservas.findIndex((r) => r.reservaId === reserva.reservaId);
         if (idx > -1) {
           const updated = {

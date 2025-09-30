@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
+import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
@@ -34,6 +35,7 @@ export class ConsultarReservaComponent implements OnInit {
     private toastr: ToastrService,
     private userService: UserService,
     private logger: LoggingService,
+    private reservaNoti: ReservaNotificationsService,
   ) {}
 
   ngOnInit(): void {
@@ -253,8 +255,20 @@ export class ConsultarReservaComponent implements OnInit {
     };
 
     this.reservaService.actualizarReserva(reserva.reservaId, payload).subscribe({
-      next: () => {
+      next: async () => {
         this.toastr.success(`Reserva marcada como ${nuevoEstado}`, 'Actualización Exitosa');
+        try {
+          console.log('[Reservas] Notificando estado cambio:', nuevoEstado);
+          await this.reservaNoti.notifyEstadoCambio(
+            {
+              fechaReserva: fechaISO,
+              horaReserva: reserva.horaReserva,
+              documentoCliente: reserva.documentoCliente || null,
+              reservaId: reserva.reservaId,
+            } as any,
+            nuevoEstado,
+          );
+        } catch {}
         const idx = this.reservas.findIndex((r) => r.reservaId === reserva.reservaId);
         if (idx > -1) {
           const updated = { ...this.reservas[idx], estadoReserva: nuevoEstado } as ReservaPopulada;
