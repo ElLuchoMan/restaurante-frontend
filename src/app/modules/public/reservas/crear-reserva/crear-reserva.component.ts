@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
+import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
@@ -47,6 +48,7 @@ export class CrearReservaComponent implements OnInit {
     private toastr: ToastrService,
     private router: Router,
     private logger: LoggingService,
+    private reservaNoti: ReservaNotificationsService,
   ) {}
 
   ngOnInit(): void {
@@ -150,8 +152,20 @@ export class CrearReservaComponent implements OnInit {
     }
 
     this.reservaService.crearReserva(base).subscribe({
-      next: (response) => {
+      next: async (response) => {
         this.toastr.success('Reserva creada exitosamente', 'Éxito');
+        try {
+          // Solo clientes loggeados: notificar creación
+          const rolActual = this.rol || this.userService.getUserRole() || '';
+          if (rolActual === 'Cliente' && response?.data) {
+            await this.reservaNoti.notifyCreacion({
+              fechaReserva: response.data.fechaReserva || fechaReservaFormateada,
+              horaReserva: response.data.horaReserva || this.horaReserva,
+              documentoCliente: (response.data as any)?.documentoCliente ?? this.userId,
+              reservaId: (response.data as any)?.reservaId,
+            } as any);
+          }
+        } catch {}
         // Redirección según rol
         const rolActual = this.rol || this.userService.getUserRole() || '';
         if (rolActual === 'Administrador') {
