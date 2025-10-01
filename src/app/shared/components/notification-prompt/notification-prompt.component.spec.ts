@@ -2,7 +2,11 @@ import { PLATFORM_ID } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { WebPushService } from '../../../core/services/web-push.service';
-import { createCapacitorMock, createWebPushServiceMock } from '../../mocks/test-doubles';
+import {
+  createCapacitorMock,
+  createWebPushServiceMock,
+  configureWebPushServiceMock,
+} from '../../mocks/test-doubles';
 import { NotificationPromptComponent } from './notification-prompt.component';
 
 describe('NotificationPromptComponent', () => {
@@ -15,8 +19,10 @@ describe('NotificationPromptComponent', () => {
     localStorage.clear();
 
     const webPushMock = createWebPushServiceMock();
-    (webPushMock.isSupported as jest.Mock).mockReturnValue(true);
-    (webPushMock.getPermissionStatus as jest.Mock).mockReturnValue('default');
+    configureWebPushServiceMock(webPushMock, {
+      isSupported: true,
+      getPermissionStatus: 'default',
+    });
 
     await TestBed.configureTestingModule({
       imports: [NotificationPromptComponent],
@@ -59,7 +65,9 @@ describe('NotificationPromptComponent', () => {
   });
 
   it('debería activar notificaciones cuando el usuario acepta', async () => {
-    webPushService.requestPermissionAndSubscribe.mockResolvedValue(true);
+    configureWebPushServiceMock(webPushService, {
+      requestPermissionAndSubscribe: true,
+    });
     component.showPrompt = true;
 
     await component.enableNotifications();
@@ -78,8 +86,10 @@ describe('NotificationPromptComponent', () => {
   });
 
   it('debería ocultar el prompt si el permiso fue denegado', async () => {
-    webPushService.requestPermissionAndSubscribe.mockResolvedValue(false);
-    webPushService.getPermissionStatus.mockReturnValue('denied');
+    configureWebPushServiceMock(webPushService, {
+      requestPermissionAndSubscribe: false,
+      getPermissionStatus: 'denied',
+    });
     component.showPrompt = true;
 
     await component.enableNotifications();
@@ -89,8 +99,10 @@ describe('NotificationPromptComponent', () => {
   });
 
   it('debería mantener el prompt visible si falló pero no fue denegado', async () => {
-    webPushService.requestPermissionAndSubscribe.mockResolvedValue(false);
-    webPushService.getPermissionStatus.mockReturnValue('default');
+    configureWebPushServiceMock(webPushService, {
+      requestPermissionAndSubscribe: false,
+      getPermissionStatus: 'default',
+    });
     component.showPrompt = true;
 
     await component.enableNotifications();
@@ -109,7 +121,9 @@ describe('NotificationPromptComponent', () => {
   }));
 
   it('no debería mostrar el prompt si ya tiene permisos granted', fakeAsync(() => {
-    webPushService.getPermissionStatus.mockReturnValue('granted');
+    configureWebPushServiceMock(webPushService, {
+      getPermissionStatus: 'granted',
+    });
 
     component.ngOnInit();
     tick(3100);
@@ -118,7 +132,9 @@ describe('NotificationPromptComponent', () => {
   }));
 
   it('no debería mostrar el prompt si el permiso es denied', fakeAsync(() => {
-    webPushService.getPermissionStatus.mockReturnValue('denied');
+    configureWebPushServiceMock(webPushService, {
+      getPermissionStatus: 'denied',
+    });
 
     component.ngOnInit();
     tick(3100);
@@ -127,7 +143,9 @@ describe('NotificationPromptComponent', () => {
   }));
 
   it('no debería mostrar el prompt si no está soportado', fakeAsync(() => {
-    webPushService.isSupported.mockReturnValue(false);
+    configureWebPushServiceMock(webPushService, {
+      isSupported: false,
+    });
 
     component.ngOnInit();
     tick(3100);

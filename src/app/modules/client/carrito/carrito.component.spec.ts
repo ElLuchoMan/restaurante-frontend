@@ -16,12 +16,14 @@ import { UserService } from '../../../core/services/user.service';
 import {
   createCartServiceMock,
   createClienteServiceMock,
+  createComponentSpyMock,
   createDomicilioServiceMock,
   createMetodosPagoServiceMock,
   createModalServiceMock,
   createPedidoServiceMock,
   createProductoPedidoServiceMock,
   createRouterMock,
+  createSubjectSpyMock,
   createTelemetryServiceMock,
   createToastrMock,
   createUserServiceMock,
@@ -113,8 +115,8 @@ describe('CarritoComponent', () => {
 
   it('should unsubscribe on destroy', async () => {
     await setup();
-    const nextSpy = jest.spyOn((component as any).destroy$, 'next');
-    const completeSpy = jest.spyOn((component as any).destroy$, 'complete');
+    const nextSpy = createSubjectSpyMock((component as any).destroy$, 'next');
+    const completeSpy = createSubjectSpyMock((component as any).destroy$, 'complete');
     component.ngOnDestroy();
     expect(nextSpy).toHaveBeenCalled();
     expect(completeSpy).toHaveBeenCalled();
@@ -163,8 +165,13 @@ describe('CarritoComponent', () => {
     const fetchClienteSpy = jest
       .spyOn(component as any, 'fetchCliente')
       .mockResolvedValue({} as any);
-    const crearDomicilioSpy = jest.spyOn(component as any, 'crearDomicilio').mockResolvedValue(12);
-    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
+    const crearDomicilioSpy = createComponentSpyMock(
+      component as any,
+      'crearDomicilio',
+    ).mockResolvedValue(12);
+    const finalizeSpy = createComponentSpyMock(component as any, 'finalizeOrder').mockResolvedValue(
+      undefined,
+    );
 
     await config.buttons[1].action();
 

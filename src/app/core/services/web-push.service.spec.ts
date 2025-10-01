@@ -4,13 +4,16 @@ import { of, throwError } from 'rxjs';
 
 import {
   createAlertSpyMock,
+  createConsoleSpyMock,
   createNotificationMock,
   createPushServiceMock,
   createRequestPermissionDeniedMock,
   createRequestPermissionMock,
+  createServiceSpyMock,
   createServiceWorkerMock,
   createSwPushMock,
   createUserServiceMock,
+  configureUserServiceMock,
 } from '../../shared/mocks/test-doubles';
 import { PushService } from './push.service';
 import { UserService } from './user.service';
@@ -56,8 +59,10 @@ describe('WebPushService', () => {
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
 
     // Defaults para userService
-    (userService.getUserRole as jest.Mock).mockReturnValue('Cliente');
-    (userService.getUserId as jest.Mock).mockReturnValue(123);
+    configureUserServiceMock(userService, {
+      getUserRole: 'Cliente',
+      getUserId: 123,
+    });
 
     jest.clearAllMocks();
   });
@@ -90,7 +95,7 @@ describe('WebPushService', () => {
 
   describe('requestPermissionAndSubscribe', () => {
     it('debería retornar false si no está soportado', async () => {
-      jest.spyOn(service, 'isSupported').mockReturnValue(false);
+      createServiceSpyMock(service, 'isSupported', false);
 
       const result = await service.requestPermissionAndSubscribe();
 
@@ -101,7 +106,7 @@ describe('WebPushService', () => {
     });
 
     it('debería retornar false si Service Worker no está habilitado', async () => {
-      jest.spyOn(service, 'isSupported').mockReturnValue(true);
+      createServiceSpyMock(service, 'isSupported', true);
       swPush.isEnabled = false;
 
       const result = await service.requestPermissionAndSubscribe();

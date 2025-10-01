@@ -33,6 +33,114 @@ export function createCapacitorMock() {
   };
 }
 
+// Funciones para centralizar jest.spyOn comunes
+export function createServiceSpyMock(service: any, method: string, returnValue: any) {
+  return jest.spyOn(service, method).mockReturnValue(returnValue);
+}
+
+export function createConsoleSpyMock(method: 'log' | 'warn' | 'error' | 'info') {
+  return jest.spyOn(console, method).mockImplementation(() => {});
+}
+
+export function createDocumentSpyMock(method: string, returnValue: any) {
+  return jest.spyOn(document, method).mockReturnValue(returnValue);
+}
+
+export function createWindowSpyMock(method: string, returnValue: any) {
+  return jest.spyOn(window as any, method).mockReturnValue(returnValue);
+}
+
+export function createGlobalSpyMock(method: string, returnValue: any) {
+  return jest.spyOn(global as any, method).mockReturnValue(returnValue);
+}
+
+// Funciones para configurar mocks de servicios comunes
+export function configureWebPushServiceMock(
+  webPushMock: any,
+  config: {
+    isSupported?: boolean;
+    getPermissionStatus?: string;
+    requestPermissionAndSubscribe?: boolean;
+  },
+) {
+  if (config.isSupported !== undefined) {
+    (webPushMock.isSupported as jest.Mock).mockReturnValue(config.isSupported);
+  }
+  if (config.getPermissionStatus !== undefined) {
+    (webPushMock.getPermissionStatus as jest.Mock).mockReturnValue(config.getPermissionStatus);
+  }
+  if (config.requestPermissionAndSubscribe !== undefined) {
+    (webPushMock.requestPermissionAndSubscribe as jest.Mock).mockResolvedValue(
+      config.requestPermissionAndSubscribe,
+    );
+  }
+  return webPushMock;
+}
+
+export function configureUserServiceMock(
+  userServiceMock: any,
+  config: {
+    getUserRole?: string;
+    getUserId?: number;
+    getToken?: string;
+    decodeToken?: any;
+  },
+) {
+  if (config.getUserRole !== undefined) {
+    (userServiceMock.getUserRole as jest.Mock).mockReturnValue(config.getUserRole);
+  }
+  if (config.getUserId !== undefined) {
+    (userServiceMock.getUserId as jest.Mock).mockReturnValue(config.getUserId);
+  }
+  if (config.getToken !== undefined) {
+    (userServiceMock.getToken as jest.Mock).mockReturnValue(config.getToken);
+  }
+  if (config.decodeToken !== undefined) {
+    (userServiceMock.decodeToken as jest.Mock).mockReturnValue(config.decodeToken);
+  }
+  return userServiceMock;
+}
+
+// Funciones para mocks de logging service
+export function createLoggingServiceSpyMock(service: any, method: string, returnValue?: any) {
+  const spy = jest.spyOn(service, method);
+  if (returnValue !== undefined) {
+    spy.mockReturnValue(returnValue);
+  }
+  return spy;
+}
+
+// Funciones para mocks de router
+export function createRouterSpyMock(router: any, method: string, returnValue?: any) {
+  const spy = jest.spyOn(router, method);
+  if (returnValue !== undefined) {
+    spy.mockReturnValue(returnValue);
+  }
+  return spy;
+}
+
+// Funciones para mocks de componentes
+export function createComponentSpyMock(component: any, method: string, returnValue?: any) {
+  const spy = jest.spyOn(component, method);
+  if (returnValue !== undefined) {
+    spy.mockReturnValue(returnValue);
+  }
+  return spy;
+}
+
+export function createSubjectSpyMock(subject: any, method: string) {
+  return jest.spyOn(subject, method);
+}
+
+// Funciones para mocks de formularios
+export function createFormSpyMock(form: any, method: string, returnValue?: any) {
+  const spy = jest.spyOn(form, method);
+  if (returnValue !== undefined) {
+    spy.mockReturnValue(returnValue);
+  }
+  return spy;
+}
+
 export function createHorarioTrabajadorServiceMock() {
   return {
     create: jest.fn().mockReturnValue(of({ code: 201, message: 'Horario creado', data: {} })),

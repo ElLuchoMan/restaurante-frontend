@@ -6,6 +6,7 @@ import { mockLoginResponse } from '../../shared/mocks/login.mock';
 import {
   createHandleErrorServiceMock,
   createLoggingServiceMock,
+  createServiceSpyMock,
 } from '../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { HandleErrorService } from './handle-error.service';
@@ -122,7 +123,7 @@ describe('UserService', () => {
 
   it('should log an error and return null if token decoding fails', () => {
     const invalidToken = 'invalid.token.value';
-    jest.spyOn(service, 'getToken').mockReturnValue(invalidToken);
+    createServiceSpyMock(service, 'getToken', invalidToken);
     const result = service.decodeToken();
     expect(mockLoggingService.log).toHaveBeenCalledWith(
       LogLevel.ERROR,
@@ -133,7 +134,7 @@ describe('UserService', () => {
   });
 
   it('should return null if no token is found', () => {
-    jest.spyOn(service, 'getToken').mockReturnValue(null);
+    createServiceSpyMock(service, 'getToken', null);
     const result = service.decodeToken();
     expect(result).toBe(null);
   });
@@ -251,7 +252,7 @@ describe('UserService', () => {
   });
 
   it('should return 0 for user id if token is invalid', () => {
-    jest.spyOn(service, 'decodeToken').mockReturnValue(null);
+    createServiceSpyMock(service, 'decodeToken', null);
     const result = service.getUserId();
     expect(result).toBe(0);
   });
