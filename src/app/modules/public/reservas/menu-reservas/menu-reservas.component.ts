@@ -4,6 +4,14 @@ import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/ro
 
 import { UserService } from '../../../../core/services/user.service';
 
+interface OpcionMenu {
+  titulo: string;
+  descripcion: string;
+  icono: string;
+  ruta: string;
+  color: string;
+}
+
 @Component({
   selector: 'app-menu-reservas',
   standalone: true,
@@ -16,6 +24,33 @@ export class MenuReservasComponent implements OnInit {
   rol: string | null = '';
   esAdmin: boolean = false;
   private basePath: string = '/reservas';
+
+  // Subtítulo descriptivo del menú
+  subtitulo = 'Administra, consulta y crea reservas con un solo clic';
+
+  opciones: OpcionMenu[] = [
+    {
+      titulo: 'Consultar',
+      descripcion: 'Buscar reservas por documento o fecha',
+      icono: 'fa-search',
+      ruta: 'consultar',
+      color: 'blue',
+    },
+    {
+      titulo: 'Del Día',
+      descripcion: 'Ver y gestionar reservas de hoy',
+      icono: 'fa-calendar-day',
+      ruta: 'hoy',
+      color: 'green',
+    },
+    {
+      titulo: 'Crear',
+      descripcion: 'Nueva reserva para cliente o invitado',
+      icono: 'fa-plus',
+      ruta: 'crear',
+      color: 'orange',
+    },
+  ];
 
   constructor(
     private router: Router,
@@ -32,7 +67,6 @@ export class MenuReservasComponent implements OnInit {
   ngOnInit(): void {
     this.rol = this.userService.getUserRole() || null;
     this.esAdmin = this.rol === 'Administrador';
-    console.log('Entrando, si es Admin', this.esAdmin);
 
     this.updateState();
 

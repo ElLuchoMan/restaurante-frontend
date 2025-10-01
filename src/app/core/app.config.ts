@@ -21,8 +21,8 @@ import { provideToastr } from 'ngx-toastr';
 
 import { routes } from './app.routes';
 import { apiBaseInterceptor } from './interceptors/api-base.interceptor';
-import { authInterceptor } from './interceptors/auth.interceptor';
 import { authRefreshInterceptor } from './interceptors/auth-refresh.interceptor';
+import { authInterceptor } from './interceptors/auth.interceptor';
 import { correlationInterceptor } from './interceptors/correlation.interceptor';
 import { retryInterceptor } from './interceptors/retry.interceptor';
 import { telemetryInterceptor } from './interceptors/telemetry.interceptor';
@@ -75,7 +75,7 @@ export const appConfig: ApplicationConfig = {
       disableTimeOut: false,
     }),
     provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
+      enabled: !isDevMode(), // Solo en producción (build)
       registrationStrategy: 'registerWhenStable:30000',
     }),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },

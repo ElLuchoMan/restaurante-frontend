@@ -6,13 +6,17 @@ import { SwUpdate } from '@angular/service-worker';
 import { BehaviorSubject, Subject } from 'rxjs';
 
 import { AppComponent } from './app.component';
+import { NativePushService } from './core/services/native-push.service';
 import { NetworkService } from './core/services/network.service';
 import { SeoService } from './core/services/seo.service';
+import { WebPushService } from './core/services/web-push.service';
 import {
+  createNativePushServiceMock,
   createNetworkServiceMock,
   createRouterWithEventsMock,
   createSeoServiceMock,
   createSpy,
+  createWebPushServiceMock,
 } from './shared/mocks/test-doubles';
 
 describe('AppComponent', () => {
@@ -22,6 +26,8 @@ describe('AppComponent', () => {
   let mockNetworkService: jest.Mocked<NetworkService>;
   let mockSeoService: jest.Mocked<SeoService>;
   let mockActivatedRoute: jest.Mocked<ActivatedRoute>;
+  let mockWebPushService: jest.Mocked<WebPushService>;
+  let mockNativePushService: jest.Mocked<NativePushService>;
   let routerEventsSubject: Subject<any>;
   let networkOnlineSubject: BehaviorSubject<boolean>;
 
@@ -39,6 +45,14 @@ describe('AppComponent', () => {
     (mockNetworkService as any).isOnline$ = networkOnlineSubject.asObservable();
 
     mockSeoService = createSeoServiceMock() as any;
+
+    mockWebPushService = createWebPushServiceMock() as any;
+    (mockWebPushService.isSupported as jest.Mock).mockReturnValue(false);
+    (mockWebPushService.getPermissionStatus as jest.Mock).mockReturnValue('default');
+    (mockWebPushService.requestPermissionAndSubscribe as jest.Mock).mockResolvedValue(false);
+
+    mockNativePushService = createNativePushServiceMock() as any;
+    (mockNativePushService.init as jest.Mock).mockResolvedValue(undefined);
 
     mockActivatedRoute = {
       snapshot: {
@@ -67,6 +81,8 @@ describe('AppComponent', () => {
         { provide: Router, useValue: mockRouter },
         { provide: NetworkService, useValue: mockNetworkService },
         { provide: SeoService, useValue: mockSeoService },
+        { provide: WebPushService, useValue: mockWebPushService },
+        { provide: NativePushService, useValue: mockNativePushService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: PLATFORM_ID, useValue: 'browser' },
         {

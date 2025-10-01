@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "977580285525",
+    "project_id": "el-fogon-de-maria",
+    "storage_bucket": "el-fogon-de-maria.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977580285525:android:800ab629e3bfe03e83bedc",
+        "android_client_info": {
+          "package_name": "fogon.maria.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPlIqGmOU-Qsl0Ioqj7Z4nR1qf1GgKQ6U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

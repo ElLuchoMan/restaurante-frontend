@@ -1,7 +1,13 @@
 export type PlataformaNotificacion = 'WEB' | 'ANDROID' | 'IOS';
 export type ProveedorPush = 'WEB_PUSH' | 'FCM';
 export type TipoRemitente = 'TRABAJADOR' | 'SISTEMA';
-export type TipoDestinatario = 'TODOS' | 'CLIENTE' | 'TRABAJADOR' | 'TOPIC';
+export type TipoDestinatario =
+  | 'TODOS'
+  | 'CLIENTE'
+  | 'TRABAJADOR'
+  | 'TOPIC'
+  | 'CLIENTES'
+  | 'TRABAJADORES';
 
 export interface PushDispositivo {
   pushDispositivoId: number;

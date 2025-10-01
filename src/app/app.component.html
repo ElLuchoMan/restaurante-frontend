@@ -4,6 +4,7 @@
 <!-- Header solo en web; en webview la barra inferior reemplaza el header -->
 <app-header *ngIf="!isWebView"></app-header>
 <app-update-banner *ngIf="!isWebView"></app-update-banner>
+<app-notification-prompt *ngIf="!isWebView"></app-notification-prompt>
 <app-modal></app-modal>
 <main id="main" tabindex="-1" role="main" [class.is-webview]="isWebView">
   <div class="container" *ngIf="showGlobalBack$ | async">

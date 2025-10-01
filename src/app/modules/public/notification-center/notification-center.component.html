@@ -1,0 +1,67 @@
+<div class="page-shell">
+  <div class="container">
+    <h1 class="section-title">Notificaciones</h1>
+
+    <!-- Lista de notificaciones -->
+    <div class="notifications-container" *ngIf="items.length > 0; else emptyState">
+      <div
+        *ngFor="let notification of items; let i = index"
+        class="notification-card"
+        [class]="getNotificationColor(notification)"
+        (click)="open(notification)"
+        [attr.aria-label]="'Notificación: ' + notification.title"
+        role="button"
+        tabindex="0"
+        (keydown.enter)="open(notification)"
+        (keydown.space)="open(notification)"
+      >
+        <div class="notification-card__icon">
+          <i class="fa" [class]="getNotificationIcon(notification)" aria-hidden="true"></i>
+        </div>
+
+        <div class="notification-card__content">
+          <h3 class="notification-card__title">{{ notification.title }}</h3>
+          <p class="notification-card__body" *ngIf="notification.body">
+            {{ notification.body }}
+          </p>
+          <div class="notification-card__meta">
+            <i class="fa fa-clock" aria-hidden="true"></i>
+            <span>{{ notification.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+
+        <div class="notification-card__arrow">
+          <i class="fa fa-chevron-right" aria-hidden="true"></i>
+        </div>
+      </div>
+
+      <!-- Botón limpiar todas -->
+      <div class="actions-container">
+        <button
+          type="button"
+          class="btn btn-clear"
+          (click)="clear()"
+          aria-label="Limpiar todas las notificaciones"
+        >
+          <i class="fa fa-trash-alt" aria-hidden="true"></i>
+          Limpiar todas
+        </button>
+      </div>
+    </div>
+
+    <!-- Estado vacío -->
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <div class="empty-state__icon">
+          <i class="fa fa-bell-slash" aria-hidden="true"></i>
+        </div>
+        <h2 class="empty-state__title">No tienes notificaciones</h2>
+        <p class="empty-state__message">Cuando recibas notificaciones, aparecerán aquí.</p>
+        <button type="button" class="btn btn-primary" (click)="goBack()">
+          <i class="fa fa-home" aria-hidden="true"></i>
+          Volver al inicio
+        </button>
+      </div>
+    </ng-template>
+  </div>
+</div>

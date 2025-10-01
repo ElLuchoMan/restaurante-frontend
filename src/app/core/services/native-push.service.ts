@@ -48,15 +48,26 @@ export class NativePushService {
         try {
           PushNotifications.addListener('pushNotificationActionPerformed', async (ev) => {
             const url = (ev?.notification?.data as any)?.url;
+            console.log(
+              '[Push] Notification tapped. URL:',
+              url,
+              'Full data:',
+              ev?.notification?.data,
+            );
             if (typeof url === 'string' && url) {
+              // Emitir evento para que AppComponent lo maneje
               try {
-                const { Router } = await import('@angular/router');
-                // No podemos inyectar Router aquí; loguear y que AppComponent lo maneje si se requiere
-                console.log('[Push] action URL', url);
-              } catch {}
+                window.dispatchEvent(
+                  new CustomEvent('push-notification-action', { detail: { url } }),
+                );
+              } catch (e) {
+                console.error('[Push] Error dispatching navigation event:', e);
+              }
             }
           });
-        } catch {}
+        } catch (e) {
+          console.error('[Push] Error setting up action listener:', e);
+        }
       } catch {}
 
       // Intentar obtener token vía Capacitor Firebase Messaging (FCM)
@@ -96,7 +107,15 @@ export class NativePushService {
                   } catch {}
                   await LocalNotifications.schedule({
                     notifications: [
-                      { id: Date.now() % 100000, title, body, extra: data, channelId: 'default' },
+                      {
+                        id: Date.now() % 100000,
+                        title,
+                        body,
+                        extra: data,
+                        channelId: 'default',
+                        // Android: forzar small icon personalizado (PNG en drawable-*dpi)
+                        smallIcon: 'ic_stat_notification',
+                      },
                     ],
                   });
                 }

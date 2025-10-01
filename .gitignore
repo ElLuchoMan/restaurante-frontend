@@ -45,6 +45,7 @@ Thumbs.db
 # Env files
 .env*
 public/app-config.local.json
+VAPID_KEYS.txt
 
 # Local Netlify folder
 .netlify

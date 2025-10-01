@@ -1,80 +1,28 @@
 <section class="page-shell" *ngIf="mostrarMenu">
   <div class="container">
-    <h2 class="section-title text-center mb-2">Gestión Reservas</h2>
-    <p class="subtitle text-center mb-4">Administra, consulta y crea reservas con un solo clic</p>
+    <h1 class="section-title">Gestión de Reservas</h1>
+    <p class="subtitle text-center mb-4">{{ subtitulo }}</p>
 
-    <div class="menu-surface card-glass glow-border rise-on-mount">
-      <div class="row g-4 action-grid">
-        <div class="col-12 col-md-4">
-          <a
-            class="action-card info-card info-card-lg text-decoration-none"
-            role="button"
-            tabindex="0"
-            aria-label="Consultar reservas"
-            (click)="irA('consultar')"
-          >
-            <div class="info-header">
-              <i class="info-icon fa fa-search"></i>
-              <div class="info-title">
-                <h5 class="mb-0">Consultar</h5>
-                <p class="subtitle mb-0">Busca por documento o fecha</p>
-              </div>
-            </div>
-            <div class="info-content">
-              <div class="info-text">
-                <i class="info-mini-icon fa fa-filter"></i>
-                <span>Filtros dinámicos y resultados enriquecidos</span>
-              </div>
-            </div>
-          </a>
+    <div class="menu-grid">
+      <div
+        *ngFor="let opcion of opciones"
+        [ngClass]="['menu-card', 'menu-card--' + opcion.color]"
+        (click)="irA(opcion.ruta)"
+        role="button"
+        tabindex="0"
+        [attr.aria-label]="'Ir a ' + opcion.titulo"
+        (keydown.enter)="irA(opcion.ruta)"
+        (keydown.space)="irA(opcion.ruta)"
+      >
+        <div class="menu-card__icon">
+          <i class="fa" [class]="opcion.icono" aria-hidden="true"></i>
         </div>
-
-        <div class="col-12 col-md-4">
-          <a
-            class="action-card info-card info-card-lg text-decoration-none"
-            role="button"
-            tabindex="0"
-            aria-label="Reservas del día"
-            (click)="irA('hoy')"
-          >
-            <div class="info-header">
-              <i class="info-icon fa fa-calendar-day"></i>
-              <div class="info-title">
-                <h5 class="mb-0">Del día</h5>
-                <p class="subtitle mb-0">Panorama en tiempo real</p>
-              </div>
-            </div>
-            <div class="info-content">
-              <div class="info-text">
-                <i class="info-mini-icon fa fa-bolt"></i>
-                <span>Acciones rápidas para confirmar o cancelar</span>
-              </div>
-            </div>
-          </a>
+        <div class="menu-card__content">
+          <h2 class="menu-card__titulo">{{ opcion.titulo }}</h2>
+          <p class="menu-card__descripcion">{{ opcion.descripcion }}</p>
         </div>
-
-        <div class="col-12 col-md-4">
-          <a
-            class="action-card info-card info-card-lg text-decoration-none"
-            role="button"
-            tabindex="0"
-            aria-label="Crear reserva"
-            (click)="irA('crear')"
-          >
-            <div class="info-header">
-              <i class="info-icon fa fa-plus"></i>
-              <div class="info-title">
-                <h5 class="mb-0">Crear</h5>
-                <p class="subtitle mb-0">Cliente registrado o invitado</p>
-              </div>
-            </div>
-            <div class="info-content">
-              <div class="info-text">
-                <i class="info-mini-icon fa fa-magic"></i>
-                <span>Formulario smart con validaciones y accesibilidad</span>
-              </div>
-            </div>
-          </a>
+        <div class="menu-card__arrow">
+          <i class="fa fa-chevron-right" aria-hidden="true"></i>
         </div>
       </div>
     </div>

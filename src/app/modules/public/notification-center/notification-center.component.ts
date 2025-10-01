@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 
 import {
   clearNotifications,
@@ -13,64 +13,78 @@ import {
   selector: 'app-notification-center',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  template: `
-    <div class="page-shell">
-      <h2 class="section-title">Notificaciones</h2>
-      <div class="card" *ngIf="items.length; else empty">
-        <div *ngFor="let n of items" class="nc-item" (click)="open(n)">
-          <div class="nc-title">{{ n.title }}</div>
-          <div class="nc-body" *ngIf="n.body">{{ n.body }}</div>
-          <div class="nc-meta">{{ n.createdAt | date: 'short' }}</div>
-        </div>
-      </div>
-      <ng-template #empty>
-        <div class="card">Aún no hay notificaciones.</div>
-      </ng-template>
-      <button class="btn btn-secondary" (click)="clear()">Limpiar</button>
-    </div>
-  `,
-  styles: [
-    `
-      .nc-item {
-        padding: 1rem;
-        border-bottom: 1px solid #e5e7eb;
-        cursor: pointer;
-      }
-      .nc-item:hover {
-        background: #fafafa;
-      }
-      .nc-title {
-        color: #2d3748;
-        font-weight: 600;
-      }
-      .nc-body {
-        color: #4a5568;
-      }
-      .nc-meta {
-        color: #718096;
-        font-size: 0.85rem;
-      }
-    `,
-  ],
+  templateUrl: './notification-center.component.html',
+  styleUrl: './notification-center.component.scss',
 })
-export class NotificationCenterComponent {
-  items: NotificationItem[] = getNotifications();
+export class NotificationCenterComponent implements OnInit, OnDestroy {
+  items: NotificationItem[] = [];
+  private updateListener: () => void;
 
-  open(n: NotificationItem): void {
-    const url = (n?.data as any)?.url;
+  constructor(private router: Router) {
+    this.updateListener = () => this.loadNotifications();
+  }
+
+  ngOnInit(): void {
+    this.loadNotifications();
+    markAllSeen();
+
+    // Escuchar actualizaciones del store
+    window.addEventListener('notification-center:update', this.updateListener);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('notification-center:update', this.updateListener);
+  }
+
+  loadNotifications(): void {
+    this.items = getNotifications();
+  }
+
+  open(notification: NotificationItem): void {
+    const url = (notification?.data as any)?.url;
     if (typeof url === 'string' && url) {
-      window.location.href = url;
+      this.router.navigateByUrl(url);
     }
   }
 
   clear(): void {
     clearNotifications();
-    this.items = getNotifications();
+    this.loadNotifications();
   }
 
-  ngOnInit(): void {
-    try {
-      markAllSeen();
-    } catch {}
+  getNotificationIcon(notification: NotificationItem): string {
+    const tipo = (notification?.data as any)?.tipo;
+    switch (tipo) {
+      case 'RESERVA':
+        return 'fa-calendar-check';
+      case 'PEDIDO':
+        return 'fa-shopping-bag';
+      case 'PROMOCION':
+        return 'fa-tag';
+      case 'CALIFICACION':
+        return 'fa-star';
+      default:
+        return 'fa-bell';
+    }
+  }
+
+  getNotificationColor(notification: NotificationItem): string {
+    const tipo = (notification?.data as any)?.tipo;
+    switch (tipo) {
+      case 'RESERVA':
+        return 'notification-reserva';
+      case 'PEDIDO':
+        return 'notification-pedido';
+      case 'PROMOCION':
+        return 'notification-promo';
+      case 'CALIFICACION':
+        return 'notification-calificacion';
+      default:
+        return 'notification-default';
+    }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/home']);
   }
 }

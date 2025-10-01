@@ -14799,3 +14799,165 @@ a.link {
     }
   }
 }
+
+/* ========================================
+   ESTILOS GLOBALES PARA MENUS DE ACCIONES
+   Patron: Tarjetas elegantes con iconos, hover effects
+   Uso: admin/acciones, admin/reservas, cualquier menu de opciones
+   ======================================== */
+
+/* Grid de menú (responsive) */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 991px) {
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tarjeta de menú (estilo El Fogón de María) */
+.menu-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Barra lateral de color que aparece en hover */
+.menu-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #ffc107;
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.menu-card:hover,
+.menu-card:focus {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+}
+
+.menu-card:hover::before,
+.menu-card:focus::before {
+  transform: scaleY(1);
+}
+
+.menu-card:focus {
+  outline: 2px solid #ffc107;
+  outline-offset: 2px;
+}
+
+/* Variantes de color para la barra lateral */
+.menu-card--primary::before {
+  background: #ffc107;
+}
+
+.menu-card--blue::before {
+  background: #3b82f6;
+}
+
+.menu-card--green::before {
+  background: #10b981;
+}
+
+.menu-card--orange::before {
+  background: #f59e0b;
+}
+
+.menu-card--red::before {
+  background: #ef4444;
+}
+
+.menu-card--purple::before {
+  background: #8b5cf6;
+}
+
+/* Icono del menú */
+.menu-card__icon {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+/* Variantes de color para iconos */
+.menu-card--blue .menu-card__icon {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.menu-card--green .menu-card__icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.menu-card--orange .menu-card__icon {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.menu-card--red .menu-card__icon {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.menu-card--purple .menu-card__icon {
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+}
+
+/* Contenido del menú */
+.menu-card__content {
+  flex: 1;
+}
+
+.menu-card__titulo {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 0.5rem 0;
+}
+
+.menu-card__descripcion {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Flecha de navegación */
+.menu-card__arrow {
+  flex-shrink: 0;
+  color: #6b7280;
+  transition: transform 0.3s ease;
+  font-size: 1.25rem;
+}
+
+.menu-card:hover .menu-card__arrow,
+.menu-card:focus .menu-card__arrow {
+  transform: translateX(4px);
+}

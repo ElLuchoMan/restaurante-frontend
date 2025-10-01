@@ -7,8 +7,10 @@ import { NativePushService } from './core/services/native-push.service';
 import { NetworkService } from './core/services/network.service';
 import { SeoService } from './core/services/seo.service';
 import { UserService } from './core/services/user.service';
+import { WebPushService } from './core/services/web-push.service';
 import { ModalComponent } from './shared/components/modal/modal.component';
 import { NativeTopbarComponent } from './shared/components/native-topbar/native-topbar.component';
+import { NotificationPromptComponent } from './shared/components/notification-prompt/notification-prompt.component';
 import { QuickActionsComponent } from './shared/components/quick-actions/quick-actions.component';
 import { UpdateBannerComponent } from './shared/components/update-banner/update-banner.component';
 import { SharedModule } from './shared/shared.module';
@@ -23,6 +25,7 @@ import { SharedModule } from './shared/shared.module';
     UpdateBannerComponent,
     QuickActionsComponent,
     NativeTopbarComponent,
+    NotificationPromptComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -44,6 +47,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private location: Location,
     private userService: UserService,
     private nativePush: NativePushService,
+    private webPush: WebPushService,
   ) {}
 
   ngOnInit(): void {
@@ -59,7 +63,14 @@ export class AppComponent implements OnInit, OnDestroy {
       )
       .subscribe(async () => {
         try {
-          await this.nativePush.init();
+          if (this.isWebView) {
+            await this.nativePush.init();
+          } else {
+            // En navegador web, re-registrar solo si ya tiene permisos
+            if (this.webPush.getPermissionStatus() === 'granted') {
+              await this.webPush.requestPermissionAndSubscribe();
+            }
+          }
         } catch {}
       });
     // Detectar entorno nativo (Capacitor) para mostrar barra transversal solo en webview
@@ -134,12 +145,44 @@ export class AppComponent implements OnInit, OnDestroy {
       if (history.length <= 1) this.router.navigate(['/home']);
     });
 
-    // Inicializar push nativo solo en WebView
+    // Inicializar push según el entorno
     (async () => {
       try {
-        await this.nativePush.init();
-      } catch {}
+        if (this.isWebView) {
+          // WebView: usar push nativo
+          await this.nativePush.init();
+        } else {
+          // Navegador web: inicializar web push automáticamente solo si ya tiene permisos
+          if (this.webPush.isSupported() && this.webPush.getPermissionStatus() === 'granted') {
+            await this.webPush.requestPermissionAndSubscribe();
+          }
+          // Nota: Para solicitar permisos por primera vez, usar un botón en el UI
+        }
+      } catch (error) {
+        console.error('[AppComponent] Error inicializando push:', error);
+      }
     })();
+
+    // Escuchar acciones de notificaciones push
+    window.addEventListener('push-notification-action', ((event: CustomEvent) => {
+      const url = event.detail?.url;
+      if (typeof url === 'string' && url) {
+        console.log('[AppComponent] Navigating to:', url);
+        // Navegar usando Angular Router
+        this.router
+          .navigateByUrl(url)
+          .then((success) => {
+            if (success) {
+              console.log('[AppComponent] Navigation successful');
+            } else {
+              console.warn('[AppComponent] Navigation failed, URL might not exist:', url);
+            }
+          })
+          .catch((error) => {
+            console.error('[AppComponent] Navigation error:', error);
+          });
+      }
+    }) as EventListener);
 
     // Capturar botón físico atrás con @capacitor/app (más fiable)
     (async () => {

@@ -289,3 +289,44 @@ export function createPerformanceServiceMock() {
     trackRouteChange: jest.fn(),
   } as any;
 }
+
+export function createPushServiceMock() {
+  return {
+    registrarDispositivo: jest.fn(),
+    listarDispositivos: jest.fn(),
+    actualizarUltimaVista: jest.fn(),
+    actualizarEstado: jest.fn(),
+    actualizarTopics: jest.fn(),
+    enviarNotificacion: jest.fn(),
+  } as any;
+}
+
+export function createWebPushServiceMock() {
+  return {
+    isSupported: jest.fn(),
+    getPermissionStatus: jest.fn(),
+    requestPermissionAndSubscribe: jest.fn(),
+    unsubscribe: jest.fn(),
+  } as any;
+}
+
+export function createNativePushServiceMock() {
+  return {
+    init: jest.fn(),
+    requestPermissions: jest.fn(),
+    register: jest.fn(),
+    getDeliveredNotifications: jest.fn(),
+    removeAllDeliveredNotifications: jest.fn(),
+  } as any;
+}
+
+export function createSwPushMock() {
+  return {
+    messages: of(),
+    notificationClicks: of(),
+    subscription: of(null),
+    isEnabled: true,
+    requestSubscription: jest.fn(),
+    unsubscribe: jest.fn(),
+  } as any;
+}

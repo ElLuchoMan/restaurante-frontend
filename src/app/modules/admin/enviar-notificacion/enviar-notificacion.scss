@@ -1,0 +1,229 @@
+@use '../../../../assets/variables' as *;
+
+// Componente usa estilos globales: .card, .form-control, .form-group, etc.
+// Solo agregamos estilos específicos que no existen en _base.scss
+
+// Card específica del formulario (complementa estilos globales)
+.formulario-notificacion {
+  padding: 2rem;
+}
+
+.ejemplos-rapidos-row {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+
+  .btn-ejemplo-sm {
+    background: rgba($primary, 0.08);
+    border: 1px solid rgba($primary, 0.2);
+    padding: 0.5rem 0.875rem;
+    border-radius: 8px;
+    color: $text-dark;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: $primary;
+      color: $white;
+      border-color: $primary;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($primary, 0.25);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    i {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.form-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 2rem;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-row-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+// Ajuste específico de labels (complementa estilos globales)
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $text-dark;
+}
+
+// Contador de caracteres
+.form-text-compact {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: $text-muted;
+  text-align: right;
+}
+
+// Alerta informativa compacta
+.alert-info-compact {
+  background: rgba($primary, 0.06);
+  border: 1px solid rgba($primary, 0.2);
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  animation: fadeIn 0.3s ease;
+
+  i {
+    color: $primary;
+    font-size: 1rem;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Botón de envío (usa .btn global, solo ajustamos layout)
+.form-actions-inline {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+
+  .btn {
+    min-width: 180px;
+  }
+}
+
+// Vista previa sticky
+.preview-column {
+  position: relative;
+}
+
+.preview-sticky {
+  position: sticky;
+  top: 2rem;
+  background: linear-gradient(135deg, rgba($primary, 0.04) 0%, rgba($primary, 0.08) 100%);
+  border: 1.5px solid rgba($primary, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.preview-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+
+  &::before {
+    content: '👁️';
+    font-size: 1rem;
+  }
+}
+
+// Preview de notificación
+.notification-preview-compact {
+  background: $white;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  gap: 0.875rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba($primary, 0.1);
+
+  &__icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: $primary;
+    color: $white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__titulo {
+    font-weight: 600;
+    margin: 0 0 0.375rem 0;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    word-wrap: break-word;
+  }
+
+  &__mensaje {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
+}
+
+// Responsive: Web mobile / WebView
+@media (max-width: 991px) {
+  .formulario-notificacion {
+    padding: 1.25rem;
+  }
+
+  .ejemplos-rapidos-row {
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .form-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .form-row-compact {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-column {
+    order: -1; // Preview arriba en móvil
+  }
+
+  .preview-sticky {
+    position: relative;
+    top: 0;
+  }
+
+  .form-actions-inline .btn {
+    width: 100%;
+    min-width: auto;
+  }
+}
