@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { UserService } from '../../../../core/services/user.service';
@@ -22,12 +22,18 @@ describe('MenuReservasComponent', () => {
 
     const routerMock = createRouterWithEventsMock(eventsSubject.asObservable(), '/reservas');
     const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
+    const activatedRouteMock = {
+      snapshot: { data: {} },
+      params: new Subject(),
+      queryParams: new Subject(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [MenuReservasComponent, CommonModule],
       providers: [
         { provide: Router, useValue: routerMock },
         { provide: UserService, useValue: userServiceMock },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
 
@@ -90,9 +96,10 @@ describe('MenuReservasComponent', () => {
       expect(component.mostrarMenu).toBe(true);
     });
 
-    it('should set mostrarMenu to false when NavigationEnd event urlAfterRedirects is not "/reservas"', () => {
+    it('should set mostrarMenu to true when NavigationEnd event urlAfterRedirects is not a subroute', () => {
       eventsSubject.next(new NavigationEnd(1, '/otraRuta', '/otraRuta'));
-      expect(component.mostrarMenu).toBe(false);
+      // mostrarMenu es true porque '/otraRuta' no contiene /consultar, /hoy, o /crear
+      expect(component.mostrarMenu).toBe(true);
     });
   });
 

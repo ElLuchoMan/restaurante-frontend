@@ -1,5 +1,6 @@
 import { HttpClient, HttpHandler } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 import { LoggingService, LogLevel } from '../../../core/services/logging.service';
@@ -38,6 +39,16 @@ describe('FooterComponent', () => {
       providers: [
         { provide: RestauranteService, useValue: restauranteServiceMock },
         { provide: LoggingService, useValue: loggingServiceMock },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {},
+              queryParams: {},
+              data: {},
+            },
+          },
+        },
         HttpClient,
         HttpHandler,
       ],
@@ -100,6 +111,7 @@ describe('FooterComponent', () => {
       () =>
         ({
           toLocaleTimeString: () => '21:00',
+          getFullYear: () => 2025,
         }) as unknown as Date,
     );
 
@@ -117,6 +129,7 @@ describe('FooterComponent', () => {
       () =>
         ({
           toLocaleTimeString: () => '12:00',
+          getFullYear: () => 2025,
         }) as unknown as Date,
     );
 

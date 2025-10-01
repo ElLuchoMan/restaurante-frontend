@@ -2,6 +2,75 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 
+export function createRequestPermissionMock() {
+  return jest.fn().mockResolvedValue('granted');
+}
+
+export function createRequestPermissionDeniedMock() {
+  return jest.fn().mockResolvedValue('denied');
+}
+
+export function createAlertSpyMock() {
+  return jest.spyOn(window, 'alert').mockImplementation(() => {});
+}
+
+export function createServiceWorkerMock() {
+  return {
+    controller: {},
+    ready: Promise.resolve({
+      showNotification: jest.fn(),
+    }),
+  };
+}
+
+export function createNotificationMock() {
+  return jest.fn();
+}
+
+export function createCapacitorMock() {
+  return {
+    getPlatform: jest.fn().mockReturnValue('android'),
+  };
+}
+
+export function createHorarioTrabajadorServiceMock() {
+  return {
+    create: jest.fn().mockReturnValue(of({ code: 201, message: 'Horario creado', data: {} })),
+    update: jest.fn(),
+    delete: jest.fn(),
+    getAll: jest.fn(),
+    getByTrabajador: jest.fn(),
+    crearHorariosTrabajador: jest.fn().mockResolvedValue(undefined),
+  } as any;
+}
+
+export function createSwPushMock() {
+  return {
+    requestSubscription: jest.fn(),
+    unsubscribe: jest.fn(),
+    messages: of({}),
+    isEnabled: true,
+  } as any;
+}
+
+export function createSwUpdateMock() {
+  return {
+    available: of({}),
+    activated: of({}),
+    checkForUpdate: jest.fn(),
+    activateUpdate: jest.fn(),
+  } as any;
+}
+
+export function createWebPushServiceMock() {
+  return {
+    isSupported: jest.fn(),
+    getPermissionStatus: jest.fn(),
+    requestPermission: jest.fn(),
+    subscribeToNotifications: jest.fn(),
+  } as any;
+}
+
 export function createModalServiceMock() {
   return {
     openModal: jest.fn(),
@@ -185,6 +254,7 @@ export function createTrabajadorServiceMock() {
 export function createReservaServiceMock() {
   return {
     getReservaByParameter: jest.fn(),
+    getReservasByDocumento: jest.fn(),
     actualizarReserva: jest.fn(),
     crearReserva: jest.fn(),
     getContactoIdByDocumento: jest.fn(),
@@ -328,5 +398,12 @@ export function createSwPushMock() {
     isEnabled: true,
     requestSubscription: jest.fn(),
     unsubscribe: jest.fn(),
+  } as any;
+}
+
+export function createReservaNotificationsServiceMock() {
+  return {
+    notifyEstadoCambio: jest.fn(),
+    notifyCreacion: jest.fn(),
   } as any;
 }

@@ -65,7 +65,7 @@ describe('HeaderComponent', () => {
 
     expect(component.userRole).toBe('Administrador');
     const allMenu = [...component.menuLeft, ...component.menuRight];
-    expect(allMenu.some((item) => item.label === 'Registrar')).toBe(true);
+    expect(allMenu.some((item) => item.label === 'Registro')).toBe(true);
     expect(allMenu.some((item) => item.label === 'Logout')).toBe(true);
     expect(allMenu.some((item) => item.label === 'Galería')).toBe(false);
     expect(allMenu.some((item) => item.label === 'Menú')).toBe(false);

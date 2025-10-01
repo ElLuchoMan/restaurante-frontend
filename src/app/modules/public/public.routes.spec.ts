@@ -7,7 +7,6 @@ import { HomeComponent } from './home/home.component';
 import { publicRoutes } from './public.routes';
 import { ConsultarReservaComponent } from './reservas/consultar-reserva/consultar-reserva.component';
 import { CrearReservaComponent } from './reservas/crear-reserva/crear-reserva.component';
-import { MenuReservasComponent } from './reservas/menu-reservas/menu-reservas.component';
 import { ReservasDelDiaComponent } from './reservas/reservas-del-dia/reservas-del-dia.component';
 import { UbicacionRestauranteComponent } from './ubicacion-restaurante/ubicacion-restaurante.component';
 import { VerProductosComponent } from './ver-productos/ver-productos.component';
@@ -45,20 +44,26 @@ describe('Public Routes', () => {
     }
   });
 
-  it('should configure reservas child routes', () => {
+  it('should configure reservas routes', () => {
+    // Ruta base de reservas redirige a crear
     const reservas = publicRoutes.find((r) => r.path === 'reservas');
-    expect(reservas?.component).toBe(MenuReservasComponent);
-    const consultar = reservas?.children?.find((c) => c.path === 'consultar');
+    expect(reservas?.redirectTo).toBe('reservas/crear');
+    expect(reservas?.pathMatch).toBe('full');
+
+    // Consultar reservas
+    const consultar = publicRoutes.find((r) => r.path === 'reservas/consultar');
     expect(consultar?.component).toBe(ConsultarReservaComponent);
     expect(consultar?.canActivate).toEqual([AuthGuard, RoleGuard]);
     expect(consultar?.data).toEqual({ roles: ['Administrador', 'Cliente'] });
 
-    const hoy = reservas?.children?.find((c) => c.path === 'hoy');
+    // Reservas del día
+    const hoy = publicRoutes.find((r) => r.path === 'reservas/hoy');
     expect(hoy?.component).toBe(ReservasDelDiaComponent);
     expect(hoy?.canActivate).toEqual([AuthGuard, RoleGuard]);
     expect(hoy?.data).toEqual({ roles: ['Administrador'] });
 
-    const crear = reservas?.children?.find((c) => c.path === 'crear');
+    // Crear reserva
+    const crear = publicRoutes.find((r) => r.path === 'reservas/crear');
     expect(crear?.component).toBe(CrearReservaComponent);
   });
 

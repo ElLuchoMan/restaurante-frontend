@@ -2,20 +2,23 @@ import { HttpClient, HttpHandler } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA, PLATFORM_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { SwUpdate } from '@angular/service-worker';
+import { SwPush, SwUpdate } from '@angular/service-worker';
 import { BehaviorSubject, Subject } from 'rxjs';
 
 import { AppComponent } from './app.component';
 import { NativePushService } from './core/services/native-push.service';
 import { NetworkService } from './core/services/network.service';
+import { PushService } from './core/services/push.service';
 import { SeoService } from './core/services/seo.service';
 import { WebPushService } from './core/services/web-push.service';
 import {
   createNativePushServiceMock,
   createNetworkServiceMock,
+  createPushServiceMock,
   createRouterWithEventsMock,
   createSeoServiceMock,
   createSpy,
+  createSwPushMock,
   createWebPushServiceMock,
 } from './shared/mocks/test-doubles';
 
@@ -81,10 +84,11 @@ describe('AppComponent', () => {
         { provide: Router, useValue: mockRouter },
         { provide: NetworkService, useValue: mockNetworkService },
         { provide: SeoService, useValue: mockSeoService },
-        { provide: WebPushService, useValue: mockWebPushService },
         { provide: NativePushService, useValue: mockNativePushService },
+        { provide: PushService, useValue: createPushServiceMock() },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: PLATFORM_ID, useValue: 'browser' },
+        { provide: SwPush, useValue: createSwPushMock() },
         {
           provide: SwUpdate,
           useValue: {
@@ -95,7 +99,9 @@ describe('AppComponent', () => {
         HttpClient,
         HttpHandler,
       ],
-    }).compileComponents();
+    })
+      .overrideProvider(WebPushService, { useValue: mockWebPushService })
+      .compileComponents();
 
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
@@ -129,6 +135,9 @@ describe('AppComponent', () => {
     it('should return early if not in browser platform', async () => {
       // Arrange - Create a separate TestBed for server platform
       await TestBed.resetTestingModule();
+      const serverMockWebPushService = createWebPushServiceMock() as any;
+      (serverMockWebPushService.isSupported as jest.Mock).mockReturnValue(false);
+
       await TestBed.configureTestingModule({
         imports: [AppComponent],
         schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -136,8 +145,11 @@ describe('AppComponent', () => {
           { provide: Router, useValue: mockRouter },
           { provide: NetworkService, useValue: mockNetworkService },
           { provide: SeoService, useValue: mockSeoService },
+          { provide: NativePushService, useValue: mockNativePushService },
+          { provide: PushService, useValue: createPushServiceMock() },
           { provide: ActivatedRoute, useValue: mockActivatedRoute },
           { provide: PLATFORM_ID, useValue: 'server' }, // Server platform
+          { provide: SwPush, useValue: createSwPushMock() },
           {
             provide: SwUpdate,
             useValue: {
@@ -148,7 +160,9 @@ describe('AppComponent', () => {
           HttpClient,
           HttpHandler,
         ],
-      }).compileComponents();
+      })
+        .overrideProvider(WebPushService, { useValue: serverMockWebPushService })
+        .compileComponents();
 
       const serverFixture = TestBed.createComponent(AppComponent);
       const serverComponent = serverFixture.componentInstance;

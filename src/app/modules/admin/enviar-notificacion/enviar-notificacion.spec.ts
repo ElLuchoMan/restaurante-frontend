@@ -212,6 +212,102 @@ describe('EnviarNotificacionComponent', () => {
       });
     });
 
+    it('debería enviar notificación a TRABAJADOR específico', () => {
+      const mockResponse = {
+        code: 200,
+        message: 'Notificación enviada',
+        data: {
+          totalDispositivos: 1,
+          enviosExitosos: 1,
+          enviosFallidos: 0,
+          detalleEnvios: [],
+          resumenDestinatarios: { tipoDestinatario: 'TRABAJADOR' },
+        },
+      };
+      pushService.enviarNotificacion.mockReturnValue(of(mockResponse));
+
+      component.tipoDestinatario = 'TRABAJADOR';
+      component.documentoTrabajadorDestinatario = 1000000001;
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+
+      component.enviarNotificacion();
+
+      expect(pushService.enviarNotificacion).toHaveBeenCalledWith({
+        remitente: { tipo: 'TRABAJADOR', documentoTrabajador: 1015466494 },
+        destinatarios: { tipo: 'TRABAJADOR', documentoTrabajador: 1000000001 },
+        notificacion: {
+          titulo: 'Test',
+          mensaje: 'Mensaje test',
+          datos: { url: '/home' },
+        },
+      });
+    });
+
+    it('debería enviar notificación con remitente SISTEMA', () => {
+      const mockResponse = {
+        code: 200,
+        message: 'Notificación enviada',
+        data: {
+          totalDispositivos: 1,
+          enviosExitosos: 1,
+          enviosFallidos: 0,
+          detalleEnvios: [],
+          resumenDestinatarios: { tipoDestinatario: 'TODOS' },
+        },
+      };
+      pushService.enviarNotificacion.mockReturnValue(of(mockResponse));
+
+      component.tipoRemitente = 'SISTEMA';
+      component.tipoDestinatario = 'TODOS';
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+
+      component.enviarNotificacion();
+
+      expect(pushService.enviarNotificacion).toHaveBeenCalledWith({
+        remitente: { tipo: 'SISTEMA' },
+        destinatarios: { tipo: 'TODOS' },
+        notificacion: {
+          titulo: 'Test',
+          mensaje: 'Mensaje test',
+          datos: { url: '/home' },
+        },
+      });
+    });
+
+    it('debería enviar notificación con URL personalizada', () => {
+      const mockResponse = {
+        code: 200,
+        message: 'Notificación enviada',
+        data: {
+          totalDispositivos: 1,
+          enviosExitosos: 1,
+          enviosFallidos: 0,
+          detalleEnvios: [],
+          resumenDestinatarios: { tipoDestinatario: 'TODOS' },
+        },
+      };
+      pushService.enviarNotificacion.mockReturnValue(of(mockResponse));
+
+      component.tipoDestinatario = 'TODOS';
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+      component.url = '/menu';
+
+      component.enviarNotificacion();
+
+      expect(pushService.enviarNotificacion).toHaveBeenCalledWith({
+        remitente: { tipo: 'TRABAJADOR', documentoTrabajador: 1015466494 },
+        destinatarios: { tipo: 'TODOS' },
+        notificacion: {
+          titulo: 'Test',
+          mensaje: 'Mensaje test',
+          datos: { url: '/menu' },
+        },
+      });
+    });
+
     it('debería manejar error al enviar notificación', () => {
       const mockError = { message: 'Error de conexión' };
       pushService.enviarNotificacion.mockReturnValue(throwError(() => mockError));

@@ -101,8 +101,8 @@ describe('ConsultarReservaComponent', () => {
     expect(toastr.error).toHaveBeenCalledWith('El documento debe ser un número válido', 'Error');
   });
 
-  it('should call reservaService.getReservaByParameter with correct params', () => {
-    reservaService.getReservaByParameter.mockReturnValue(
+  it('should call reservaService.getReservasByDocumento with correct params', () => {
+    reservaService.getReservasByDocumento.mockReturnValue(
       of({ code: 200, message: 'Reservas obtenidas con éxito', data: [mockReserva] }),
     );
 
@@ -113,12 +113,12 @@ describe('ConsultarReservaComponent', () => {
 
     component.buscarReserva();
 
-    expect(reservaService.getReservaByParameter).toHaveBeenCalledWith(123456, '2025-01-01');
+    expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(123456, '2025-01-01');
     expect(component.reservas.length).toBe(1);
   });
 
   it('should handle error when searching for reservations', () => {
-    reservaService.getReservaByParameter.mockReturnValue(throwError(() => new Error()));
+    reservaService.getReservasByDocumento.mockReturnValue(throwError(() => new Error()));
 
     component.buscarPorDocumento = true;
     component.documentoCliente = '123456';
@@ -200,7 +200,7 @@ describe('ConsultarReservaComponent', () => {
   });
 
   it('should sort reservations by date (desc) and time (desc)', () => {
-    reservaService.getReservaByParameter.mockReturnValue(
+    reservaService.getReservasByDocumento.mockReturnValue(
       of({ code: 200, message: 'Reservas obtenidas', data: mockReservasUnordered }),
     );
 
@@ -208,7 +208,7 @@ describe('ConsultarReservaComponent', () => {
     component.documentoCliente = '123456';
     component.buscarReserva();
 
-    expect(reservaService.getReservaByParameter).toHaveBeenCalledWith(123456, undefined);
+    expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(123456, undefined);
 
     expect(component.reservas.map((r) => ({ fecha: r.fechaReserva, hora: r.horaReserva }))).toEqual(
       [
@@ -222,7 +222,7 @@ describe('ConsultarReservaComponent', () => {
   it('should initialize as non-admin and load reservations', () => {
     userService.getUserRole.mockReturnValue('Cliente');
     userService.getUserId.mockReturnValue(123456);
-    reservaService.getReservaByParameter.mockReturnValue(
+    reservaService.getReservasByDocumento.mockReturnValue(
       of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] }),
     );
 
@@ -233,7 +233,7 @@ describe('ConsultarReservaComponent', () => {
     expect(component.documentoCliente).toBe('123456');
     expect(component.buscarPorDocumento).toBe(true);
     expect(component.buscarPorFecha).toBe(false);
-    expect(reservaService.getReservaByParameter).toHaveBeenCalledWith(123456, undefined);
+    expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(123456, undefined);
     expect(component.reservas).toEqual([mockReserva]);
     expect(component.mostrarMensaje).toBe(true);
   });
@@ -255,29 +255,27 @@ describe('ConsultarReservaComponent', () => {
     component.buscarPorDocumento = false;
     component.buscarPorFecha = false;
     component.documentoCliente = '';
-    reservaService.getReservaByParameter.mockReturnValue(
+    reservaService.getReservasByDocumento.mockReturnValue(
       of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] }),
     );
 
     component.buscarReserva();
 
-    expect(reservaService.getReservaByParameter).toHaveBeenCalledWith(123456, undefined);
+    expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(123456, undefined);
   });
 
-  it('should call service with undefined when user id is missing for non-admin', () => {
+  it('should warn when user id is missing for non-admin (no documento)', () => {
     userService.getUserId.mockReturnValue(undefined as unknown as number);
     component.esAdmin = false;
     component.mostrarFiltros = false;
     component.buscarPorDocumento = false;
     component.buscarPorFecha = false;
     component.documentoCliente = '';
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] }),
-    );
 
     component.buscarReserva();
 
-    expect(reservaService.getReservaByParameter).toHaveBeenCalledWith(undefined, undefined);
+    expect(toastr.warning).toHaveBeenCalledWith('Documento requerido para la búsqueda', 'Atención');
+    expect(reservaService.getReservasByDocumento).not.toHaveBeenCalled();
   });
 
   it('should not update reservation when user is not admin', () => {
