@@ -1,0 +1,102 @@
+<div class="floating-cart" [class.visible]="isVisible" [class.expanded]="isExpanded">
+  <!-- Botón principal del carrito -->
+  <button
+    class="cart-button"
+    (click)="toggleExpanded()"
+    [attr.aria-label]="'Carrito con ' + totalItems + ' productos'"
+    [attr.aria-expanded]="isExpanded"
+  >
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-badge" *ngIf="totalItems > 0">{{ totalItems }}</span>
+  </button>
+
+  <!-- Panel expandido del carrito -->
+  <div class="cart-panel" *ngIf="isExpanded">
+    <div class="cart-header">
+      <h3>Tu Pedido</h3>
+      <button class="close-btn" (click)="toggleExpanded()" aria-label="Cerrar carrito">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="cart-content">
+      <!-- Lista de productos -->
+      <div class="cart-items" *ngIf="cartItems.length > 0; else emptyCart">
+        <div class="cart-item" *ngFor="let item of cartItems; trackBy: trackByProductId">
+          <div class="item-image">
+            <img
+              [src]="item.producto.imagen || 'assets/img/logo2.webp'"
+              [alt]="item.producto.nombre"
+              loading="lazy"
+            />
+          </div>
+
+          <div class="item-details">
+            <h4 class="item-name">{{ item.producto.nombre }}</h4>
+            <p class="item-price">${{ item.producto.precio | number: '1.0-0' }}</p>
+
+            <div class="quantity-controls">
+              <button
+                class="quantity-btn"
+                (click)="updateQuantity(item.producto.productoId || 0, -1)"
+                [disabled]="item.cantidad <= 1"
+                aria-label="Reducir cantidad"
+              >
+                <i class="fas fa-minus"></i>
+              </button>
+
+              <span class="quantity">{{ item.cantidad }}</span>
+
+              <button
+                class="quantity-btn"
+                (click)="updateQuantity(item.producto.productoId || 0, 1)"
+                aria-label="Aumentar cantidad"
+              >
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+
+          <button
+            class="remove-btn"
+            (click)="removeItem(item.producto.productoId || 0)"
+            aria-label="Eliminar producto"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Carrito vacío -->
+      <ng-template #emptyCart>
+        <div class="empty-cart">
+          <i class="fas fa-shopping-cart"></i>
+          <p>Tu carrito está vacío</p>
+          <small>Agrega algunos productos deliciosos</small>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Footer del carrito -->
+    <div class="cart-footer" *ngIf="cartItems.length > 0">
+      <div class="cart-total">
+        <div class="total-line">
+          <span>Total ({{ totalItems }} productos):</span>
+          <strong>${{ totalPrice | number: '1.0-0' }}</strong>
+        </div>
+      </div>
+
+      <div class="cart-actions">
+        <button class="btn btn-outline-secondary" (click)="clearCart()">
+          <i class="fas fa-trash"></i>
+          Limpiar
+        </button>
+
+        <button class="btn btn-primary" (click)="goToCheckout()">
+          <i class="fas fa-credit-card"></i>
+          Pagar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

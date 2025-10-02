@@ -1,163 +1,672 @@
-<div class="container mt-4">
-  <h1 class="text-center mb-4">Menú</h1>
-  <div class="row">
-    <div class="card filtros-card p-3 pl-5 mb-4 col-12">
-      <div class="row align-items-end justify-content-between">
-        <div class="col-md-3 form-group">
-          <label for="nombreFiltro">Buscar por nombre</label>
-          <input
-            id="nombreFiltro"
-            type="text"
-            class="form-control"
-            placeholder="Ej: Hamburguesa"
-            [(ngModel)]="filtroNombre"
-          />
-        </div>
-        <div class="col-md-2 form-group">
-          <label for="categoriaFiltro">Categoría</label>
-          <select
-            id="categoriaFiltro"
-            class="form-control"
-            [(ngModel)]="categoriaSeleccionada"
-            (change)="actualizarSubcategorias()"
-          >
-            <option value="">Todas</option>
-            <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
-          </select>
-        </div>
-        <div class="col-md-2 form-group">
-          <label for="subcategoriaFiltro">Subcategoría</label>
-          <select
-            id="subcategoriaFiltro"
-            class="form-control"
-            [(ngModel)]="subcategoriaSeleccionada"
-          >
-            <option value="">Todas</option>
-            <option *ngFor="let sub of subcategorias" [value]="sub">{{ sub }}</option>
-          </select>
-        </div>
-        <div class="col-md-1 form-group">
-          <label for="minCalorias">Min cal</label>
-          <input
-            id="minCalorias"
-            type="number"
-            class="form-control"
-            [(ngModel)]="minCalorias"
-            placeholder="100"
-          />
-        </div>
-        <div class="col-md-1 form-group">
-          <label for="maxCalorias">Max cal</label>
-          <input
-            id="maxCalorias"
-            type="number"
-            class="form-control"
-            [(ngModel)]="maxCalorias"
-            placeholder="500"
-          />
-        </div>
-        <div class="col-md-2 form-group">
-          <button class="btn btn-outline-primary align-self-end" (click)="limpiarFiltros()">
-            🧹 Limpiar
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="w-100 mb-3">
-      <p class="text-muted m-0">
-        Mostrando
-        {{
-          (
-            productos
-            | productoFiltro
-              : filtroNombre
-              : categoriaSeleccionada
-              : subcategoriaSeleccionada
-              : minCalorias
-              : maxCalorias
-          ).length
-        }}
-        producto(s)
-      </p>
-    </div>
-    <br class="mb-3 mt-3" />
-    <div
-      class="col-lg-3 col-md-4 col-sm-6 mb-3"
-      *ngFor="let producto of productosPaginados; trackBy: trackByProductoId"
-      (click)="abrirDetalle(producto)"
-    >
-      <div class="card producto-card">
-        <span class="badge bg-primary categoria-badge">{{ producto.categoria }}</span>
-        <div class="producto-img">
-          <ng-container *ngIf="producto.imagen?.startsWith('data:'); else optimImg">
-            <img
-              [src]="producto.imagen || '../../../../assets/img/logo2.webp'"
-              class="card-img-top"
-              loading="lazy"
-              decoding="async"
-              fetchpriority="low"
-              width="300"
-              height="200"
-              [alt]="producto.nombre"
-            />
-          </ng-container>
-          <ng-template #optimImg>
-            <img
-              [ngSrc]="producto.imagen || '../../../../assets/img/logo2.webp'"
-              class="card-img-top"
-              loading="lazy"
-              decoding="async"
-              fetchpriority="low"
-              [attr.sizes]="
-                '(min-width: 992px) 25vw, (min-width: 768px) 33vw, (min-width: 576px) 50vw, 100vw'
-              "
-              width="300"
-              height="200"
-              [alt]="producto.nombre"
-            />
-          </ng-template>
-        </div>
-        <div class="producto-info">
-          <h5 class="producto-nombre">{{ producto.nombre }}</h5>
-          <p class="producto-precio">${{ producto.precio }}</p>
-        </div>
-        <div class="producto-hover">
-          <p><strong>Calorías:</strong> {{ producto.calorias || 'N/A' }}</p>
-          <p>{{ producto.descripcion || 'Sin descripción' }}</p>
+<!-- Contenedor principal siguiendo el patrón establecido -->
+<div class="page-shell" [attr.data-theme]="currentTheme" [class.webview-mode]="isWebView">
+  <!-- Header del menú con partículas animadas -->
+  <div class="menu-hero position-relative overflow-hidden">
+    <div class="particles-bg" aria-hidden="true"></div>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+          <header class="text-center rise-on-mount">
+            <h1 class="section-title">Nuestro Menú</h1>
+            <p class="subtitle">Descubre sabores únicos y auténticos de Colombia</p>
+          </header>
         </div>
       </div>
     </div>
   </div>
 
-  <div
-    class="d-flex justify-content-center align-items-center gap-3 mt-3"
-    *ngIf="productosFiltrados.length > 0"
+  <!-- Contenido principal -->
+  <div class="container-fluid px-3 px-lg-4">
+    <!-- Loading spinner -->
+    <div class="loading-container" *ngIf="isLoading">
+      <div class="loading-spinner">
+        <i class="fas fa-utensils fa-spin"></i>
+        <p>Cargando deliciosos productos...</p>
+      </div>
+    </div>
+
+    <!-- Card principal con efectos visuales mejorados -->
+    <div class="card-glass glow-border rise-on-mount" *ngIf="!isLoading">
+      <!-- Barra de búsqueda inteligente mejorada -->
+      <div class="row justify-content-center mb-4">
+        <div class="col-lg-10 col-md-12">
+          <div class="search-container-enhanced position-relative">
+            <!-- Búsqueda principal con efectos visuales -->
+            <div class="search-input-wrapper glow-on-focus">
+              <i class="fas fa-search search-icon pulse-on-focus"></i>
+              <input
+                #searchInput
+                type="text"
+                class="search-input form-control-enhanced"
+                placeholder="🔍 Busca tu plato favorito... (ej: 'bandeja paisa', 'vegetariano', 'picante')"
+                [value]="searchFilters.query"
+                (input)="onSearchInput($event)"
+                (focus)="onSearchFocus()"
+                (blur)="onSearchBlur()"
+                aria-label="Búsqueda inteligente de productos"
+                autocomplete="off"
+              />
+              <button
+                class="search-clear btn-floating"
+                *ngIf="searchFilters.query"
+                (click)="clearSearch()"
+                aria-label="Limpiar búsqueda"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+
+              <!-- Indicador de búsqueda activa -->
+              <div class="search-indicator" *ngIf="isSearching">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+            </div>
+
+            <!-- Búsqueda rápida por voz (sorpresa) -->
+            <button
+              class="voice-search-btn btn-floating"
+              (click)="startVoiceSearch()"
+              *ngIf="isVoiceSearchSupported"
+              [disabled]="isVoiceSearching"
+              aria-label="Búsqueda por voz"
+              title="Buscar por voz"
+            >
+              <i
+                class="fas"
+                [ngClass]="isVoiceSearching ? 'fa-microphone-slash fa-pulse' : 'fa-microphone'"
+              ></i>
+            </button>
+
+            <!-- Sugerencias de búsqueda -->
+            <div class="search-suggestions" *ngIf="showSuggestions && searchSuggestions.length > 0">
+              <div
+                class="suggestion-item"
+                *ngFor="let suggestion of searchSuggestions"
+                (click)="selectSuggestion(suggestion)"
+              >
+                <i
+                  class="fas"
+                  [ngClass]="{
+                    'fa-tag': suggestion.type === 'category',
+                    'fa-utensils': suggestion.type === 'product',
+                    'fa-leaf': suggestion.type === 'dietary',
+                  }"
+                ></i>
+                <span class="suggestion-text">{{ suggestion.text }}</span>
+                <span class="suggestion-count">{{ suggestion.count }}</span>
+              </div>
+            </div>
+
+            <!-- Historial de búsqueda -->
+            <div
+              class="search-history"
+              *ngIf="showSuggestions && searchHistory.length > 0 && !searchFilters.query"
+            >
+              <div class="history-header">
+                <i class="fas fa-history"></i>
+                <span>Búsquedas recientes</span>
+                <button class="clear-history" (click)="clearSearch()">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+              <div
+                class="history-item"
+                *ngFor="let term of searchHistory"
+                (click)="selectSuggestion({ text: term, type: 'product', count: 0 })"
+              >
+                <i class="fas fa-history"></i>
+                <span>{{ term }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controles mejorados con animaciones -->
+      <div class="row justify-content-center mb-4">
+        <div class="col-lg-10 col-md-12">
+          <div class="filters-controls-enhanced">
+            <!-- Información de resultados con animación -->
+            <div class="results-info-enhanced">
+              <div class="results-count-wrapper">
+                <span class="results-count animate-number" [attr.data-count]="totalProductos">
+                  {{ totalProductos }} productos
+                </span>
+                <span class="results-subtitle" *ngIf="searchFilters.query">
+                  para "{{ searchFilters.query }}"
+                </span>
+              </div>
+
+              <!-- Filtros rápidos por categoría -->
+              <div class="quick-filters d-flex gap-2 mt-2" *ngIf="!showAdvancedFilters">
+                <button
+                  class="quick-filter-chip"
+                  [class.active]="!searchFilters.category"
+                  (click)="onCategoryChange('')"
+                >
+                  <i class="fas fa-utensils"></i>
+                  Todos
+                </button>
+                <button
+                  class="quick-filter-chip"
+                  *ngFor="let category of categorias.slice(0, 4)"
+                  [class.active]="searchFilters.category === category"
+                  (click)="onCategoryChange(category)"
+                >
+                  <i class="fas" [ngClass]="getCategoryIcon(category)"></i>
+                  {{ category }}
+                </button>
+                <button
+                  class="quick-filter-chip more-categories"
+                  *ngIf="categorias.length > 4"
+                  (click)="toggleAdvancedFilters()"
+                >
+                  <i class="fas fa-plus"></i>
+                  +{{ categorias.length - 4 }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Controles de vista mejorados -->
+            <div class="view-controls-enhanced">
+              <!-- Ordenamiento rápido -->
+              <div class="sort-dropdown dropdown">
+                <button
+                  class="btn-floating dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-label="Ordenar productos"
+                >
+                  <i class="fas fa-sort-amount-down"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li *ngFor="let option of sortOptions">
+                    <button
+                      class="dropdown-item"
+                      [class.active]="searchFilters.sortBy === option.value"
+                      (click)="onSortChange(option.value, 'asc')"
+                    >
+                      <i class="fas" [ngClass]="option.icon"></i>
+                      {{ option.label }}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Vista grid/list -->
+              <div class="view-toggle-group">
+                <button
+                  class="btn-floating"
+                  [class.active]="viewMode === 'grid'"
+                  (click)="setViewMode('grid')"
+                  aria-label="Vista de cuadrícula"
+                >
+                  <i class="fas fa-th"></i>
+                </button>
+                <button
+                  class="btn-floating"
+                  [class.active]="viewMode === 'list'"
+                  (click)="setViewMode('list')"
+                  aria-label="Vista de lista"
+                >
+                  <i class="fas fa-list"></i>
+                </button>
+              </div>
+
+              <!-- Tema y filtros -->
+              <button
+                class="btn-floating theme-toggle"
+                (click)="toggleTheme()"
+                aria-label="Cambiar tema"
+                title="Cambiar tema"
+              >
+                <i class="fas" [ngClass]="currentTheme === 'dark' ? 'fa-sun' : 'fa-moon'"></i>
+              </button>
+
+              <button
+                class="btn-floating filters-toggle"
+                (click)="toggleAdvancedFilters()"
+                [class.active]="showAdvancedFilters"
+                aria-label="Filtros avanzados"
+              >
+                <i class="fas fa-sliders-h"></i>
+                <span class="filter-badge" *ngIf="getActiveFiltersCount() > 0">{{
+                  getActiveFiltersCount()
+                }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros avanzados -->
+      <div class="row justify-content-center mb-4" *ngIf="showAdvancedFilters">
+        <div class="col-lg-10">
+          <div class="advanced-filters">
+            <div class="filters-grid">
+              <!-- Filtro por categoría -->
+              <div class="filter-group">
+                <label class="filter-label">Categoría</label>
+                <select
+                  class="filter-select"
+                  [(ngModel)]="searchFilters.category"
+                  (change)="onCategoryChange($any($event.target).value)"
+                >
+                  <option value="">Todas las categorías</option>
+                  <option *ngFor="let category of getUniqueCategories()" [value]="category">
+                    {{ category }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Filtro por subcategoría -->
+              <div class="filter-group" *ngIf="searchFilters.category">
+                <label class="filter-label">Subcategoría</label>
+                <select
+                  class="filter-select"
+                  [(ngModel)]="searchFilters.subcategory"
+                  (change)="onSubcategoryChange($any($event.target).value)"
+                >
+                  <option value="">Todas las subcategorías</option>
+                  <option
+                    *ngFor="let subcategory of getSubcategoriesForCategory(searchFilters.category)"
+                    [value]="subcategory"
+                  >
+                    {{ subcategory }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Filtro por rango de precio -->
+              <div class="filter-group">
+                <label class="filter-label">Precio máximo</label>
+                <div class="range-inputs">
+                  <input
+                    type="number"
+                    class="range-input"
+                    placeholder="Mín"
+                    [(ngModel)]="searchFilters.priceRange.min"
+                    (input)="
+                      onPriceRangeChange(+$any($event.target).value, searchFilters.priceRange.max)
+                    "
+                  />
+                  <span class="range-separator">-</span>
+                  <input
+                    type="number"
+                    class="range-input"
+                    placeholder="Máx"
+                    [(ngModel)]="searchFilters.priceRange.max"
+                    (input)="
+                      onPriceRangeChange(searchFilters.priceRange.min, +$any($event.target).value)
+                    "
+                  />
+                </div>
+              </div>
+
+              <!-- Filtro por calorías -->
+              <div class="filter-group">
+                <label class="filter-label">Calorías máximas</label>
+                <div class="range-inputs">
+                  <input
+                    type="number"
+                    class="range-input"
+                    placeholder="Mín"
+                    [(ngModel)]="searchFilters.caloriesRange.min"
+                    (input)="
+                      onCaloriesRangeChange(
+                        +$any($event.target).value,
+                        searchFilters.caloriesRange.max
+                      )
+                    "
+                  />
+                  <span class="range-separator">-</span>
+                  <input
+                    type="number"
+                    class="range-input"
+                    placeholder="Máx"
+                    [(ngModel)]="searchFilters.caloriesRange.max"
+                    (input)="
+                      onCaloriesRangeChange(
+                        searchFilters.caloriesRange.min,
+                        +$any($event.target).value
+                      )
+                    "
+                  />
+                </div>
+              </div>
+
+              <!-- Filtro por alérgenos -->
+              <div class="filter-group">
+                <label class="filter-label">Alérgenos</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-item" *ngFor="let allergen of allergens">
+                    <input
+                      type="checkbox"
+                      [value]="allergen"
+                      (change)="onAllergenToggle(allergen)"
+                      [checked]="selectedAllergens.includes(allergen)"
+                    />
+                    <span class="checkmark"></span>
+                    {{ allergen }}
+                  </label>
+                </div>
+              </div>
+
+              <!-- Filtro por opciones dietéticas -->
+              <div class="filter-group">
+                <label class="filter-label">Opciones dietéticas</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-item" *ngFor="let dietary of dietaryOptions">
+                    <input
+                      type="checkbox"
+                      [value]="dietary"
+                      (change)="onDietaryToggle(dietary)"
+                      [checked]="selectedDietary.includes(dietary)"
+                    />
+                    <span class="checkmark"></span>
+                    {{ dietary }}
+                  </label>
+                </div>
+              </div>
+
+              <!-- Ordenamiento -->
+              <div class="filter-group">
+                <label class="filter-label">Ordenar por</label>
+                <select
+                  class="filter-select"
+                  [(ngModel)]="searchFilters.sortBy"
+                  (change)="onSortChange($any($event.target).value, searchFilters.sortOrder)"
+                >
+                  <option *ngFor="let option of sortOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="filters-actions">
+              <button class="clear-filters-btn" (click)="clearAllFilters()">
+                <i class="fas fa-eraser"></i>
+                Limpiar filtros
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid de productos con animaciones mejoradas -->
+      <div class="products-container-enhanced">
+        <!-- Transición suave entre vistas -->
+        <div
+          class="products-grid"
+          [ngClass]="{
+            'grid-view': viewMode === 'grid',
+            'list-view': viewMode === 'list',
+            loading: isLoading,
+          }"
+        >
+          <!-- Tarjetas de productos mejoradas -->
+          <div
+            class="product-item"
+            [ngClass]="{
+              'col-lg-3 col-md-4 col-sm-6': viewMode === 'grid',
+              'col-12': viewMode === 'list',
+            }"
+            *ngFor="let producto of productosPaginados; trackBy: trackByProductoId; let i = index"
+            [style.animation-delay]="i * 0.1 + 's'"
+          >
+            <article
+              class="product-card-enhanced card-glass"
+              [attr.data-theme]="currentTheme"
+              [class.list-layout]="viewMode === 'list'"
+              (click)="abrirDetalle(producto)"
+              role="button"
+              tabindex="0"
+              [attr.aria-label]="'Ver detalles de ' + producto.nombre"
+              (keydown.enter)="abrirDetalle(producto)"
+              (keydown.space)="abrirDetalle(producto)"
+            >
+              <!-- Imagen con efectos hover mejorados -->
+              <div class="product-image-container">
+                <div class="product-image-wrapper">
+                  <img
+                    [src]="producto.imagen || 'assets/img/product-1.webp'"
+                    [alt]="producto.nombre"
+                    loading="lazy"
+                    class="product-image"
+                    (error)="onImageError($event)"
+                  />
+                </div>
+
+                <!-- Badges mejorados -->
+                <div class="product-badges">
+                  <span class="badge price-badge bg-success">
+                    ${{ producto.precio | number: '1.0-0' }}
+                  </span>
+                  <span
+                    class="badge category-badge"
+                    *ngIf="producto.categoria"
+                    [style.background-color]="getCategoryColor(producto.categoria)"
+                  >
+                    <i class="fas" [ngClass]="getCategoryIcon(producto.categoria)"></i>
+                    {{ producto.categoria }}
+                  </span>
+                </div>
+
+                <!-- Botón de favoritos mejorado -->
+                <button
+                  class="favorite-btn-enhanced"
+                  [class.active]="isFavorite(producto.productoId || 0)"
+                  (click)="$event.stopPropagation(); toggleFavorite(producto)"
+                  [attr.aria-label]="
+                    isFavorite(producto.productoId || 0)
+                      ? 'Quitar de favoritos'
+                      : 'Agregar a favoritos'
+                  "
+                >
+                  <i class="fas fa-heart"></i>
+                  <span class="favorite-ripple"></span>
+                </button>
+              </div>
+
+              <!-- Contenido del producto mejorado -->
+              <div class="product-content-enhanced">
+                <header class="product-header">
+                  <h3 class="product-title">{{ producto.nombre }}</h3>
+                </header>
+
+                <!-- Solo calorías - Diseño simplificado para Web y WebView -->
+                <div class="product-meta-enhanced">
+                  <div class="meta-item" *ngIf="producto.calorias">
+                    <i class="fas fa-fire text-orange"></i>
+                    <span>{{ producto.calorias }} cal</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Estado vacío mejorado -->
+        <div class="empty-state" *ngIf="productosPaginados.length === 0 && !isLoading">
+          <div class="empty-state-content rise-on-mount">
+            <div class="empty-icon">
+              <i class="fas fa-search-minus"></i>
+            </div>
+            <h3 class="empty-title">No encontramos lo que buscas</h3>
+            <p class="empty-description">
+              <span *ngIf="searchFilters.query"
+                >No hay productos que coincidan con "{{ searchFilters.query }}"</span
+              >
+              <span *ngIf="!searchFilters.query && getActiveFiltersCount() > 0"
+                >Intenta ajustar tus filtros</span
+              >
+              <span *ngIf="!searchFilters.query && getActiveFiltersCount() === 0"
+                >Aún no hay productos disponibles</span
+              >
+            </p>
+
+            <!-- Sugerencias inteligentes -->
+            <div class="suggestions" *ngIf="getSearchSuggestions().length > 0">
+              <p class="suggestions-title">Tal vez te interese:</p>
+              <div class="suggestions-chips">
+                <button
+                  class="suggestion-chip"
+                  *ngFor="let suggestion of getSearchSuggestions()"
+                  (click)="applySuggestion(suggestion)"
+                >
+                  <i class="fas" [ngClass]="suggestion.icon"></i>
+                  {{ suggestion.text }}
+                </button>
+              </div>
+            </div>
+
+            <div class="empty-actions">
+              <button
+                class="btn btn-primary"
+                (click)="clearAllFilters()"
+                *ngIf="getActiveFiltersCount() > 0"
+              >
+                <i class="fas fa-eraser"></i>
+                Limpiar filtros
+              </button>
+              <button class="btn btn-outline-primary" (click)="showAllProducts()">
+                <i class="fas fa-utensils"></i>
+                Ver todos los productos
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paginación moderna con efectos visuales -->
+      <div class="pagination-container-enhanced" *ngIf="totalPaginas > 1 && !isLoading">
+        <nav class="pagination-nav-enhanced" aria-label="Navegación de páginas">
+          <!-- Información de paginación mejorada -->
+          <div class="pagination-info-enhanced">
+            <div class="page-indicator">
+              <span class="current-page">{{ paginaActual }}</span>
+              <span class="page-separator">de</span>
+              <span class="total-pages">{{ totalPaginas }}</span>
+            </div>
+            <div class="results-summary">
+              Mostrando {{ (paginaActual - 1) * productosPorPagina + 1 }} -
+              {{ Math.min(paginaActual * productosPorPagina, totalProductos) }}
+              de {{ totalProductos }} productos
+            </div>
+          </div>
+
+          <!-- Controles de paginación mejorados -->
+          <div class="pagination-controls-enhanced">
+            <!-- Botón primera página -->
+            <button
+              class="pagination-btn btn-floating"
+              [disabled]="paginaActual === 1"
+              (click)="goToPage(1)"
+              aria-label="Primera página"
+              title="Primera página"
+            >
+              <i class="fas fa-angle-double-left"></i>
+            </button>
+
+            <!-- Botón página anterior -->
+            <button
+              class="pagination-btn btn-floating"
+              [disabled]="paginaActual === 1"
+              (click)="goToPage(paginaActual - 1)"
+              aria-label="Página anterior"
+              title="Página anterior"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <!-- Números de página con animaciones -->
+            <div class="pagination-numbers-enhanced">
+              <button
+                class="pagination-number btn-floating"
+                *ngFor="let pagina of getPaginationNumbers(); trackBy: trackByPageNumber"
+                [class.active]="pagina === paginaActual"
+                [class.ellipsis]="pagina === '...'"
+                [disabled]="pagina === '...'"
+                (click)="goToPage(pagina)"
+                [attr.aria-label]="pagina === '...' ? 'Más páginas' : 'Ir a página ' + pagina"
+                [attr.aria-current]="pagina === paginaActual ? 'page' : null"
+              >
+                {{ pagina }}
+                <span class="page-ripple" *ngIf="pagina !== '...'"></span>
+              </button>
+            </div>
+
+            <!-- Botón página siguiente -->
+            <button
+              class="pagination-btn btn-floating"
+              [disabled]="paginaActual === totalPaginas"
+              (click)="goToPage(paginaActual + 1)"
+              aria-label="Página siguiente"
+              title="Página siguiente"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <!-- Botón última página -->
+            <button
+              class="pagination-btn btn-floating"
+              [disabled]="paginaActual === totalPaginas"
+              (click)="goToPage(totalPaginas)"
+              aria-label="Última página"
+              title="Última página"
+            >
+              <i class="fas fa-angle-double-right"></i>
+            </button>
+          </div>
+
+          <!-- Salto rápido a página (sorpresa) -->
+          <div class="quick-jump" *ngIf="totalPaginas > 10">
+            <label for="pageJump" class="visually-hidden">Ir a página</label>
+            <input
+              type="number"
+              id="pageJump"
+              class="page-jump-input"
+              [min]="1"
+              [max]="totalPaginas"
+              placeholder="Pág."
+              (keydown.enter)="jumpToPage($any($event.target).value)"
+            />
+            <button
+              class="btn-floating"
+              (click)="jumpToPage(pageJumpValue)"
+              aria-label="Ir a página"
+            >
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <!-- Cierre de card-glass -->
+  </div>
+
+  <!-- Carrito flotante mejorado -->
+  <app-floating-cart
+    [isVisible]="userRole === 'Cliente'"
+    [class.enhanced]="true"
+    [style.z-index]="1050"
   >
-    <button
-      class="btn-icon"
-      [disabled]="paginaActual === 1"
-      (click)="paginaActual = paginaActual - 1"
-    >
-      <i
-        class="fas fa-arrow-left"
-        [ngClass]="paginaActual === 1 ? 'text-secondary' : 'text-primary'"
-      ></i>
-    </button>
+  </app-floating-cart>
 
-    <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
+  <!-- Botón de volver arriba (sorpresa) -->
+  <button
+    class="scroll-to-top btn-floating"
+    [class.visible]="showScrollToTop"
+    (click)="scrollToTopPublic()"
+    aria-label="Volver arriba"
+    title="Volver arriba"
+  >
+    <i class="fas fa-arrow-up"></i>
+  </button>
 
-    <button
-      class="btn-icon"
-      [disabled]="paginaActual === totalPaginas"
-      (click)="paginaActual = paginaActual + 1"
-    >
-      <i
-        class="fas fa-arrow-right"
-        [ngClass]="paginaActual === totalPaginas ? 'text-secondary' : 'text-primary'"
-      ></i>
-    </button>
-  </div>
-  <div class="alert alert-info text-center mt-4" *ngIf="productos.length === 0">
-    No hay productos disponibles en este momento.
+  <!-- Indicador de progreso de carga -->
+  <div class="loading-progress" [class.visible]="isLoading">
+    <div class="progress-bar"></div>
   </div>
 </div>

@@ -13369,7 +13369,7 @@ a.link {
   }
 
   /* NgOptimizedImage específico */
-  &[ngSrc] {
+  &[src] {
     width: 100% !important;
     height: auto !important;
     object-fit: cover !important;

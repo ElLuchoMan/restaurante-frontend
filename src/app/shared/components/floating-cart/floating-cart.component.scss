@@ -1,0 +1,342 @@
+@use '../../../../assets/_variables.scss' as *;
+
+.floating-cart {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(100px);
+  opacity: 0;
+  visibility: hidden;
+
+  &.visible {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .cart-button {
+    background: $gradient-primary;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-heading-strong;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 8px 25px $shadow-primary-40;
+    transition: all 0.3s ease;
+    position: relative;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 12px 35px $shadow-primary-50;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: $danger;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+  }
+
+  .cart-panel {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 350px;
+    max-width: 90vw;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px $shadow-soft;
+    border: 1px solid $border-subtle;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+
+    .cart-header {
+      background: $gradient-primary;
+      color: $text-heading-strong;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        color: inherit;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 50%;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    .cart-content {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 1rem;
+
+      .cart-items {
+        .cart-item {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          padding: 1rem 0;
+          border-bottom: 1px solid $border-subtle;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+
+          .item-details {
+            flex: 1;
+            min-width: 0;
+
+            .item-name {
+              font-size: 0.9rem;
+              font-weight: 600;
+              margin: 0 0 0.25rem 0;
+              color: $text-heading-strong;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+
+            .item-price {
+              font-size: 0.85rem;
+              color: $success;
+              font-weight: 600;
+              margin: 0 0 0.5rem 0;
+            }
+
+            .quantity-controls {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+
+              .quantity-btn {
+                background: $light;
+                border: 1px solid $border-subtle;
+                border-radius: 6px;
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                font-size: 0.75rem;
+
+                &:hover:not(:disabled) {
+                  background: $primary;
+                  color: white;
+                  border-color: $primary;
+                }
+
+                &:disabled {
+                  opacity: 0.5;
+                  cursor: not-allowed;
+                }
+              }
+
+              .quantity {
+                font-weight: 600;
+                min-width: 20px;
+                text-align: center;
+                font-size: 0.9rem;
+              }
+            }
+          }
+
+          .remove-btn {
+            background: none;
+            border: none;
+            color: $danger;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: rgba($danger, 0.1);
+            }
+          }
+        }
+      }
+
+      .empty-cart {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: $text-muted;
+
+        i {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+          opacity: 0.5;
+        }
+
+        p {
+          font-size: 1.1rem;
+          margin: 0 0 0.5rem 0;
+          font-weight: 500;
+        }
+
+        small {
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    .cart-footer {
+      background: $light;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid $border-subtle;
+
+      .cart-total {
+        margin-bottom: 1rem;
+
+        .total-line {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 1.1rem;
+
+          strong {
+            color: $success;
+            font-size: 1.25rem;
+          }
+        }
+      }
+
+      .cart-actions {
+        display: flex;
+        gap: 0.75rem;
+
+        .btn {
+          flex: 1;
+          padding: 0.75rem 1rem;
+          border-radius: 12px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          transition: all 0.2s ease;
+
+          &.btn-primary {
+            background: $gradient-primary;
+            border: none;
+            color: $text-heading-strong;
+
+            &:hover {
+              background: $gradient-primary-hover;
+              transform: translateY(-1px);
+            }
+          }
+
+          &.btn-outline-secondary {
+            background: white;
+            border: 1px solid $border-subtle;
+            color: $text-body;
+
+            &:hover {
+              background: $light;
+              border-color: $danger;
+              color: $danger;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animaciones
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: $breakpoint-md) {
+  .floating-cart {
+    bottom: 1rem;
+    right: 1rem;
+
+    .cart-panel {
+      width: 320px;
+      max-width: calc(100vw - 2rem);
+    }
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .floating-cart {
+    .cart-panel {
+      width: 280px;
+    }
+  }
+}

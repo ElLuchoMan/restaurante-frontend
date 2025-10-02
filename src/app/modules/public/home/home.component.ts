@@ -1,4 +1,4 @@
-import { AsyncPipe, CommonModule, isPlatformBrowser, NgOptimizedImage } from '@angular/common';
+import { AsyncPipe, CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -24,7 +24,7 @@ import { clearBlobUrlCache, getSafeImageSrc } from '../../../shared/utils/image.
 
 @Component({
   selector: 'app-home',
-  imports: [RouterModule, NgOptimizedImage, AsyncPipe, CommonModule],
+  imports: [RouterModule, AsyncPipe, CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

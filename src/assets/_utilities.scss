@@ -700,7 +700,7 @@ h3 {
   }
 
   &:hover {
-    background: var(--secondary) !important;
+    --background: var(--secondary) !important;
 
     h5 {
       color: var(--white) !important;
