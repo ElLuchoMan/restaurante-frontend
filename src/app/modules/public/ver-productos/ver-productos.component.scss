@@ -916,7 +916,7 @@
 
       .search-input {
         height: 46px !important;
-        padding: 0 50px 0 46px !important; // Sin botón de voz
+        padding: 0 10px 0 46px !important; // Sin botón de voz
         font-size: 0.9rem !important;
         border: none !important; // Eliminar borde del input
         box-shadow: none !important; // Sin sombra en el input
@@ -942,12 +942,12 @@
 
     // Ajustar botón de limpiar - solo icono transparente
     .search-clear {
-      right: 30px !important; // Margen derecho adecuado
+      right: 5px !important; // Margen derecho adecuado
       width: auto !important;
       height: auto !important;
       background: transparent !important;
       border: none !important;
-      padding: 10px !important; // Área táctil más grande
+      padding: 8px !important; // Área táctil más grande
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
