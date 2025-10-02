@@ -888,6 +888,444 @@
 
 // ===== ESTILOS ESPECÍFICOS PARA WEBVIEW =====
 .webview-mode {
+  // ===== OPTIMIZACIÓN DEL BUSCADOR PARA WEBVIEW =====
+  .search-container-enhanced {
+    margin-top: 1rem !important; // Margen superior
+    margin-bottom: 1rem !important;
+    padding: 0 1rem !important; // Margen lateral respecto a los bordes
+
+    .search-input-wrapper {
+      border-radius: 12px !important; // Más cuadrado como formularios
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+      border: 1px solid $border-subtle !important;
+      transition: all 0.3s ease !important;
+
+      // Desactivar efectos de focus/glow
+      &.glow-on-focus {
+        &:focus-within {
+          border-color: $primary !important;
+          box-shadow: 0 2px 8px rgba($primary, 0.15) !important;
+        }
+      }
+
+      .search-icon {
+        left: 14px;
+        font-size: 1rem;
+        color: $text-muted;
+      }
+
+      .search-input {
+        height: 46px !important;
+        padding: 0 50px 0 46px !important; // Sin botón de voz
+        font-size: 0.9rem !important;
+        border: none !important; // Eliminar borde del input
+        box-shadow: none !important; // Sin sombra en el input
+        outline: none !important; // Sin outline
+
+        &:focus {
+          border: none !important;
+          box-shadow: none !important;
+          outline: none !important;
+        }
+
+        &::placeholder {
+          color: $text-muted !important;
+          font-size: 0.85rem !important;
+        }
+      }
+    }
+
+    // Ocultar botón de búsqueda por voz en WebView
+    .voice-search-btn {
+      display: none !important;
+    }
+
+    // Ajustar botón de limpiar - solo icono transparente
+    .search-clear {
+      right: 30px !important; // Margen derecho adecuado
+      width: auto !important;
+      height: auto !important;
+      background: transparent !important;
+      border: none !important;
+      padding: 10px !important; // Área táctil más grande
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: $text-muted !important;
+      transition: color 0.2s ease !important;
+
+      i {
+        font-size: 1rem !important;
+      }
+
+      &:hover {
+        background: transparent !important;
+        color: $text-heading-strong !important;
+        transform: none !important;
+      }
+    }
+
+    // Estilos para sugerencias de búsqueda
+    .search-suggestions,
+    .search-history {
+      left: 1rem !important; // Margen izquierdo
+      right: 1rem !important; // Margen derecho
+      width: auto !important;
+      border-radius: 12px !important;
+      margin-top: 0.5rem !important;
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DE CONTROLES Y FILTROS =====
+  .filters-controls-enhanced {
+    padding: 0.75rem 1rem !important; // Reducir padding vertical
+    border-radius: 12px !important;
+    margin-bottom: 1rem !important;
+    gap: 0.5rem !important; // Reducir gap entre elementos
+    background: rgba($primary, 0.02) !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    .results-info-enhanced {
+      .results-count-wrapper {
+        display: none !important; // Ocultar "4 productos"
+      }
+
+      .results-count {
+        display: none !important; // Ocultar contador
+      }
+
+      .results-subtitle {
+        display: none !important;
+      }
+
+      .quick-filters {
+        gap: 0.35rem !important;
+        margin-top: 0 !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+
+        .quick-filter-chip {
+          padding: 0.35rem 0.7rem !important;
+          border-radius: 14px !important;
+          font-size: 0.8rem !important;
+          border-width: 1.5px !important;
+          font-weight: 500 !important;
+          line-height: 1.2 !important;
+
+          i {
+            font-size: 0.75rem !important;
+            margin-right: 0.25rem;
+          }
+
+          // Ocultar el chip "Todos"
+          &:first-child {
+            display: none !important;
+          }
+
+          // Desactivar hover
+          &:hover {
+            transform: none !important;
+          }
+        }
+      }
+    }
+
+    .view-controls-enhanced {
+      gap: 0.4rem !important;
+      display: flex !important;
+      flex-wrap: wrap !important;
+      justify-content: flex-end !important;
+
+      .btn-floating {
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 6px $shadow-soft !important;
+        font-size: 0.85rem !important;
+        min-width: 38px !important;
+        flex-shrink: 0 !important;
+
+        // Desactivar hover en WebView
+        &:hover {
+          transform: none !important;
+          background: $white !important;
+          box-shadow: 0 2px 6px $shadow-soft !important;
+
+          &.active {
+            background: $primary !important;
+          }
+        }
+      }
+
+      .view-toggle-group {
+        display: flex;
+        gap: 0.4rem;
+      }
+
+      // Ocultar botón de tema (no funciona en WebView)
+      .theme-toggle {
+        display: none !important;
+      }
+
+      // Ocultar botón de ordenamiento rápido (usar filtros avanzados)
+      .sort-dropdown {
+        display: none !important;
+      }
+
+      .filter-badge {
+        width: 15px !important;
+        height: 15px !important;
+        font-size: 0.65rem !important;
+        line-height: 15px !important;
+        top: -4px !important;
+        right: -4px !important;
+      }
+    }
+  }
+
+  // ===== ESTILOS PARA FILTROS AVANZADOS =====
+  .advanced-filters {
+    background: $white !important;
+    border-radius: 12px !important;
+    padding: 1rem !important;
+    box-shadow: 0 4px 12px $shadow-soft !important;
+
+    .filters-grid {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 1rem !important;
+    }
+
+    .filter-group {
+      .filter-label {
+        display: block !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        color: $text-heading-strong !important;
+        margin-bottom: 0.4rem !important;
+      }
+
+      .filter-select {
+        width: 100% !important;
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 10px !important;
+        border: 1.5px solid $border-subtle !important;
+        font-size: 0.85rem !important;
+        background: $white !important;
+        color: $text-body !important;
+
+        &:focus {
+          outline: none !important;
+          border-color: $primary !important;
+          box-shadow: 0 0 0 3px rgba($primary, 0.1) !important;
+        }
+      }
+
+      .range-inputs {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+
+        .range-input {
+          flex: 1 !important;
+          padding: 0.5rem 0.75rem !important;
+          border-radius: 10px !important;
+          border: 1.5px solid $border-subtle !important;
+          font-size: 0.85rem !important;
+
+          &:focus {
+            outline: none !important;
+            border-color: $primary !important;
+            box-shadow: 0 0 0 3px rgba($primary, 0.1) !important;
+          }
+        }
+
+        .range-separator {
+          color: $text-muted !important;
+          font-weight: 600 !important;
+        }
+      }
+
+      .checkbox-group {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+
+        .checkbox-item {
+          display: flex !important;
+          align-items: center !important;
+          font-size: 0.85rem !important;
+          color: $text-body !important;
+          cursor: pointer !important;
+          position: relative !important;
+          padding-left: 1.75rem !important;
+
+          input[type='checkbox'] {
+            position: absolute !important;
+            left: 0 !important;
+            width: 18px !important;
+            height: 18px !important;
+            cursor: pointer !important;
+          }
+
+          .checkmark {
+            display: none !important;
+          }
+        }
+      }
+    }
+
+    .filters-actions {
+      margin-top: 1rem !important;
+      display: flex !important;
+      justify-content: center !important;
+
+      .clear-filters-btn {
+        padding: 0.6rem 1.5rem !important;
+        border-radius: 10px !important;
+        background: $white !important;
+        border: 1.5px solid $border-subtle !important;
+        color: $text-body !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+
+        i {
+          margin-right: 0.4rem !important;
+        }
+
+        &:hover {
+          background: rgba($danger, 0.05) !important;
+          border-color: $danger !important;
+          color: $danger !important;
+        }
+      }
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DE RESULTADOS =====
+  .results-info-enhanced .results-count-wrapper {
+    .results-count {
+      font-size: 1.05rem;
+    }
+
+    .results-subtitle {
+      font-size: 0.85rem;
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DEL DROPDOWN DE ORDENAMIENTO =====
+  .sort-dropdown {
+    .dropdown-menu {
+      border-radius: 12px;
+      box-shadow: 0 8px 20px $shadow-soft;
+      border: 1px solid $border-subtle;
+
+      .dropdown-item {
+        padding: 0.65rem 1rem;
+        font-size: 0.9rem;
+
+        i {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DEL HERO/HEADER =====
+  .menu-hero {
+    min-height: 140px;
+    padding: 1.5rem 0 1rem;
+
+    .section-title {
+      font-size: clamp(1.75rem, 4.5vw, 2.5rem);
+      margin-bottom: 0.4rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      margin-bottom: 0;
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DE LA PAGINACIÓN =====
+  .pagination-container-enhanced {
+    margin: 2rem 0 1.5rem 0;
+
+    .pagination-nav-enhanced {
+      gap: 1rem;
+
+      .pagination-info-enhanced {
+        .page-indicator {
+          font-size: 0.95rem;
+
+          .current-page,
+          .total-pages {
+            font-size: 1.1rem;
+          }
+        }
+
+        .results-summary {
+          font-size: 0.8rem;
+        }
+      }
+
+      .pagination-controls-enhanced {
+        padding: 6px;
+        border-radius: 20px;
+        box-shadow: 0 6px 20px $shadow-soft;
+
+        .pagination-btn {
+          width: 40px;
+          height: 40px;
+
+          // Desactivar hover
+          &:hover:not(:disabled) {
+            background: transparent;
+            color: $text-muted;
+          }
+        }
+
+        .pagination-numbers-enhanced {
+          gap: 3px;
+          margin: 0 0.4rem;
+
+          .pagination-number {
+            width: 36px;
+            height: 36px;
+            font-size: 0.9rem;
+
+            // Desactivar hover
+            &:hover:not(:disabled):not(.ellipsis) {
+              background: transparent;
+              color: $text-body;
+            }
+
+            &.active {
+              background: $primary;
+              color: $text-heading-strong;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DEL BOTÓN SCROLL TO TOP =====
+  .scroll-to-top {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+
+    &:hover {
+      transform: none;
+      background: $primary;
+    }
+  }
+
   .product-card-enhanced {
     // Reducir altura mínima de la card al mínimo necesario
     min-height: 280px;
