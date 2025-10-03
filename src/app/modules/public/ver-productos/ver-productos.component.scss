@@ -135,6 +135,127 @@
   }
 }
 
+// ===== FILTROS HORIZONTALES (SOLO WEB) =====
+.filters-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: $white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px $shadow-soft;
+  border: 1px solid $border-subtle;
+  flex-wrap: wrap;
+
+  .filter-select-horizontal,
+  .filter-input-horizontal {
+    flex: 1;
+    min-width: 120px;
+    max-width: 180px;
+    padding: 0.6rem 0.9rem;
+    border-radius: 10px;
+    border: 1.5px solid $border-subtle;
+    font-size: 0.9rem;
+    background: $white;
+    color: $text-body;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+
+    &::placeholder {
+      color: $text-muted;
+      font-size: 0.85rem;
+    }
+  }
+
+  .sort-direction-btn-horizontal {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    background: $white;
+    border: 1.5px solid $border-subtle;
+    border-radius: 10px;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+
+    &:hover {
+      background: $primary;
+      border-color: $primary;
+      color: $white;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .clear-filters-btn-horizontal {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    background: $white;
+    border: 1.5px solid $border-subtle;
+    border-radius: 10px;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+
+    &:hover {
+      background: rgba($danger, 0.05);
+      border-color: $danger;
+      color: $danger;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Ocultar botón de filtros en Web Desktop (los filtros están siempre visibles en línea)
+@media (min-width: $breakpoint-lg) {
+  .filters-toggle {
+    display: none !important;
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .filters-horizontal {
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+
+    .filter-select-horizontal,
+    .filter-input-horizontal {
+      min-width: 90px;
+      max-width: 130px;
+      font-size: 0.8rem;
+      padding: 0.45rem 0.6rem;
+    }
+
+    .sort-direction-btn-horizontal,
+    .clear-filters-btn-horizontal {
+      width: 36px;
+      height: 36px;
+      font-size: 0.9rem;
+    }
+  }
+}
+
 // ===== CONTROLES =====
 .filters-controls-enhanced {
   display: flex;

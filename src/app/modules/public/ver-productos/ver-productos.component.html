@@ -121,6 +121,95 @@
         </div>
       </div>
 
+      <!-- Filtros horizontales debajo de la búsqueda (solo Web Desktop >= 992px) -->
+      <div class="row justify-content-center mb-3 d-none d-lg-flex">
+        <div class="col-lg-10">
+          <div class="filters-horizontal">
+            <!-- Filtro por categoría -->
+            <select
+              class="filter-select-horizontal"
+              [(ngModel)]="searchFilters.category"
+              (change)="onCategoryChange($any($event.target).value)"
+            >
+              <option value="">Categoría</option>
+              <option *ngFor="let category of getUniqueCategories()" [value]="category">
+                {{ category }}
+              </option>
+            </select>
+
+            <!-- Filtro por subcategoría -->
+            <select
+              class="filter-select-horizontal"
+              *ngIf="searchFilters.category"
+              [(ngModel)]="searchFilters.subcategory"
+              (change)="onSubcategoryChange($any($event.target).value)"
+            >
+              <option value="">Subcategoría</option>
+              <option
+                *ngFor="let subcategory of getSubcategoriesForCategory(searchFilters.category)"
+                [value]="subcategory"
+              >
+                {{ subcategory }}
+              </option>
+            </select>
+
+            <!-- Filtro por calorías -->
+            <input
+              type="number"
+              class="filter-input-horizontal"
+              placeholder="Cal. mín"
+              [(ngModel)]="searchFilters.caloriesRange.min"
+              (input)="
+                onCaloriesRangeChange(+$any($event.target).value, searchFilters.caloriesRange.max)
+              "
+            />
+            <input
+              type="number"
+              class="filter-input-horizontal"
+              placeholder="Cal. máx"
+              [(ngModel)]="searchFilters.caloriesRange.max"
+              (input)="
+                onCaloriesRangeChange(searchFilters.caloriesRange.min, +$any($event.target).value)
+              "
+            />
+
+            <!-- Ordenar por -->
+            <select
+              class="filter-select-horizontal"
+              [(ngModel)]="searchFilters.sortBy"
+              (change)="onSortChange($any($event.target).value)"
+            >
+              <option value="name">Ordenar por nombre</option>
+              <option value="price">Ordenar por precio</option>
+              <option value="calories">Ordenar por calorías</option>
+            </select>
+
+            <!-- Botón de dirección de orden -->
+            <button
+              class="sort-direction-btn-horizontal"
+              (click)="toggleSortDirection()"
+              [attr.aria-label]="sortDirection === 'asc' ? 'Orden ascendente' : 'Orden descendente'"
+              title="{{ sortDirection === 'asc' ? 'Menor a mayor' : 'Mayor a menor' }}"
+            >
+              <i
+                class="fas"
+                [ngClass]="sortDirection === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down'"
+              ></i>
+            </button>
+
+            <!-- Botón limpiar filtros -->
+            <button
+              class="clear-filters-btn-horizontal"
+              (click)="clearAllFilters()"
+              *ngIf="getActiveFiltersCount() > 0"
+              title="Limpiar todos los filtros"
+            >
+              <i class="fas fa-times-circle"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Controles mejorados con animaciones -->
       <div class="row justify-content-center mb-4">
         <div class="col-lg-10 col-md-12">
@@ -223,6 +312,7 @@
                 <i class="fas" [ngClass]="currentTheme === 'dark' ? 'fa-sun' : 'fa-moon'"></i>
               </button>
 
+              <!-- Botón de filtros avanzados (solo WebView y Web Mobile) -->
               <button
                 class="btn-floating filters-toggle"
                 (click)="toggleAdvancedFilters()"
@@ -239,7 +329,7 @@
         </div>
       </div>
 
-      <!-- Filtros avanzados -->
+      <!-- Filtros avanzados desplegables (solo WebView y Web Mobile) -->
       <div class="row justify-content-center mb-4" *ngIf="showAdvancedFilters">
         <div class="col-lg-10">
           <div class="advanced-filters">
@@ -277,35 +367,9 @@
                 </select>
               </div>
 
-              <!-- Filtro por rango de precio -->
-              <div class="filter-group">
-                <label class="filter-label">Precio máximo</label>
-                <div class="range-inputs">
-                  <input
-                    type="number"
-                    class="range-input"
-                    placeholder="Mín"
-                    [(ngModel)]="searchFilters.priceRange.min"
-                    (input)="
-                      onPriceRangeChange(+$any($event.target).value, searchFilters.priceRange.max)
-                    "
-                  />
-                  <span class="range-separator">-</span>
-                  <input
-                    type="number"
-                    class="range-input"
-                    placeholder="Máx"
-                    [(ngModel)]="searchFilters.priceRange.max"
-                    (input)="
-                      onPriceRangeChange(searchFilters.priceRange.min, +$any($event.target).value)
-                    "
-                  />
-                </div>
-              </div>
-
               <!-- Filtro por calorías -->
               <div class="filter-group">
-                <label class="filter-label">Calorías máximas</label>
+                <label class="filter-label">Calorías</label>
                 <div class="range-inputs">
                   <input
                     type="number"
@@ -344,9 +408,9 @@
                     [(ngModel)]="searchFilters.sortBy"
                     (change)="onSortChange($any($event.target).value)"
                   >
-                    <option *ngFor="let option of sortOptions" [value]="option.value">
-                      {{ option.label }}
-                    </option>
+                    <option value="name">Nombre</option>
+                    <option value="price">Precio</option>
+                    <option value="calories">Calorías</option>
                   </select>
                   <button
                     class="sort-direction-btn"
@@ -354,15 +418,11 @@
                     [attr.aria-label]="
                       sortDirection === 'asc' ? 'Orden ascendente' : 'Orden descendente'
                     "
-                    title="{{
-                      sortDirection === 'asc' ? 'Ascendente (A-Z / 0-9)' : 'Descendente (Z-A / 9-0)'
-                    }}"
+                    title="{{ sortDirection === 'asc' ? 'Menor a mayor' : 'Mayor a menor' }}"
                   >
                     <i
                       class="fas"
-                      [ngClass]="
-                        sortDirection === 'asc' ? 'fa-sort-amount-up' : 'fa-sort-amount-down'
-                      "
+                      [ngClass]="sortDirection === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down'"
                     ></i>
                   </button>
                 </div>
