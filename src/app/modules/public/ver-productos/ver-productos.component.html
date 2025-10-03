@@ -409,8 +409,7 @@
           <div
             class="product-item"
             [ngClass]="{
-              'col-lg-3 col-md-4 col-sm-6': viewMode === 'grid',
-              'col-12': viewMode === 'list',
+              'list-layout': viewMode === 'list',
             }"
             *ngFor="let producto of productosPaginados; trackBy: trackByProductoId; let i = index"
             [style.animation-delay]="i * 0.1 + 's'"
