@@ -13,6 +13,7 @@ export interface Producto {
   categoria?: string;
   subcategoria?: string;
   subcategoriaId?: number;
+  observaciones?: string; // Observaciones del cliente para este producto
 }
 
 export interface DetallesProducto {

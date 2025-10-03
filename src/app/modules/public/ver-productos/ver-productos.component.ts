@@ -594,7 +594,9 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
         label: '🛒 Agregar al carrito',
         class: 'btn btn-primary',
         action: () => {
-          this.cartService.addToCart(producto);
+          // Obtener las observaciones del modal antes de agregar al carrito
+          const observaciones = this.modalService.getObservaciones();
+          this.cartService.addToCart(producto, observaciones);
           this.live.announce(`${producto.nombre} añadido al carrito`);
           this.modalService.closeModal();
         },

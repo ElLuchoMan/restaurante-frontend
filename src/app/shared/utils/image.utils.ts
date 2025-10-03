@@ -67,6 +67,19 @@ function createBlobUrl(base64Data: string): string | null {
 }
 
 /**
+ * Detecta si estamos en un entorno WebView (Capacitor/Cordova)
+ */
+function isWebView(): boolean {
+  return !!(
+    (window as any).Capacitor ||
+    (window as any).cordova ||
+    document.URL.startsWith('capacitor://') ||
+    document.URL.startsWith('ionic://') ||
+    document.URL.startsWith('file://')
+  );
+}
+
+/**
  * Obtiene una fuente de imagen segura que evita el error 431
  * @param base64Image Imagen en formato base64
  * @param productId ID del producto para mapear a imagen estática (opcional)
@@ -78,13 +91,29 @@ export function getSafeImageSrc(base64Image?: string, productId?: number): strin
     return DEFAULT_IMAGE;
   }
 
-  // Si es una URL HTTP o blob URL, usar directamente
-  if (base64Image.startsWith('http') || base64Image.startsWith('blob:')) {
+  // Si es una URL HTTP, usar directamente
+  if (base64Image.startsWith('http')) {
     return base64Image;
   }
 
-  // Si es base64 grande, convertir a Blob URL
-  if (base64Image.length > MAX_DIRECT_BASE64_SIZE) {
+  // ⚠️ En WebView, NO usar Blob URLs (no funcionan en Capacitor)
+  // Usar data URLs directamente independientemente del tamaño
+  const inWebView = isWebView();
+
+  // Si ya es blob URL pero estamos en WebView, no podemos usarla
+  if (base64Image.startsWith('blob:')) {
+    if (inWebView) {
+      // En WebView, si recibimos blob URL, usar fallback
+      console.warn('⚠️ Blob URL recibida en WebView, usando fallback');
+      const fallbackIndex =
+        productId && productId > 0 ? (productId - 1) % FALLBACK_IMAGES.length : 0;
+      return FALLBACK_IMAGES[fallbackIndex] || DEFAULT_IMAGE;
+    }
+    return base64Image;
+  }
+
+  // Si es base64 grande y NO estamos en WebView, convertir a Blob URL
+  if (base64Image.length > MAX_DIRECT_BASE64_SIZE && !inWebView) {
     const blobUrl = createBlobUrl(base64Image);
     if (blobUrl) {
       return blobUrl;
@@ -96,7 +125,7 @@ export function getSafeImageSrc(base64Image?: string, productId?: number): strin
     return fallbackImage;
   }
 
-  // Si es base64 pequeño, agregar prefijo si es necesario
+  // Si es base64 pequeño O estamos en WebView, agregar prefijo data: si es necesario
   if (base64Image.startsWith('data:')) {
     return base64Image;
   }

@@ -167,16 +167,33 @@ export class CarritoComponent implements OnInit, OnDestroy {
     const dd = String(hoy.getDate()).padStart(2, '0');
     const fechaHoy = `${yyyy}-${mm}-${dd}`;
 
-    const obs = `Método pago: ${metodoLabel} - Observaciones: ${
-      observacion || 'Sin observaciones'
-    }`;
+    // Construir observaciones incluyendo las de cada producto
+    let obsCompleta = `Método pago: ${metodoLabel}`;
+
+    // Agregar observaciones generales
+    if (observacion) {
+      obsCompleta += ` - Observaciones generales: ${observacion}`;
+    }
+
+    // Agregar observaciones específicas por producto
+    const productosConObs = this.carrito.filter((p) => p.observaciones);
+    if (productosConObs.length > 0) {
+      obsCompleta += '\n\nObservaciones por producto:';
+      productosConObs.forEach((p) => {
+        obsCompleta += `\n• ${p.nombre} (x${p.cantidad}): ${p.observaciones}`;
+      });
+    }
+
+    if (!observacion && productosConObs.length === 0) {
+      obsCompleta += ' - Sin observaciones';
+    }
 
     const nuevoDomicilio: DomicilioRequest = {
       direccion: cliente.direccion,
       telefono: cliente.telefono,
       estadoDomicilio: estadoDomicilio.PENDIENTE,
       fechaDomicilio: fechaHoy,
-      observaciones: obs,
+      observaciones: obsCompleta,
       createdBy: `Usuario ${clienteId}`,
     };
 

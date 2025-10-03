@@ -56,14 +56,30 @@ export class CartService {
     return this.items$.value;
   }
 
-  /** Agrega un producto (aumenta cantidad si ya existe) */
-  addToCart(product: Producto): void {
+  /**
+   * Agrega un producto al carrito
+   * Si el producto YA existe con las MISMAS observaciones, aumenta la cantidad
+   * Si el producto existe pero con DIFERENTES observaciones, se agrega como item separado
+   */
+  addToCart(product: Producto, observaciones?: string): void {
     const items = [...this.items$.value];
-    const idx = items.findIndex((p) => p.productoId === product.productoId);
+
+    // Buscar producto con mismo ID y mismas observaciones
+    const idx = items.findIndex(
+      (p) =>
+        p.productoId === product.productoId && (p.observaciones || '') === (observaciones || ''),
+    );
+
     if (idx > -1) {
+      // Producto existente con mismas observaciones: aumentar cantidad
       items[idx].cantidad = (items[idx].cantidad || 1) + 1;
     } else {
-      const nueva: Producto = { ...product, cantidad: 1 };
+      // Producto nuevo o con diferentes observaciones
+      const nueva: Producto = {
+        ...product,
+        cantidad: 1,
+        observaciones: observaciones || undefined,
+      };
       items.push(nueva);
     }
     this.saveCart(items);

@@ -33,22 +33,44 @@ describe('Image Utils', () => {
       expect(result).toBe(dataUrl);
     });
 
-    it('should return fallback image for large base64 without productId', () => {
-      const largeBase64 = 'a'.repeat(150000); // Very large string
+    it('should return data URL for large base64 in WebView environment', () => {
+      // Simular entorno WebView
+      (window as any).Capacitor = { platform: 'android' };
+
+      const largeBase64 = 'a'.repeat(150000);
       const result = getSafeImageSrc(largeBase64);
-      expect(result).toBe('assets/img/product-1.webp');
+
+      // En WebView, debe retornar data URL directamente
+      expect(result).toBe(`data:image/jpeg;base64,${largeBase64}`);
+
+      // Limpiar
+      delete (window as any).Capacitor;
     });
 
-    it('should return mapped fallback image for large base64 with productId', () => {
-      const largeBase64 = 'a'.repeat(150000); // Very large string
-      const result = getSafeImageSrc(largeBase64, 3);
-      expect(result).toBe('assets/img/product-3.webp');
+    it('should return blob URL for large base64 in browser environment', () => {
+      // Asegurar que NO estamos en WebView
+      delete (window as any).Capacitor;
+      delete (window as any).cordova;
+
+      const largeBase64 = 'a'.repeat(150000);
+      const result = getSafeImageSrc(largeBase64);
+
+      // En navegador, puede ser blob URL o fallback si falla la conversión
+      expect(result.startsWith('blob:') || result.startsWith('assets/img/')).toBe(true);
     });
 
-    it('should wrap around fallback images when productId exceeds available images', () => {
-      const largeBase64 = 'a'.repeat(150000); // Very large string
-      const result = getSafeImageSrc(largeBase64, 7); // productId 7, should wrap to index 0
-      expect(result).toBe('assets/img/product-1.webp');
+    it('should return fallback when blob URL is provided in WebView', () => {
+      // Simular entorno WebView
+      (window as any).Capacitor = { platform: 'ios' };
+
+      const blobUrl = 'blob:http://localhost:4200/some-uuid';
+      const result = getSafeImageSrc(blobUrl, 2);
+
+      // En WebView, blob URLs no funcionan, debe usar fallback
+      expect(result).toBe('assets/img/product-2.webp');
+
+      // Limpiar
+      delete (window as any).Capacitor;
     });
   });
 

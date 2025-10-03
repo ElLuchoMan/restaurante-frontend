@@ -13051,11 +13051,23 @@ a.link {
       height: 100%;
       object-fit: cover;
       transition: transform 0.3s ease;
+
+      // Estilo especial para logo de fallback
+      &.fallback-logo {
+        object-fit: contain !important;
+        padding: 2rem;
+        background: linear-gradient(135deg, $light 0%, $white 100%);
+      }
     }
   }
 
   &:hover .offer-image img {
     transform: scale(1.05);
+
+    // Desactivar zoom en logo fallback
+    &.fallback-logo {
+      transform: none !important;
+    }
   }
 
   .offer-content {

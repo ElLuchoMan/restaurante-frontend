@@ -127,6 +127,13 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+
+      // Estilo especial para logo de fallback en WebView
+      &.fallback-logo {
+        object-fit: contain !important;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, $light 0%, $white 100%);
+      }
     }
   }
 
@@ -378,6 +385,13 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+
+      // Estilo especial para logo de fallback en Web Mobile
+      &.fallback-logo {
+        object-fit: contain !important;
+        padding: 1.75rem;
+        background: linear-gradient(135deg, $light 0%, $white 100%);
+      }
     }
   }
 
