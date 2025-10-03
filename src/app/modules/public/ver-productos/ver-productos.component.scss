@@ -1350,10 +1350,12 @@
         appearance: none !important;
         border: 1px solid #e5e7eb !important;
         border-radius: 12px !important;
-        background: $white !important;
+        background-color: $white !important;
         color: $text-body !important;
         padding: 0.65rem 0.875rem !important;
         transition: all 0.3s ease !important;
+        height: auto !important;
+        min-height: 44px !important;
         // Icono de flecha para select
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
         background-repeat: no-repeat !important;
@@ -1390,8 +1392,9 @@
         .sort-direction-btn {
           width: 44px !important;
           height: 44px !important;
+          min-height: 44px !important;
           flex-shrink: 0 !important;
-          background: $white !important;
+          background-color: $white !important;
           border: 1px solid #e5e7eb !important;
           border-radius: 12px !important;
           color: $text-muted !important;
@@ -1430,6 +1433,34 @@
           flex: 1 !important;
           min-width: 0 !important;
           max-width: none !important;
+
+          input {
+            font-size: 0.9rem !important;
+            appearance: none !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 12px !important;
+            background-color: $white !important;
+            color: $text-body !important;
+            padding: 0.65rem 0.875rem !important;
+            transition: all 0.3s ease !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 44px !important;
+
+            &:focus {
+              outline: none !important;
+              border-color: $primary !important;
+              box-shadow:
+                0 0 0 3px rgba($primary, 0.12),
+                0 2px 8px rgba(0, 0, 0, 0.08) !important;
+              transform: translateY(-1px) !important;
+            }
+
+            &:hover:not(:focus) {
+              border-color: rgba($primary, 0.3) !important;
+              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+            }
+          }
         }
 
         .range-separator {
@@ -1454,11 +1485,13 @@
           appearance: none !important;
           border: 1px solid #e5e7eb !important;
           border-radius: 12px !important;
-          background: $white !important;
+          background-color: $white !important;
           color: $text-body !important;
           padding: 0.65rem 0.875rem !important;
           transition: all 0.3s ease !important;
           width: 100% !important;
+          height: auto !important;
+          min-height: 44px !important;
 
           &:focus {
             outline: none !important;
