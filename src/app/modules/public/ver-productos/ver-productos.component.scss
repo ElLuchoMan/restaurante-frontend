@@ -1152,8 +1152,8 @@
 .webview-mode {
   // ===== OPTIMIZACIÓN DEL BUSCADOR PARA WEBVIEW =====
   .search-container-enhanced {
-    margin-top: 1rem !important; // Margen superior
-    margin-bottom: 1rem !important;
+    margin-top: 0.75rem !important; // Margen superior reducido
+    margin-bottom: 0.75rem !important;
     padding: 0 1rem !important; // Margen lateral respecto a los bordes
 
     .search-input-wrapper {
@@ -1241,38 +1241,26 @@
   // ===== OPTIMIZACIÓN DE CONTROLES Y FILTROS =====
   .filters-controls-enhanced {
     padding: 0 !important;
-    border-radius: 0 !important;
-    margin-bottom: 1rem !important;
-    gap: 0 !important;
-    background: transparent !important;
-    flex-direction: column !important;
+    background-color: transparent !important;
     align-items: center !important;
+    margin-top: -30px;
+    margin-bottom: -55px !important;
 
     .results-info-enhanced {
       display: none !important; // Ocultar toda la sección de información de resultados y chips de categorías
     }
 
     .view-controls-enhanced {
-      gap: 0.5rem !important;
-      display: flex !important;
-      flex-wrap: nowrap !important;
-      justify-content: center !important;
-      align-items: center !important;
-      background: $white !important;
-      padding: 0.5rem 1rem !important;
       border-radius: 12px !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-      margin: 0 1rem !important; // Márgenes laterales
-      width: auto !important;
-      max-width: 300px !important; // Ancho máximo para mantenerlo compacto
 
       .btn-floating {
-        width: 40px !important;
-        height: 40px !important;
+        width: 36px !important; // Reducido de 40px
+        height: 36px !important; // Reducido de 40px
         border-radius: 10px !important;
         box-shadow: none !important;
-        font-size: 0.9rem !important;
-        min-width: 40px !important;
+        font-size: 0.85rem !important; // Reducido de 0.9rem
+        min-width: 36px !important; // Reducido de 40px
         flex-shrink: 0 !important;
         background: transparent !important;
         border: 1px solid transparent !important;
@@ -1335,24 +1323,24 @@
   .advanced-filters {
     background: $white !important;
     border-radius: 20px !important;
-    padding: 1.5rem !important;
+    padding: 1rem !important; // Reducido de 1.5rem
     box-shadow: 0 20px 50px $shadow-soft !important;
     border: 1px solid $border-subtle !important;
-    margin: 0 1rem !important; // Márgenes laterales para WebView y Mobile
+    margin: 0 1rem 0.75rem 1rem !important; // Márgenes laterales y bottom reducido
 
     .filters-grid {
       display: grid !important;
       grid-template-columns: 1fr !important;
-      gap: 1rem !important;
+      gap: 0.75rem !important; // Reducido de 1rem
     }
 
     .filter-group {
       .filter-label {
         display: block !important;
-        font-size: 0.9rem !important;
+        font-size: 0.85rem !important; // Reducido de 0.9rem
         font-weight: 600 !important;
         color: $text-heading-strong !important;
-        margin-bottom: 0.5rem !important;
+        margin-bottom: 0.4rem !important; // Reducido de 0.5rem
       }
 
       .filter-select {
@@ -1537,28 +1525,28 @@
     }
 
     .filters-actions {
-      margin-top: 1.5rem !important;
+      margin-top: 1rem !important; // Reducido de 1.5rem
       display: flex !important;
       justify-content: center !important;
-      padding-top: 1rem !important;
+      padding-top: 0.75rem !important; // Reducido de 1rem
       border-top: 1px solid $border-subtle !important;
 
       .clear-filters-btn {
-        padding: 0.75rem 1.75rem !important;
+        padding: 0.65rem 1.5rem !important; // Reducido de 0.75rem 1.75rem
         border-radius: 12px !important;
         background: $white !important;
         border: 1px solid #e5e7eb !important;
         color: $text-body !important;
-        font-size: 0.9rem !important;
+        font-size: 0.85rem !important; // Reducido de 0.9rem
         font-weight: 600 !important;
         cursor: pointer !important;
         display: flex !important;
         align-items: center !important;
-        gap: 0.5rem !important;
+        gap: 0.4rem !important; // Reducido de 0.5rem
         transition: all 0.3s ease !important;
 
         i {
-          font-size: 0.9rem !important;
+          font-size: 0.85rem !important; // Reducido de 0.9rem
         }
 
         &:hover {
@@ -1716,6 +1704,11 @@
       transform: none;
       background: $primary;
     }
+  }
+
+  // ===== REDUCIR PADDING DEL CONTENEDOR DE PRODUCTOS =====
+  .products-container-enhanced {
+    padding: 0.5rem 1rem !important; // Reducido de 2rem 1.5rem
   }
 
   .product-card-enhanced {
