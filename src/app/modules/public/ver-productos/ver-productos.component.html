@@ -153,36 +153,54 @@
               </option>
             </select>
 
-            <!-- Filtro por calorías -->
-            <input
-              type="number"
-              class="filter-input-horizontal"
-              placeholder="Cal. mín"
-              [(ngModel)]="searchFilters.caloriesRange.min"
-              (input)="
-                onCaloriesRangeChange(+$any($event.target).value, searchFilters.caloriesRange.max)
-              "
-            />
-            <input
-              type="number"
-              class="filter-input-horizontal"
-              placeholder="Cal. máx"
-              [(ngModel)]="searchFilters.caloriesRange.max"
-              (input)="
-                onCaloriesRangeChange(searchFilters.caloriesRange.min, +$any($event.target).value)
-              "
-            />
+            <!-- Filtro por calorías con float labels -->
+            <div class="input-float-compact">
+              <input
+                type="number"
+                class="filter-input-horizontal"
+                placeholder=" "
+                [(ngModel)]="searchFilters.caloriesRange.min"
+                (input)="
+                  onCaloriesRangeChange(+$any($event.target).value, searchFilters.caloriesRange.max)
+                "
+              />
+              <label class="float-label-compact">
+                <i class="fas fa-fire"></i>
+                Calorías mín
+              </label>
+            </div>
+            <div class="input-float-compact">
+              <input
+                type="number"
+                class="filter-input-horizontal"
+                placeholder=" "
+                [(ngModel)]="searchFilters.caloriesRange.max"
+                (input)="
+                  onCaloriesRangeChange(searchFilters.caloriesRange.min, +$any($event.target).value)
+                "
+              />
+              <label class="float-label-compact">
+                <i class="fas fa-fire"></i>
+                Calorías máx
+              </label>
+            </div>
 
-            <!-- Ordenar por -->
-            <select
-              class="filter-select-horizontal"
-              [(ngModel)]="searchFilters.sortBy"
-              (change)="onSortChange($any($event.target).value)"
-            >
-              <option value="name">Ordenar por nombre</option>
-              <option value="price">Ordenar por precio</option>
-              <option value="calories">Ordenar por calorías</option>
-            </select>
+            <!-- Ordenar por con float label -->
+            <div class="input-float-compact select-wrapper">
+              <select
+                class="filter-select-horizontal"
+                [(ngModel)]="searchFilters.sortBy"
+                (change)="onSortChange($any($event.target).value)"
+              >
+                <option value="name">Nombre</option>
+                <option value="price">Precio</option>
+                <option value="calories">Calorías</option>
+              </select>
+              <label class="float-label-compact float-label-select">
+                <i class="fas fa-sort"></i>
+                Ordenar por
+              </label>
+            </div>
 
             <!-- Botón de dirección de orden -->
             <button
@@ -210,8 +228,8 @@
         </div>
       </div>
 
-      <!-- Controles mejorados con animaciones -->
-      <div class="row justify-content-center mb-4">
+      <!-- Controles mejorados con animaciones (solo WebView y Mobile) -->
+      <div class="row justify-content-center mb-4 d-lg-none">
         <div class="col-lg-10 col-md-12">
           <div class="filters-controls-enhanced">
             <!-- Información de resultados con animación -->
@@ -255,8 +273,8 @@
               </div>
             </div>
 
-            <!-- Controles de vista mejorados -->
-            <div class="view-controls-enhanced">
+            <!-- Controles de vista mejorados (solo WebView y Mobile) -->
+            <div class="view-controls-enhanced d-lg-none">
               <!-- Ordenamiento rápido -->
               <div class="sort-dropdown dropdown">
                 <button
@@ -367,35 +385,46 @@
                 </select>
               </div>
 
-              <!-- Filtro por calorías -->
+              <!-- Filtro por calorías con float labels -->
               <div class="filter-group">
-                <label class="filter-label">Calorías</label>
-                <div class="range-inputs">
-                  <input
-                    type="number"
-                    class="range-input"
-                    placeholder="Mín"
-                    [(ngModel)]="searchFilters.caloriesRange.min"
-                    (input)="
-                      onCaloriesRangeChange(
-                        +$any($event.target).value,
-                        searchFilters.caloriesRange.max
-                      )
-                    "
-                  />
+                <div class="range-inputs-float">
+                  <div class="input-float-compact">
+                    <input
+                      type="number"
+                      class="range-input"
+                      placeholder=" "
+                      [(ngModel)]="searchFilters.caloriesRange.min"
+                      (input)="
+                        onCaloriesRangeChange(
+                          +$any($event.target).value,
+                          searchFilters.caloriesRange.max
+                        )
+                      "
+                    />
+                    <label class="float-label-compact">
+                      <i class="fas fa-fire"></i>
+                      Calorías mín
+                    </label>
+                  </div>
                   <span class="range-separator">-</span>
-                  <input
-                    type="number"
-                    class="range-input"
-                    placeholder="Máx"
-                    [(ngModel)]="searchFilters.caloriesRange.max"
-                    (input)="
-                      onCaloriesRangeChange(
-                        searchFilters.caloriesRange.min,
-                        +$any($event.target).value
-                      )
-                    "
-                  />
+                  <div class="input-float-compact">
+                    <input
+                      type="number"
+                      class="range-input"
+                      placeholder=" "
+                      [(ngModel)]="searchFilters.caloriesRange.max"
+                      (input)="
+                        onCaloriesRangeChange(
+                          searchFilters.caloriesRange.min,
+                          +$any($event.target).value
+                        )
+                      "
+                    />
+                    <label class="float-label-compact">
+                      <i class="fas fa-fire"></i>
+                      Calorías máx
+                    </label>
+                  </div>
                 </div>
               </div>
 
