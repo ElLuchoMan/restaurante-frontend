@@ -335,52 +335,37 @@
                 </div>
               </div>
 
-              <!-- Filtro por alérgenos -->
-              <div class="filter-group">
-                <label class="filter-label">Alérgenos</label>
-                <div class="checkbox-group">
-                  <label class="checkbox-item" *ngFor="let allergen of allergens">
-                    <input
-                      type="checkbox"
-                      [value]="allergen"
-                      (change)="onAllergenToggle(allergen)"
-                      [checked]="selectedAllergens.includes(allergen)"
-                    />
-                    <span class="checkmark"></span>
-                    {{ allergen }}
-                  </label>
-                </div>
-              </div>
-
-              <!-- Filtro por opciones dietéticas -->
-              <div class="filter-group">
-                <label class="filter-label">Opciones dietéticas</label>
-                <div class="checkbox-group">
-                  <label class="checkbox-item" *ngFor="let dietary of dietaryOptions">
-                    <input
-                      type="checkbox"
-                      [value]="dietary"
-                      (change)="onDietaryToggle(dietary)"
-                      [checked]="selectedDietary.includes(dietary)"
-                    />
-                    <span class="checkmark"></span>
-                    {{ dietary }}
-                  </label>
-                </div>
-              </div>
-
-              <!-- Ordenamiento -->
+              <!-- Ordenamiento con dirección -->
               <div class="filter-group">
                 <label class="filter-label">Ordenar por</label>
-                <select
-                  class="filter-select"
-                  [(ngModel)]="searchFilters.sortBy"
-                  (change)="onSortChange($any($event.target).value, searchFilters.sortOrder)"
-                >
-                  <option *ngFor="let option of sortOptions" [value]="option.value">
-                    {{ option.label }}
-                  </option>
-                </select>
+                <div class="sort-control-group">
+                  <select
+                    class="filter-select"
+                    [(ngModel)]="searchFilters.sortBy"
+                    (change)="onSortChange($any($event.target).value)"
+                  >
+                    <option *ngFor="let option of sortOptions" [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                  <button
+                    class="sort-direction-btn"
+                    (click)="toggleSortDirection()"
+                    [attr.aria-label]="
+                      sortDirection === 'asc' ? 'Orden ascendente' : 'Orden descendente'
+                    "
+                    title="{{
+                      sortDirection === 'asc' ? 'Ascendente (A-Z / 0-9)' : 'Descendente (Z-A / 9-0)'
+                    }}"
+                  >
+                    <i
+                      class="fas"
+                      [ngClass]="
+                        sortDirection === 'asc' ? 'fa-sort-amount-up' : 'fa-sort-amount-down'
+                      "
+                    ></i>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -441,14 +426,6 @@
                 <div class="product-badges">
                   <span class="badge price-badge bg-success">
                     ${{ producto.precio | number: '1.0-0' }}
-                  </span>
-                  <span
-                    class="badge category-badge"
-                    *ngIf="producto.categoria"
-                    [style.background-color]="getCategoryColor(producto.categoria)"
-                  >
-                    <i class="fas" [ngClass]="getCategoryIcon(producto.categoria)"></i>
-                    {{ producto.categoria }}
                   </span>
                 </div>
 

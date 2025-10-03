@@ -1091,6 +1091,7 @@
     border-radius: 12px !important;
     padding: 1rem !important;
     box-shadow: 0 4px 12px $shadow-soft !important;
+    margin: 0 1rem !important; // Márgenes laterales para WebView y Mobile
 
     .filters-grid {
       display: grid !important;
@@ -1123,17 +1124,63 @@
         }
       }
 
+      .sort-control-group {
+        display: flex !important;
+        gap: 0.5rem !important;
+        align-items: stretch !important;
+        width: 100% !important;
+
+        .filter-select {
+          flex: 1 !important;
+          min-width: 0 !important; // Permite que el select se encoja en móviles
+        }
+
+        .sort-direction-btn {
+          width: 44px !important;
+          flex-shrink: 0 !important;
+          height: auto !important;
+          background: $white !important;
+          border: 1.5px solid $border-subtle !important;
+          border-radius: 10px !important;
+          color: $text-muted !important;
+          cursor: pointer !important;
+          transition: all 0.2s ease !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          font-size: 1rem !important;
+          padding: 0.5rem !important;
+
+          &:hover {
+            background: $primary !important;
+            border-color: $primary !important;
+            color: $white !important;
+          }
+
+          &:active {
+            transform: scale(0.95) !important;
+          }
+
+          i {
+            pointer-events: none !important;
+          }
+        }
+      }
+
       .range-inputs {
         display: flex !important;
         align-items: center !important;
         gap: 0.5rem !important;
+        width: 100% !important;
 
         .range-input {
           flex: 1 !important;
+          min-width: 0 !important; // Permite que los inputs se encojan
           padding: 0.5rem 0.75rem !important;
           border-radius: 10px !important;
           border: 1.5px solid $border-subtle !important;
           font-size: 0.85rem !important;
+          width: 100% !important;
 
           &:focus {
             outline: none !important;
@@ -1145,13 +1192,14 @@
         .range-separator {
           color: $text-muted !important;
           font-weight: 600 !important;
+          flex-shrink: 0 !important;
         }
       }
 
       .checkbox-group {
         display: flex !important;
         flex-direction: column !important;
-        gap: 0.5rem !important;
+        gap: 0.6rem !important;
 
         .checkbox-item {
           display: flex !important;
@@ -1160,14 +1208,21 @@
           color: $text-body !important;
           cursor: pointer !important;
           position: relative !important;
-          padding-left: 1.75rem !important;
+          padding: 0.4rem 0.5rem 0.4rem 2rem !important;
+          border-radius: 8px !important;
+          transition: background 0.2s ease !important;
+
+          &:hover {
+            background: rgba($primary, 0.05) !important;
+          }
 
           input[type='checkbox'] {
             position: absolute !important;
-            left: 0 !important;
+            left: 0.5rem !important;
             width: 18px !important;
             height: 18px !important;
             cursor: pointer !important;
+            margin: 0 !important;
           }
 
           .checkmark {
@@ -1178,28 +1233,58 @@
     }
 
     .filters-actions {
-      margin-top: 1rem !important;
+      margin-top: 1.5rem !important;
       display: flex !important;
       justify-content: center !important;
+      padding-top: 1rem !important;
+      border-top: 1px solid $border-subtle !important;
 
       .clear-filters-btn {
-        padding: 0.6rem 1.5rem !important;
+        padding: 0.7rem 1.5rem !important;
         border-radius: 10px !important;
         background: $white !important;
         border: 1.5px solid $border-subtle !important;
         color: $text-body !important;
-        font-size: 0.85rem !important;
+        font-size: 0.9rem !important;
         font-weight: 600 !important;
         cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        transition: all 0.2s ease !important;
 
         i {
-          margin-right: 0.4rem !important;
+          font-size: 0.85rem !important;
         }
 
         &:hover {
           background: rgba($danger, 0.05) !important;
           border-color: $danger !important;
           color: $danger !important;
+        }
+
+        &:active {
+          transform: scale(0.98) !important;
+        }
+      }
+    }
+  }
+
+  // ===== RESPONSIVE PARA FILTROS AVANZADOS EN MOBILE Y WEBVIEW =====
+  @media (max-width: $breakpoint-md) {
+    .advanced-filters {
+      padding: 1rem 0.75rem !important;
+      margin: 0 0.5rem !important;
+
+      .filter-group {
+        .filter-label {
+          font-size: 0.8rem !important;
+        }
+
+        .filter-select,
+        .range-input {
+          font-size: 0.8rem !important;
+          padding: 0.45rem 0.6rem !important;
         }
       }
     }

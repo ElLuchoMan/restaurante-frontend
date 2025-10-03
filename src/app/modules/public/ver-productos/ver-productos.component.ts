@@ -11,14 +11,24 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  forkJoin,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 
 import { CartService } from '../../../core/services/cart.service';
+import { CategoriaService } from '../../../core/services/categoria.service';
 import { ErrorBoundaryService } from '../../../core/services/error-boundary.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { ProductoService } from '../../../core/services/producto.service';
+import { SubcategoriaService } from '../../../core/services/subcategoria.service';
 import { UserService } from '../../../core/services/user.service';
 import { FloatingCartComponent } from '../../../shared/components/floating-cart/floating-cart.component';
 import { Producto } from '../../../shared/models/producto.model';
@@ -62,9 +72,8 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     { value: 'name', label: 'Nombre', icon: 'fas fa-sort-alpha-down' },
     { value: 'price', label: 'Precio', icon: 'fas fa-dollar-sign' },
     { value: 'calories', label: 'Calorías', icon: 'fas fa-fire' },
-    { value: 'popularity', label: 'Popularidad', icon: 'fas fa-star' },
-    { value: 'rating', label: 'Calificación', icon: 'fas fa-thumbs-up' },
   ];
+  sortDirection: 'asc' | 'desc' = 'asc';
 
   // Paginación mejorada
   paginaActual = 1;
@@ -73,10 +82,8 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Filtros avanzados
   showAdvancedFilters = false;
-  allergens = ['gluten', 'lactosa', 'nueces', 'mariscos', 'huevos'];
-  dietaryOptions = ['vegetariano', 'vegano', 'sin gluten', 'bajo calorías', 'sin azúcar'];
-  selectedAllergens: string[] = [];
-  selectedDietary: string[] = [];
+  categoriasCompletas: any[] = []; // Categorías desde el servicio
+  subcategoriasCompletas: any[] = []; // Subcategorías desde el servicio
 
   // Estados de carga y UI
   isLoading = false;
@@ -96,6 +103,8 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private productoService: ProductoService,
+    private categoriaService: CategoriaService,
+    private subcategoriaService: SubcategoriaService,
     private modalService: ModalService,
     private userService: UserService,
     private router: Router,
@@ -225,14 +234,75 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     this.productosFiltrados = list;
     this.totalProductos = list.length;
 
-    const categoriasSet = new Set<string>();
-    const subcategoriasSet = new Set<string>();
-    this.productos.forEach((p) => {
-      if (p.categoria) categoriasSet.add(p.categoria);
-      if (p.subcategoria) subcategoriasSet.add(p.subcategoria);
-    });
-    this.categorias = Array.from(categoriasSet);
-    this.subcategorias = Array.from(subcategoriasSet);
+    // Cargar categorías y subcategorías desde la API después de tener los productos
+    this.cargarCategoriasYSubcategorias();
+  }
+
+  private cargarCategoriasYSubcategorias(): void {
+    // Primero cargar categorías
+    this.categoriaService
+      .list()
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((categorias) => {
+          this.categoriasCompletas = categorias;
+          this.categorias = categorias.map((c) => c.nombre);
+
+          // Luego cargar todas las subcategorías
+          const subcategoriaObservables = categorias.map((cat) =>
+            this.subcategoriaService.list(cat.categoriaId!).pipe(catchError(() => of([]))),
+          );
+
+          return forkJoin(subcategoriaObservables.length > 0 ? subcategoriaObservables : [of([])]);
+        }),
+      )
+      .subscribe({
+        next: (subcategoriasArrays) => {
+          // Aplanar el array de arrays
+          this.subcategoriasCompletas = subcategoriasArrays.flat();
+
+          // Enriquecer productos con nombres de categoría y subcategoría
+          this.productos = this.productos.map((producto) => {
+            const subcategoria = this.subcategoriasCompletas.find(
+              (s) => s.subcategoriaId === producto.subcategoriaId,
+            );
+
+            if (subcategoria) {
+              // Extraer el ID real de categoriaId (puede ser un objeto o un número)
+              const catId =
+                typeof subcategoria.categoriaId === 'object' && subcategoria.categoriaId !== null
+                  ? (subcategoria.categoriaId as any).categoriaId ||
+                    (subcategoria.categoriaId as any).pkIdCategoria
+                  : subcategoria.categoriaId;
+
+              const categoria = this.categoriasCompletas.find((c) => c.categoriaId === catId);
+
+              return {
+                ...producto,
+                subcategoria: subcategoria.nombre,
+                categoria: categoria?.nombre || '',
+              };
+            }
+
+            return producto;
+          });
+
+          // Actualizar productos filtrados
+          this.productosFiltrados = [...this.productos];
+
+          // Extraer nombres únicos de subcategorías desde los productos enriquecidos
+          const subcategoriasSet = new Set<string>();
+          this.productos.forEach((p) => {
+            if (p.subcategoria) subcategoriasSet.add(p.subcategoria);
+          });
+          this.subcategorias = Array.from(subcategoriasSet);
+        },
+        error: (error) => {
+          console.error('Error cargando categorías y subcategorías:', error);
+          // Fallback: extraer lo que se pueda de los productos
+          this.extraerCategoriasDeProductos();
+        },
+      });
   }
 
   // ===== BÚSQUEDA INTELIGENTE =====
@@ -310,35 +380,21 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     this.applyFilters();
   }
 
-  onAllergenToggle(allergen: string): void {
-    const index = this.selectedAllergens.indexOf(allergen);
-    if (index > -1) {
-      this.selectedAllergens.splice(index, 1);
-    } else {
-      this.selectedAllergens.push(allergen);
-    }
-    this.searchFilters.allergens = this.selectedAllergens;
-    this.smartSearch.updateFilters({ allergens: this.selectedAllergens });
-    this.applyFilters();
-  }
+  // Métodos eliminados: onAllergenToggle y onDietaryToggle (no están en el modelo Producto)
 
-  onDietaryToggle(dietary: string): void {
-    const index = this.selectedDietary.indexOf(dietary);
-    if (index > -1) {
-      this.selectedDietary.splice(index, 1);
-    } else {
-      this.selectedDietary.push(dietary);
-    }
-    this.searchFilters.dietary = this.selectedDietary;
-    this.smartSearch.updateFilters({ dietary: this.selectedDietary });
-    this.applyFilters();
-  }
-
-  onSortChange(sortBy: string, sortOrder: 'asc' | 'desc'): void {
+  onSortChange(sortBy: string, sortOrder?: 'asc' | 'desc'): void {
     this.searchFilters.sortBy = sortBy as any;
-    this.searchFilters.sortOrder = sortOrder;
-    this.smartSearch.updateFilters({ sortBy: sortBy as any, sortOrder });
+    if (sortOrder) {
+      this.sortDirection = sortOrder;
+    }
+    this.searchFilters.sortOrder = this.sortDirection;
+    this.smartSearch.updateFilters({ sortBy: sortBy as any, sortOrder: this.sortDirection });
     this.applyFilters();
+  }
+
+  toggleSortDirection(): void {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.onSortChange(this.searchFilters.sortBy, this.sortDirection);
   }
 
   private updateSubcategories(): void {
@@ -359,8 +415,7 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   clearAllFilters(): void {
     this.searchFilters = this.smartSearch.getDefaultFilters();
-    this.selectedAllergens = [];
-    this.selectedDietary = [];
+    this.sortDirection = 'asc';
     this.smartSearch.updateFilters(this.searchFilters);
     this.applyFilters();
   }
@@ -371,9 +426,15 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.searchFilters.subcategory) count++;
     if (this.searchFilters.priceRange.min || this.searchFilters.priceRange.max) count++;
     if (this.searchFilters.caloriesRange.min || this.searchFilters.caloriesRange.max) count++;
-    if (this.selectedAllergens.length > 0) count++;
-    if (this.selectedDietary.length > 0) count++;
     return count;
+  }
+
+  private extraerCategoriasDeProductos(): void {
+    const categoriasSet = new Set<string>();
+    this.productos.forEach((p) => {
+      if (p.categoria) categoriasSet.add(p.categoria);
+    });
+    this.categorias = Array.from(categoriasSet);
   }
 
   getUniqueCategories(): string[] {
