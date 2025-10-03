@@ -38,6 +38,9 @@ export class ModalComponent implements OnInit {
   isOpen = false;
   modalData: ModalData = {} as ModalData;
   observaciones = ''; // Campo para observaciones del pedido
+  currentImage = ''; // Imagen actual a mostrar
+  private readonly defaultImage = 'assets/img/logo2.webp'; // Logo por defecto
+  private imageErrorOccurred = false; // Flag para evitar loops infinitos
 
   constructor(private modalService: ModalService) {}
 
@@ -45,6 +48,9 @@ export class ModalComponent implements OnInit {
     this.modalService.modalData$.subscribe((data) => {
       if (data) {
         this.modalData = data;
+        // Resetear la imagen cuando se abre un nuevo modal
+        this.imageErrorOccurred = false;
+        this.currentImage = data.image || this.defaultImage;
       }
     });
 
@@ -53,12 +59,21 @@ export class ModalComponent implements OnInit {
       // Limpiar observaciones al cerrar el modal
       if (!state) {
         this.observaciones = '';
+        this.imageErrorOccurred = false;
       }
     });
   }
 
   close() {
     this.modalService.closeModal();
+  }
+
+  // Manejar error de carga de imagen
+  onImageError(): void {
+    if (!this.imageErrorOccurred) {
+      this.imageErrorOccurred = true;
+      this.currentImage = this.defaultImage;
+    }
   }
 
   // Sincronizar observaciones con el servicio cuando cambian

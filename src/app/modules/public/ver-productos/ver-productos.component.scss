@@ -571,6 +571,13 @@
             color: rgba($primary, 0.3);
           }
         }
+
+        // Estilo especial cuando es el logo (fallback)
+        &.fallback-logo {
+          object-fit: contain !important;
+          padding: 1.5rem;
+          background: linear-gradient(135deg, $light 0%, $white 100%) !important;
+        }
       }
     }
 

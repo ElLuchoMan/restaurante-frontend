@@ -820,19 +820,18 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     this.scrollToTop();
   }
 
-  // Manejo de errores de imagen
-  onImageError(event: Event): void {
+  // Imagen por defecto (logo de la aplicación)
+  defaultProductImage = 'assets/img/logo2.webp';
+
+  // Manejo de errores de imagen - usar logo oficial
+  onProductImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    // Usar una imagen de producto existente como fallback
-    const fallbackImages = [
-      'assets/img/product-1.webp',
-      'assets/img/product-2.webp',
-      'assets/img/product-3.webp',
-      'assets/img/product-4.webp',
-      'assets/img/product-5.webp',
-    ];
-    const randomIndex = Math.floor(Math.random() * fallbackImages.length);
-    img.src = fallbackImages[randomIndex];
+    // Prevenir loop infinito
+    if (!img.src.includes('logo2.webp')) {
+      img.src = this.defaultProductImage;
+      // Agregar clase especial para estilos diferentes
+      img.classList.add('fallback-logo');
+    }
   }
 
   // Funciones auxiliares para propiedades que no existen en el modelo

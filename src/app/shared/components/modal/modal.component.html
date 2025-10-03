@@ -17,7 +17,12 @@
     <!-- Imagen destacada con efectos -->
     <div class="modal-image-container" *ngIf="modalData.image">
       <div class="image-wrapper">
-        <img [src]="modalData.image" [alt]="modalData.title || 'Imagen'" class="modal-image" />
+        <img
+          [src]="currentImage"
+          [alt]="modalData.title || 'Imagen'"
+          class="modal-image"
+          (error)="onImageError()"
+        />
         <div class="image-gradient"></div>
       </div>
     </div>

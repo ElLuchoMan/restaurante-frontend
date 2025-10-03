@@ -503,11 +503,11 @@
               <div class="product-image-container">
                 <div class="product-image-wrapper">
                   <img
-                    [src]="producto.imagen || 'assets/img/product-1.webp'"
+                    [src]="producto.imagen || defaultProductImage"
                     [alt]="producto.nombre"
                     loading="lazy"
                     class="product-image"
-                    (error)="onImageError($event)"
+                    (error)="onProductImageError($event)"
                   />
                 </div>
 

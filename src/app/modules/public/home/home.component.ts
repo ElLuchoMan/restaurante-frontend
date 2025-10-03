@@ -290,17 +290,6 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
       });
   }
 
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    if (img) {
-      // Cambiar a logo como fallback
-      img.src = 'assets/img/logo2.webp';
-      img.alt = 'El fogón DE MARÍA - Logo';
-      // Añadir clase para estilos específicos del fallback
-      img.classList.add('fallback-logo');
-    }
-  }
-
   /**
    * Obtiene la fuente de imagen adecuada para un producto
    * Evita usar imágenes base64 grandes directamente como src para prevenir error 431
@@ -315,6 +304,32 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
    */
   getProductImageSrcByIndex(producto: ProductoVendido, index: number): string {
     return getSafeImageSrc(producto.imagen, index + 1); // +1 para que empiece desde 1, no 0
+  }
+
+  /**
+   * Manejo de errores de imagen - usar logo oficial para imágenes que no existen
+   * Solo las imágenes reales del proyecto (carousel, testimonials, about) no usan fallback
+   * Las imágenes de ofertas (product-1, product-2, product-3) son temporales y SÍ usan fallback
+   */
+  onProductImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img && !img.src.includes('logo2.webp')) {
+      // Solo estas imágenes SÍ existen físicamente y NO deben usar fallback
+      const isRealStaticImage =
+        img.src.includes('carousel-') ||
+        img.src.includes('testimonial-') ||
+        img.src.includes('about');
+
+      if (!isRealStaticImage) {
+        // Aplicar fallback al logo para:
+        // - Productos dinámicos de la API
+        // - Imágenes temporales de ofertas (product-1, product-2, product-3)
+        img.src = 'assets/img/logo2.webp';
+        img.alt = 'El fogón DE MARÍA - Logo';
+        img.classList.add('fallback-logo');
+      }
+      // Si es imagen real del proyecto (carousel, testimonial, about) y falla, mostrar error natural
+    }
   }
 
   /**

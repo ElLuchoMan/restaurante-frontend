@@ -13,7 +13,7 @@
       alt="El fogón DE MARÍA - Restaurante colombiano"
       priority
       fill
-      (error)="onImageError($event)"
+      (error)="onProductImageError($event)"
     />
     <div
       class="hero-caption d-flex flex-column align-items-center justify-content-center position-absolute top-0 start-0 w-100 h-100"
@@ -96,7 +96,7 @@
               src="assets/img/product-1.webp"
               alt="Combo Tradicional"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
           </div>
           <div class="offer-content">
@@ -118,7 +118,7 @@
               src="assets/img/product-2.webp"
               alt="2x1 Bebidas"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
           </div>
           <div class="offer-content">
@@ -139,7 +139,7 @@
               src="assets/img/product-3.webp"
               alt="Brunch Especial"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
           </div>
           <div class="offer-content">
@@ -164,7 +164,7 @@
               src="assets/img/product-1.webp"
               alt="Combo Tradicional"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
           </div>
           <div class="offer-content-web-mobile">
@@ -184,7 +184,7 @@
               src="assets/img/product-2.webp"
               alt="2x1 Bebidas"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
           </div>
           <div class="offer-content-web-mobile">
@@ -203,7 +203,7 @@
               src="assets/img/product-3.webp"
               alt="Brunch Especial"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
           </div>
           <div class="offer-content-web-mobile">
@@ -228,7 +228,7 @@
               src="assets/img/product-1.webp"
               alt="Combo Tradicional"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
           </div>
           <div class="offer-content-mobile">
@@ -248,7 +248,7 @@
               src="assets/img/product-2.webp"
               alt="2x1 Bebidas"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
           </div>
           <div class="offer-content-mobile">
@@ -267,7 +267,7 @@
               src="assets/img/product-3.webp"
               alt="Brunch Especial"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
           </div>
           <div class="offer-content-mobile">
@@ -418,7 +418,7 @@
               [src]="getProductImageSrcByIndex(producto, i)"
               [alt]="producto.nombreProducto"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
             <div class="gallery-overlay">
               <h4>{{ producto.nombreProducto }}</h4>
@@ -477,7 +477,7 @@
               [src]="getProductImageSrcByIndex(producto, i)"
               [alt]="producto.nombreProducto"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
             <div class="product-overlay-web-mobile">
               <span class="product-price">${{ producto.precio | number: '1.0-0' }}</span>
@@ -538,7 +538,7 @@
               [src]="getProductImageSrcByIndex(producto, i)"
               [alt]="producto.nombreProducto"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
             <div class="product-overlay-mobile">
               <span class="product-price">${{ producto.precio | number: '1.0-0' }}</span>
@@ -683,7 +683,7 @@
               src="assets/img/testimonial-1.webp"
               alt="María González"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
             <div>
               <h5>María González</h5>
@@ -710,7 +710,7 @@
               src="assets/img/testimonial-2.webp"
               alt="Carlos Rodríguez"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
             <div>
               <h5>Carlos Rodríguez</h5>
@@ -737,7 +737,7 @@
               src="assets/img/testimonial-3.webp"
               alt="Ana Martínez"
               loading="lazy"
-              (error)="onImageError($event)"
+              (error)="onProductImageError($event)"
             />
             <div>
               <h5>Ana Martínez</h5>
