@@ -485,7 +485,7 @@
             [ngClass]="{
               'list-layout': viewMode === 'list',
             }"
-            *ngFor="let producto of productosPaginados; trackBy: trackByProductoId; let i = index"
+            *ngFor="let producto of productosPaginados; trackBy: trackByProductId; let i = index"
             [style.animation-delay]="i * 0.1 + 's'"
           >
             <article
@@ -619,6 +619,20 @@
               {{ Math.min(paginaActual * productosPorPagina, totalProductos) }}
               de {{ totalProductos }} productos
             </div>
+            <!-- Selector de items por página -->
+            <div class="items-per-page-selector" *ngIf="totalProductos > 12">
+              <label for="itemsPerPage" class="items-label">Mostrar:</label>
+              <select
+                id="itemsPerPage"
+                class="items-select"
+                [(ngModel)]="productosPorPagina"
+                (change)="changeItemsPerPage(productosPorPagina)"
+              >
+                <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+                  {{ option }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <!-- Controles de paginación mejorados -->
@@ -649,7 +663,7 @@
             <div class="pagination-numbers-enhanced">
               <button
                 class="pagination-number btn-floating"
-                *ngFor="let pagina of getPaginationNumbers(); trackBy: trackByPageNumber"
+                *ngFor="let pagina of paginasVisibles"
                 [class.active]="pagina === paginaActual"
                 [class.ellipsis]="pagina === '...'"
                 [disabled]="pagina === '...'"

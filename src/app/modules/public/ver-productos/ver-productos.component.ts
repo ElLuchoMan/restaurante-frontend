@@ -79,6 +79,7 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   paginaActual = 1;
   productosPorPagina = 12;
   totalProductos = 0;
+  itemsPerPageOptions = [12, 24, 36, 48];
 
   // Filtros avanzados
   showAdvancedFilters = false;
@@ -497,11 +498,73 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     return Math.ceil(this.productosFiltrados.length / this.productosPorPagina);
   }
 
+  get paginasVisibles(): (number | string)[] {
+    const total = this.totalPaginas;
+    const current = this.paginaActual;
+    const delta = 2; // Páginas visibles a cada lado de la actual
+
+    if (total <= 7) {
+      // Si hay 7 o menos páginas, mostrar todas
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    const pages: (number | string)[] = [];
+
+    // Siempre mostrar primera página
+    pages.push(1);
+
+    // Determinar rango de páginas del medio
+    let start = Math.max(2, current - delta);
+    let end = Math.min(total - 1, current + delta);
+
+    // Ajustar el rango si estamos cerca del inicio o final
+    if (current <= delta + 2) {
+      end = Math.min(total - 1, 5);
+    } else if (current >= total - delta - 1) {
+      start = Math.max(2, total - 4);
+    }
+
+    // Agregar ellipsis izquierda si es necesario
+    if (start > 2) {
+      pages.push('...');
+    }
+
+    // Agregar páginas del medio
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    // Agregar ellipsis derecha si es necesario
+    if (end < total - 1) {
+      pages.push('...');
+    }
+
+    // Siempre mostrar última página
+    if (total > 1) {
+      pages.push(total);
+    }
+
+    return pages;
+  }
+
   goToPage(page: number | string): void {
     if (typeof page === 'string') return; // Ignorar ellipsis
     if (page >= 1 && page <= this.totalPaginas) {
       this.paginaActual = page;
       this.scrollToTop();
+      this.live.announce(`Página ${page} de ${this.totalPaginas}`);
+    }
+  }
+
+  nextPage(): void {
+    if (this.paginaActual < this.totalPaginas) {
+      this.goToPage(this.paginaActual + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.paginaActual > 1) {
+      this.goToPage(this.paginaActual - 1);
     }
   }
 
@@ -509,6 +572,17 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  }
+
+  // ===== OPTIMIZACIÓN: TrackBy para mejor rendimiento =====
+  trackByProductId(index: number, producto: Producto): number {
+    return producto.productoId!;
+  }
+
+  changeItemsPerPage(items: number): void {
+    this.productosPorPagina = items;
+    this.paginaActual = 1; // Resetear a la primera página
+    this.live.announce(`Mostrando ${items} productos por página`);
   }
 
   // ===== DETALLE DE PRODUCTO =====
