@@ -1,56 +1,652 @@
 @use '../../../../assets/_variables.scss' as *;
 
-.modal-overlay {
-  align-items: center;
-  background: rgb(0 0 0 / 50%);
-  display: flex;
-  height: 100%;
-  justify-content: center;
-  left: 0;
+// ===== MODAL CON ESTILO "EL FOGÓN DE MARÍA" =====
+
+// Overlay con backdrop blur
+.modal-overlay-enhanced {
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: $white;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgb(0 0 0 / 30%);
-  max-width: 500px;
-  padding: 20px;
-  width: 90%;
-}
-
-.modal-header {
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
   align-items: center;
-  display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease-out;
 }
 
-.close-btn {
-  background: none;
-  border: none;
+// Contenedor principal del modal - Estilo oficial de la app
+.modal-content-enhanced {
+  background: $white;
+  border-radius: 20px; // Border-radius oficial
+  box-shadow: 0 20px 50px $shadow-soft; // Sombra oficial
+  border: 1px solid $border-subtle; // Borde oficial
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center bottom;
+}
+
+// Botón de cierre - Estilo simple y limpio
+.close-btn-enhanced {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: $white;
+  border: 1px solid $border-subtle;
   cursor: pointer;
-  font-size: 1.5rem;
-}
-
-.modal-body {
-  margin-top: 10px;
-}
-
-.modal-buttons {
   display: flex;
-  justify-content: space-around;
-  margin-top: 15px;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  i {
+    font-size: 1.1rem;
+    color: $text-muted;
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    background: $danger;
+    border-color: $danger;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba($danger, 0.3);
+
+    i {
+      color: $white;
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
-.modal-body img {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
-  display: block;
-  margin: 0 auto;
-  max-height: 300px;
-  object-fit: contain;
-  width: auto;
+// Contenedor de imagen - Compacto
+.modal-image-container {
+  width: 100%;
+  height: 220px; // Reducido de 280px
+  overflow: hidden;
+  position: relative;
+  background: $light;
+  border-radius: 20px 20px 0 0;
+
+  .image-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    .modal-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      animation: zoomIn 0.5s ease-out;
+    }
+
+    .image-gradient {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px; // Reducido de 100px
+      background: linear-gradient(to top, $white 0%, transparent 100%);
+      pointer-events: none;
+    }
+  }
+}
+
+// Cuerpo del modal - Súper compacto
+.modal-body-enhanced {
+  padding: 1.25rem; // Reducido de 1.5rem
+  overflow-y: auto;
+  flex: 1;
+
+  // Scrollbar personalizado
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($primary, 0.2);
+    border-radius: 10px;
+
+    &:hover {
+      background: rgba($primary, 0.4);
+    }
+  }
+}
+
+// Título del modal - Súper compacto
+.modal-title {
+  font-size: 1.4rem; // Reducido de 1.5rem
+  font-weight: 700;
+  color: $text-heading-strong;
+  margin: 0 0 0.75rem 0; // Reducido de 1rem
+  line-height: 1.2; // Reducido de 1.3
+  animation: fadeIn 0.5s ease-out;
+}
+
+// Mensaje - Compacto
+.modal-message {
+  font-size: 0.95rem; // Reducido de 1rem
+  color: $text-body;
+  line-height: 1.5; // Reducido de 1.6
+  margin-bottom: 1rem; // Reducido de 1.5rem
+  animation: fadeIn 0.6s ease-out;
+}
+
+// Detalles del producto - Reorganizados por filas
+.product-details-reorganized {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0;
+}
+
+// FILA: Precio y Calorías lado a lado
+.price-calories-row {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  width: 100%;
+
+  @media (max-width: $breakpoint-md) {
+    gap: 0.6rem;
+  }
+}
+
+// Tarjetas de detalles - Ultra compacto (fila en desktop)
+.detail-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.625rem 0.75rem; // Más compacto
+  border-radius: 10px;
+  background: $white;
+  border: 1px solid $border-subtle;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.5s ease-out;
+  animation-fill-mode: both;
+  flex: 1; // Ocupar espacio disponible en fila
+
+  @media (max-width: $breakpoint-md) {
+    padding: 0.75rem 0.875rem;
+    gap: 0.75rem;
+    flex: none;
+  }
+
+  &:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px $shadow-hover;
+    border-color: rgba($primary, 0.3);
+  }
+
+  .detail-icon {
+    width: 36px; // Más compacto para fila
+    height: 36px;
+    border-radius: 8px;
+    background: $light;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1rem;
+      color: $text-body;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      width: 40px;
+      height: 40px;
+
+      i {
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  .detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem; // Más compacto
+    flex: 1;
+
+    .detail-label {
+      font-size: 0.7rem; // Más pequeño en desktop
+      color: $text-muted;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+
+      @media (max-width: $breakpoint-md) {
+        font-size: 0.75rem;
+      }
+    }
+
+    .detail-value {
+      font-size: 1rem; // Más compacto en desktop
+      font-weight: 700;
+      color: $text-heading-strong;
+
+      &.price-value {
+        color: $success;
+        font-size: 1.2rem;
+      }
+
+      @media (max-width: $breakpoint-md) {
+        font-size: 1.1rem;
+
+        &.price-value {
+          font-size: 1.3rem;
+        }
+      }
+    }
+  }
+}
+
+// Tarjeta de precio - Verde
+.price-card {
+  .detail-icon {
+    background: rgba($success, 0.1);
+
+    i {
+      color: $success;
+    }
+  }
+}
+
+// Tarjeta de calorías - Naranja/Rojo
+.calories-card {
+  .detail-icon {
+    background: rgba($tertiary, 0.1);
+
+    i {
+      color: $tertiary;
+    }
+  }
+}
+
+// Sección de categorías - Primera fila (sin margin-top)
+.categories-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0; // Sin margen porque es la primera fila
+  animation: fadeIn 0.6s ease-out 0.1s both;
+
+  .category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.75rem; // Más compacto
+    border-radius: 50px;
+    background: $primary;
+    color: $text-heading-strong;
+    font-size: 0.75rem; // Más pequeño
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba($primary, 0.3);
+    transition: all 0.3s ease;
+
+    @media (max-width: $breakpoint-md) {
+      padding: 0.4rem 0.875rem;
+      font-size: 0.8rem;
+      gap: 0.35rem;
+    }
+
+    i {
+      font-size: 0.85rem;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary, 0.4);
+    }
+
+    &.subcategory {
+      background: $info; // Azul para subcategoría
+      color: $white;
+      box-shadow: 0 2px 8px rgba($info, 0.3);
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba($info, 0.4);
+      }
+    }
+  }
+}
+
+// Sección de descripción - Tercera fila
+.description-section {
+  margin-top: 0; // Sin margen, controlado por el gap del contenedor
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: $white;
+  border: 1px solid $border-subtle;
+  animation: fadeIn 0.7s ease-out 0.3s both;
+
+  .description-title {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.875rem; // Más pequeño
+    font-weight: 600;
+    color: $text-heading-strong;
+    margin: 0 0 0.5rem 0;
+
+    i {
+      color: $info;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      font-size: 0.95rem;
+      margin: 0 0 0.6rem 0;
+
+      i {
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .description-text {
+    font-size: 0.8rem; // Más compacto
+    color: $text-body;
+    line-height: 1.45; // Ajustado
+    margin: 0;
+    max-height: 2.9em; // Limitar a 2 líneas aproximadamente
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      max-height: none;
+      -webkit-line-clamp: unset;
+    }
+  }
+}
+
+// Grupos de formularios - Ultra compacto
+.form-group-enhanced {
+  margin-top: 0.875rem; // Más compacto
+  animation: fadeIn 0.5s ease-out;
+
+  .form-label-enhanced {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem; // Más pequeño
+    font-weight: 600;
+    color: $text-heading-strong;
+    margin-bottom: 0.45rem;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    i {
+      color: $primary;
+      font-size: 0.9rem;
+    }
+  }
+
+  .form-select-enhanced,
+  .form-textarea-enhanced {
+    width: 100%;
+    padding: 0.75rem 1rem; // Reducido de 0.875rem 1.125rem
+    border: 1px solid $border-subtle;
+    border-radius: 10px; // Reducido de 12px
+    font-size: 0.9rem; // Reducido de 0.95rem
+    color: $text-body;
+    background: $white;
+    transition: all 0.3s ease;
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow:
+        0 0 0 3px $ring-primary-12,
+        0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    &:hover:not(:focus) {
+      border-color: rgba($primary, 0.3);
+    }
+  }
+
+  .form-select-enhanced {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px 12px;
+    padding-right: 3rem;
+    cursor: pointer;
+  }
+
+  .form-textarea-enhanced {
+    resize: vertical;
+    min-height: 70px; // Más compacto para observaciones
+    line-height: 1.45;
+
+    @media (max-width: $breakpoint-md) {
+      min-height: 80px;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Acciones del modal (botones) - Súper compacto
+.modal-actions-enhanced {
+  padding: 1rem 1.25rem 1.25rem 1.25rem; // Reducido de 1.25rem 1.5rem 1.5rem 1.5rem
+  display: flex;
+  gap: 0.75rem; // Reducido de 0.875rem
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  background: $white;
+  border-top: 1px solid $border-subtle;
+
+  .btn-action-enhanced {
+    position: relative;
+    padding: 0.7rem 1.5rem; // Reducido de 0.75rem 1.75rem
+    border: none;
+    border-radius: 10px; // Reducido de 12px
+    font-size: 0.9rem; // Reducido de 0.95rem
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-out;
+    animation-fill-mode: both;
+    min-width: 120px; // Reducido de 130px
+    text-align: center;
+
+    .btn-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+
+    // Botón primario - Amarillo oficial
+    &.btn-primary-enhanced {
+      background: $primary;
+      color: $text-heading-strong;
+      box-shadow: 0 4px 12px rgba($primary, 0.3);
+
+      &:hover {
+        background: $quaternary;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba($primary, 0.4);
+      }
+    }
+
+    // Botón secundario
+    &.btn-secondary-enhanced {
+      background: $white;
+      color: $text-body;
+      border: 1px solid $border-subtle;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+      &:hover {
+        background: $light;
+        border-color: rgba($primary, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      }
+    }
+  }
+}
+
+// ===== ANIMACIONES =====
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(1.1);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+// ===== RESPONSIVE =====
+
+@media (max-width: $breakpoint-md) {
+  .modal-content-enhanced {
+    max-width: 95%;
+    border-radius: 20px;
+  }
+
+  .modal-image-container {
+    height: 220px;
+  }
+
+  .modal-body-enhanced {
+    padding: 1.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .detail-card {
+    padding: 0.875rem 1rem;
+
+    .detail-icon {
+      width: 44px;
+      height: 44px;
+
+      i {
+        font-size: 1.1rem;
+      }
+    }
+
+    .detail-content {
+      .detail-value {
+        font-size: 1.1rem;
+
+        &.price-value {
+          font-size: 1.35rem;
+        }
+      }
+    }
+  }
+
+  .category-chip {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .modal-actions-enhanced {
+    padding: 1.25rem 1.5rem 1.5rem 1.5rem;
+    flex-direction: column;
+
+    .btn-action-enhanced {
+      width: 100%;
+      min-width: auto;
+    }
+  }
+}
+
+// WebView específico
+@media (max-width: $breakpoint-sm) {
+  .modal-overlay-enhanced {
+    padding: 0.5rem;
+  }
+
+  .modal-content-enhanced {
+    max-height: 95vh;
+  }
+
+  .modal-image-container {
+    height: 200px;
+  }
+
+  .close-btn-enhanced {
+    width: 36px;
+    height: 36px;
+    top: 0.75rem;
+    right: 0.75rem;
+
+    i {
+      font-size: 1rem;
+    }
+  }
 }

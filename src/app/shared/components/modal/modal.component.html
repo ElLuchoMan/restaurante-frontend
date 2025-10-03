@@ -1,29 +1,98 @@
-<div class="modal-overlay" *ngIf="isOpen" (click)="close()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2 *ngIf="modalData.title">{{ modalData.title }}</h2>
-      <button class="close-btn" (click)="close()">&times;</button>
+<!-- Modal mejorado con animaciones y diseño moderno -->
+<div
+  class="modal-overlay-enhanced"
+  *ngIf="isOpen"
+  (click)="close()"
+  [@fadeIn]
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="modalData.title ? 'modal-title' : null"
+>
+  <div class="modal-content-enhanced" (click)="$event.stopPropagation()" [@slideUp]>
+    <!-- Botón de cierre flotante con efecto -->
+    <button class="close-btn-enhanced" (click)="close()" aria-label="Cerrar modal" title="Cerrar">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <!-- Imagen destacada con efectos -->
+    <div class="modal-image-container" *ngIf="modalData.image">
+      <div class="image-wrapper">
+        <img [src]="modalData.image" [alt]="modalData.title || 'Imagen'" class="modal-image" />
+        <div class="image-gradient"></div>
+      </div>
     </div>
 
-    <div class="modal-body">
-      <img *ngIf="modalData.image" [src]="modalData.image" alt="Imagen modal" />
+    <!-- Contenido principal -->
+    <div class="modal-body-enhanced">
+      <!-- Título con estilo elegante -->
+      <h2 class="modal-title" *ngIf="modalData.title" id="modal-title">
+        {{ modalData.title }}
+      </h2>
 
-      <div class="mt-3" *ngIf="modalData.message">{{ modalData.message }}</div>
+      <!-- Mensaje general -->
+      <p class="modal-message" *ngIf="modalData.message">
+        {{ modalData.message }}
+      </p>
 
-      <div class="mt-3" *ngIf="modalData.details">
-        <p><strong>Precio:</strong> ${{ modalData.details.precio }}</p>
-        <p><strong>Calorías:</strong> {{ modalData.details.calorias || 'N/A' }}</p>
-        <p><strong>Categoría:</strong> {{ modalData.details.categoria }}</p>
-        <p><strong>Subcategoría:</strong> {{ modalData.details.subcategoria }}</p>
-        <p>
-          <strong>Descripción:</strong> {{ modalData.details.descripcion || 'Sin descripción' }}
-        </p>
+      <!-- Detalles del producto reorganizados -->
+      <div class="product-details-reorganized" *ngIf="modalData.details">
+        <!-- FILA 1: Categorías (tags) -->
+        <div class="categories-section" *ngIf="modalData.details.categoria">
+          <div class="category-chip">
+            <i class="fas fa-utensils"></i>
+            {{ modalData.details.categoria }}
+          </div>
+          <div class="category-chip subcategory" *ngIf="modalData.details.subcategoria">
+            <i class="fas fa-folder-open"></i>
+            {{ modalData.details.subcategoria }}
+          </div>
+        </div>
+
+        <!-- FILA 2: Precio y Calorías (en fila) -->
+        <div class="price-calories-row">
+          <!-- Precio -->
+          <div class="detail-card price-card">
+            <div class="detail-icon">
+              <i class="fas fa-tag"></i>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">Precio</span>
+              <span class="detail-value price-value"
+                >${{ modalData.details.precio | number: '1.0-0' }}</span
+              >
+            </div>
+          </div>
+
+          <!-- Calorías -->
+          <div class="detail-card calories-card" *ngIf="modalData.details.calorias">
+            <div class="detail-icon">
+              <i class="fas fa-fire"></i>
+            </div>
+            <div class="detail-content">
+              <span class="detail-label">Calorías</span>
+              <span class="detail-value">{{ modalData.details.calorias }} kcal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILA 3: Descripción -->
+        <div class="description-section" *ngIf="modalData.details.descripcion">
+          <h3 class="description-title">
+            <i class="fas fa-info-circle"></i>
+            Descripción
+          </h3>
+          <p class="description-text">{{ modalData.details.descripcion }}</p>
+        </div>
       </div>
 
+      <!-- Selects múltiples con estilo mejorado -->
       <ng-container *ngIf="modalData.selects">
-        <div *ngFor="let sel of modalData.selects" class="form-group mt-3">
-          <label>{{ sel.label }}</label>
-          <select class="form-control" [(ngModel)]="sel.selected">
+        <div class="form-group-enhanced" *ngFor="let sel of modalData.selects">
+          <label class="form-label-enhanced">
+            <i class="fas fa-list"></i>
+            {{ sel.label }}
+          </label>
+          <select class="form-select-enhanced" [(ngModel)]="sel.selected">
             <option *ngFor="let o of sel.options" [ngValue]="o.value">
               {{ o.label }}
             </option>
@@ -31,24 +100,62 @@
         </div>
       </ng-container>
 
-      <div *ngIf="modalData.select">
-        <label>{{ modalData.select.label }}</label>
-        <select class="form-control" [(ngModel)]="modalData.select.selected">
+      <!-- Select único -->
+      <div class="form-group-enhanced" *ngIf="modalData.select">
+        <label class="form-label-enhanced">
+          <i class="fas fa-list"></i>
+          {{ modalData.select.label }}
+        </label>
+        <select class="form-select-enhanced" [(ngModel)]="modalData.select.selected">
           <option *ngFor="let item of modalData.select.options" [value]="item.value">
             {{ item.label }}
           </option>
         </select>
       </div>
 
-      <div class="form-group mt-3" *ngIf="modalData.input">
-        <label>{{ modalData.input.label }}</label>
-        <textarea class="form-control" [(ngModel)]="modalData.input.value"></textarea>
+      <!-- Input/Textarea con estilo mejorado -->
+      <div class="form-group-enhanced" *ngIf="modalData.input">
+        <label class="form-label-enhanced">
+          <i class="fas fa-edit"></i>
+          {{ modalData.input.label }}
+        </label>
+        <textarea class="form-textarea-enhanced" [(ngModel)]="modalData.input.value" rows="4">
+        </textarea>
+      </div>
+
+      <!-- Campo de observaciones (solo cuando hay botones de acción - usuario loggeado) -->
+      <div
+        class="form-group-enhanced observations-field"
+        *ngIf="modalData.buttons && modalData.buttons.length > 0"
+      >
+        <label class="form-label-enhanced">
+          <i class="fas fa-comment-alt"></i>
+          Observaciones (opcional)
+        </label>
+        <textarea
+          class="form-textarea-enhanced"
+          [(ngModel)]="observaciones"
+          (ngModelChange)="onObservacionesChange()"
+          placeholder="Ej: Sin cebolla, término medio, etc."
+          rows="3"
+        ></textarea>
       </div>
     </div>
 
-    <div class="modal-buttons" *ngIf="modalData.buttons">
-      <button *ngFor="let btn of modalData.buttons" (click)="btn.action()" [class]="btn.class">
-        {{ btn.label }}
+    <!-- Botones de acción mejorados -->
+    <div class="modal-actions-enhanced" *ngIf="modalData.buttons && modalData.buttons.length > 0">
+      <button
+        *ngFor="let btn of modalData.buttons; let i = index"
+        (click)="btn.action()"
+        class="btn-action-enhanced"
+        [class.btn-primary-enhanced]="btn.class?.includes('primary')"
+        [class.btn-secondary-enhanced]="!btn.class?.includes('primary')"
+        [style.animation-delay]="i * 0.1 + 's'"
+      >
+        <span class="btn-content">
+          {{ btn.label }}
+        </span>
+        <span class="btn-ripple"></span>
       </button>
     </div>
   </div>
