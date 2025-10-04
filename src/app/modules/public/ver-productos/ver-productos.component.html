@@ -468,6 +468,12 @@
         </div>
       </div>
 
+      <!-- Banner informativo de favoritos -->
+      <div class="favorites-info-banner" *ngIf="hasFavorites()">
+        <i class="fas fa-star"></i>
+        <span>Tus favoritos aparecen primero para tu comodidad</span>
+      </div>
+
       <!-- Grid de productos con animaciones mejoradas -->
       <div class="products-container-enhanced">
         <!-- Transición suave entre vistas -->

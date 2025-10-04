@@ -232,7 +232,10 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private setProductos(list: Producto[]): void {
     this.productos = list;
-    this.productosFiltrados = list;
+
+    // ⭐ Ordenar productos por favoritos al cargar inicialmente
+    this.productosFiltrados = this.sortProductsByFavorites([...list]);
+
     this.totalProductos = list.length;
 
     // Cargar categorías y subcategorías desde la API después de tener los productos
@@ -410,8 +413,33 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private applyFilters(): void {
     this.productosFiltrados = this.smartSearch.searchProducts(this.productos, this.searchFilters);
+
+    // ⭐ ORDENAR FAVORITOS PRIMERO: Los productos favoritos siempre aparecen al inicio
+    this.productosFiltrados = this.sortProductsByFavorites(this.productosFiltrados);
+
     this.totalProductos = this.productosFiltrados.length;
     this.paginaActual = 1; // Reset a la primera página
+  }
+
+  /**
+   * Ordena los productos poniendo los favoritos primero
+   * @param productos Lista de productos a ordenar
+   * @returns Lista ordenada con favoritos al inicio
+   */
+  private sortProductsByFavorites(productos: Producto[]): Producto[] {
+    return productos.sort((a, b) => {
+      const aIsFavorite = this.favorites.has(a.productoId!);
+      const bIsFavorite = this.favorites.has(b.productoId!);
+
+      // Si ambos son favoritos o ninguno lo es, mantener el orden actual
+      if (aIsFavorite === bIsFavorite) {
+        return 0;
+      }
+
+      // Si 'a' es favorito y 'b' no, 'a' va primero (retornar negativo)
+      // Si 'b' es favorito y 'a' no, 'b' va primero (retornar positivo)
+      return aIsFavorite ? -1 : 1;
+    });
   }
 
   clearAllFilters(): void {
@@ -453,10 +481,17 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     const isNowFavorite = this.favoritesService.toggleFavorite(producto);
     const message = isNowFavorite ? 'Agregado a favoritos' : 'Eliminado de favoritos';
     this.live.announce(`${producto.nombre} ${message}`);
+
+    // ⭐ Re-ordenar productos para mostrar favoritos primero
+    this.productosFiltrados = this.sortProductsByFavorites([...this.productosFiltrados]);
   }
 
   isFavorite(productId: number): boolean {
     return this.favorites.has(productId);
+  }
+
+  hasFavorites(): boolean {
+    return this.favorites.size > 0;
   }
 
   // ===== CARRITO =====
