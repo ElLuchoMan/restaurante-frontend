@@ -6,6 +6,14 @@
   NODE_VERSION = "20.19.0"
   NPM_FLAGS = "--legacy-peer-deps"
 
+# Deshabilitar auto-detección de framework para evitar conflictos con Angular Runtime plugin
+[dev]
+  framework = "#static"
+
+# Deshabilitar Edge Functions que causan conflicto con el build
+[functions]
+  node_bundler = "none"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
