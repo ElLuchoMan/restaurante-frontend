@@ -1,5 +1,9 @@
 # Restaurante Frontend
 
+![AutoGen with AI](https://img.shields.io/badge/AutoGen%20with%20AI-%F0%9F%8C%9F-blueviolet)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/08900eb5-ce5b-4278-932b-037569ffd3c4/deploy-status)](https://app.netlify.com/sites/lacocinademaria/deploys)
+[![codecov](https://codecov.io/gh/ElLuchoMan/restaurante-frontend/branch/master/graph/badge.svg)](https://codecov.io/gh/ElLuchoMan/restaurante-frontend)
+
 ## Live reload en Android (ADB/Capacitor)
 
 Opciones:
@@ -26,8 +30,7 @@ Notas:
 - `npm run android:cap:live` (abre la app con live reload)
 - Para USB: `npm run android:dev:adb` y después `npm run android:cap:live`.
 
-![AutoGen with AI](https://img.shields.io/badge/AutoGen%20with%20AI-%F0%9F%8C%9F-blueviolet)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/08900eb5-ce5b-4278-932b-037569ffd3c4/deploy-status)](https://app.netlify.com/sites/lacocinademaria/deploys)
+## Overview
 
 A modular Angular web application for restaurant operations, featuring administrative, public, and client-facing modules.
 
@@ -222,8 +225,23 @@ En CI (deploy a Netlify) se genera con secrets `APP_API_BASE` y `GMAPS_API_KEY`.
 
 ## CI/CD
 
-- CI (`.github/workflows/ci.yml`): lint + test + build en PR y `master`.
+- CI (`.github/workflows/ci.yml`): lint + test + build + coverage en PR y `master`.
+  - Sube reportes de cobertura a Codecov automáticamente (requiere `CODECOV_TOKEN` en GitHub Secrets).
 - Deploy (`.github/workflows/deploy.yml`): solo `master` → Netlify (secrets `NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID`, `APP_API_BASE`, opcional `GMAPS_API_KEY`).
+
+### Configuración de Secrets en GitHub
+
+Los siguientes secrets deben estar configurados en **Settings → Secrets and variables → Actions**:
+
+| Secret | Descripción | Requerido |
+|--------|-------------|-----------|
+| `CODECOV_TOKEN` | Token de Codecov para subir reportes de cobertura | ✅ CI |
+| `NETLIFY_AUTH_TOKEN` | Token de autenticación de Netlify | ✅ Deploy |
+| `NETLIFY_SITE_ID` | ID del sitio en Netlify | ✅ Deploy |
+| `APP_API_BASE` | URL base de la API (ej: `/restaurante/v1`) | ✅ Deploy |
+| `GMAPS_API_KEY` | API Key de Google Maps | ⚠️ Opcional |
+
+Para más detalles sobre configuración de secrets, consulta [docs/GITHUB-SECRETS-SETUP.md](docs/GITHUB-SECRETS-SETUP.md).
 
 ## Mocks y pruebas
 - Mocks reutilizables en `src/app/shared/mocks`. Úsalos en tests para evitar mocks ad‑hoc.

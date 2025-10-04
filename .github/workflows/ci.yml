@@ -16,6 +16,12 @@ jobs:
       - run: npm run lint
       - run: npm run lint:scss
       - run: npm test -- --ci
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - run: npm run build
       - name: Smoke Tests
         run: npm run smoke:test
@@ -28,7 +34,7 @@ jobs:
           # Verificar que el bundle inicial no sea demasiado grande (< 2MB)
           MAIN_SIZE=$(stat -c%s dist/restaurante-frontend/browser/main-*.js)
           if [ $MAIN_SIZE -gt 2097152 ]; then
-            echo "❌ Main bundle too large: $MAIN_SIZE bytes (> 2MB)"
+            echo "ERROR: Main bundle too large: $MAIN_SIZE bytes (> 2MB)"
             exit 1
           fi
-          echo "✅ Bundle size OK: $MAIN_SIZE bytes"
+          echo "OK: Bundle size OK: $MAIN_SIZE bytes"

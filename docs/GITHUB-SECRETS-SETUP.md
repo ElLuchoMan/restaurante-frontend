@@ -1,5 +1,58 @@
 # 🔐 Configuración de GitHub Secrets
 
+## 📊 Token de Codecov (Cobertura de Tests)
+
+### ¿Qué es Codecov?
+
+Codecov es un servicio que analiza y visualiza la cobertura de código de tus tests automáticamente en cada PR y commit.
+
+### 📝 Configuración del Token
+
+1. **Crear cuenta en Codecov**
+   - Ve a [https://codecov.io](https://codecov.io)
+   - Haz login con tu cuenta de GitHub
+   - Autoriza a Codecov para acceder a tus repositorios
+
+2. **Agregar el repositorio**
+   - En el dashboard de Codecov, busca `restaurante-frontend`
+   - Click en el repositorio para agregarlo
+
+3. **Obtener el token**
+   - En la configuración del repositorio en Codecov
+   - Ve a **Settings** → **General** → **Repository Upload Token**
+   - Copia el token (algo como: `abc123def456...`)
+
+4. **Agregar el token a GitHub Secrets**
+   - Ve a tu repositorio en GitHub: `https://github.com/TU_USUARIO/restaurante-frontend`
+   - Navega a **Settings** → **Secrets and variables** → **Actions**
+   - Click en **"New repository secret"**
+   - Name: `CODECOV_TOKEN`
+   - Value: Pega el token copiado de Codecov
+   - Click en **"Add secret"**
+
+### 🚀 Uso en CI
+
+Ya configurado en `.github/workflows/ci.yml`:
+
+```yaml
+- name: Upload coverage reports to Codecov
+  uses: codecov/codecov-action@v5
+  with:
+    token: ${{ secrets.CODECOV_TOKEN }}
+```
+
+Codecov detectará automáticamente el archivo `coverage/lcov.info` generado por Jest.
+
+### 📈 Badge de Cobertura
+
+El badge ya está agregado en el README:
+
+```markdown
+[![codecov](https://codecov.io/gh/TU_USUARIO/restaurante-frontend/branch/master/graph/badge.svg)](https://codecov.io/gh/TU_USUARIO/restaurante-frontend)
+```
+
+---
+
 ## Variables VAPID para Notificaciones Push
 
 ### 📦 Claves Generadas
@@ -255,4 +308,18 @@ curl -X POST http://localhost:8080/restaurante/v1/push/enviar \
 
 ---
 
-✨ **Última actualización:** Octubre 2025
+## 📋 Resumen de Secrets Requeridos
+
+| Secret | Propósito | Ubicación | Requerido |
+|--------|-----------|-----------|-----------|
+| `CODECOV_TOKEN` | Subir reportes de cobertura | Frontend CI | ✅ |
+| `VAPID_PUBLIC_KEY` | Notificaciones push (cliente) | Frontend | ✅ |
+| `VAPID_PRIVATE_KEY` | Notificaciones push (servidor) | Backend | ✅ |
+| `NETLIFY_AUTH_TOKEN` | Deploy automático | Frontend Deploy | ✅ |
+| `NETLIFY_SITE_ID` | Identificador del sitio | Frontend Deploy | ✅ |
+| `APP_API_BASE` | URL base de la API | Frontend Deploy | ✅ |
+| `GMAPS_API_KEY` | Google Maps | Frontend Deploy | ⚠️ Opcional |
+
+---
+
+✨ **Última actualización:** Enero 2025
