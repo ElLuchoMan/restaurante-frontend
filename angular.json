@@ -42,11 +42,6 @@
           },
           "configurations": {
             "production": {
-              "server": "src/main.server.ts",
-              "prerender": false,
-              "ssr": {
-                "entry": "src/server.ts"
-              },
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -68,7 +63,12 @@
               "outputHashing": "all",
               "serviceWorker": "ngsw-config.json"
             },
-            "production-spa": {
+            "production-ssr": {
+              "server": "src/main.server.ts",
+              "prerender": false,
+              "ssr": {
+                "entry": "src/server.ts"
+              },
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
