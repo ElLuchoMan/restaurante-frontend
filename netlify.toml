@@ -5,6 +5,9 @@
 [build.environment]
   NODE_VERSION = "20.19.0"
   NPM_FLAGS = "--legacy-peer-deps"
+  # Deshabilitar Angular SSR Runtime de Netlify
+  NETLIFY_SKIP_EDGE_FUNCTIONS = "true"
+  DISABLE_NETLIFY_ANGULAR_RUNTIME = "true"
 
 # Deshabilitar auto-detección de framework para evitar conflictos con Angular Runtime plugin
 [dev]
@@ -13,6 +16,13 @@
 # Deshabilitar Edge Functions que causan conflicto con el build
 [functions]
   node_bundler = "none"
+
+# Sobrescribir plugins de la UI - solo mantener lighthouse y emails, excluir angular-runtime
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+
+[[plugins]]
+  package = "@netlify/plugin-emails"
 
 [[redirects]]
   from = "/*"
