@@ -57,11 +57,13 @@ describe('UbicacionRestauranteComponent', () => {
     expect(component.ubicacionUrl).toBeTruthy();
     const safeUrl = component.ubicacionUrl as any;
     const val = safeUrl.changingThisBreaksApplicationSecurity as string;
-    // Aceptar tanto embed API (cuando hay API key) como fallback público sin key
-    expect(
-      val.includes('https://www.google.com/maps/embed/v1/place') ||
-        val.includes('https://www.google.com/maps?q='),
-    ).toBe(true);
+
+    // Validación segura: parsear URL y verificar host y path
+    const parsedUrl = new URL(val);
+    expect(parsedUrl.host).toBe('www.google.com');
+    expect(parsedUrl.pathname).toMatch(/^\/maps(?:\/embed\/v1\/place)?/);
+
+    // Verificar que contiene la ubicación codificada
     expect(val).toContain(encodeURIComponent('Calle 78a # 62 - 48, Bogotá, Colombia'));
   });
   it('should set mostrarInfo to true after 500ms in ngAfterViewInit', fakeAsync(() => {
