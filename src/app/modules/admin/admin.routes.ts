@@ -10,6 +10,7 @@ import { ReservasDelDiaComponent } from '../public/reservas/reservas-del-dia/res
 import { AccionesComponent } from './acciones/acciones';
 import { EnviarNotificacionComponent } from './enviar-notificacion/enviar-notificacion';
 import { CrearProductoComponent } from './productos/crear-producto/crear-producto.component';
+import { GestionarCategoriasComponent } from './productos/gestionar-categorias/gestionar-categorias.component';
 import { ProductosComponent } from './productos/menu-productos/productos.component';
 import { TelemetryDashboardComponent } from './telemetry/telemetry-dashboard.component';
 
@@ -99,5 +100,12 @@ export const adminRoutes: Routes = [
     component: CrearProductoComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Administrador'] },
+  },
+  {
+    path: 'productos/categorias',
+    component: GestionarCategoriasComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Administrador'] },
+    title: 'Gestión de Categorías',
   },
 ];

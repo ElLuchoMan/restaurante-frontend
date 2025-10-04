@@ -515,3 +515,23 @@ export function createReservaNotificationsServiceMock() {
     notifyCreacion: jest.fn(),
   } as any;
 }
+
+export function createCategoriaServiceMock() {
+  return {
+    list: jest.fn(),
+    getById: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  } as any;
+}
+
+export function createSubcategoriaServiceMock() {
+  return {
+    list: jest.fn(),
+    getById: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  } as any;
+}

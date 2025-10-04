@@ -49,21 +49,29 @@ describe('ProductosComponent', () => {
   it('should redirect to crear when not admin and no menu', () => {
     userService.getUserRole.mockReturnValue('Cliente');
     component.mostrarMenu = false;
-    const irASpy = jest.spyOn(component, 'irA');
+    const navegarASpy = jest.spyOn(component, 'navegarA');
     fixture.detectChanges();
-    expect(irASpy).toHaveBeenCalledWith('crear');
+    expect(navegarASpy).toHaveBeenCalledWith('/admin/productos/crear');
   });
 
-  it('irA ver should navigate to /menu', () => {
-    const navigateSpy = jest.spyOn(router, 'navigate');
-    component.irA('ver');
-    expect(navigateSpy).toHaveBeenCalledWith(['/menu']);
+  it('should have 3 options in the menu', () => {
+    expect(component.opciones).toHaveLength(3);
   });
 
-  it('irA crear should navigate to admin/productos/crear', () => {
+  it('should include categorias option in menu', () => {
+    const categoriasOption = component.opciones.find(
+      (op) => op.ruta === '/admin/productos/categorias',
+    );
+    expect(categoriasOption).toBeDefined();
+    expect(categoriasOption?.titulo).toBe('Gestionar Categorías');
+    expect(categoriasOption?.icono).toBe('fa-tags');
+    expect(categoriasOption?.color).toBe('orange');
+  });
+
+  it('navegarA should navigate to the specified route', () => {
     const navigateSpy = jest.spyOn(router, 'navigate');
-    component.irA('crear');
-    expect(navigateSpy).toHaveBeenCalledWith(['/admin', 'productos', 'crear']);
+    component.navegarA('/admin/productos/categorias');
+    expect(navigateSpy).toHaveBeenCalledWith(['/admin/productos/categorias']);
   });
 
   it('volver should navigate to /admin/productos', () => {

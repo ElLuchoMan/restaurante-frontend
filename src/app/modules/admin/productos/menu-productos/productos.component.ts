@@ -30,17 +30,24 @@ export class ProductosComponent implements OnInit {
   opciones: OpcionProducto[] = [
     {
       titulo: 'Ver Menú',
-      descripcion: 'Consultar el catálogo completo de productos disponibles',
+      descripcion: 'Consultar el menú',
       icono: 'fa-eye',
       ruta: '/menu',
       color: 'blue',
     },
     {
       titulo: 'Crear Producto',
-      descripcion: 'Agregar un nuevo producto al menú del restaurante',
+      descripcion: 'Agregar un nuevo producto al menú',
       icono: 'fa-plus-circle',
       ruta: '/admin/productos/crear',
       color: 'green',
+    },
+    {
+      titulo: 'Gestionar Categorías',
+      descripcion: 'Administrar categorías del menú',
+      icono: 'fa-tags',
+      ruta: '/admin/productos/categorias',
+      color: 'orange',
     },
   ];
 

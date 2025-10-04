@@ -3,6 +3,7 @@ import { RoleGuard } from '../../core/guards/role.guard';
 import { RegisterComponent } from '../auth/register/register.component';
 import { adminRoutes } from './admin.routes';
 import { CrearProductoComponent } from './productos/crear-producto/crear-producto.component';
+import { GestionarCategoriasComponent } from './productos/gestionar-categorias/gestionar-categorias.component';
 import { ProductosComponent } from './productos/menu-productos/productos.component';
 import { TelemetryDashboardComponent } from './telemetry/telemetry-dashboard.component';
 
@@ -31,6 +32,14 @@ describe('Admin Routes', () => {
     const route = adminRoutes.find((r) => r.path === 'productos/editar/:id');
     expect(route?.component).toBe(CrearProductoComponent);
     expect(route?.canActivate).toEqual([AuthGuard, RoleGuard]);
+  });
+
+  it('should map "productos/categorias" to GestionarCategoriasComponent', () => {
+    const route = adminRoutes.find((r) => r.path === 'productos/categorias');
+    expect(route?.component).toBe(GestionarCategoriasComponent);
+    expect(route?.canActivate).toEqual([AuthGuard, RoleGuard]);
+    expect(route?.data).toEqual({ roles: ['Administrador'] });
+    expect(route?.title).toBe('Gestión de Categorías');
   });
 
   it('should map "telemetria" with guards and admin role', () => {
