@@ -13,6 +13,8 @@ export class NativePushService {
   private listenersBound = false;
 
   private isNativeWebView(): boolean {
+    if (typeof window === 'undefined') return false;
+
     const cap: any = (window as any).Capacitor;
     return !!(cap && typeof cap.getPlatform === 'function' && cap.getPlatform() !== 'web');
   }
@@ -57,9 +59,11 @@ export class NativePushService {
             if (typeof url === 'string' && url) {
               // Emitir evento para que AppComponent lo maneje
               try {
-                window.dispatchEvent(
-                  new CustomEvent('push-notification-action', { detail: { url } }),
-                );
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(
+                    new CustomEvent('push-notification-action', { detail: { url } }),
+                  );
+                }
               } catch (e) {
                 console.error('[Push] Error dispatching navigation event:', e);
               }
@@ -100,7 +104,11 @@ export class NativePushService {
               } catch {}
               // Solo notificación local si app visible (evitar duplicado con notificación del sistema en background)
               try {
-                if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+                if (
+                  typeof document !== 'undefined' &&
+                  typeof window !== 'undefined' &&
+                  document.visibilityState === 'visible'
+                ) {
                   const { LocalNotifications } = await import('@capacitor/local-notifications');
                   try {
                     await LocalNotifications.requestPermissions();
@@ -155,7 +163,7 @@ export class NativePushService {
       const payload: any = {
         plataforma: 'ANDROID',
         fcmToken,
-        locale: (navigator && navigator.language) || 'es-CO',
+        locale: (typeof navigator !== 'undefined' && navigator.language) || 'es-CO',
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         appVersion: '1.0.0',
         subscribedTopics: ['promos', 'novedades'] as string[],

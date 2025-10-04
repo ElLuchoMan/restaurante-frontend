@@ -60,6 +60,8 @@ export class PerformanceService {
   }
 
   private handlePerformanceEntry(entry: PerformanceEntry): void {
+    if (typeof window === 'undefined') return;
+
     const currentMetrics: Partial<PerformanceMetrics> = {
       url: window.location.pathname,
       timestamp: Date.now(),
@@ -101,18 +103,22 @@ export class PerformanceService {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        const routeChangeTime = performance.now() - this.navigationStartTime;
+        if (typeof performance !== 'undefined') {
+          const routeChangeTime = performance.now() - this.navigationStartTime;
 
-        this.recordMetrics({
-          url: event.urlAfterRedirects,
-          routeChangeTime,
-          timestamp: Date.now(),
-        });
+          this.recordMetrics({
+            url: event.urlAfterRedirects,
+            routeChangeTime,
+            timestamp: Date.now(),
+          });
+        }
       });
 
     // Track navigation start
     this.router.events.subscribe(() => {
-      this.navigationStartTime = performance.now();
+      if (typeof performance !== 'undefined') {
+        this.navigationStartTime = performance.now();
+      }
     });
   }
 

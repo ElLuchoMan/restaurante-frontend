@@ -526,6 +526,8 @@ export class TelemetryService {
    * Limpia todos los eventos de telemetría local
    */
   clear(): void {
+    if (typeof localStorage === 'undefined') return;
+
     try {
       localStorage.removeItem(this.storageKey);
     } catch {
@@ -541,6 +543,8 @@ export class TelemetryService {
    * Lee todos los eventos del localStorage
    */
   private readAll(): TelemetryEvent[] {
+    if (typeof localStorage === 'undefined') return [];
+
     try {
       const data = localStorage.getItem(this.storageKey);
       if (!data) return [];
@@ -556,6 +560,8 @@ export class TelemetryService {
    * Escribe todos los eventos al localStorage
    */
   private writeAll(events: TelemetryEvent[]): void {
+    if (typeof localStorage === 'undefined') return;
+
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(events));
     } catch {

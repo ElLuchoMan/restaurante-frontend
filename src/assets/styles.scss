@@ -8,6 +8,7 @@
 @forward 'variables';
 @forward 'base';
 @forward 'utilities';
+@forward 'menu-modal-components'; // Componentes reutilizables de menú y modal
 
 /* Safe areas para webview (iOS notch, barras de sistema) */
 :root {

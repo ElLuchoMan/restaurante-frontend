@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Producto } from '../models/producto.model';
 
@@ -8,9 +9,13 @@ import { Producto } from '../models/producto.model';
 export class FavoritesService {
   private favorites$ = new BehaviorSubject<Set<number>>(new Set());
   private readonly STORAGE_KEY = 'restaurant_favorites';
+  private isBrowser: boolean;
 
-  constructor() {
-    this.loadFavorites();
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+    if (this.isBrowser) {
+      this.loadFavorites();
+    }
   }
 
   getFavorites(): Observable<Set<number>> {
@@ -65,6 +70,8 @@ export class FavoritesService {
   }
 
   private saveFavorites(favorites: Set<number>): void {
+    if (!this.isBrowser) return;
+
     try {
       const favoritesArray = Array.from(favorites);
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(favoritesArray));
@@ -74,6 +81,8 @@ export class FavoritesService {
   }
 
   private loadFavorites(): void {
+    if (!this.isBrowser) return;
+
     try {
       const saved = localStorage.getItem(this.STORAGE_KEY);
       if (saved) {

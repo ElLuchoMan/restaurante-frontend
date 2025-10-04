@@ -44,7 +44,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Mostrar header clásico solo en navegadores; en nativo usamos topbar
-    if (this.isBrowser) {
+    if (this.isBrowser && typeof window !== 'undefined') {
       const cap = (window as Window & { Capacitor?: { getPlatform?: () => string } }).Capacitor;
       this.isNative = !!(
         cap &&
@@ -54,10 +54,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.showHeader = !this.isNative;
 
       // CORREGIR BUG: Limpiar estado visual al inicializar
-      setTimeout(() => {
-        const navbar = document.querySelector('.navbar');
-        navbar?.classList.remove('logging-out');
-      }, 100);
+      if (typeof document !== 'undefined') {
+        setTimeout(() => {
+          const navbar = document.querySelector('.navbar');
+          navbar?.classList.remove('logging-out');
+        }, 100);
+      }
     } else {
       this.isNative = false;
       this.showHeader = true;
@@ -155,7 +157,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   checkScreenSize(): void {
-    if (this.isBrowser) {
+    if (this.isBrowser && typeof window !== 'undefined') {
       const screenWidth = window.innerWidth;
       const totalItems = this.menuLeft.length + this.menuRight.length;
 

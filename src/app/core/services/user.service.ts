@@ -52,17 +52,23 @@ export class UserService {
     this.useSession = !remember;
   }
 
-  private storage(): Storage {
+  private storage(): Storage | null {
+    if (typeof window === 'undefined') return null;
     return this.useSession ? sessionStorage : localStorage;
   }
 
   saveToken(token: string): void {
-    this.storage().setItem(this.tokenKey, token);
+    const storage = this.storage();
+    if (!storage) return;
+
+    storage.setItem(this.tokenKey, token);
     this.authState.next(true);
   }
 
   saveTokens(accessToken: string, refreshToken: string): void {
     const storage = this.storage();
+    if (!storage) return;
+
     storage.setItem(this.tokenKey, accessToken);
     storage.setItem(this.refreshTokenKey, refreshToken);
     this.authState.next(true);
@@ -134,10 +140,12 @@ export class UserService {
     }
 
     // Limpiar tokens de ambos storages
-    localStorage.removeItem(this.tokenKey);
-    sessionStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
-    sessionStorage.removeItem(this.refreshTokenKey);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(this.tokenKey);
+      sessionStorage.removeItem(this.tokenKey);
+      localStorage.removeItem(this.refreshTokenKey);
+      sessionStorage.removeItem(this.refreshTokenKey);
+    }
 
     this.authState.next(false);
   }

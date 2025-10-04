@@ -70,6 +70,10 @@ function createBlobUrl(base64Data: string): string | null {
  * Detecta si estamos en un entorno WebView (Capacitor/Cordova)
  */
 function isWebView(): boolean {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return false;
+  }
+
   return !!(
     (window as any).Capacitor ||
     (window as any).cordova ||

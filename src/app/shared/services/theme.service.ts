@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export type ThemeMode = 'light' | 'dark' | 'auto';
@@ -10,10 +11,14 @@ export class ThemeService {
   private currentTheme$ = new BehaviorSubject<ThemeMode>('light');
   private readonly STORAGE_KEY = 'restaurant_theme';
   private readonly THEME_ATTRIBUTE = 'data-theme';
+  private isBrowser: boolean;
 
-  constructor() {
-    this.loadTheme();
-    this.applyTheme(this.currentTheme$.value);
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+    if (this.isBrowser) {
+      this.loadTheme();
+      this.applyTheme(this.currentTheme$.value);
+    }
   }
 
   getCurrentTheme(): Observable<ThemeMode> {
@@ -33,6 +38,8 @@ export class ThemeService {
   }
 
   isDarkMode(): boolean {
+    if (!this.isBrowser) return false;
+
     const theme = this.currentTheme$.value;
     if (theme === 'auto') {
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -41,6 +48,8 @@ export class ThemeService {
   }
 
   private applyTheme(theme: ThemeMode): void {
+    if (!this.isBrowser) return;
+
     const root = document.documentElement;
 
     if (theme === 'auto') {
@@ -58,6 +67,8 @@ export class ThemeService {
   }
 
   private saveTheme(theme: ThemeMode): void {
+    if (!this.isBrowser) return;
+
     try {
       localStorage.setItem(this.STORAGE_KEY, theme);
     } catch (error) {
@@ -66,6 +77,8 @@ export class ThemeService {
   }
 
   private loadTheme(): void {
+    if (!this.isBrowser) return;
+
     try {
       const saved = localStorage.getItem(this.STORAGE_KEY) as ThemeMode;
       if (saved && ['light', 'dark', 'auto'].includes(saved)) {

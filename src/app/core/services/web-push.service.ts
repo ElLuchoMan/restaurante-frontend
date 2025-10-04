@@ -136,10 +136,10 @@ export class WebPushService {
         endpoint,
         p256dh: keys['p256dh'],
         auth: keys['auth'],
-        locale: navigator.language || 'es-CO',
+        locale: (typeof navigator !== 'undefined' && navigator.language) || 'es-CO',
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         appVersion: '1.0.0',
-        userAgent: navigator.userAgent,
+        userAgent: (typeof navigator !== 'undefined' && navigator.userAgent) || '',
         subscribedTopics: ['promos', 'novedades'],
         documentoCliente: isCliente && typeof doc === 'number' ? doc : undefined,
         documentoTrabajador: !isCliente && typeof doc === 'number' ? doc : undefined,
@@ -201,7 +201,7 @@ export class WebPushService {
       console.log('[WebPush] Notificación clickeada:', action, notification);
 
       const url = notification.data?.url;
-      if (url) {
+      if (url && typeof window !== 'undefined') {
         window.location.href = url;
       }
     });
@@ -211,7 +211,11 @@ export class WebPushService {
    * Muestra una notificación en el navegador
    */
   showNotification(title: string, body: string, data?: any): void {
-    if (!this.isSupported() || Notification.permission !== 'granted') {
+    if (
+      !this.isSupported() ||
+      typeof window === 'undefined' ||
+      Notification.permission !== 'granted'
+    ) {
       return;
     }
 
@@ -225,7 +229,11 @@ export class WebPushService {
     };
 
     // Intentar mostrar a través del Service Worker
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    if (
+      typeof navigator !== 'undefined' &&
+      'serviceWorker' in navigator &&
+      navigator.serviceWorker.controller
+    ) {
       navigator.serviceWorker.ready.then((registration) => {
         registration.showNotification(title, options);
       });

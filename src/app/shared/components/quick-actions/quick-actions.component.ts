@@ -131,7 +131,7 @@ export class QuickActionsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || typeof document === 'undefined' || typeof window === 'undefined') return;
     this.barEl = document.querySelector('.quick-actions-bar') as HTMLElement | null;
     this.mainEl = document.getElementById('main') as HTMLElement | null;
     if (!this.barEl || !this.mainEl) return;

@@ -9,7 +9,14 @@ export interface NotificationItem {
 const KEY = 'notification_center_items';
 const KEY_LAST_SEEN = 'notification_center_last_seen';
 
+// Helper para verificar si estamos en el navegador
+function isBrowser(): boolean {
+  return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+}
+
 export function getNotifications(): NotificationItem[] {
+  if (!isBrowser()) return [];
+
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return [];
@@ -23,6 +30,8 @@ export function getNotifications(): NotificationItem[] {
 export function addNotification(
   n: Omit<NotificationItem, 'id' | 'createdAt'> & Partial<NotificationItem>,
 ): void {
+  if (!isBrowser()) return;
+
   const items = getNotifications();
   const id = Date.now() % 100000000;
   const createdAt = new Date().toISOString();
@@ -34,6 +43,8 @@ export function addNotification(
 }
 
 export function clearNotifications(): void {
+  if (!isBrowser()) return;
+
   localStorage.removeItem(KEY);
   try {
     window.dispatchEvent(new CustomEvent('notification-center:update'));
@@ -41,6 +52,8 @@ export function clearNotifications(): void {
 }
 
 export function markAllSeen(): void {
+  if (!isBrowser()) return;
+
   const now = new Date().toISOString();
   localStorage.setItem(KEY_LAST_SEEN, now);
   try {
@@ -49,6 +62,8 @@ export function markAllSeen(): void {
 }
 
 export function getUnseenCount(): number {
+  if (!isBrowser()) return 0;
+
   const lastSeen = localStorage.getItem(KEY_LAST_SEEN);
   const items = getNotifications();
   if (!lastSeen) return items.length;

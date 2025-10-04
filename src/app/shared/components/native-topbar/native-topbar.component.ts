@@ -54,29 +54,31 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
+    if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
     this.mainEl = document.getElementById('main') as HTMLElement | null;
     this.applyTopPadding();
 
     // Suscribirse a cambios del centro de notificaciones (localStorage)
-    try {
-      const { getUnseenCount } = require('../../utils/notification-center.store');
-      const update = () => {
-        try {
-          this.notifCount = getUnseenCount();
-        } catch {
-          this.notifCount = 0;
-        }
-        this.generateTopBarActions();
-      };
-      update();
-      window.addEventListener('notification-center:update', update);
-      window.addEventListener('focus', update);
-      this.destroy$.pipe(takeUntil(this.destroy$)).subscribe(() => {
-        window.removeEventListener('notification-center:update', update);
-        window.removeEventListener('focus', update);
-      });
-    } catch {}
+    if (typeof window !== 'undefined') {
+      try {
+        const { getUnseenCount } = require('../../utils/notification-center.store');
+        const update = () => {
+          try {
+            this.notifCount = getUnseenCount();
+          } catch {
+            this.notifCount = 0;
+          }
+          this.generateTopBarActions();
+        };
+        update();
+        window.addEventListener('notification-center:update', update);
+        window.addEventListener('focus', update);
+        this.destroy$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+          window.removeEventListener('notification-center:update', update);
+          window.removeEventListener('focus', update);
+        });
+      } catch {}
+    }
 
     // Detectar cambios en el rol del usuario
     this.user
@@ -237,7 +239,7 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
   }
 
   private applyTopPadding(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
+    if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
     const bar = document.querySelector('.home-topbar') as HTMLElement | null;
     if (!this.mainEl || !bar) return;
     const url = this.router.url || '';
