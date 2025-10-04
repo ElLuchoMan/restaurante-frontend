@@ -4,7 +4,7 @@
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  z-index: 1000;
+  z-index: 1040; // Por encima de quick-actions (1030) en WebView
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateY(100px);
   opacity: 0;
@@ -17,8 +17,8 @@
   }
 
   .cart-button {
-    background: $gradient-primary;
-    border: none;
+    background: $primary; // Color primario sólido (amarillo dorado)
+    border: 1px solid rgba(158, 79, 63, 0.15);
     border-radius: 50%;
     width: 60px;
     height: 60px;
@@ -28,17 +28,18 @@
     color: $text-heading-strong;
     font-size: 1.5rem;
     cursor: pointer;
-    box-shadow: 0 8px 25px $shadow-primary-40;
+    box-shadow: 0 20px 50px $shadow-soft; // Sombra estándar del diseño
     transition: all 0.3s ease;
     position: relative;
 
     &:hover {
-      transform: scale(1.1);
-      box-shadow: 0 12px 35px $shadow-primary-50;
+      transform: translateY(-2px);
+      background: $quaternary; // Hover con color cuaternario
+      box-shadow: 0 25px 60px $shadow-soft;
     }
 
     &:active {
-      transform: scale(0.95);
+      transform: translateY(0);
     }
 
     .cart-badge {
@@ -73,7 +74,7 @@
     animation: slideUp 0.3s ease-out;
 
     .cart-header {
-      background: $gradient-primary;
+      background: $primary; // Amarillo dorado estándar
       color: $text-heading-strong;
       padding: 1rem 1.5rem;
       display: flex;
@@ -87,17 +88,18 @@
       }
 
       .close-btn {
-        background: none;
+        background: rgba(255, 255, 255, 0.2);
         border: none;
-        color: inherit;
+        color: $text-heading-strong;
         font-size: 1.2rem;
         cursor: pointer;
         padding: 0.25rem;
         border-radius: 50%;
-        transition: background-color 0.2s ease;
+        transition: all 0.2s ease;
 
         &:hover {
-          background: rgba(0, 0, 0, 0.1);
+          background: rgba(255, 255, 255, 0.3);
+          transform: rotate(90deg);
         }
       }
     }
@@ -160,7 +162,7 @@
               gap: 0.5rem;
 
               .quantity-btn {
-                background: $light;
+                background: white;
                 border: 1px solid $border-subtle;
                 border-radius: 6px;
                 width: 28px;
@@ -169,26 +171,36 @@
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
-                transition: all 0.2s ease;
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                 font-size: 0.75rem;
+                color: $text-heading-strong;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
                 &:hover:not(:disabled) {
                   background: $primary;
-                  color: white;
-                  border-color: $primary;
+                  color: $text-heading-strong;
+                  border-color: rgba(158, 79, 63, 0.15);
+                  transform: translateY(-1px);
+                  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                }
+
+                &:active:not(:disabled) {
+                  transform: translateY(0);
                 }
 
                 &:disabled {
-                  opacity: 0.5;
+                  opacity: 0.4;
                   cursor: not-allowed;
+                  background: $light;
                 }
               }
 
               .quantity {
                 font-weight: 600;
-                min-width: 20px;
+                min-width: 24px;
                 text-align: center;
-                font-size: 0.9rem;
+                font-size: 0.95rem;
+                color: $text-heading-strong;
               }
             }
           }
@@ -260,22 +272,28 @@
         .btn {
           flex: 1;
           padding: 0.75rem 1rem;
-          border-radius: 12px;
+          border-radius: 12px; // Border radius estándar para botones
           font-weight: 600;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
-          transition: all 0.2s ease;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
           &.btn-primary {
-            background: $gradient-primary;
-            border: none;
+            background: $primary; // Color primario sólido
+            border: 1px solid rgba(158, 79, 63, 0.15);
             color: $text-heading-strong;
 
             &:hover {
-              background: $gradient-primary-hover;
-              transform: translateY(-1px);
+              background: $quaternary; // Color hover estándar
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            }
+
+            &:active {
+              transform: translateY(0);
             }
           }
 
@@ -283,11 +301,18 @@
             background: white;
             border: 1px solid $border-subtle;
             color: $text-body;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
             &:hover {
-              background: $light;
+              background: rgba($danger, 0.05);
               border-color: $danger;
               color: $danger;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba($danger, 0.15);
+            }
+
+            &:active {
+              transform: translateY(0);
             }
           }
         }
@@ -323,7 +348,8 @@
 // Responsive
 @media (max-width: $breakpoint-md) {
   .floating-cart {
-    bottom: 1rem;
+    // En WebView/Mobile, subir para que no se superponga con quick-actions
+    bottom: 80px; // Espacio para la barra de quick actions + padding
     right: 1rem;
 
     .cart-panel {
