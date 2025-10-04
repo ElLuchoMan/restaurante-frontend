@@ -177,13 +177,10 @@ describe('FloatingCartComponent', () => {
 
     it('should hide cart button when not visible', () => {
       component.isVisible = false;
-      component.totalItems = 0;
-      mockCartService.items$ = of([]);
-      component.ngOnInit();
       fixture.detectChanges();
 
-      const cartButton = fixture.nativeElement.querySelector('.cart-button');
-      expect(cartButton).toBeFalsy();
+      const container = fixture.nativeElement.querySelector('.floating-cart');
+      expect(container.classList.contains('visible')).toBeFalsy();
     });
 
     it('should show cart panel when expanded', () => {
@@ -214,6 +211,11 @@ describe('FloatingCartComponent', () => {
     });
 
     it('should show cart badge with item count', () => {
+      // El componente calcula totalItems desde cartItems, así que establecemos cartItems
+      component.cartItems = [
+        { producto: mockProduct, cantidad: 1 },
+        { producto: { ...mockProduct, productoId: 2 }, cantidad: 2 },
+      ];
       component.totalItems = 3;
       component.isVisible = true;
       fixture.detectChanges();

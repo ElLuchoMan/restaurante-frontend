@@ -169,20 +169,29 @@ describe('FavoritesService', () => {
     });
 
     it('should load favorites from localStorage', () => {
+      localStorage.clear();
       localStorage.setItem('restaurant_favorites', JSON.stringify([1, 2]));
 
-      const newService = new FavoritesService();
+      // Crear un nuevo servicio que debería cargar favoritos del localStorage
+      const newTestBed = TestBed.configureTestingModule({});
+      const newService = newTestBed.inject(FavoritesService);
 
+      // Dar tiempo para que se carguen los favoritos
       expect(newService.isFavorite(1)).toBeTruthy();
       expect(newService.isFavorite(2)).toBeTruthy();
     });
 
     it('should handle localStorage errors gracefully', () => {
-      spyOn(localStorage, 'setItem').and.throwError('Storage error');
+      const setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+      setItemSpy.mockImplementation(() => {
+        throw new Error('Storage error');
+      });
 
       expect(() => {
         service.addFavorite(1);
       }).not.toThrow();
+
+      setItemSpy.mockRestore();
     });
 
     it('should handle invalid localStorage data gracefully', () => {

@@ -264,6 +264,7 @@ export function createCartServiceMock() {
     addToCart: jest.fn(),
     changeQty: jest.fn(),
     remove: jest.fn(),
+    clear: jest.fn(),
     clearCart: jest.fn(),
   } as any;
 }

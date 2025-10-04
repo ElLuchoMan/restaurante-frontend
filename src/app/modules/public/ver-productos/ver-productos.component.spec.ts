@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -109,16 +109,21 @@ describe('VerProductosComponent', () => {
     fixture.detectChanges();
   }
 
-  it('should create and load categories and subcategories', () => {
+  it('should create and load categories and subcategories', fakeAsync(() => {
     productoService.getProductos.mockReturnValue(of({ data: productosMock, message: '' }));
     userService.getAuthState.mockReturnValue(of(false));
 
     createComponent();
 
     expect(component).toBeTruthy();
+
+    // Esperar a que se completen todas las operaciones asíncronas
+    tick();
+    fixture.detectChanges();
+
     expect(component.categorias).toEqual(['Bebidas', 'Comidas']);
     expect(component.subcategorias).toEqual(['Gaseosas', 'Entradas']);
-  });
+  }));
 
   it('should set mensaje when no data returned', () => {
     productoService.getProductos.mockReturnValue(of({ data: undefined, message: 'Error' }));
@@ -235,7 +240,8 @@ describe('VerProductosComponent', () => {
     expect(args.image).toBe('../../../../assets/img/logo2.webp');
     expect(args.buttons[0].label).toContain('Agregar al carrito');
     args.buttons[0].action();
-    expect(cartService.addToCart).toHaveBeenCalledWith(producto);
+    // addToCart se llama con producto y observaciones (cadena vacía si no hay)
+    expect(cartService.addToCart).toHaveBeenCalledWith(producto, '');
     expect(modalService.closeModal).toHaveBeenCalled();
   });
 
