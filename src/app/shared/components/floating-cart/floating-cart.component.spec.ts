@@ -126,7 +126,7 @@ describe('FloatingCartComponent', () => {
 
       component.clearCart();
 
-      expect(mockCartService.clear).toHaveBeenCalled();
+      expect(mockCartService.clearCart).toHaveBeenCalled();
       expect(component.isExpanded).toBeFalsy();
     });
   });
@@ -193,8 +193,9 @@ describe('FloatingCartComponent', () => {
     });
 
     it('should show empty cart message when no items', () => {
+      mockCartService.items$ = of([]);
+      component.ngOnInit();
       component.isExpanded = true;
-      component.cartItems = [];
       fixture.detectChanges();
 
       const emptyMessage = fixture.nativeElement.querySelector('.empty-cart');
@@ -211,12 +212,11 @@ describe('FloatingCartComponent', () => {
     });
 
     it('should show cart badge with item count', () => {
-      // El componente calcula totalItems desde cartItems, así que establecemos cartItems
-      component.cartItems = [
-        { producto: mockProduct, cantidad: 1 },
-        { producto: { ...mockProduct, productoId: 2 }, cantidad: 2 },
-      ];
-      component.totalItems = 3;
+      // Configurar el mock para emitir 3 productos
+      const mockProduct2 = { ...mockProduct, productoId: 2, cantidad: 1 };
+      const mockProduct3 = { ...mockProduct, productoId: 3, cantidad: 1 };
+      mockCartService.items$ = of([mockProduct, mockProduct2, mockProduct3]);
+      component.ngOnInit();
       component.isVisible = true;
       fixture.detectChanges();
 
@@ -239,7 +239,10 @@ describe('FloatingCartComponent', () => {
 
   describe('accessibility', () => {
     it('should have proper aria labels', () => {
-      component.totalItems = 2;
+      // Configurar el mock para emitir 2 productos
+      const mockProduct2 = { ...mockProduct, productoId: 2, cantidad: 1 };
+      mockCartService.items$ = of([mockProduct, mockProduct2]);
+      component.ngOnInit();
       fixture.detectChanges();
 
       const cartButton = fixture.nativeElement.querySelector('.cart-button');

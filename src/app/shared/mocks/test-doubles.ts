@@ -74,6 +74,9 @@ export function mockElementAnimate() {
     play: jest.fn(),
     pause: jest.fn(),
     finish: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
   })) as any;
 }
 
