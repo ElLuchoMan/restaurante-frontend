@@ -19,7 +19,7 @@
     "start:prod:local": "npx serve dist/restaurante-frontend/browser",
     "serve:ssr:restaurante-frontend": "node dist/restaurante-frontend/server/server.mjs",
     "build": "ng build",
-    "build:webview": "ng build --prerender=false",
+    "build:webview": "ng build --ssr=false",
     "watch": "ng build --watch --configuration development",
     "test": "jest --coverage",
     "lint": "eslint src/**/*.{ts,js,html}",
