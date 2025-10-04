@@ -1,3 +1,6 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
 
@@ -22,7 +25,12 @@ describe('ModalComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ModalComponent],
-      providers: [{ provide: ModalService, useValue: modalServiceSpy }],
+      providers: [
+        { provide: ModalService, useValue: modalServiceSpy },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ModalComponent);

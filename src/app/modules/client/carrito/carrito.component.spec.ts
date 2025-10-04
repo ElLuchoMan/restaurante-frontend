@@ -227,7 +227,7 @@ describe('CarritoComponent', () => {
     expect(clienteServiceMock.getClienteId).toHaveBeenCalledWith(77);
     expect(domicilioServiceMock.createDomicilio).toHaveBeenCalledWith(
       expect.objectContaining({
-        observaciones: 'Método pago: M3 - Observaciones: obs',
+        observaciones: 'Método pago: M3 - Observaciones generales: obs',
       }),
     );
     expect(finalizeSpy).toHaveBeenCalledWith(3, 9);

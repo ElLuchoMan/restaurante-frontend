@@ -54,6 +54,19 @@ export function createGlobalSpyMock(method: string, returnValue: any) {
   return jest.spyOn(global as any, method).mockReturnValue(returnValue);
 }
 
+export function createMatchMediaMock(matches = false) {
+  return jest.fn().mockImplementation((query) => ({
+    matches,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  }));
+}
+
 // Funciones para configurar mocks de servicios comunes
 export function configureWebPushServiceMock(
   webPushMock: any,
@@ -184,6 +197,7 @@ export function createModalServiceMock() {
     openModal: jest.fn(),
     closeModal: jest.fn(),
     getModalData: jest.fn(),
+    getObservaciones: jest.fn().mockReturnValue(''),
     modalData$: new BehaviorSubject<any>(null).asObservable(),
     isOpen$: new BehaviorSubject<boolean>(false).asObservable(),
   } as any;

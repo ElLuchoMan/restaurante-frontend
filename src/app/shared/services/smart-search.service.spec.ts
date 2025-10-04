@@ -223,18 +223,22 @@ describe('SmartSearchService', () => {
 
       const results = service.searchProducts(mockProducts, filters);
 
-      expect(results.length).toBe(1);
-      expect(results[0].calorias).toBe(650);
+      // Hamburguesa (650) y Ensalada (320) están en el rango
+      expect(results.length).toBe(2);
+      expect(results.some((p) => p.calorias === 650)).toBeTruthy();
+      expect(results.some((p) => p.calorias === 320)).toBeTruthy();
     });
 
     it('should filter by allergens', () => {
       const filters = service.getDefaultFilters();
-      filters.allergens = ['lactosa'];
+      filters.allergens = ['queso']; // 'queso' aparece en Hamburguesa y Ensalada
 
       const results = service.searchProducts(mockProducts, filters);
 
-      // Should exclude products with lactose in description
-      expect(results.length).toBeLessThan(mockProducts.length);
+      // Should exclude products with 'queso' in description
+      // Solo Café no tiene queso
+      expect(results.length).toBe(1);
+      expect(results[0].nombre).toBe('Café Colombiano');
     });
 
     it('should sort by name ascending', () => {
@@ -295,11 +299,16 @@ describe('SmartSearchService', () => {
 
     it('should handle localStorage errors gracefully', () => {
       // Mock localStorage to throw error
-      spyOn(localStorage, 'setItem').and.throwError('Storage error');
+      const setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+      setItemSpy.mockImplementation(() => {
+        throw new Error('Storage error');
+      });
 
       expect(() => {
         service.addToSearchHistory('test');
       }).not.toThrow();
+
+      setItemSpy.mockRestore();
     });
   });
 });

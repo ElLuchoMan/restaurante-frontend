@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { CartService } from '../../../core/services/cart.service';
+import { createCartServiceMock, createRouterMock } from '../../mocks/test-doubles';
 import { Producto } from '../../models/producto.model';
 import { FloatingCartComponent } from './floating-cart.component';
 
@@ -32,13 +33,10 @@ describe('FloatingCartComponent', () => {
   ];
 
   beforeEach(async () => {
-    const cartServiceSpy = jasmine.createSpyObj('CartService', [
-      'getCartItems',
-      'updateQuantity',
-      'removeFromCart',
-      'clearCart',
-    ]);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const cartServiceSpy = createCartServiceMock();
+    cartServiceSpy.items$ = of([mockProduct]);
+
+    const routerSpy = createRouterMock();
 
     await TestBed.configureTestingModule({
       imports: [FloatingCartComponent],
@@ -52,9 +50,6 @@ describe('FloatingCartComponent', () => {
     component = fixture.componentInstance;
     mockCartService = TestBed.inject(CartService);
     mockRouter = TestBed.inject(Router);
-
-    // Setup default mock behavior
-    mockCartService.items$ = of([mockProduct]);
   });
 
   it('should create', () => {
@@ -65,9 +60,11 @@ describe('FloatingCartComponent', () => {
     it('should load cart items and calculate totals', () => {
       component.ngOnInit();
 
-      expect(component.cartItems).toEqual(mockCartItems);
-      expect(component.totalItems).toBe(2);
-      expect(component.totalPrice).toBe(50000);
+      // El mock emite [mockProduct] con cantidad 1
+      expect(component.cartItems.length).toBe(1);
+      expect(component.cartItems[0].producto).toEqual(mockProduct);
+      expect(component.totalItems).toBe(1);
+      expect(component.totalPrice).toBe(25000);
     });
   });
 
@@ -91,13 +88,13 @@ describe('FloatingCartComponent', () => {
     it('should increase quantity', () => {
       component.updateQuantity(1, 1);
 
-      expect(mockCartService.updateQuantity).toHaveBeenCalledWith(1, 3);
+      expect(mockCartService.changeQty).toHaveBeenCalledWith(1, 1);
     });
 
     it('should decrease quantity', () => {
       component.updateQuantity(1, -1);
 
-      expect(mockCartService.updateQuantity).toHaveBeenCalledWith(1, 1);
+      expect(mockCartService.changeQty).toHaveBeenCalledWith(1, -1);
     });
 
     it('should remove item when quantity reaches 0', () => {
@@ -105,13 +102,13 @@ describe('FloatingCartComponent', () => {
 
       component.updateQuantity(1, -1);
 
-      expect(mockCartService.removeFromCart).toHaveBeenCalledWith(1);
+      expect(mockCartService.remove).toHaveBeenCalledWith(1);
     });
 
     it('should not update if item not found', () => {
       component.updateQuantity(999, 1);
 
-      expect(mockCartService.updateQuantity).not.toHaveBeenCalled();
+      expect(mockCartService.changeQty).not.toHaveBeenCalled();
     });
   });
 
@@ -119,7 +116,7 @@ describe('FloatingCartComponent', () => {
     it('should remove item from cart', () => {
       component.removeItem(1);
 
-      expect(mockCartService.removeFromCart).toHaveBeenCalledWith(1);
+      expect(mockCartService.remove).toHaveBeenCalledWith(1);
     });
   });
 
@@ -129,7 +126,7 @@ describe('FloatingCartComponent', () => {
 
       component.clearCart();
 
-      expect(mockCartService.clearCart).toHaveBeenCalled();
+      expect(mockCartService.clear).toHaveBeenCalled();
       expect(component.isExpanded).toBeFalsy();
     });
   });
@@ -171,6 +168,7 @@ describe('FloatingCartComponent', () => {
   describe('template rendering', () => {
     it('should show cart button when visible', () => {
       component.isVisible = true;
+      component.totalItems = 0;
       fixture.detectChanges();
 
       const cartButton = fixture.nativeElement.querySelector('.cart-button');
@@ -179,6 +177,9 @@ describe('FloatingCartComponent', () => {
 
     it('should hide cart button when not visible', () => {
       component.isVisible = false;
+      component.totalItems = 0;
+      mockCartService.items$ = of([]);
+      component.ngOnInit();
       fixture.detectChanges();
 
       const cartButton = fixture.nativeElement.querySelector('.cart-button');
@@ -214,6 +215,7 @@ describe('FloatingCartComponent', () => {
 
     it('should show cart badge with item count', () => {
       component.totalItems = 3;
+      component.isVisible = true;
       fixture.detectChanges();
 
       const badge = fixture.nativeElement.querySelector('.cart-badge');
@@ -223,6 +225,9 @@ describe('FloatingCartComponent', () => {
 
     it('should not show badge when no items', () => {
       component.totalItems = 0;
+      component.isVisible = true;
+      mockCartService.items$ = of([]);
+      component.ngOnInit();
       fixture.detectChanges();
 
       const badge = fixture.nativeElement.querySelector('.cart-badge');
@@ -250,8 +255,8 @@ describe('FloatingCartComponent', () => {
 
   describe('ngOnDestroy', () => {
     it('should complete destroy subject', () => {
-      const destroySpy = spyOn(component['destroy$'], 'next');
-      const completeSpy = spyOn(component['destroy$'], 'complete');
+      const destroySpy = jest.spyOn(component['destroy$'], 'next');
+      const completeSpy = jest.spyOn(component['destroy$'], 'complete');
 
       component.ngOnDestroy();
 
