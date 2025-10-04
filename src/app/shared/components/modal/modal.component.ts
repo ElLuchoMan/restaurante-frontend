@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ModalService } from '../../../core/services/modal.service';
+import { UserService } from '../../../core/services/user.service';
 import { ModalData } from '../../../shared/models/modal.model';
 
 @Component({
@@ -41,16 +42,33 @@ export class ModalComponent implements OnInit {
   currentImage = ''; // Imagen actual a mostrar
   private readonly defaultImage = 'assets/img/logo2.webp'; // Logo por defecto
   private imageErrorOccurred = false; // Flag para evitar loops infinitos
+  userRole: string | null = null; // Rol del usuario actual
 
-  constructor(private modalService: ModalService) {}
+  constructor(
+    private modalService: ModalService,
+    private userService: UserService,
+  ) {}
 
   ngOnInit() {
+    // Suscribirse a cambios en el estado de autenticación para actualizar el rol
+    this.userService.getAuthState().subscribe((isLoggedIn) => {
+      this.userRole = isLoggedIn ? this.userService.getUserRole() : null;
+      console.log('🔐 Modal - Rol actualizado:', this.userRole);
+    });
+
     this.modalService.modalData$.subscribe((data) => {
       if (data) {
         this.modalData = data;
         // Resetear la imagen cuando se abre un nuevo modal
         this.imageErrorOccurred = false;
         this.currentImage = data.image || this.defaultImage;
+
+        // Debug: verificar si hay botones y si puede ver observaciones
+        console.log('📋 Modal abierto:', {
+          hasButtons: data.buttons?.length || 0,
+          userRole: this.userRole,
+          canAddObs: this.canAddObservations(),
+        });
       }
     });
 
@@ -79,5 +97,15 @@ export class ModalComponent implements OnInit {
   // Sincronizar observaciones con el servicio cuando cambian
   onObservacionesChange(): void {
     this.modalService.setObservaciones(this.observaciones);
+  }
+
+  /**
+   * Verifica si el usuario actual puede agregar observaciones a un pedido
+   * Solo Cliente, Mesero y Cocinero pueden agregar observaciones
+   * Administrador, Domiciliario y Oficios Varios NO pueden
+   */
+  canAddObservations(): boolean {
+    const rolesQueCompran = ['Cliente', 'Mesero'];
+    return this.userRole ? rolesQueCompran.includes(this.userRole) : false;
   }
 }

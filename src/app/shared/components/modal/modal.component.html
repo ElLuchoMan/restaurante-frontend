@@ -128,10 +128,10 @@
         </textarea>
       </div>
 
-      <!-- Campo de observaciones (solo cuando hay botones de acción - usuario loggeado) -->
+      <!-- Campo de observaciones (solo para roles que pueden comprar: Cliente, Mesero, Cocinero) -->
       <div
         class="form-group-enhanced observations-field"
-        *ngIf="modalData.buttons && modalData.buttons.length > 0"
+        *ngIf="modalData.buttons && modalData.buttons.length > 0 && canAddObservations()"
       >
         <label class="form-label-enhanced">
           <i class="fas fa-comment-alt"></i>
