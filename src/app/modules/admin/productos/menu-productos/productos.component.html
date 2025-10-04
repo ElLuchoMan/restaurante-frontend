@@ -1,21 +1,46 @@
-<!-- productos.component.html -->
-<div class="container mt-5 col-md-5">
-  <h1 class="text-center mb-4">Gestión Productos</h1>
+<div class="page-shell">
+  <div class="container">
+    <!-- Menú de opciones de productos -->
+    <div *ngIf="mostrarMenu">
+      <h1 class="section-title">Gestión de Productos</h1>
+      <p class="subtitle text-center mb-4">{{ subtitulo }}</p>
 
-  <div *ngIf="mostrarMenu" class="card card-normal p-5">
-    <div class="d-flex flex-column">
-      <button class="btn btn-primary" (click)="irA('ver')">Ver Productos</button>
-      <button class="btn btn-primary mt-4" (click)="irA('crear')">Crear Producto</button>
+      <div class="menu-grid">
+        <div
+          *ngFor="let opcion of opciones"
+          [ngClass]="['menu-card', 'menu-card--' + opcion.color]"
+          (click)="navegarA(opcion.ruta)"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="'Ir a ' + opcion.titulo"
+          (keydown.enter)="navegarA(opcion.ruta)"
+          (keydown.space)="navegarA(opcion.ruta)"
+        >
+          <div class="menu-card__icon">
+            <i class="fa" [class]="opcion.icono" aria-hidden="true"></i>
+          </div>
+          <div class="menu-card__content">
+            <h2 class="menu-card__titulo">{{ opcion.titulo }}</h2>
+            <p class="menu-card__descripcion">{{ opcion.descripcion }}</p>
+          </div>
+          <div class="menu-card__arrow">
+            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div *ngIf="!mostrarMenu" class="volver-container" (click)="volver()">
-    <i class="fas fa-arrow-left volver-icon"></i>
-    <span class="volver-text">Volver</span>
+    <!-- Botón volver cuando está en una subvista -->
+    <div *ngIf="!mostrarMenu" class="mb-4">
+      <button class="btn btn-outline-secondary" (click)="volver()">
+        <i class="fas fa-arrow-left me-2"></i>
+        Volver al Menú
+      </button>
+    </div>
   </div>
 </div>
 
 <!-- Acá carga el componente hijo (crear / editar) -->
-<div [ngClass]="{ 'container-fluid': !mostrarMenu, 'container mt-5 col-md-5': mostrarMenu }">
+<div class="container-fluid" *ngIf="!mostrarMenu">
   <router-outlet></router-outlet>
 </div>
