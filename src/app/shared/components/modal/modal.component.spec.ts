@@ -5,7 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
 
 import { ModalService } from '../../../core/services/modal.service';
-import { createModalServiceMock } from '../../mocks/test-doubles';
+import { createModalServiceMock, mockElementAnimate } from '../../mocks/test-doubles';
 import { ModalComponent } from './modal.component';
 
 describe('ModalComponent', () => {
@@ -16,6 +16,9 @@ describe('ModalComponent', () => {
   let isOpenSubject: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
+    // Mock element.animate para JSDOM
+    mockElementAnimate();
+
     modalDataSubject = new BehaviorSubject(null);
     isOpenSubject = new BehaviorSubject(false);
     modalServiceSpy = createModalServiceMock();

@@ -67,6 +67,16 @@ export function createMatchMediaMock(matches = false) {
   }));
 }
 
+export function mockElementAnimate() {
+  Element.prototype.animate = jest.fn().mockImplementation(() => ({
+    finished: Promise.resolve(),
+    cancel: jest.fn(),
+    play: jest.fn(),
+    pause: jest.fn(),
+    finish: jest.fn(),
+  })) as any;
+}
+
 // Funciones para configurar mocks de servicios comunes
 export function configureWebPushServiceMock(
   webPushMock: any,

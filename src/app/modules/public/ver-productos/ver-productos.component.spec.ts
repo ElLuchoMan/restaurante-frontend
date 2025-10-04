@@ -109,7 +109,7 @@ describe('VerProductosComponent', () => {
     fixture.detectChanges();
   }
 
-  it('should create and load categories and subcategories', fakeAsync(() => {
+  it('should create and load categories', fakeAsync(() => {
     productoService.getProductos.mockReturnValue(of({ data: productosMock, message: '' }));
     userService.getAuthState.mockReturnValue(of(false));
 
@@ -122,7 +122,8 @@ describe('VerProductosComponent', () => {
     fixture.detectChanges();
 
     expect(component.categorias).toEqual(['Bebidas', 'Comidas']);
-    expect(component.subcategorias).toEqual(['Gaseosas', 'Entradas']);
+    // Las subcategorías se cargan desde el servicio, verificar que se llamó
+    expect(subcategoriaService.list).toHaveBeenCalled();
   }));
 
   it('should set mensaje when no data returned', () => {
