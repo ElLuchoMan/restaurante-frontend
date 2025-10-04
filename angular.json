@@ -68,6 +68,28 @@
               "outputHashing": "all",
               "serviceWorker": "ngsw-config.json"
             },
+            "production-spa": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2.2MB",
+                  "maximumError": "2.8MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "250KB",
+                  "maximumError": "350KB"
+                }
+              ],
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
