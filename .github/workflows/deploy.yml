@@ -23,7 +23,7 @@ jobs:
             echo "  ,\"googleMapsApiKey\": \"${GMAPS}\"" >> public/app-config.json
           fi
           echo '}' >> public/app-config.json
-      - run: npm ci
+      - run: npm install --legacy-peer-deps
       - run: npm run build
       - name: Deploy to Netlify
         run: npx --yes netlify-cli deploy --dir=dist/restaurante-frontend/browser --prod --site $NETLIFY_SITE_ID
