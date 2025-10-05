@@ -605,3 +605,98 @@ export function createSubcategoriaServiceMock() {
     delete: jest.fn(),
   } as any;
 }
+
+export function createTransferStateMock() {
+  const store = new Map<string, unknown>();
+  return {
+    get: jest.fn((key: any, defaultValue: unknown) => {
+      const storeKey = key.toString();
+      return store.has(storeKey) ? store.get(storeKey) : defaultValue;
+    }),
+
+    set: jest.fn((key: any, value: unknown) => {
+      store.set(key.toString(), value);
+    }),
+
+    remove: jest.fn((key: any) => {
+      store.delete(key.toString());
+    }),
+
+    hasKey: jest.fn((key: any) => store.has(key.toString())),
+  } as any;
+}
+
+export function createErrorBoundaryServiceMock() {
+  return {
+    safeExecute: jest.fn(
+      (
+        fn: () => unknown,
+        _component: string,
+        _fallback?: unknown,
+        onError?: (error: Error) => void,
+      ) => {
+        try {
+          return fn();
+        } catch (error) {
+          onError?.(error as Error);
+          return undefined;
+        }
+      },
+    ),
+
+    captureError: jest.fn(),
+  } as any;
+}
+
+export function createSmartSearchServiceMock() {
+  return {
+    getDefaultFilters: jest.fn(() => ({
+      query: '',
+      category: '',
+      subcategory: '',
+      priceRange: { min: 0, max: 100 },
+      caloriesRange: { min: 0, max: 1000 },
+      prepTimeRange: { min: 0, max: 60 },
+      allergens: [],
+      dietary: [],
+      sortBy: 'name',
+      sortOrder: 'asc',
+    })),
+
+    getSearchHistory: jest.fn(),
+
+    getCurrentFilters: jest.fn(),
+
+    updateFilters: jest.fn(),
+
+    addToSearchHistory: jest.fn(),
+
+    getSuggestions: jest.fn(() => []),
+
+    searchProducts: jest.fn((products: any[]) => [...products]),
+  } as any;
+}
+
+export function createFavoritesServiceMock() {
+  return {
+    getFavorites: jest.fn(),
+
+    toggleFavorite: jest.fn().mockReturnValue(true),
+
+    addFavorite: jest.fn(),
+
+    removeFavorite: jest.fn(),
+
+    isFavorite: jest.fn(),
+  } as any;
+}
+
+export function createThemeServiceMock() {
+  return {
+    getCurrentTheme: jest.fn(),
+
+    toggleTheme: jest.fn(),
+
+    setTheme: jest.fn(),
+  } as any;
+}
