@@ -10,39 +10,24 @@ import { CartService } from '../../../core/services/cart.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
 import { RolTrabajador } from '../../../shared/constants';
+import {
+  createCartServiceMock,
+  createTelemetryServiceMock,
+  createTransferStateMock,
+  createUserServiceMock,
+} from '../../../shared/mocks/test-doubles';
 import { ProductoVendido } from '../../../shared/models/telemetry.model';
 import * as imageUtils from '../../../shared/utils/image.utils';
 import { HomeComponent } from './home.component';
 
-class UserServiceStub {
-  private auth$ = new BehaviorSubject<boolean>(false);
-  private role: string | null = null;
-  getAuthState() {
-    return this.auth$.asObservable();
-  }
-  setAuth(v: boolean) {
-    this.auth$.next(v);
-  }
-  getUserRole() {
-    return this.role;
-  }
-  setUserRole(role: string | null) {
-    this.role = role;
-  }
-}
-class CartServiceStub {
-  count$ = new BehaviorSubject<number>(0);
-}
-
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
-  let userStub: UserServiceStub;
-  // TransferState stub sin jest.fn
-  let hasKeyReturn: boolean;
-  let setCalled: boolean;
-  let tsStub: { hasKey: () => boolean; set: () => void };
-  let telemetryStub: { getProductosPopulares: jest.Mock };
+  let mockUserService: ReturnType<typeof createUserServiceMock>;
+  let mockCartService: ReturnType<typeof createCartServiceMock>;
+  let mockTelemetryService: ReturnType<typeof createTelemetryServiceMock>;
+  let mockTransferState: ReturnType<typeof createTransferStateMock>;
+  let authStateSubject: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     // Mock de IntersectionObserver global
@@ -54,32 +39,43 @@ describe('HomeComponent', () => {
       disconnect() {}
     } as any;
 
-    // Stub TransferState
-    hasKeyReturn = false;
-    setCalled = false;
-    tsStub = {
-      hasKey: () => hasKeyReturn,
-      set: () => {
-        setCalled = true;
-      },
-    };
-    telemetryStub = {
-      getProductosPopulares: jest.fn(),
-    };
+    // Crear mocks usando test-doubles.ts
+    authStateSubject = new BehaviorSubject<boolean>(false);
+    mockUserService = createUserServiceMock(authStateSubject.asObservable());
+    mockCartService = createCartServiceMock();
+    mockTransferState = createTransferStateMock();
+    mockTelemetryService = createTelemetryServiceMock();
+
+    // Configurar mock de TelemetryService con respuesta por defecto
+    mockTelemetryService.getProductosPopulares.mockReturnValue(
+      of({
+        code: 200,
+        data: {
+          productosPopulares: [
+            {
+              productoId: 1,
+              imagen: 'test.jpg',
+              nombreProducto: 'Producto Test',
+              totalVendido: 10,
+            } as ProductoVendido,
+          ],
+        },
+        message: 'ok',
+      }),
+    );
 
     await TestBed.configureTestingModule({
       imports: [HomeComponent, RouterTestingModule, HttpClientTestingModule],
       providers: [
-        { provide: UserService, useClass: UserServiceStub },
-        { provide: CartService, useClass: CartServiceStub },
-        { provide: TransferState, useValue: tsStub },
-        { provide: TelemetryService, useValue: telemetryStub },
+        { provide: UserService, useValue: mockUserService },
+        { provide: CartService, useValue: mockCartService },
+        { provide: TransferState, useValue: mockTransferState },
+        { provide: TelemetryService, useValue: mockTelemetryService },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
-    userStub = TestBed.inject(UserService) as unknown as UserServiceStub;
   });
 
   afterEach(() => {
@@ -94,7 +90,7 @@ describe('HomeComponent', () => {
   it('no muestra quick-actions en navegador (solo en webview)', () => {
     // isWebView = false implica navegador
     (component as any).isWebView = false as any;
-    userStub.setAuth(false); // invitado
+    authStateSubject.next(false); // invitado
     fixture.detectChanges();
     const bar = fixture.debugElement.query(By.css('.quick-actions-bar'));
     expect(bar).toBeFalsy(); // No debe existir en navegador
@@ -104,7 +100,7 @@ describe('HomeComponent', () => {
     // Simular entorno nativo (Capacitor no-web)
     (window as any).Capacitor = { getPlatform: () => 'android' };
     // Estados antes de render
-    userStub.setAuth(false); // invitado
+    authStateSubject.next(false); // invitado
     fixture.detectChanges(); // dispara ngOnInit y calcula isWebView=true
     // La barra local SÍ debe renderizarse en webview
     const bars = fixture.debugElement.queryAll(By.css('.quick-actions-bar'));
@@ -133,8 +129,7 @@ describe('HomeComponent', () => {
 
   it('actualiza cartCount desde CartService', () => {
     fixture.detectChanges();
-    const cart = TestBed.inject(CartService) as unknown as CartServiceStub;
-    cart.count$.next(3);
+    mockCartService.count$.next(3);
     expect(component.cartCount).toBe(3);
   });
 
@@ -145,7 +140,7 @@ describe('HomeComponent', () => {
       initCalled = true;
     };
     component.ngOnInit();
-    userStub.setAuth(false); // invitado
+    authStateSubject.next(false); // invitado
     tick(0); // setTimeout(0)
     expect(initCalled).toBe(true);
 
@@ -156,7 +151,7 @@ describe('HomeComponent', () => {
         disconnectCalled = true;
       },
     } as any;
-    userStub.setAuth(true); // autenticado
+    authStateSubject.next(true); // autenticado
     tick(0);
     expect(disconnectCalled).toBe(true);
   }));
@@ -167,9 +162,8 @@ describe('HomeComponent', () => {
     footerEl.className = 'footer';
     document.body.appendChild(footerEl);
 
-    // hasKeyReturn debe ser false para que se ejecute la lógica de inicialización
-    hasKeyReturn = false;
-    setCalled = false; // Reset del flag
+    // Configurar TransferState para que no tenga la clave
+    mockTransferState.hasKey.mockReturnValue(false);
     fixture.detectChanges(); // dispara ngOnInit
 
     // Esperar un tick antes de llamar ngAfterViewInit
@@ -182,7 +176,7 @@ describe('HomeComponent', () => {
 
     // Verificar que el TransferState se setea correctamente (solo si no es browser)
     if (!isPlatformBrowser((component as any).platformId)) {
-      expect(setCalled).toBe(true);
+      expect(mockTransferState.set).toHaveBeenCalled();
     }
 
     // Limpieza
@@ -201,7 +195,7 @@ describe('HomeComponent', () => {
     (window as any).bootstrap = { Carousel };
 
     // Forzar hasKey=true temporalmente
-    hasKeyReturn = true;
+    mockTransferState.hasKey.mockReturnValue(true);
     const localFixture = TestBed.createComponent(HomeComponent);
     const localComp = localFixture.componentInstance as any;
     // Reemplazar método con stub y bandera
@@ -218,7 +212,7 @@ describe('HomeComponent', () => {
     // Cuando hasKey es true, no debería llamar initFooterObserver
     // pero el código actual sí lo hace, así que ajustamos la expectativa
     expect(initCalled).toBe(true);
-    hasKeyReturn = false;
+    mockTransferState.hasKey.mockReturnValue(false);
 
     // Limpieza
     document.body.removeChild(el);
@@ -282,21 +276,21 @@ describe('HomeComponent', () => {
   });
 
   it('determina correctamente si el usuario es cliente y si está logueado', () => {
-    userStub.setUserRole(null);
+    mockUserService.getUserRole.mockReturnValue(null);
     expect(component.isClient).toBe(true);
     expect(component.isLoggedIn).toBe(false);
 
-    userStub.setUserRole('Cliente');
+    mockUserService.getUserRole.mockReturnValue('Cliente');
     expect(component.isLoggedIn).toBe(true);
     expect(component.isClient).toBe(true);
 
-    userStub.setUserRole(RolTrabajador.RolMesero);
+    mockUserService.getUserRole.mockReturnValue(RolTrabajador.RolMesero);
     expect(component.isClient).toBe(false);
   });
 
   it('genera las tarjetas correctas para clientes y trabajadores', () => {
     component.cartCount = 2;
-    userStub.setUserRole('Cliente');
+    mockUserService.getUserRole.mockReturnValue('Cliente');
 
     const clientCards = component.webViewCards;
     expect(clientCards.find((card) => card.type === 'carrito')).toBeTruthy();
@@ -304,18 +298,16 @@ describe('HomeComponent', () => {
     expect(clientCards.find((card) => card.type === 'perfil-cliente')).toBeTruthy();
     expect(clientCards.find((card) => card.type === 'perfil-trabajador')).toBeFalsy();
 
-    userStub.setUserRole(RolTrabajador.RolCocinero);
+    mockUserService.getUserRole.mockReturnValue(RolTrabajador.RolCocinero);
     const workerCards = component.webViewCards;
     expect(workerCards.find((card) => card.type === 'perfil-trabajador')).toBeTruthy();
     expect(workerCards.find((card) => card.type === 'perfil-cliente')).toBeFalsy();
   });
 
   it('calcula el total de tarjetas basado en la lista generada', () => {
-    jest.spyOn(component, 'webViewCards', 'get').mockReturnValue([
-      { type: 'a' } as any,
-      { type: 'b' } as any,
-      { type: 'c' } as any,
-    ]);
+    jest
+      .spyOn(component, 'webViewCards', 'get')
+      .mockReturnValue([{ type: 'a' } as any, { type: 'b' } as any, { type: 'c' } as any]);
 
     expect(component.totalCardsCount).toBe(3);
   });
@@ -379,14 +371,14 @@ describe('HomeComponent', () => {
     const productos: ProductoVendido[] = [
       { productoId: 1, imagen: 'img', nombreProducto: 'Arepa' } as ProductoVendido,
     ];
-    telemetryStub.getProductosPopulares.mockReturnValue(
+    mockTelemetryService.getProductosPopulares.mockReturnValue(
       of({ code: 200, data: { productosPopulares: productos }, message: 'ok' }),
     );
     const detectSpy = jest.spyOn((component as any).cdr, 'detectChanges');
 
     component.loadProductosPopulares();
 
-    expect(telemetryStub.getProductosPopulares).toHaveBeenCalledWith({
+    expect(mockTelemetryService.getProductosPopulares).toHaveBeenCalledWith({
       limit: 4,
       periodo: 'historico',
     });
@@ -397,7 +389,7 @@ describe('HomeComponent', () => {
   });
 
   it('marca error cuando el backend no retorna datos válidos', () => {
-    telemetryStub.getProductosPopulares.mockReturnValue(
+    mockTelemetryService.getProductosPopulares.mockReturnValue(
       of({ code: 500, message: 'fail' } as any),
     );
     const detectSpy = jest.spyOn((component as any).cdr, 'detectChanges');
@@ -410,7 +402,7 @@ describe('HomeComponent', () => {
   });
 
   it('maneja errores al cargar productos populares', () => {
-    telemetryStub.getProductosPopulares.mockReturnValue(
+    mockTelemetryService.getProductosPopulares.mockReturnValue(
       throwError(() => new Error('network error')),
     );
     const detectSpy = jest.spyOn((component as any).cdr, 'detectChanges');
@@ -455,6 +447,7 @@ describe('HomeComponent', () => {
     (component as any).platformId = 'browser';
     component.isWebView = true;
     const clearSpy = jest.spyOn(imageUtils, 'clearBlobUrlCache').mockImplementation(() => {});
+    // eslint-disable-next-line no-restricted-syntax
     const footerMock = { disconnect: jest.fn() };
     (component as any).footerObserver = footerMock;
     const authSub = new BehaviorSubject<boolean>(false).subscribe();

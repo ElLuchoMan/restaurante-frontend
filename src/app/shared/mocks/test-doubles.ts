@@ -274,6 +274,7 @@ export function createProductoServiceMock() {
 export function createCartServiceMock() {
   return {
     items$: new BehaviorSubject<any[]>([]),
+    count$: new BehaviorSubject<number>(0),
     addToCart: jest.fn(),
     changeQty: jest.fn(),
     remove: jest.fn(),
@@ -444,6 +445,7 @@ export function createTelemetryServiceMock() {
     getEficiencia: jest.fn(),
     getReservasAnalisis: jest.fn(),
     getPedidosAnalisis: jest.fn(),
+    getProductosPopulares: jest.fn(),
     // Métodos de usuario y dispositivo
     setUserDocument: jest.fn(),
     getUserDocument: jest.fn(),
