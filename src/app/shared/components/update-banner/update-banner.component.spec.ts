@@ -7,6 +7,8 @@ import { Subject } from 'rxjs';
 import { createSwUpdateMock } from '../../../shared/mocks/test-doubles';
 import { UpdateBannerComponent } from './update-banner.component';
 
+const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 describe('UpdateBannerComponent', () => {
   let component: UpdateBannerComponent;
   let fixture: ComponentFixture<UpdateBannerComponent>;
@@ -208,11 +210,36 @@ describe('UpdateBannerComponent', () => {
   });
 
   describe('User Interactions', () => {
-    it.skip('should reload page when update button is clicked', async () => {
-      /* JSDOM limitation */
+    it('should reload page when update button is clicked', async () => {
+      const reloadSpy = jest.spyOn(document.location, 'reload').mockImplementation(() => undefined);
+
+      component.updateAvailable = true;
+      fixture.detectChanges();
+
+      mockSwUpdate.activateUpdate.mockResolvedValueOnce(undefined);
+
+      const updateButton = fixture.debugElement.query(
+        By.css('.update-banner:not(.error) button:first-child'),
+      );
+      updateButton.nativeElement.click();
+
+      await flushPromises();
+
+      expect(mockSwUpdate.activateUpdate).toHaveBeenCalled();
+      expect(reloadSpy).toHaveBeenCalledTimes(1);
     });
-    it.skip('should reload page when activateUpdate fails', async () => {
-      /* JSDOM limitation */
+
+    it('should reload page when activateUpdate fails', async () => {
+      const reloadSpy = jest.spyOn(document.location, 'reload').mockImplementation(() => undefined);
+
+      mockSwUpdate.activateUpdate.mockRejectedValueOnce(new Error('activation failed'));
+
+      component.reload();
+
+      await flushPromises();
+
+      expect(mockSwUpdate.activateUpdate).toHaveBeenCalledTimes(1);
+      expect(reloadSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should dismiss update banner when dismiss button is clicked', () => {
@@ -227,8 +254,21 @@ describe('UpdateBannerComponent', () => {
       expect(component.updateAvailable).toBe(false);
     });
 
-    it.skip('should reload page when error banner reload button is clicked', async () => {
-      /* JSDOM limitation */
+    it('should reload page when error banner reload button is clicked', async () => {
+      const reloadSpy = jest.spyOn(document.location, 'reload').mockImplementation(() => undefined);
+
+      component.unrecoverable = true;
+      fixture.detectChanges();
+
+      const reloadButton = fixture.debugElement.query(
+        By.css('.update-banner.error button'),
+      );
+      reloadButton.nativeElement.click();
+
+      await flushPromises();
+
+      expect(mockSwUpdate.activateUpdate).toHaveBeenCalledTimes(1);
+      expect(reloadSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should not call activateUpdate on server platform', async () => {
