@@ -399,6 +399,19 @@ export function createReservaServiceMock() {
   } as any;
 }
 
+export function createReservaContactoServiceMock() {
+  return {
+    getContactos: jest.fn(),
+    getById: jest.fn(),
+  } as any;
+}
+
+export function createReservaNotificationsServiceMock() {
+  return {
+    notifyEstadoCambio: jest.fn().mockResolvedValue(undefined),
+  } as any;
+}
+
 export function createFileReaderMock(resultData = 'base64data') {
   return {
     readAsDataURL: jest.fn(function (this: any) {
