@@ -20,6 +20,7 @@ import { UserService } from '../../../../core/services/user.service';
 import { mockResponseCliente } from '../../../../shared/mocks/cliente.mock';
 import {
   createClienteServiceMock,
+  createInputWithPickerMock,
   createLoggingServiceMock,
   createReservaNotificationsServiceMock,
   createReservaServiceMock,
@@ -364,5 +365,153 @@ describe('CrearReservaComponent', () => {
 
     const reservaArg = reservaService.crearReserva.mock.calls[0][0] as any;
     expect(reservaArg.documentoContacto).toBe(123456);
+  });
+
+  it('should show warning and return when fecha is not permitted', () => {
+    component.rol = 'Administrador';
+    userService.getUserId.mockReturnValue(1);
+    // Fecha de mañana (no permitida, necesita mínimo 2 días)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const y = tomorrow.getFullYear();
+    const m = `${tomorrow.getMonth() + 1}`.padStart(2, '0');
+    const d = `${tomorrow.getDate()}`.padStart(2, '0');
+    component.fechaReserva = `${y}-${m}-${d}`;
+    component.horaReserva = '10:00';
+    component.personas = '3';
+
+    component.onSubmit();
+
+    expect(toastr.warning).toHaveBeenCalledWith(
+      'La fecha debe ser con al menos 2 días de anticipación',
+      'Atención',
+    );
+    expect(reservaService.crearReserva).not.toHaveBeenCalled();
+  });
+
+  it('should initialize esAdmin as true for Administrador role', () => {
+    userService.getUserRole.mockReturnValue('Administrador');
+    component.ngOnInit();
+    expect(component.esAdmin).toBe(true);
+    expect(component.mostrarCampo).toBe(true);
+  });
+
+  describe('fechaNoPermitida getter', () => {
+    it('should return false when fechaReserva is empty', () => {
+      component.fechaReserva = '';
+      expect(component.fechaNoPermitida).toBe(false);
+    });
+
+    it('should return false when fechaReserva has invalid format', () => {
+      component.fechaReserva = '2025-13'; // Invalid format (only 2 parts)
+      expect(component.fechaNoPermitida).toBe(false);
+    });
+
+    it('should return true when fecha is today', () => {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = `${today.getMonth() + 1}`.padStart(2, '0');
+      const d = `${today.getDate()}`.padStart(2, '0');
+      component.fechaReserva = `${y}-${m}-${d}`;
+      expect(component.fechaNoPermitida).toBe(true);
+    });
+
+    it('should return true when fecha is tomorrow', () => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const y = tomorrow.getFullYear();
+      const m = `${tomorrow.getMonth() + 1}`.padStart(2, '0');
+      const d = `${tomorrow.getDate()}`.padStart(2, '0');
+      component.fechaReserva = `${y}-${m}-${d}`;
+      expect(component.fechaNoPermitida).toBe(true);
+    });
+
+    it('should return false when fecha is 2+ days in future', () => {
+      component.fechaReserva = getValidReservaDate();
+      expect(component.fechaNoPermitida).toBe(false);
+    });
+  });
+
+  describe('onHoraChange', () => {
+    it('should return early when horaReserva is empty', () => {
+      component.horaReserva = '';
+      component.onHoraChange();
+      expect(component.horaReserva).toBe('');
+    });
+
+    it('should return early when hour or minute is NaN', () => {
+      component.horaReserva = 'invalid:time';
+      component.onHoraChange();
+      expect(component.horaReserva).toBe('invalid:time');
+    });
+
+    it('should round minute to 0 when minute <= 14', () => {
+      component.horaReserva = '10:10';
+      component.onHoraChange();
+      expect(component.horaReserva).toBe('10:00');
+    });
+
+    it('should round minute to 30 when minute is between 15 and 44', () => {
+      component.horaReserva = '10:20';
+      component.onHoraChange();
+      expect(component.horaReserva).toBe('10:30');
+    });
+
+    it('should round to next hour when minute >= 45', () => {
+      component.horaReserva = '10:50';
+      component.onHoraChange();
+      expect(component.horaReserva).toBe('11:00');
+    });
+
+    it('should wrap to 00:00 when rounding 23:50', () => {
+      component.horaReserva = '23:50';
+      component.onHoraChange();
+      expect(component.horaReserva).toBe('00:00');
+    });
+
+    it('should limit hour to 23 when out of range', () => {
+      component.horaReserva = '25:00';
+      component.onHoraChange();
+      expect(component.horaReserva).toBe('23:00');
+    });
+
+    it('should limit minute to 59 when out of range', () => {
+      component.horaReserva = '10:70';
+      component.onHoraChange();
+      // 70 -> 59 -> rounds to next hour since > 44
+      expect(component.horaReserva).toBe('11:00');
+    });
+
+    it('should not change horaReserva when already normalized', () => {
+      component.horaReserva = '10:00';
+      component.onHoraChange();
+      expect(component.horaReserva).toBe('10:00');
+    });
+
+    it('should try to call showPicker when hour is changed', () => {
+      const mockInput = createInputWithPickerMock();
+      component.horaReserva = '10:20';
+      component.onHoraChange(mockInput);
+      expect(mockInput.showPicker).toHaveBeenCalled();
+    });
+
+    it('should handle missing showPicker gracefully', () => {
+      const mockInput = {} as any;
+      component.horaReserva = '10:20';
+      expect(() => component.onHoraChange(mockInput)).not.toThrow();
+    });
+  });
+
+  describe('openTimePicker', () => {
+    it('should call showPicker when available', () => {
+      const mockInput = createInputWithPickerMock();
+      component.openTimePicker(mockInput);
+      expect(mockInput.showPicker).toHaveBeenCalled();
+    });
+
+    it('should handle missing showPicker gracefully', () => {
+      const mockInput = {} as any;
+      expect(() => component.openTimePicker(mockInput)).not.toThrow();
+    });
   });
 });

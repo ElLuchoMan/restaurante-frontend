@@ -420,6 +420,12 @@ export function createLocationReloadMock() {
   return reloadMock;
 }
 
+export function createInputWithPickerMock() {
+  return {
+    showPicker: jest.fn(),
+  } as any;
+}
+
 export function createFileReaderMock(resultData = 'base64data') {
   return {
     readAsDataURL: jest.fn(function (this: any) {
