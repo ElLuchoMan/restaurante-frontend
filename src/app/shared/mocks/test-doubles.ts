@@ -412,6 +412,14 @@ export function createReservaNotificationsServiceMock() {
   } as any;
 }
 
+export function createLocationReloadMock() {
+  const reloadMock = jest.fn();
+  // @ts-ignore - Necesitamos mockear location.reload
+  delete (window as any).location;
+  (window as any).location = { reload: reloadMock };
+  return reloadMock;
+}
+
 export function createFileReaderMock(resultData = 'base64data') {
   return {
     readAsDataURL: jest.fn(function (this: any) {
