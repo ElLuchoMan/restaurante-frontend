@@ -131,10 +131,17 @@ describe('notification-center.store', () => {
 
   it('marks all as seen and notifies listeners', () => {
     const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
+    const before = new Date();
 
     markAllSeen();
 
-    expect(window.localStorage.getItem(LAST_SEEN_KEY)).toBe(new Date().toISOString());
+    const stored = window.localStorage.getItem(LAST_SEEN_KEY);
+    const storedDate = new Date(stored!);
+    const after = new Date();
+
+    // Verificar que la fecha almacenada esté entre before y after (máximo unos milisegundos de diferencia)
+    expect(storedDate.getTime()).toBeGreaterThanOrEqual(before.getTime());
+    expect(storedDate.getTime()).toBeLessThanOrEqual(after.getTime());
     expect(dispatchSpy).toHaveBeenCalledWith(expect.any(CustomEvent));
   });
 
