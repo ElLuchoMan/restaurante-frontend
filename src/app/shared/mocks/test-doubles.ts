@@ -505,9 +505,21 @@ export function createPerformanceServiceMock() {
 export function createUserServiceMock(authStateObs?: any) {
   return {
     getAuthState: jest.fn().mockReturnValue(authStateObs || of(false)),
+    isLoggedIn: jest.fn().mockReturnValue(false),
+    login: jest.fn(),
+    setRemember: jest.fn(),
+    saveToken: jest.fn(),
+    saveTokens: jest.fn(),
+    getRefreshToken: jest.fn().mockReturnValue(null),
+    getToken: jest.fn().mockReturnValue(null),
+    decodeToken: jest.fn().mockReturnValue(null),
     getUserRole: jest.fn().mockReturnValue(''),
-    getUserId: jest.fn().mockReturnValue(null),
+    getUserId: jest.fn().mockReturnValue(0),
+    isTokenExpired: jest.fn().mockReturnValue(false),
     logout: jest.fn(),
+    validateTokenAndLogout: jest.fn().mockReturnValue(null),
+    refreshTokens: jest.fn(),
+    attemptTokenRefresh: jest.fn().mockReturnValue(of(false)),
   } as any;
 }
 
