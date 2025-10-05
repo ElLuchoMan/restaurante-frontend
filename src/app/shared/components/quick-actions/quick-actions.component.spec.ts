@@ -1,5 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -11,6 +11,7 @@ import { QuickActionItem, QuickActionsComponent } from './quick-actions.componen
 class UserServiceStub {
   private auth$ = new BehaviorSubject<boolean>(false);
   role: string | null = null;
+  // eslint-disable-next-line no-restricted-syntax
   logout = jest.fn(() => {
     this.setAuth(false);
   });
@@ -35,12 +36,13 @@ class UserServiceStub {
 class MockIntersectionObserver {
   static instances: MockIntersectionObserver[] = [];
   public observed: Element | null = null;
-  disconnect = jest.fn();
+  disconnect = jest.fn(); // eslint-disable-line no-restricted-syntax
 
   constructor(private callback: IntersectionObserverCallback) {
     MockIntersectionObserver.instances.push(this);
   }
 
+  // eslint-disable-next-line no-restricted-syntax
   observe = jest.fn((element: Element) => {
     this.observed = element;
   });
@@ -83,9 +85,11 @@ describe('QuickActionsComponent', () => {
     const listeners = new Map<string, () => void>();
     const viewport = {
       height: 800,
+      // eslint-disable-next-line no-restricted-syntax
       addEventListener: jest.fn((event: string, handler: () => void) => {
         listeners.set(event, handler);
       }),
+      // eslint-disable-next-line no-restricted-syntax
       removeEventListener: jest.fn((event: string) => {
         listeners.delete(event);
       }),
@@ -97,7 +101,9 @@ describe('QuickActionsComponent', () => {
     return viewport;
   };
 
-  const createComponent = async (options: { platformId?: string; attachMain?: boolean; withFooter?: boolean } = {}) => {
+  const createComponent = async (
+    options: { platformId?: string; attachMain?: boolean; withFooter?: boolean } = {},
+  ) => {
     if (options.platformId) {
       TestBed.overrideProvider(PLATFORM_ID, { useValue: options.platformId });
     }
@@ -134,7 +140,8 @@ describe('QuickActionsComponent', () => {
 
     userService = TestBed.inject(UserService) as unknown as UserServiceStub;
     router = TestBed.inject(Router);
-    (window as any).IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
+    (window as any).IntersectionObserver =
+      MockIntersectionObserver as unknown as typeof IntersectionObserver;
     (window as any).visualViewport = setupVisualViewport();
     originalInnerHeight = window.innerHeight;
   });
@@ -291,7 +298,11 @@ describe('QuickActionsComponent', () => {
   });
 
   it('gestiona los efectos visuales y eventos del teclado y footer', async () => {
-    Object.defineProperty(window, 'innerHeight', { value: 900, writable: true, configurable: true });
+    Object.defineProperty(window, 'innerHeight', {
+      value: 900,
+      writable: true,
+      configurable: true,
+    });
     const urlSpy = jest.spyOn(router, 'url', 'get');
     urlSpy.mockReturnValue('/home');
     const focusHandlers: { in?: EventListener; out?: EventListener } = {};
@@ -306,7 +317,11 @@ describe('QuickActionsComponent', () => {
         ) => {
           if (type === 'focusin') focusHandlers.in = listener as EventListener;
           if (type === 'focusout') focusHandlers.out = listener as EventListener;
-          return originalAddEventListener(type, listener as EventListener, options as boolean | AddEventListenerOptions | undefined);
+          return originalAddEventListener(
+            type,
+            listener as EventListener,
+            options as boolean | AddEventListenerOptions | undefined,
+          );
         },
       );
 
@@ -317,14 +332,17 @@ describe('QuickActionsComponent', () => {
     const main = document.getElementById('main') as HTMLElement;
     (component as unknown as { barEl: HTMLElement | null }).barEl = bar;
     (component as unknown as { mainEl: HTMLElement | null }).mainEl = main;
-    const rectSpy = jest.spyOn(bar, 'getBoundingClientRect').mockReturnValue({ height: 56 } as DOMRect);
+    const rectSpy = jest
+      .spyOn(bar, 'getBoundingClientRect')
+      .mockReturnValue({ height: 56 } as DOMRect);
 
     const observer = MockIntersectionObserver.instances.at(-1)!;
     observer.trigger(true);
     expect(bar.classList.contains('qa-hidden')).toBe(true);
     const paddingWhenHidden = main.style.paddingBottom;
     expect(
-      paddingWhenHidden === '' || paddingWhenHidden.includes('calc(8px + max(env(safe-area-inset-bottom), 0px))'),
+      paddingWhenHidden === '' ||
+        paddingWhenHidden.includes('calc(8px + max(env(safe-area-inset-bottom), 0px))'),
     ).toBe(true);
 
     observer.trigger(false);
@@ -338,7 +356,9 @@ describe('QuickActionsComponent', () => {
     input.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
     expect(bar.classList.contains('qa-hidden')).toBe(false);
 
-    const viewport = (window as any).visualViewport as VisualViewport & { trigger: (event: string) => void };
+    const viewport = (window as any).visualViewport as VisualViewport & {
+      trigger: (event: string) => void;
+    };
     viewport.height = 700;
     viewport.trigger('resize');
     expect(bar.classList.contains('qa-hidden')).toBe(true);
@@ -396,10 +416,9 @@ describe('QuickActionsComponent', () => {
     focusHandlers.in?.call(document, { target: editable } as unknown as Event);
     const textarea = document.createElement('textarea');
     focusHandlers.in?.call(document, { target: textarea } as unknown as Event);
-    focusHandlers.in?.call(
-      document,
-      { target: { isContentEditable: false } as unknown as HTMLElement } as unknown as Event,
-    );
+    focusHandlers.in?.call(document, {
+      target: { isContentEditable: false } as unknown as HTMLElement,
+    } as unknown as Event);
 
     bar.classList.remove('qa-hidden');
     component.onResize();
