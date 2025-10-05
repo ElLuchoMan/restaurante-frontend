@@ -444,6 +444,10 @@ export function createTelemetryServiceMock() {
     getEficiencia: jest.fn(),
     getReservasAnalisis: jest.fn(),
     getPedidosAnalisis: jest.fn(),
+    // Métodos de usuario y dispositivo
+    setUserDocument: jest.fn(),
+    getUserDocument: jest.fn(),
+    getDeviceType: jest.fn(),
   } as any;
 }
 
@@ -493,7 +497,33 @@ export function createPerformanceServiceMock() {
     clearMetrics: jest.fn(),
     logPerformanceMetrics: jest.fn(),
     trackRouteChange: jest.fn(),
+    getCoreWebVitals: jest.fn().mockReturnValue({}),
+    getCoreWebVitalsStatus: jest.fn().mockReturnValue({}),
   } as any;
+}
+
+export function createUserServiceMock(authStateObs?: any) {
+  return {
+    getAuthState: jest.fn().mockReturnValue(authStateObs || of(false)),
+    getUserRole: jest.fn().mockReturnValue(''),
+    getUserId: jest.fn().mockReturnValue(null),
+    logout: jest.fn(),
+  } as any;
+}
+
+export function createLocationMock() {
+  return {
+    back: jest.fn(),
+    forward: jest.fn(),
+    replaceState: jest.fn(),
+    go: jest.fn(),
+  } as any;
+}
+
+export function createCapacitorMock(platform: string) {
+  return {
+    getPlatform: jest.fn().mockReturnValue(platform),
+  };
 }
 
 export function createPushServiceMock() {
