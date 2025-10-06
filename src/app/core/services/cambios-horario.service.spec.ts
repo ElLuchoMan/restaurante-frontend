@@ -70,4 +70,96 @@ describe('CambiosHorarioService', () => {
     expect(req.request.method).toBe('DELETE');
     req.flush(mock);
   });
+
+  it('create cambio with all fields including abierto', () => {
+    const body = {
+      fecha: '2025-09-15',
+      horaApertura: '08:00:00',
+      horaCierre: '18:00:00',
+      abierto: true,
+    } as any;
+    const mock = { code: 201, message: 'created', data: {} };
+    service.create(body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(baseUrl);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      fechaCambioHorario: '2025-09-15',
+      horaApertura: '08:00:00',
+      horaCierre: '18:00:00',
+      abierto: true,
+    });
+    req.flush(mock);
+  });
+
+  it('create cambio with optional fields as null', () => {
+    const body = {
+      fecha: '2025-09-15',
+      horaApertura: null,
+      horaCierre: null,
+    } as any;
+    const mock = { code: 201, message: 'created', data: {} };
+    service.create(body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(baseUrl);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      fechaCambioHorario: '2025-09-15',
+    });
+    req.flush(mock);
+  });
+
+  it('create cambio with abierto false', () => {
+    const body = { fecha: '2025-09-15', abierto: false } as any;
+    const mock = { code: 201, message: 'created', data: {} };
+    service.create(body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(baseUrl);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      fechaCambioHorario: '2025-09-15',
+      abierto: false,
+    });
+    req.flush(mock);
+  });
+
+  it('update cambio with all fields including abierto', () => {
+    const body = {
+      fecha: '2025-09-16',
+      horaApertura: '09:00:00',
+      horaCierre: '19:00:00',
+      abierto: false,
+    } as any;
+    const mock = { code: 200, message: 'ok', data: {} };
+    service.update(5, body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?id=5`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({
+      fechaCambioHorario: '2025-09-16',
+      horaApertura: '09:00:00',
+      horaCierre: '19:00:00',
+      abierto: false,
+    });
+    req.flush(mock);
+  });
+
+  it('update cambio with optional fields as null', () => {
+    const body = {
+      horaApertura: null,
+      horaCierre: null,
+    } as any;
+    const mock = { code: 200, message: 'ok', data: {} };
+    service.update(6, body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?id=6`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({});
+    req.flush(mock);
+  });
+
+  it('update cambio with abierto true', () => {
+    const body = { abierto: true } as any;
+    const mock = { code: 200, message: 'ok', data: {} };
+    service.update(7, body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?id=7`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({ abierto: true });
+    req.flush(mock);
+  });
 });

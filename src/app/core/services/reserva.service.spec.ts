@@ -342,4 +342,56 @@ describe('ReservaService', () => {
     req.error(new ErrorEvent('API error'));
     expect(handleErrorService.handleError).toHaveBeenCalled();
   });
+
+  it('should get reservas by cliente with fecha', () => {
+    const mockResponse: ApiResponse<Reserva[]> = {
+      code: 200,
+      message: 'Reservas encontradas',
+      data: [mockReserva],
+    };
+
+    service.getReservasByCliente(101, '2025-09-15').subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(
+      `${environment.apiUrl}/reservas/cliente?documentoCliente=101&fecha=2025-09-15`,
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  it('should get reservas by documento without fecha', () => {
+    const mockResponse: ApiResponse<Reserva[]> = {
+      code: 200,
+      message: 'Reservas encontradas',
+      data: [mockReserva],
+    };
+
+    service.getReservasByDocumento(12345).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/documento?documento=12345`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  it('should get reservas by documento with fecha', () => {
+    const mockResponse: ApiResponse<Reserva[]> = {
+      code: 200,
+      message: 'Reservas encontradas',
+      data: [mockReserva],
+    };
+
+    service.getReservasByDocumento(12345, '2025-09-15').subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(
+      `${environment.apiUrl}/reservas/documento?documento=12345&fecha=2025-09-15`,
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
 });

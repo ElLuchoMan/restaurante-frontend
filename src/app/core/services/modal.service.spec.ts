@@ -50,4 +50,24 @@ describe('ModalService', () => {
     });
     expect(isOpenValue).toBe(false);
   });
+
+  it('should set and get observaciones', () => {
+    const testObservaciones = 'Observaciones de prueba';
+    service.setObservaciones(testObservaciones);
+
+    expect(service.getObservaciones()).toBe(testObservaciones);
+
+    let observacionesValue: string | undefined;
+    service.observaciones$.subscribe((value) => {
+      observacionesValue = value;
+    });
+    expect(observacionesValue).toBe(testObservaciones);
+  });
+
+  it('should clear observaciones when closeModal is called', () => {
+    service.setObservaciones('Algo');
+    service.closeModal();
+
+    expect(service.getObservaciones()).toBe('');
+  });
 });
