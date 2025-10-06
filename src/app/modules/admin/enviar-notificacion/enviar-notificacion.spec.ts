@@ -321,6 +321,19 @@ describe('EnviarNotificacionComponent', () => {
       expect(component.enviando).toBe(false);
     });
 
+    it('debería manejar error sin mensaje al enviar notificación', () => {
+      const mockError = {};
+      pushService.enviarNotificacion.mockReturnValue(throwError(() => mockError));
+
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+
+      component.enviarNotificacion();
+
+      expect(toastr.error).toHaveBeenCalledWith('Error al enviar notificación', 'Error');
+      expect(component.enviando).toBe(false);
+    });
+
     it('no debería enviar si falta el título', () => {
       component.titulo = '';
       component.mensaje = 'Mensaje test';
@@ -339,6 +352,125 @@ describe('EnviarNotificacionComponent', () => {
 
       expect(toastr.warning).toHaveBeenCalledWith('El mensaje es obligatorio', 'Validación');
       expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
+    });
+
+    it('no debería enviar si falta el documento del trabajador remitente', () => {
+      component.tipoRemitente = 'TRABAJADOR';
+      component.documentoTrabajador = 0;
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+
+      component.enviarNotificacion();
+
+      expect(toastr.warning).toHaveBeenCalledWith(
+        'El documento del trabajador es obligatorio',
+        'Validación',
+      );
+      expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
+    });
+
+    it('no debería enviar si el documento del cliente es inválido', () => {
+      component.tipoDestinatario = 'CLIENTE';
+      component.documentoCliente = NaN;
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+
+      component.enviarNotificacion();
+
+      expect(toastr.warning).toHaveBeenCalledWith(
+        'El documento del cliente es obligatorio y debe ser válido',
+        'Validación',
+      );
+      expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
+    });
+
+    it('no debería enviar si el documento del cliente es cero', () => {
+      component.tipoDestinatario = 'CLIENTE';
+      component.documentoCliente = 0;
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+
+      component.enviarNotificacion();
+
+      expect(toastr.warning).toHaveBeenCalledWith(
+        'El documento del cliente es obligatorio y debe ser válido',
+        'Validación',
+      );
+      expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
+    });
+
+    it('no debería enviar si el documento del trabajador destinatario es inválido', () => {
+      component.tipoDestinatario = 'TRABAJADOR';
+      component.documentoTrabajadorDestinatario = NaN;
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+
+      component.enviarNotificacion();
+
+      expect(toastr.warning).toHaveBeenCalledWith(
+        'El documento del trabajador destinatario es obligatorio y debe ser válido',
+        'Validación',
+      );
+      expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
+    });
+
+    it('no debería enviar si el documento del trabajador destinatario es cero', () => {
+      component.tipoDestinatario = 'TRABAJADOR';
+      component.documentoTrabajadorDestinatario = 0;
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+
+      component.enviarNotificacion();
+
+      expect(toastr.warning).toHaveBeenCalledWith(
+        'El documento del trabajador destinatario es obligatorio y debe ser válido',
+        'Validación',
+      );
+      expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
+    });
+
+    it('no debería enviar si el topic está vacío', () => {
+      component.tipoDestinatario = 'TOPIC';
+      component.topic = '   ';
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+
+      component.enviarNotificacion();
+
+      expect(toastr.warning).toHaveBeenCalledWith('El topic es obligatorio', 'Validación');
+      expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
+    });
+
+    it('debería usar default case (CLIENTE) cuando el tipo de destinatario no coincide', () => {
+      const mockResponse = {
+        code: 200,
+        message: 'Notificación enviada',
+        data: {
+          totalDispositivos: 1,
+          enviosExitosos: 1,
+          enviosFallidos: 0,
+          detalleEnvios: [],
+          resumenDestinatarios: { tipoDestinatario: 'CLIENTE' },
+        },
+      };
+      pushService.enviarNotificacion.mockReturnValue(of(mockResponse));
+
+      component.tipoDestinatario = 'INVALID_TYPE' as any;
+      component.documentoCliente = 1015466495;
+      component.titulo = 'Test';
+      component.mensaje = 'Mensaje test';
+
+      component.enviarNotificacion();
+
+      expect(pushService.enviarNotificacion).toHaveBeenCalledWith({
+        remitente: { tipo: 'TRABAJADOR', documentoTrabajador: 1015466494 },
+        destinatarios: { tipo: 'CLIENTE', documentoCliente: 1015466495 },
+        notificacion: {
+          titulo: 'Test',
+          mensaje: 'Mensaje test',
+          datos: { url: '/home' },
+        },
+      });
     });
   });
 
