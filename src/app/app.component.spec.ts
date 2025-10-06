@@ -28,6 +28,12 @@ import {
   createWebPushServiceMock,
 } from './shared/mocks/test-doubles';
 
+const mockCapacitorApp = createCapacitorAppMock();
+
+jest.mock('@capacitor/app', () => ({
+  App: mockCapacitorApp,
+}));
+
 describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
@@ -41,10 +47,22 @@ describe('AppComponent', () => {
   let routerEventsSubject: Subject<any>;
   let networkOnlineSubject: BehaviorSubject<boolean>;
   let authStateSubject: BehaviorSubject<boolean>;
+  let originalHistoryLengthDescriptor: PropertyDescriptor | undefined;
+
+  beforeAll(() => {
+    originalHistoryLengthDescriptor = Object.getOwnPropertyDescriptor(history, 'length');
+  });
 
   beforeEach(async () => {
     // Mock window.scrollTo
     jest.spyOn(window, 'scrollTo').mockImplementation();
+
+    mockCapacitorApp.addListener.mockReset();
+    Object.defineProperty(history, 'length', {
+      configurable: true,
+      writable: true,
+      value: 2,
+    });
 
     // Create subjects for observables
     routerEventsSubject = new Subject();
@@ -129,6 +147,13 @@ describe('AppComponent', () => {
     routerEventsSubject.complete();
     networkOnlineSubject.complete();
     authStateSubject.complete();
+    delete (window as any).Capacitor;
+    mockCapacitorApp.addListener.mockReset();
+    if (originalHistoryLengthDescriptor) {
+      Object.defineProperty(history, 'length', originalHistoryLengthDescriptor);
+    } else {
+      delete (history as any).length;
+    }
   });
 
   it('should create the app', () => {
@@ -298,6 +323,21 @@ describe('AppComponent', () => {
       expect(component.isLoggedOut$).toBeDefined();
     });
 
+    it('should emit login state changes through isLoggedOut$', async () => {
+      // Act
+      component.ngOnInit();
+
+      const received: boolean[] = [];
+      const subscription = component.isLoggedOut$.subscribe((value) => received.push(value));
+      authStateSubject.next(true);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Assert
+      expect(received).toEqual([true, false]);
+
+      subscription.unsubscribe();
+    });
+
     it('should set up isHome$ observable', () => {
       // Act
       component.ngOnInit();
@@ -312,6 +352,25 @@ describe('AppComponent', () => {
 
       // Assert
       expect(component.showGlobalBack$).toBeDefined();
+    });
+
+    it('should evaluate showGlobalBack$ when router url is falsy', () => {
+      // Arrange
+      mockRouter.url = '';
+
+      // Act
+      component.ngOnInit();
+
+      const values: boolean[] = [];
+      const subscription = component.showGlobalBack$.subscribe((value) =>
+        values.push(value),
+      );
+      routerEventsSubject.next(new NavigationEnd(1, '', ''));
+
+      // Assert
+      expect(values[0]).toBe(true);
+
+      subscription.unsubscribe();
     });
 
     it('should detect WebView environment', () => {
@@ -418,6 +477,23 @@ describe('AppComponent', () => {
 
       // Assert
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/home']);
+    });
+
+    it('should not navigate home on popstate when history has entries', () => {
+      // Arrange
+      component.ngOnInit();
+      mockRouter.navigate.mockClear();
+      Object.defineProperty(history, 'length', {
+        configurable: true,
+        writable: true,
+        value: 2,
+      });
+
+      // Act
+      window.dispatchEvent(new PopStateEvent('popstate'));
+
+      // Assert
+      expect(mockRouter.navigate).not.toHaveBeenCalledWith(['/home']);
     });
 
     it('should handle push-notification-action event with valid URL', async () => {
@@ -745,101 +821,99 @@ describe('AppComponent', () => {
 
     it('should handle Capacitor App backButton at root', async () => {
       // Arrange
-      const mockApp = createCapacitorAppMock();
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
       mockRouter.url = '/';
-      const mockCapacitor = createCapacitorMock('android');
-      (window as any).Capacitor = mockCapacitor;
-
-      // Mock dynamic import of @capacitor/app
-      jest.mock('@capacitor/app', () => ({
-        App: mockApp,
-      }));
+      (window as any).Capacitor = createCapacitorMock('android');
 
       // Act
       component.ngOnInit();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Verify listener was added
-      if (mockApp.addListener.mock.calls.length > 0) {
-        const backButtonHandler = mockApp.addListener.mock.calls[0][1];
-        backButtonHandler();
+      // Assert
+      expect(mockCapacitorApp.addListener).toHaveBeenCalledWith(
+        'backButton',
+        expect.any(Function),
+      );
+      const backButtonHandler = mockCapacitorApp.addListener.mock.calls[0][1];
 
-        // Assert
-        expect(mockRouter.navigate).toHaveBeenCalledWith(['/home']);
-      }
+      Object.defineProperty(history, 'length', {
+        configurable: true,
+        writable: true,
+        value: 1,
+      });
+      backButtonHandler();
 
-      // Cleanup
-      delete (window as any).Capacitor;
-      jest.unmock('@capacitor/app');
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/home']);
+
+      consoleLogSpy.mockRestore();
     });
 
     it('should handle Capacitor App backButton at non-root', async () => {
       // Arrange
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
       const mockLocation = TestBed.inject(Location) as jest.Mocked<any>;
-      const mockApp = createCapacitorAppMock();
       mockRouter.url = '/menu';
-      const mockCapacitor = createCapacitorMock('android');
-      (window as any).Capacitor = mockCapacitor;
-
-      // Mock dynamic import
-      jest.mock('@capacitor/app', () => ({
-        App: mockApp,
-      }));
+      (window as any).Capacitor = createCapacitorMock('android');
 
       // Act
       component.ngOnInit();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Verify listener was added
-      if (mockApp.addListener.mock.calls.length > 0) {
-        const backButtonHandler = mockApp.addListener.mock.calls[0][1];
-        backButtonHandler();
+      expect(mockCapacitorApp.addListener).toHaveBeenCalledWith(
+        'backButton',
+        expect.any(Function),
+      );
+      const backButtonHandler = mockCapacitorApp.addListener.mock.calls[0][1];
+      backButtonHandler();
 
-        // Assert
-        expect(mockLocation.back).toHaveBeenCalled();
-      }
+      expect(mockLocation.back).toHaveBeenCalled();
+      consoleLogSpy.mockRestore();
+    });
 
-      // Cleanup
-      delete (window as any).Capacitor;
-      jest.unmock('@capacitor/app');
+    it('should fallback to empty url when handling Capacitor backButton', async () => {
+      // Arrange
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+      const mockLocation = TestBed.inject(Location) as jest.Mocked<any>;
+      mockRouter.url = '';
+      (window as any).Capacitor = createCapacitorMock('android');
+
+      // Act
+      component.ngOnInit();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const backButtonHandler = mockCapacitorApp.addListener.mock.calls[0][1];
+      backButtonHandler();
+
+      // Assert
+      expect(mockLocation.back).toHaveBeenCalled();
+      consoleLogSpy.mockRestore();
     });
 
     it('should not add Capacitor backButton listener when platform is web', async () => {
       // Arrange
-      const mockCapacitor = createCapacitorMock('web');
-      (window as any).Capacitor = mockCapacitor;
+      (window as any).Capacitor = createCapacitorMock('web');
 
       // Act
       component.ngOnInit();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Assert - native push should not be called
-      expect(mockNativePushService.init).not.toHaveBeenCalled();
-
-      // Cleanup
-      delete (window as any).Capacitor;
+      // Assert - listener should not be registered
+      expect(mockCapacitorApp.addListener).not.toHaveBeenCalled();
     });
 
-    it('should handle Capacitor import error gracefully', async () => {
+    it('should handle Capacitor listener errors gracefully', async () => {
       // Arrange
-      const mockCapacitor = createCapacitorMock('android');
-      (window as any).Capacitor = mockCapacitor;
-
-      // Mock import to fail
-      jest.mock('@capacitor/app', () => {
-        throw new Error('Import failed');
+      (window as any).Capacitor = createCapacitorMock('android');
+      mockCapacitorApp.addListener.mockImplementationOnce(() => {
+        throw new Error('Listener failed');
       });
 
       // Act
-      component.ngOnInit();
+      expect(() => component.ngOnInit()).not.toThrow();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Assert - should not throw
-      expect(component).toBeTruthy();
-
-      // Cleanup
-      delete (window as any).Capacitor;
-      jest.unmock('@capacitor/app');
+      // Assert - even after the error the component remains stable
+      expect(mockCapacitorApp.addListener).toHaveBeenCalled();
     });
 
     it('should not re-register web push when permission is denied', async () => {
