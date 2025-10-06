@@ -605,4 +605,48 @@ describe('TelemetryService', () => {
       });
     });
   });
+
+  describe('getCurrentScreen', () => {
+    it('should return mapped screen name for exact route match', () => {
+      jest.spyOn(service['router'], 'url', 'get').mockReturnValue('/admin/dashboard');
+      expect(service.getCurrentScreen()).toBe('Dashboard Admin');
+    });
+
+    it('should return mapped screen name for telemetry route', () => {
+      jest.spyOn(service['router'], 'url', 'get').mockReturnValue('/admin/telemetry');
+      expect(service.getCurrentScreen()).toBe('Telemetría');
+    });
+
+    it('should return mapped screen name for client menu', () => {
+      jest.spyOn(service['router'], 'url', 'get').mockReturnValue('/client/menu');
+      expect(service.getCurrentScreen()).toBe('Menú Cliente');
+    });
+
+    it('should return mapped screen name for public ubicacion', () => {
+      jest.spyOn(service['router'], 'url', 'get').mockReturnValue('/public/ubicacion');
+      expect(service.getCurrentScreen()).toBe('Ubicación');
+    });
+
+    it('should return mapped screen name for partial match (dynamic routes)', () => {
+      jest.spyOn(service['router'], 'url', 'get').mockReturnValue('/admin/productos/123');
+      expect(service.getCurrentScreen()).toBe('Gestión Productos');
+    });
+
+    it('should return formatted route for unmapped routes', () => {
+      jest.spyOn(service['router'], 'url', 'get').mockReturnValue('/some/nested/route');
+      expect(service.getCurrentScreen()).toBe('some > nested > route');
+    });
+
+    it('should return "Inicio" for root route', () => {
+      jest.spyOn(service['router'], 'url', 'get').mockReturnValue('/');
+      expect(service.getCurrentScreen()).toBe('Inicio');
+    });
+
+    it('should return null on error', () => {
+      jest.spyOn(service['router'], 'url', 'get').mockImplementation(() => {
+        throw new Error('Router error');
+      });
+      expect(service.getCurrentScreen()).toBeNull();
+    });
+  });
 });

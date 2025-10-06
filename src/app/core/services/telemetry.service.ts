@@ -297,6 +297,7 @@ export class TelemetryService {
   clearUserInfo(): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(this.userDocumentKey);
+      localStorage.removeItem(this.deviceTypeKey);
     }
   }
 
