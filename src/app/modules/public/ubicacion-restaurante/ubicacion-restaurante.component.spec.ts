@@ -5,6 +5,8 @@ import { ToastrService } from 'ngx-toastr';
 
 import { DomicilioService } from '../../../core/services/domicilio.service';
 import {
+  createCapacitorMock,
+  createCapacitorMockWithError,
   createDomicilioServiceMock,
   createRouterMock,
   createToastrMock,
@@ -72,4 +74,120 @@ describe('UbicacionRestauranteComponent', () => {
     tick(500);
     expect(component.mostrarInfo).toBe(true);
   }));
+
+  describe('call', () => {
+    it('should redirect to phone number when call is invoked', () => {
+      const originalLocation = window.location;
+      let capturedHref = '';
+
+      // @ts-ignore - Mock location.href
+      delete (window as any).location;
+      (window as any).location = {
+        href: '',
+        get href() {
+          return capturedHref;
+        },
+        set href(value: string) {
+          capturedHref = value;
+        },
+      };
+
+      component.call();
+
+      expect(window.location.href).toBe('tel:3042449339');
+
+      // Restore
+      (window as any).location = originalLocation;
+    });
+  });
+
+  describe('mapsLink getter', () => {
+    it('should return Apple Maps link when platform is ios', () => {
+      component.platform = 'ios';
+      const link = component.mapsLink;
+      expect(link).toContain('maps.apple.com');
+      expect(link).toContain(encodeURIComponent('Calle 78a # 62 - 48, Bogotá, Colombia'));
+    });
+
+    it('should return Google Maps link when platform is android', () => {
+      component.platform = 'android';
+      const link = component.mapsLink;
+      expect(link).toContain('maps.google.com');
+      expect(link).toContain(encodeURIComponent('Calle 78a # 62 - 48, Bogotá, Colombia'));
+    });
+
+    it('should return Google Maps link when platform is web', () => {
+      component.platform = 'web';
+      const link = component.mapsLink;
+      expect(link).toContain('maps.google.com');
+      expect(link).toContain(encodeURIComponent('Calle 78a # 62 - 48, Bogotá, Colombia'));
+    });
+  });
+
+  describe('Capacitor detection', () => {
+    it('should detect iOS platform from Capacitor', fakeAsync(() => {
+      const mockCapacitor = createCapacitorMock('ios');
+      (window as any).Capacitor = mockCapacitor;
+
+      component.ngAfterViewInit();
+      tick(500);
+
+      expect(component.platform).toBe('ios');
+      expect(component.isWebView).toBe(true);
+
+      // Clean up
+      delete (window as any).Capacitor;
+    }));
+
+    it('should detect Android platform from Capacitor', fakeAsync(() => {
+      const mockCapacitor = createCapacitorMock('android');
+      (window as any).Capacitor = mockCapacitor;
+
+      component.ngAfterViewInit();
+      tick(500);
+
+      expect(component.platform).toBe('android');
+      expect(component.isWebView).toBe(true);
+
+      // Clean up
+      delete (window as any).Capacitor;
+    }));
+
+    it('should default to web when Capacitor is not available', fakeAsync(() => {
+      delete (window as any).Capacitor;
+
+      component.ngAfterViewInit();
+      tick(500);
+
+      expect(component.platform).toBe('web');
+      expect(component.isWebView).toBe(false);
+    }));
+
+    it('should handle error when Capacitor detection fails', fakeAsync(() => {
+      const mockCapacitor = createCapacitorMockWithError();
+      (window as any).Capacitor = mockCapacitor;
+
+      component.ngAfterViewInit();
+      tick(500);
+
+      expect(component.platform).toBe('web');
+      expect(component.isWebView).toBe(false);
+
+      // Clean up
+      delete (window as any).Capacitor;
+    }));
+
+    it('should default to web when Capacitor.getPlatform is not a function', fakeAsync(() => {
+      (window as any).Capacitor = { notAFunction: 'value' };
+
+      component.ngAfterViewInit();
+      tick(500);
+
+      expect(component.platform).toBe('web');
+      expect(component.isWebView).toBe(false);
+
+      // Clean up
+      delete (window as any).Capacitor;
+    }));
+  });
 });

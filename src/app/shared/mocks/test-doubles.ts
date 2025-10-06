@@ -426,6 +426,20 @@ export function createInputWithPickerMock() {
   } as any;
 }
 
+export function createCapacitorMock(platform: 'ios' | 'android' | 'web' = 'web') {
+  return {
+    getPlatform: jest.fn().mockReturnValue(platform),
+  } as any;
+}
+
+export function createCapacitorMockWithError() {
+  return {
+    getPlatform: jest.fn().mockImplementation(() => {
+      throw new Error('Capacitor error');
+    }),
+  } as any;
+}
+
 export function createFileReaderMock(resultData = 'base64data') {
   return {
     readAsDataURL: jest.fn(function (this: any) {
