@@ -14,6 +14,7 @@ import { SeoService } from './core/services/seo.service';
 import { UserService } from './core/services/user.service';
 import { WebPushService } from './core/services/web-push.service';
 import {
+  createCapacitorAppMock,
   createCapacitorMock,
   createLocationMock,
   createNativePushServiceMock,
@@ -467,6 +468,394 @@ describe('AppComponent', () => {
 
       // Assert - should have been called at least twice (once failed, once fallback)
       expect(scrollToSpy).toHaveBeenCalled();
+    });
+
+    it('should initialize native push in WebView environment', async () => {
+      // Arrange
+      (window as any).Capacitor = createCapacitorMock('android');
+
+      // Act
+      component.ngOnInit();
+
+      // Wait for async initialization
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      // Assert
+      expect(mockNativePushService.init).toHaveBeenCalled();
+
+      // Cleanup
+      delete (window as any).Capacitor;
+    });
+
+    it('should re-register native push when user logs in in WebView', async () => {
+      // Arrange
+      (window as any).Capacitor = createCapacitorMock('android');
+
+      // Act
+      component.ngOnInit();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Simulate user login
+      authStateSubject.next(true);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Assert
+      expect(mockNativePushService.init).toHaveBeenCalledTimes(2);
+
+      // Cleanup
+      delete (window as any).Capacitor;
+    });
+
+    it('should handle native push initialization error gracefully in WebView', async () => {
+      // Arrange
+      (window as any).Capacitor = createCapacitorMock('android');
+      (mockNativePushService.init as jest.Mock).mockRejectedValueOnce(
+        new Error('Native push init failed'),
+      );
+
+      // Act
+      component.ngOnInit();
+
+      // Simulate user login
+      authStateSubject.next(true);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Assert - should not throw
+      expect(mockNativePushService.init).toHaveBeenCalled();
+
+      // Cleanup
+      delete (window as any).Capacitor;
+    });
+
+    it('should emit true for isHome$ when navigating to /', async () => {
+      // Arrange
+      let isHomeValue: boolean | undefined;
+      mockRouter.url = '/';
+
+      // Act
+      component.ngOnInit();
+      component.isHome$.subscribe((val) => (isHomeValue = val));
+      routerEventsSubject.next(new NavigationEnd(1, '/', '/'));
+
+      // Assert
+      expect(isHomeValue).toBe(true);
+    });
+
+    it('should emit true for isHome$ when navigating to /home', async () => {
+      // Arrange
+      let isHomeValue: boolean | undefined;
+      mockRouter.url = '/home';
+
+      // Act
+      component.ngOnInit();
+      component.isHome$.subscribe((val) => (isHomeValue = val));
+      routerEventsSubject.next(new NavigationEnd(1, '/home', '/home'));
+
+      // Assert
+      expect(isHomeValue).toBe(true);
+    });
+
+    it('should emit true for isHome$ when navigating to /home/section', async () => {
+      // Arrange
+      let isHomeValue: boolean | undefined;
+      mockRouter.url = '/home/section';
+
+      // Act
+      component.ngOnInit();
+      component.isHome$.subscribe((val) => (isHomeValue = val));
+      routerEventsSubject.next(new NavigationEnd(1, '/home/section', '/home/section'));
+
+      // Assert
+      expect(isHomeValue).toBe(true);
+    });
+
+    it('should emit false for isHome$ when navigating to /menu', async () => {
+      // Arrange
+      let isHomeValue: boolean | undefined;
+      mockRouter.url = '/menu';
+
+      // Act
+      component.ngOnInit();
+      component.isHome$.subscribe((val) => (isHomeValue = val));
+      routerEventsSubject.next(new NavigationEnd(1, '/menu', '/menu'));
+
+      // Assert
+      expect(isHomeValue).toBe(false);
+    });
+
+    it('should emit false for showGlobalBack$ when at home', async () => {
+      // Arrange
+      let showBackValue: boolean | undefined;
+      mockRouter.url = '/';
+
+      // Act
+      component.ngOnInit();
+      component.showGlobalBack$.subscribe((val) => (showBackValue = val));
+      routerEventsSubject.next(new NavigationEnd(1, '/', '/'));
+
+      // Assert
+      expect(showBackValue).toBe(false);
+    });
+
+    it('should emit false for showGlobalBack$ when at login', async () => {
+      // Arrange
+      let showBackValue: boolean | undefined;
+      mockRouter.url = '/login';
+
+      // Act
+      component.ngOnInit();
+      component.showGlobalBack$.subscribe((val) => (showBackValue = val));
+      routerEventsSubject.next(new NavigationEnd(1, '/login', '/login'));
+
+      // Assert
+      expect(showBackValue).toBe(false);
+    });
+
+    it('should emit false for showGlobalBack$ when at registro-cliente', async () => {
+      // Arrange
+      let showBackValue: boolean | undefined;
+      mockRouter.url = '/registro-cliente';
+
+      // Act
+      component.ngOnInit();
+      component.showGlobalBack$.subscribe((val) => (showBackValue = val));
+      routerEventsSubject.next(new NavigationEnd(1, '/registro-cliente', '/registro-cliente'));
+
+      // Assert
+      expect(showBackValue).toBe(false);
+    });
+
+    it('should emit false for showGlobalBack$ when at admin/registro-admin', async () => {
+      // Arrange
+      let showBackValue: boolean | undefined;
+      mockRouter.url = '/admin/registro-admin';
+
+      // Act
+      component.ngOnInit();
+      component.showGlobalBack$.subscribe((val) => (showBackValue = val));
+      routerEventsSubject.next(
+        new NavigationEnd(1, '/admin/registro-admin', '/admin/registro-admin'),
+      );
+
+      // Assert
+      expect(showBackValue).toBe(false);
+    });
+
+    it('should emit true for showGlobalBack$ when at other routes', async () => {
+      // Arrange
+      let showBackValue: boolean | undefined;
+      mockRouter.url = '/menu';
+
+      // Act
+      component.ngOnInit();
+      component.showGlobalBack$.subscribe((val) => (showBackValue = val));
+      routerEventsSubject.next(new NavigationEnd(1, '/menu', '/menu'));
+
+      // Assert
+      expect(showBackValue).toBe(true);
+    });
+
+    it('should handle showGlobalBack$ with query params', async () => {
+      // Arrange
+      let showBackValue: boolean | undefined;
+      mockRouter.url = '/menu?category=bebidas';
+
+      // Act
+      component.ngOnInit();
+      component.showGlobalBack$.subscribe((val) => (showBackValue = val));
+      routerEventsSubject.next(new NavigationEnd(1, '/menu?category=bebidas', '/menu'));
+
+      // Assert
+      expect(showBackValue).toBe(true);
+    });
+
+    it('should handle push-notification-action with navigation failure', async () => {
+      // Arrange
+      mockRouter.navigateByUrl.mockResolvedValue(false);
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+      // Act
+      component.ngOnInit();
+      const event = new CustomEvent('push-notification-action', {
+        detail: { url: '/invalid-route' },
+      });
+      window.dispatchEvent(event);
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Assert
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        '[AppComponent] Navigation failed, URL might not exist:',
+        '/invalid-route',
+      );
+
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('should handle push-notification-action with navigation error', async () => {
+      // Arrange
+      mockRouter.navigateByUrl.mockRejectedValue(new Error('Navigation error'));
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      // Act
+      component.ngOnInit();
+      const event = new CustomEvent('push-notification-action', {
+        detail: { url: '/error-route' },
+      });
+      window.dispatchEvent(event);
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Assert
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '[AppComponent] Navigation error:',
+        expect.any(Error),
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should ignore push-notification-action with empty string URL', () => {
+      // Arrange
+      mockRouter.navigateByUrl.mockClear();
+
+      // Act
+      component.ngOnInit();
+      const event = new CustomEvent('push-notification-action', {
+        detail: { url: '' },
+      });
+      window.dispatchEvent(event);
+
+      // Assert
+      expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
+    });
+
+    it('should ignore push-notification-action without detail', () => {
+      // Arrange
+      mockRouter.navigateByUrl.mockClear();
+
+      // Act
+      component.ngOnInit();
+      const event = new CustomEvent('push-notification-action', {});
+      window.dispatchEvent(event);
+
+      // Assert
+      expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
+    });
+
+    it('should handle Capacitor App backButton at root', async () => {
+      // Arrange
+      const mockApp = createCapacitorAppMock();
+      mockRouter.url = '/';
+      const mockCapacitor = createCapacitorMock('android');
+      (window as any).Capacitor = mockCapacitor;
+
+      // Mock dynamic import of @capacitor/app
+      jest.mock('@capacitor/app', () => ({
+        App: mockApp,
+      }));
+
+      // Act
+      component.ngOnInit();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Verify listener was added
+      if (mockApp.addListener.mock.calls.length > 0) {
+        const backButtonHandler = mockApp.addListener.mock.calls[0][1];
+        backButtonHandler();
+
+        // Assert
+        expect(mockRouter.navigate).toHaveBeenCalledWith(['/home']);
+      }
+
+      // Cleanup
+      delete (window as any).Capacitor;
+      jest.unmock('@capacitor/app');
+    });
+
+    it('should handle Capacitor App backButton at non-root', async () => {
+      // Arrange
+      const mockLocation = TestBed.inject(Location) as jest.Mocked<any>;
+      const mockApp = createCapacitorAppMock();
+      mockRouter.url = '/menu';
+      const mockCapacitor = createCapacitorMock('android');
+      (window as any).Capacitor = mockCapacitor;
+
+      // Mock dynamic import
+      jest.mock('@capacitor/app', () => ({
+        App: mockApp,
+      }));
+
+      // Act
+      component.ngOnInit();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Verify listener was added
+      if (mockApp.addListener.mock.calls.length > 0) {
+        const backButtonHandler = mockApp.addListener.mock.calls[0][1];
+        backButtonHandler();
+
+        // Assert
+        expect(mockLocation.back).toHaveBeenCalled();
+      }
+
+      // Cleanup
+      delete (window as any).Capacitor;
+      jest.unmock('@capacitor/app');
+    });
+
+    it('should not add Capacitor backButton listener when platform is web', async () => {
+      // Arrange
+      const mockCapacitor = createCapacitorMock('web');
+      (window as any).Capacitor = mockCapacitor;
+
+      // Act
+      component.ngOnInit();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Assert - native push should not be called
+      expect(mockNativePushService.init).not.toHaveBeenCalled();
+
+      // Cleanup
+      delete (window as any).Capacitor;
+    });
+
+    it('should handle Capacitor import error gracefully', async () => {
+      // Arrange
+      const mockCapacitor = createCapacitorMock('android');
+      (window as any).Capacitor = mockCapacitor;
+
+      // Mock import to fail
+      jest.mock('@capacitor/app', () => {
+        throw new Error('Import failed');
+      });
+
+      // Act
+      component.ngOnInit();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Assert - should not throw
+      expect(component).toBeTruthy();
+
+      // Cleanup
+      delete (window as any).Capacitor;
+      jest.unmock('@capacitor/app');
+    });
+
+    it('should not re-register web push when permission is denied', async () => {
+      // Arrange
+      (mockWebPushService.getPermissionStatus as jest.Mock).mockReturnValue('denied');
+
+      // Act
+      component.ngOnInit();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Simulate user login
+      authStateSubject.next(true);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Assert
+      expect(mockWebPushService.requestPermissionAndSubscribe).not.toHaveBeenCalled();
     });
   });
 

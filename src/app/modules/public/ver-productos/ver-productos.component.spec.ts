@@ -1,4 +1,3 @@
-import { makeStateKey } from '@angular/core';
 import { of, Subject, throwError } from 'rxjs';
 
 import { CartService } from '../../../core/services/cart.service';
@@ -20,7 +19,6 @@ import {
   createRouterMock,
   createSmartSearchServiceMock,
   createSubcategoriaServiceMock,
-  createThemeServiceMock,
   createTransferStateMock,
   createUserServiceMock,
 } from '../../../shared/mocks/test-doubles';
@@ -31,10 +29,8 @@ import {
   mockSearchSuggestions,
   mockSubcategoriasVerProductos,
 } from '../../../shared/mocks/ver-productos.mock';
-import { Producto } from '../../../shared/models/producto.model';
 import { FavoritesService } from '../../../shared/services/favorites.service';
 import { SearchFilters, SmartSearchService } from '../../../shared/services/smart-search.service';
-import { ThemeMode, ThemeService } from '../../../shared/services/theme.service';
 import { VerProductosComponent } from './ver-productos.component';
 
 describe('VerProductosComponent (isolated)', () => {
@@ -51,12 +47,10 @@ describe('VerProductosComponent (isolated)', () => {
   let errorBoundary: ReturnType<typeof createErrorBoundaryServiceMock>;
   let smartSearch: ReturnType<typeof createSmartSearchServiceMock>;
   let favoritesService: ReturnType<typeof createFavoritesServiceMock>;
-  let themeService: ReturnType<typeof createThemeServiceMock>;
 
   let filters$: Subject<SearchFilters>;
   let history$: Subject<string[]>;
   let favorites$: Subject<Set<number>>;
-  let theme$: Subject<ThemeMode>;
 
   const scrollListeners: Record<string, EventListenerOrEventListenerObject> = {};
   let originalAddEventListener: typeof window.addEventListener;
@@ -68,7 +62,6 @@ describe('VerProductosComponent (isolated)', () => {
     filters$ = new Subject<SearchFilters>();
     history$ = new Subject<string[]>();
     favorites$ = new Subject<Set<number>>();
-    theme$ = new Subject<ThemeMode>();
 
     productoService = createProductoServiceMock();
     categoriaService = createCategoriaServiceMock();
@@ -86,13 +79,11 @@ describe('VerProductosComponent (isolated)', () => {
     errorBoundary = createErrorBoundaryServiceMock();
     smartSearch = createSmartSearchServiceMock();
     favoritesService = createFavoritesServiceMock();
-    themeService = createThemeServiceMock();
 
     smartSearch.getSearchHistory.mockReturnValue(history$.asObservable());
     smartSearch.getCurrentFilters.mockReturnValue(filters$.asObservable());
     smartSearch.getSuggestions.mockReturnValue(mockSearchSuggestions);
     favoritesService.getFavorites.mockReturnValue(favorites$.asObservable());
-    themeService.getCurrentTheme.mockReturnValue(theme$.asObservable());
 
     originalAddEventListener = window.addEventListener;
     // eslint-disable-next-line no-restricted-syntax
@@ -132,7 +123,6 @@ describe('VerProductosComponent (isolated)', () => {
       errorBoundary as unknown as ErrorBoundaryService,
       smartSearch as unknown as SmartSearchService,
       favoritesService as unknown as FavoritesService,
-      themeService as unknown as ThemeService,
     );
 
     component.productos = [...mockProductosVerProductos];
@@ -141,7 +131,6 @@ describe('VerProductosComponent (isolated)', () => {
 
     history$.next(['Anterior']);
     favorites$.next(new Set([1]));
-    theme$.next('light');
   });
 
   afterEach(() => {
@@ -166,15 +155,12 @@ describe('VerProductosComponent (isolated)', () => {
 
     expect(smartSearch.getSearchHistory).toHaveBeenCalled();
     expect(favoritesService.getFavorites).toHaveBeenCalled();
-    expect(themeService.getCurrentTheme).toHaveBeenCalled();
 
     history$.next(['Nueva']);
     expect(component.searchHistory).toEqual(['Nueva']);
 
     favorites$.next(new Set([2]));
-    theme$.next('dark');
     expect(component.favorites.has(2)).toBe(true);
-    expect(component.currentTheme).toBe('dark');
   });
 
   it('configura suscripción de filtros y aplica búsqueda con debounce', () => {
@@ -404,10 +390,7 @@ describe('VerProductosComponent (isolated)', () => {
     expect(component.getProductQuantity(99)).toBe(0);
   });
 
-  it('interactúa con tema y modos de vista', () => {
-    component.toggleTheme();
-    expect(themeService.toggleTheme).toHaveBeenCalled();
-
+  it('interactúa con modos de vista', () => {
     component.toggleViewMode();
     expect(component.viewMode).toBe('list');
 

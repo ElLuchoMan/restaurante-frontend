@@ -440,6 +440,12 @@ export function createCapacitorMockWithError() {
   } as any;
 }
 
+export function createCapacitorAppMock() {
+  return {
+    addListener: jest.fn(),
+  } as any;
+}
+
 export function createURLMockSuccess(blobUrl = 'blob:mock-url') {
   return {
     createObjectURL: jest.fn().mockReturnValue(blobUrl),
@@ -748,23 +754,6 @@ export function createSmartSearchServiceMock() {
 export function createFavoritesServiceMock() {
   return {
     getFavorites: jest.fn(),
-
     toggleFavorite: jest.fn().mockReturnValue(true),
-
-    addFavorite: jest.fn(),
-
-    removeFavorite: jest.fn(),
-
-    isFavorite: jest.fn(),
-  } as any;
-}
-
-export function createThemeServiceMock() {
-  return {
-    getCurrentTheme: jest.fn(),
-
-    toggleTheme: jest.fn(),
-
-    setTheme: jest.fn(),
   } as any;
 }

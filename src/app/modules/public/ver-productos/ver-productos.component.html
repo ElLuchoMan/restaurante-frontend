@@ -1,5 +1,5 @@
 <!-- Contenedor principal siguiendo el patrón establecido -->
-<div class="page-shell" [attr.data-theme]="currentTheme" [class.webview-mode]="isWebView">
+<div class="page-shell" [class.webview-mode]="isWebView">
   <!-- Header del menú con partículas animadas -->
   <div class="menu-hero position-relative overflow-hidden">
     <div class="particles-bg" aria-hidden="true"></div>
@@ -320,16 +320,6 @@
                 </button>
               </div>
 
-              <!-- Tema y filtros -->
-              <button
-                class="btn-floating theme-toggle"
-                (click)="toggleTheme()"
-                aria-label="Cambiar tema"
-                title="Cambiar tema"
-              >
-                <i class="fas" [ngClass]="currentTheme === 'dark' ? 'fa-sun' : 'fa-moon'"></i>
-              </button>
-
               <!-- Botón de filtros avanzados (solo WebView y Web Mobile) -->
               <button
                 class="btn-floating filters-toggle"
@@ -496,7 +486,6 @@
           >
             <article
               class="product-card-enhanced card-glass"
-              [attr.data-theme]="currentTheme"
               [class.list-layout]="viewMode === 'list'"
               (click)="abrirDetalle(producto)"
               role="button"

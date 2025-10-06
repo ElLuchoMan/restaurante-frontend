@@ -31,186 +31,10 @@ describe('FavoritesService', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('isFavorite', () => {
-    it('should return false for non-favorite product', () => {
-      expect(service.isFavorite(1)).toBeFalsy();
-    });
-
-    it('should return true for favorite product', () => {
-      service.addFavorite(1);
-      expect(service.isFavorite(1)).toBeTruthy();
-    });
-  });
-
-  describe('toggleFavorite', () => {
-    it('should add product to favorites when not favorite', () => {
-      const result = service.toggleFavorite(mockProduct);
-
-      expect(result).toBeTruthy();
-      expect(service.isFavorite(mockProduct.productoId!)).toBeTruthy();
-    });
-
-    it('should remove product from favorites when already favorite', () => {
-      service.addFavorite(mockProduct.productoId!);
-
-      const result = service.toggleFavorite(mockProduct);
-
-      expect(result).toBeFalsy();
-      expect(service.isFavorite(mockProduct.productoId!)).toBeFalsy();
-    });
-  });
-
-  describe('addFavorite', () => {
-    it('should add product to favorites', () => {
-      service.addFavorite(1);
-
-      expect(service.isFavorite(1)).toBeTruthy();
-    });
-
-    it('should emit updated favorites', (done) => {
+  describe('getFavorites', () => {
+    it('should return observable of favorites set', (done) => {
       service.getFavorites().subscribe((favorites) => {
-        if (favorites.has(1)) {
-          expect(favorites.has(1)).toBeTruthy();
-          done();
-        }
-      });
-
-      service.addFavorite(1);
-    });
-  });
-
-  describe('removeFavorite', () => {
-    it('should remove product from favorites', () => {
-      service.addFavorite(1);
-      service.removeFavorite(1);
-
-      expect(service.isFavorite(1)).toBeFalsy();
-    });
-
-    it('should emit updated favorites', (done) => {
-      service.addFavorite(1);
-
-      service.getFavorites().subscribe((favorites) => {
-        if (!favorites.has(1)) {
-          expect(favorites.has(1)).toBeFalsy();
-          done();
-        }
-      });
-
-      service.removeFavorite(1);
-    });
-  });
-
-  describe('getFavoriteProducts', () => {
-    it('should return empty array when no favorites', () => {
-      const allProducts = [mockProduct];
-      const favorites = service.getFavoriteProducts(allProducts);
-
-      expect(favorites).toEqual([]);
-    });
-
-    it('should return favorite products', () => {
-      const allProducts = [mockProduct];
-      service.addFavorite(mockProduct.productoId!);
-
-      const favorites = service.getFavoriteProducts(allProducts);
-
-      expect(favorites).toEqual([mockProduct]);
-    });
-
-    it('should return multiple favorite products', () => {
-      const product2 = { ...mockProduct, productoId: 2, nombre: 'Ensalada' };
-      const allProducts = [mockProduct, product2];
-
-      service.addFavorite(1);
-      service.addFavorite(2);
-
-      const favorites = service.getFavoriteProducts(allProducts);
-
-      expect(favorites.length).toBe(2);
-      expect(favorites).toContain(mockProduct);
-      expect(favorites).toContain(product2);
-    });
-  });
-
-  describe('clearFavorites', () => {
-    it('should clear all favorites', () => {
-      service.addFavorite(1);
-      service.addFavorite(2);
-      service.clearFavorites();
-
-      expect(service.isFavorite(1)).toBeFalsy();
-      expect(service.isFavorite(2)).toBeFalsy();
-    });
-
-    it('should emit empty favorites set', (done) => {
-      service.addFavorite(1);
-
-      service.getFavorites().subscribe((favorites) => {
-        if (favorites.size === 0) {
-          expect(favorites.size).toBe(0);
-          done();
-        }
-      });
-
-      service.clearFavorites();
-    });
-  });
-
-  describe('localStorage integration', () => {
-    it('should save favorites to localStorage', () => {
-      service.addFavorite(1);
-
-      const saved = localStorage.getItem('restaurant_favorites');
-      expect(saved).toBeTruthy();
-
-      const favorites = JSON.parse(saved!);
-      expect(favorites).toContain(1);
-    });
-
-    it('should load favorites from localStorage', () => {
-      localStorage.clear();
-      localStorage.setItem('restaurant_favorites', JSON.stringify([1, 2]));
-
-      // Reiniciar el service manualmente
-      service['loadFavorites']();
-
-      // Los favoritos deberían haberse cargado
-      expect(service.isFavorite(1)).toBeTruthy();
-      expect(service.isFavorite(2)).toBeTruthy();
-    });
-
-    it('should handle localStorage errors gracefully', () => {
-      const setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
-      setItemSpy.mockImplementation(() => {
-        throw new Error('Storage error');
-      });
-
-      // Suprimir console.warn para este test
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-
-      expect(() => {
-        service.addFavorite(1);
-      }).not.toThrow();
-
-      setItemSpy.mockRestore();
-      consoleWarnSpy.mockRestore();
-    });
-
-    it('should handle invalid localStorage data gracefully', () => {
-      localStorage.setItem('restaurant_favorites', 'invalid json');
-
-      // Intentar cargar los favoritos con JSON inválido
-      service['loadFavorites']();
-
-      // No debería lanzar error y no debería tener favoritos
-      expect(service.isFavorite(1)).toBeFalsy();
-    });
-  });
-
-  describe('observable behavior', () => {
-    it('should emit initial empty set', (done) => {
-      service.getFavorites().subscribe((favorites) => {
+        expect(favorites).toBeInstanceOf(Set);
         expect(favorites.size).toBe(0);
         done();
       });
@@ -230,7 +54,125 @@ describe('FavoritesService', () => {
         }
       });
 
-      service.addFavorite(1);
+      service.toggleFavorite(mockProduct);
+    });
+  });
+
+  describe('toggleFavorite', () => {
+    it('should add product to favorites when not favorite', (done) => {
+      const result = service.toggleFavorite(mockProduct);
+
+      expect(result).toBeTruthy();
+
+      service.getFavorites().subscribe((favorites) => {
+        expect(favorites.has(mockProduct.productoId!)).toBeTruthy();
+        done();
+      });
+    });
+
+    it('should remove product from favorites when already favorite', (done) => {
+      // Primero agregar
+      service.toggleFavorite(mockProduct);
+
+      // Luego remover
+      const result = service.toggleFavorite(mockProduct);
+
+      expect(result).toBeFalsy();
+
+      service.getFavorites().subscribe((favorites) => {
+        expect(favorites.has(mockProduct.productoId!)).toBeFalsy();
+        done();
+      });
+    });
+
+    it('should return false when product has no productoId', () => {
+      const invalidProduct = { ...mockProduct, productoId: undefined };
+      const result = service.toggleFavorite(invalidProduct);
+
+      expect(result).toBeFalsy();
+    });
+  });
+
+  describe('localStorage integration', () => {
+    it('should save favorites to localStorage', (done) => {
+      service.toggleFavorite(mockProduct);
+
+      // Esperar a que se guarde
+      setTimeout(() => {
+        const saved = localStorage.getItem('restaurant_favorites');
+        expect(saved).toBeTruthy();
+
+        const favorites = JSON.parse(saved!);
+        expect(favorites).toContain(1);
+        done();
+      }, 10);
+    });
+
+    it('should load favorites from localStorage on initialization', (done) => {
+      localStorage.clear();
+      localStorage.setItem('restaurant_favorites', JSON.stringify([1, 2]));
+
+      // Crear una nueva instancia del servicio para que cargue desde localStorage
+      const newService = new FavoritesService(service['platformId']);
+
+      newService.getFavorites().subscribe((favorites) => {
+        expect(favorites.has(1)).toBeTruthy();
+        expect(favorites.has(2)).toBeTruthy();
+        done();
+      });
+    });
+
+    it('should handle localStorage save errors gracefully', () => {
+      const setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+      setItemSpy.mockImplementation(() => {
+        throw new Error('Storage error');
+      });
+
+      // Suprimir console.warn para este test
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+      expect(() => {
+        service.toggleFavorite(mockProduct);
+      }).not.toThrow();
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'No se pudo guardar los favoritos:',
+        expect.any(Error),
+      );
+
+      setItemSpy.mockRestore();
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('should handle invalid localStorage data gracefully', (done) => {
+      localStorage.setItem('restaurant_favorites', 'invalid json');
+
+      // Suprimir console.warn
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+      // Crear una nueva instancia que intente cargar el JSON inválido
+      const newService = new FavoritesService(service['platformId']);
+
+      newService.getFavorites().subscribe((favorites) => {
+        expect(favorites.size).toBe(0);
+        done();
+      });
+
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('should filter non-number values when loading from localStorage', (done) => {
+      localStorage.setItem('restaurant_favorites', JSON.stringify([1, 'invalid', 2, null, 3]));
+
+      const newService = new FavoritesService(service['platformId']);
+
+      newService.getFavorites().subscribe((favorites) => {
+        expect(favorites.size).toBe(3);
+        expect(favorites.has(1)).toBeTruthy();
+        expect(favorites.has(2)).toBeTruthy();
+        expect(favorites.has(3)).toBeTruthy();
+        done();
+      });
     });
   });
 });

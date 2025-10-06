@@ -22,10 +22,6 @@ export class FavoritesService {
     return this.favorites$.asObservable();
   }
 
-  isFavorite(productId: number): boolean {
-    return this.favorites$.value.has(productId);
-  }
-
   toggleFavorite(product: Producto): boolean {
     if (!product.productoId) return false;
 
@@ -55,18 +51,6 @@ export class FavoritesService {
     newFavorites.delete(productId);
     this.favorites$.next(newFavorites);
     this.saveFavorites(newFavorites);
-  }
-
-  getFavoriteProducts(allProducts: Producto[]): Producto[] {
-    const favoriteIds = this.favorites$.value;
-    return allProducts.filter(
-      (product) => product.productoId && favoriteIds.has(product.productoId!),
-    );
-  }
-
-  clearFavorites(): void {
-    this.favorites$.next(new Set());
-    this.saveFavorites(new Set());
   }
 
   private saveFavorites(favorites: Set<number>): void {

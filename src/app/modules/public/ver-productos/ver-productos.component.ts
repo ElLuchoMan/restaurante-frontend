@@ -38,7 +38,6 @@ import {
   SearchSuggestion,
   SmartSearchService,
 } from '../../../shared/services/smart-search.service';
-import { ThemeMode, ThemeService } from '../../../shared/services/theme.service';
 
 @Component({
   selector: 'app-ver-productos',
@@ -64,7 +63,6 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   searchSuggestions: SearchSuggestion[] = [];
   showSuggestions = false;
   searchHistory: string[] = [];
-  currentTheme: ThemeMode = 'light';
   favorites: Set<number> = new Set();
   viewMode: 'grid' | 'list' = 'grid';
   isWebView = false;
@@ -115,7 +113,6 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     private errorBoundary: ErrorBoundaryService,
     private smartSearch: SmartSearchService,
     private favoritesService: FavoritesService,
-    private themeService: ThemeService,
   ) {
     this.searchFilters = this.smartSearch.getDefaultFilters();
     this.initializeEnhancements();
@@ -162,12 +159,6 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
       .getFavorites()
       .pipe(takeUntil(this.destroy$))
       .subscribe((favorites) => (this.favorites = favorites));
-
-    // Cargar tema
-    this.themeService
-      .getCurrentTheme()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((theme) => (this.currentTheme = theme));
   }
 
   private setupSearchSubscription(): void {
@@ -511,11 +502,6 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   getProductQuantity(productId: number): number {
     const item = this.cartService.getItems().find((i) => i.productoId === productId);
     return item ? item.cantidad : 0;
-  }
-
-  // ===== TEMA =====
-  toggleTheme(): void {
-    this.themeService.toggleTheme();
   }
 
   // ===== VISTA =====
