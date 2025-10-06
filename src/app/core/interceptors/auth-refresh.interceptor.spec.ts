@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpRequest, HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { delay, of, throwError } from 'rxjs';
 
 import { createRouterMock, createUserServiceMock } from '../../shared/mocks/test-doubles';
 import { UserService } from '../services/user.service';
@@ -185,4 +185,58 @@ describe('AuthRefreshInterceptor', () => {
       },
     });
   });
+
+  it('should queue requests when refresh is already in progress and retry with new token', (done) => {
+    // Simular dos requests concurrentes que reciben 401
+    const mockError = new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' });
+    const mockResponse = new HttpResponse({ status: 200, body: { data: 'test' } });
+    const newToken = 'new-access-token';
+
+    // Primera request falla con 401
+    mockNext.mockReturnValueOnce(throwError(() => mockError));
+    // Segunda request falla con 401
+    mockNext.mockReturnValueOnce(throwError(() => mockError));
+    // Retry de ambas requests después del refresh
+    mockNext.mockReturnValueOnce(of(mockResponse));
+    mockNext.mockReturnValueOnce(of(mockResponse));
+
+    // Simular que el refresh toma tiempo (delay) para que la segunda request llegue durante el refresh
+    userService.attemptTokenRefresh.mockReturnValue(of(true).pipe(delay(100)));
+    userService.getToken.mockReturnValue(newToken);
+
+    const interceptor = authRefreshInterceptor;
+
+    let completedCount = 0;
+
+    // Primera request inicia el refresh
+    const result1 = TestBed.runInInjectionContext(() => interceptor(mockRequest, mockNext));
+
+    result1.subscribe({
+      next: (response) => {
+        expect(response).toBe(mockResponse);
+        completedCount++;
+        if (completedCount === 2) {
+          // Verificar que attemptTokenRefresh solo se llamó una vez
+          expect(userService.attemptTokenRefresh).toHaveBeenCalledTimes(1);
+          done();
+        }
+      },
+    });
+
+    // Ejecutar la segunda request poco después para que encuentre el refresh en progreso
+    setTimeout(() => {
+      const result2 = TestBed.runInInjectionContext(() => interceptor(mockRequest, mockNext));
+
+      result2.subscribe({
+        next: (response) => {
+          expect(response).toBe(mockResponse);
+          completedCount++;
+          if (completedCount === 2) {
+            expect(userService.attemptTokenRefresh).toHaveBeenCalledTimes(1);
+            done();
+          }
+        },
+      });
+    }, 50); // La segunda request llega mientras la primera está refrescando
+  }, 10000); // Aumentar timeout del test
 });
