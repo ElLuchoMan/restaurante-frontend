@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { SwPush } from '@angular/service-worker';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 
 import {
   createAlertSpyMock,
   createConsoleSpyMock,
+  createCapacitorMock,
   createNotificationMock,
   createPushServiceMock,
   createRequestPermissionDeniedMock,
@@ -71,10 +72,53 @@ describe('WebPushService', () => {
     expect(service).toBeTruthy();
   });
 
+  describe('isWebBrowser', () => {
+    it('debería retornar false cuando window o navigator no existen', () => {
+      const originalWindow = (global as any).window;
+      const originalNavigator = (global as any).navigator;
+
+      (global as any).window = undefined;
+      (global as any).navigator = undefined;
+
+      expect((service as any).isWebBrowser()).toBe(false);
+
+      (global as any).window = originalWindow;
+      (global as any).navigator = originalNavigator;
+    });
+
+    it('debería retornar false cuando se ejecuta dentro de Capacitor', () => {
+      (window as any).Capacitor = createCapacitorMock();
+
+      expect((service as any).isWebBrowser()).toBe(false);
+
+      delete (window as any).Capacitor;
+    });
+
+    it('debería retornar true cuando es un navegador web estándar', () => {
+      expect((service as any).isWebBrowser()).toBe(true);
+    });
+  });
+
   describe('isSupported', () => {
     it('debería retornar false en entornos no soportados', () => {
-      // El test en JSDOM no tiene Capacitor
-      expect(service.isSupported()).toBeDefined();
+      createServiceSpyMock(service, 'isWebBrowser', false);
+
+      expect(service.isSupported()).toBe(false);
+    });
+
+    it('debería retornar true cuando todas las APIs están disponibles', () => {
+      jest.spyOn(service as any, 'isWebBrowser').mockReturnValue(true);
+      (window as any).PushManager = {};
+      Object.defineProperty(navigator, 'serviceWorker', {
+        value: {},
+        configurable: true,
+      });
+
+      const result = service.isSupported();
+
+      expect(result).toBe(true);
+
+      delete (window as any).PushManager;
     });
   });
 
@@ -83,13 +127,18 @@ describe('WebPushService', () => {
       const status = service.getPermissionStatus();
       expect(['default', 'granted', 'denied']).toContain(status);
     });
-  });
 
-  describe('showNotification', () => {
-    it('debería llamarse sin errores cuando no hay permisos', () => {
-      expect(() => {
-        service.showNotification('Test', 'Body test', { tipo: 'TEST' });
-      }).not.toThrow();
+    it('debería retornar denied cuando no está soportado', () => {
+      createServiceSpyMock(service, 'isSupported', false);
+
+      expect(service.getPermissionStatus()).toBe('denied');
+    });
+
+    it('debería retornar el estado real cuando está soportado', () => {
+      jest.spyOn(service, 'isSupported').mockReturnValue(true);
+      (window.Notification as any).permission = 'granted';
+
+      expect(service.getPermissionStatus()).toBe('granted');
     });
   });
 
@@ -187,6 +236,22 @@ describe('WebPushService', () => {
       expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Permisos denegados'));
     });
 
+    it('debería manejar errores inesperados al suscribirse', async () => {
+      jest.spyOn(service, 'isSupported').mockReturnValue(true);
+      swPush.isEnabled = true;
+      (window.Notification as any).permission = 'granted';
+      jest.spyOn(service as any, 'subscribe').mockRejectedValue(new Error('random failure'));
+
+      const consoleSpy = createConsoleSpyMock('error');
+
+      const result = await service.requestPermissionAndSubscribe();
+
+      expect(result).toBe(false);
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Error al activar notificaciones'));
+
+      consoleSpy.mockRestore();
+    });
+
     it('debería manejar error cuando la suscripción es inválida', async () => {
       jest.spyOn(service, 'isSupported').mockReturnValue(true);
       swPush.isEnabled = true;
@@ -279,6 +344,97 @@ describe('WebPushService', () => {
           documentoCliente: undefined,
         }),
       );
+    });
+  });
+
+  describe('subscribe', () => {
+    it('debería retornar false si el service worker no está habilitado', async () => {
+      swPush.isEnabled = false;
+
+      const result = await (service as any).subscribe();
+
+      expect(result).toBe(false);
+    });
+
+    it('debería manejar errores del backend con mensaje específico', async () => {
+      swPush.isEnabled = true;
+      const mockSubscription = {
+        toJSON: () => ({
+          endpoint: 'https://fcm.googleapis.com/fcm/send/test',
+          keys: {
+            p256dh: 'test-p256dh-key',
+            auth: 'test-auth-key',
+          },
+        }),
+      };
+
+      swPush.requestSubscription.mockResolvedValue(mockSubscription as any);
+      pushService.registrarDispositivo.mockReturnValue(
+        throwError(() => new Error('backend failure detected')),
+      );
+
+      const consoleSpy = createConsoleSpyMock('error');
+
+      const result = await (service as any).subscribe();
+
+      expect(result).toBe(false);
+      expect(alertSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Error al registrar en el servidor'),
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('debería manejar errores genéricos al solicitar la suscripción', async () => {
+      swPush.isEnabled = true;
+      swPush.requestSubscription.mockRejectedValue(new Error('error genérico'));
+
+      const consoleSpy = createConsoleSpyMock('error');
+
+      const result = await (service as any).subscribe();
+
+      expect(result).toBe(false);
+      expect(alertSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Error al activar notificaciones'),
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('listenToPushMessages', () => {
+    it('debería mostrar notificaciones y navegar cuando se hace clic', () => {
+      const messages$ = new Subject<any>();
+      const clicks$ = new Subject<any>();
+
+      (swPush as any).messages = messages$;
+      (swPush as any).notificationClicks = clicks$;
+
+      const showNotificationSpy = jest
+        .spyOn(service, 'showNotification')
+        .mockImplementation(() => {});
+      const hrefSpy = jest.spyOn(window.location, 'href', 'set');
+
+      (service as any).listenToPushMessages();
+
+      messages$.next({
+        notification: { title: 'Hola', body: 'Mensaje' },
+        data: { tipo: 'promo' },
+      });
+
+      expect(showNotificationSpy).toHaveBeenCalledWith('Hola', 'Mensaje', { tipo: 'promo' });
+
+      clicks$.next({ action: 'open', notification: { data: { url: 'https://ejemplo.com' } } });
+
+      expect(hrefSpy).toHaveBeenCalledWith('https://ejemplo.com');
+
+      hrefSpy.mockRestore();
+    });
+  });
+
+  describe('getVAPIDPublicKey', () => {
+    it('debería retornar la clave pública configurada', () => {
+      expect((service as any).getVAPIDPublicKey()).toBeDefined();
     });
   });
 
