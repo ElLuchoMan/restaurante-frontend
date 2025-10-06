@@ -440,6 +440,31 @@ export function createCapacitorMockWithError() {
   } as any;
 }
 
+export function createURLMockSuccess(blobUrl = 'blob:mock-url') {
+  return {
+    createObjectURL: jest.fn().mockReturnValue(blobUrl),
+    revokeObjectURL: jest.fn(),
+  };
+}
+
+export function createURLMockWithError() {
+  return {
+    createObjectURL: jest.fn().mockImplementation(() => {
+      throw new Error('Blob creation failed');
+    }),
+    revokeObjectURL: jest.fn(),
+  };
+}
+
+export function createURLMockWithRevokeError() {
+  return {
+    createObjectURL: jest.fn().mockReturnValue('blob:mock-url'),
+    revokeObjectURL: jest.fn().mockImplementation(() => {
+      throw new Error('Revoke error');
+    }),
+  };
+}
+
 export function createFileReaderMock(resultData = 'base64data') {
   return {
     readAsDataURL: jest.fn(function (this: any) {
