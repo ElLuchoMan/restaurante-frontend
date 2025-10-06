@@ -428,4 +428,181 @@ describe('TelemetryService', () => {
       });
     });
   });
+
+  describe('Device Detection & User Info', () => {
+    describe('setUserDocument / getUserDocument', () => {
+      it('should set and get user document from localStorage', () => {
+        service.setUserDocument('1234567890');
+        expect(service.getUserDocument()).toBe('1234567890');
+      });
+
+      it('should return null if user document is not set', () => {
+        expect(service.getUserDocument()).toBeNull();
+      });
+    });
+
+    describe('setDeviceType / getDeviceType', () => {
+      it('should set and get device type from localStorage', () => {
+        service.setDeviceType('android');
+        expect(service.getDeviceType()).toBe('android');
+      });
+
+      it('should return "desktop" if device type is not set', () => {
+        expect(service.getDeviceType()).toBe('desktop');
+      });
+
+      it('should set device type to "ios"', () => {
+        service.setDeviceType('ios');
+        expect(service.getDeviceType()).toBe('ios');
+      });
+
+      it('should set device type to "web-mobile"', () => {
+        service.setDeviceType('web-mobile');
+        expect(service.getDeviceType()).toBe('web-mobile');
+      });
+    });
+
+    describe('clearUserInfo', () => {
+      it('should clear user document and device type from localStorage', () => {
+        service.setUserDocument('9876543210');
+        service.setDeviceType('android');
+
+        expect(service.getUserDocument()).toBe('9876543210');
+        expect(service.getDeviceType()).toBe('android');
+
+        service.clearUserInfo();
+
+        expect(service.getUserDocument()).toBeNull();
+        expect(localStorage.getItem('app_telemetry_user_document')).toBeNull();
+        expect(localStorage.getItem('app_telemetry_device_type')).toBeNull();
+      });
+
+      it('should handle localStorage errors gracefully when clearing', () => {
+        const originalRemoveItem = localStorage.removeItem;
+        const mockRemoveItem = createStorageErrorMock();
+        localStorage.removeItem = mockRemoveItem as any;
+
+        expect(() => service.clearUserInfo()).not.toThrow();
+
+        localStorage.removeItem = originalRemoveItem;
+      });
+    });
+
+    describe('detectDeviceType (private method tested via reflection)', () => {
+      let originalNavigator: Navigator;
+      let originalWindow: Window & typeof globalThis;
+
+      beforeEach(() => {
+        originalNavigator = global.navigator;
+        originalWindow = global.window;
+      });
+
+      afterEach(() => {
+        global.navigator = originalNavigator;
+        global.window = originalWindow;
+      });
+
+      it('should detect android with Capacitor', () => {
+        Object.defineProperty(global, 'navigator', {
+          writable: true,
+          value: { userAgent: 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36' },
+        });
+        Object.defineProperty(global, 'window', {
+          writable: true,
+          value: { Capacitor: {} },
+        });
+
+        const result = (service as any).detectDeviceType();
+        expect(result).toBe('android');
+      });
+
+      it('should detect ios with Capacitor (iPhone)', () => {
+        Object.defineProperty(global, 'navigator', {
+          writable: true,
+          value: { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)' },
+        });
+        Object.defineProperty(global, 'window', {
+          writable: true,
+          value: { Capacitor: {} },
+        });
+
+        const result = (service as any).detectDeviceType();
+        expect(result).toBe('ios');
+      });
+
+      it('should detect ios with Capacitor (iPad)', () => {
+        Object.defineProperty(global, 'navigator', {
+          writable: true,
+          value: { userAgent: 'Mozilla/5.0 (iPad; CPU OS 14_0)' },
+        });
+        Object.defineProperty(global, 'window', {
+          writable: true,
+          value: { Capacitor: {} },
+        });
+
+        const result = (service as any).detectDeviceType();
+        expect(result).toBe('ios');
+      });
+
+      it('should detect web-mobile for Android browser', () => {
+        Object.defineProperty(global, 'navigator', {
+          writable: true,
+          value: {
+            userAgent: 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Mobile',
+          },
+        });
+        Object.defineProperty(global, 'window', {
+          writable: true,
+          value: {},
+        });
+
+        const result = (service as any).detectDeviceType();
+        expect(result).toBe('web-mobile');
+      });
+
+      it('should detect web-mobile for iPhone browser', () => {
+        Object.defineProperty(global, 'navigator', {
+          writable: true,
+          value: { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)' },
+        });
+        Object.defineProperty(global, 'window', {
+          writable: true,
+          value: {},
+        });
+
+        const result = (service as any).detectDeviceType();
+        expect(result).toBe('web-mobile');
+      });
+
+      it('should detect desktop for tablet (iPad)', () => {
+        Object.defineProperty(global, 'navigator', {
+          writable: true,
+          value: { userAgent: 'Mozilla/5.0 (iPad; CPU OS 14_0)' },
+        });
+        Object.defineProperty(global, 'window', {
+          writable: true,
+          value: {},
+        });
+
+        const result = (service as any).detectDeviceType();
+        expect(result).toBe('desktop');
+      });
+
+      it('should detect desktop for standard browser', () => {
+        Object.defineProperty(global, 'navigator', {
+          writable: true,
+          value: {
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124',
+          },
+        });
+        Object.defineProperty(global, 'window', {
+          writable: true,
+          value: {},
+        });
+
+        const result = (service as any).detectDeviceType();
+        expect(result).toBe('desktop');
+      });
+    });
+  });
 });
