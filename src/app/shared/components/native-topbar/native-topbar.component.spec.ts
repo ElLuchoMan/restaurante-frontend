@@ -200,6 +200,36 @@ describe('NativeTopbarComponent', () => {
     component['platformId'] = originalPlatform;
   });
 
+  it('no ajusta padding si falta la barra o el contenedor principal', () => {
+    topbarElement.remove();
+    component['mainEl'] = mainElement;
+
+    component['applyTopPadding']();
+
+    expect(mainElement.style.paddingTop).toBe('');
+  });
+
+  it('aplica padding dinámico fuera de la página principal', () => {
+    component['mainEl'] = mainElement;
+    const urlSpy = jest.spyOnProperty(router, 'url', 'get').mockReturnValue('/reservas');
+
+    component['applyTopPadding']();
+
+    expect(mainElement.style.paddingTop).toBe('calc(60px + max(env(safe-area-inset-top), 0px))');
+    urlSpy.mockRestore();
+  });
+
+  it('quita padding cuando la ruta corresponde a Home', () => {
+    component['mainEl'] = mainElement;
+    mainElement.style.paddingTop = 'calc(60px + max(env(safe-area-inset-top), 0px))';
+    const urlSpy = jest.spyOnProperty(router, 'url', 'get').mockReturnValue('/home/interno');
+
+    component['applyTopPadding']();
+
+    expect(mainElement.style.paddingTop).toBe('0px');
+    urlSpy.mockRestore();
+  });
+
   it('responde a los cambios del carrito', () => {
     userService.emitAuthState(true, 'Cliente');
     cartService.count$.next(7);
@@ -245,5 +275,20 @@ describe('NativeTopbarComponent', () => {
     expect(spy).not.toHaveBeenCalled();
     component['platformId'] = originalPlatform;
     spy.mockRestore();
+  });
+
+  it('libera recursos al destruir el componente', () => {
+    component['mainEl'] = mainElement;
+    mainElement.style.paddingTop = 'calc(60px + max(env(safe-area-inset-top), 0px))';
+    const destroy$ = (component as any).destroy$;
+    const nextSpy = jest.spyOn(destroy$, 'next');
+    const completeSpy = jest.spyOn(destroy$, 'complete');
+
+    component.ngOnDestroy();
+
+    expect(nextSpy).toHaveBeenCalled();
+    expect(completeSpy).toHaveBeenCalled();
+    expect(destroy$.isStopped).toBe(true);
+    expect(mainElement.style.paddingTop).toBe('');
   });
 });

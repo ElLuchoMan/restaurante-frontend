@@ -268,6 +268,27 @@ describe('HomeComponent', () => {
     document.body.removeChild(footerHost);
   });
 
+  it('initFooterObserver: ignora callbacks cuando no existe la barra de acciones', () => {
+    const footer = document.createElement('div');
+    footer.className = 'footer';
+    document.body.appendChild(footer);
+
+    let callback: ((entries: Array<Partial<IntersectionObserverEntry>>) => void) | undefined;
+    (window as any).IntersectionObserver = class {
+      constructor(cb: any) {
+        callback = cb;
+      }
+      observe() {}
+      disconnect() {}
+    } as any;
+
+    (component as any).initFooterObserver();
+
+    expect(() => callback?.([{ isIntersecting: true }])).not.toThrow();
+
+    document.body.removeChild(footer);
+  });
+
   it('renderiza hero en navegador (no webview)', () => {
     (component as any).isWebView = false as any;
     fixture.detectChanges();
@@ -302,6 +323,14 @@ describe('HomeComponent', () => {
     const workerCards = component.webViewCards;
     expect(workerCards.find((card) => card.type === 'perfil-trabajador')).toBeTruthy();
     expect(workerCards.find((card) => card.type === 'perfil-cliente')).toBeFalsy();
+  });
+
+  it('no agrega tarjeta de carrito cuando está vacío y usuario no autenticado', () => {
+    component.cartCount = 0;
+    mockUserService.getUserRole.mockReturnValue(null);
+
+    const cards = component.webViewCards.map((card) => card.type);
+    expect(cards).toEqual(['ubicacion', 'llamar']);
   });
 
   it('calcula el total de tarjetas basado en la lista generada', () => {
@@ -367,6 +396,18 @@ describe('HomeComponent', () => {
     expect(img.classList.contains('fallback-logo')).toBe(false);
   });
 
+  it('no reaplica fallback cuando la imagen ya es el logo oficial', () => {
+    const img = document.createElement('img');
+    img.src = 'assets/img/logo2.webp';
+    img.alt = 'original';
+    const event = { target: img } as unknown as Event;
+
+    component.onProductImageError(event);
+
+    expect(img.alt).toBe('original');
+    expect(img.classList.contains('fallback-logo')).toBe(false);
+  });
+
   it('carga productos populares correctamente cuando el backend responde con datos', () => {
     const productos: ProductoVendido[] = [
       { productoId: 1, imagen: 'img', nombreProducto: 'Arepa' } as ProductoVendido,
@@ -399,6 +440,17 @@ describe('HomeComponent', () => {
     expect(component.errorProductos).toBe(true);
     expect(component.loadingProductos).toBe(false);
     expect(detectSpy).toHaveBeenCalled();
+  });
+
+  it('marca error cuando el backend responde 200 sin datos de productos', () => {
+    mockTelemetryService.getProductosPopulares.mockReturnValue(
+      of({ code: 200, data: null, message: 'sin datos' } as any),
+    );
+
+    component.loadProductosPopulares();
+
+    expect(component.errorProductos).toBe(true);
+    expect(component.productosPopulares).toEqual([]);
   });
 
   it('maneja errores al cargar productos populares', () => {
@@ -441,6 +493,18 @@ describe('HomeComponent', () => {
       value: originalUserAgent,
       configurable: true,
     });
+  });
+
+  it('detecta dispositivos móviles solo cuando la plataforma es navegador', () => {
+    const addListenerSpy = jest.spyOn(window, 'addEventListener');
+    (component as any).platformId = 'server';
+    component.isMobile = false;
+
+    (component as any).detectMobileDevice();
+
+    expect(component.isMobile).toBe(false);
+    expect(addListenerSpy).not.toHaveBeenCalledWith('resize', expect.any(Function));
+    addListenerSpy.mockRestore();
   });
 
   it('limpia los recursos al destruir el componente', () => {
