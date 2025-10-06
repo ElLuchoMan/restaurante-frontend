@@ -4,6 +4,8 @@ import { LoginComponent } from '../auth/login/login.component';
 import { RegisterComponent } from '../auth/register/register.component';
 import { ConsultarDomicilioComponent } from './domicilios/consultar-domicilios/consultar-domicilios.component';
 import { HomeComponent } from './home/home.component';
+import { NotificationCenterComponent } from './notification-center/notification-center.component';
+import { OfflineComponent } from './offline/offline.component';
 import { publicRoutes } from './public.routes';
 import { ConsultarReservaComponent } from './reservas/consultar-reserva/consultar-reserva.component';
 import { CrearReservaComponent } from './reservas/crear-reserva/crear-reserva.component';
@@ -85,5 +87,48 @@ describe('Public Routes', () => {
       const component = await route.loadComponent();
       expect(component).toBe(UbicacionRestauranteComponent);
     }
+  });
+
+  it('should map "notificaciones" to NotificationCenterComponent', async () => {
+    const route = publicRoutes.find((r) => r.path === 'notificaciones');
+    expect(route?.loadComponent).toBeDefined();
+    expect(route?.title).toBe('Notificaciones');
+    expect(route?.data?.description).toBe('Centro de notificaciones recibidas.');
+
+    // Test lazy loading
+    if (route?.loadComponent) {
+      const component = await route.loadComponent();
+      expect(component).toBe(NotificationCenterComponent);
+    }
+  });
+
+  it('should map "offline" to OfflineComponent', () => {
+    const route = publicRoutes.find((r) => r.path === 'offline');
+    expect(route?.component).toBe(OfflineComponent);
+    expect(route?.title).toBe('Sin conexión');
+    expect(route?.data?.robots).toBe('noindex, nofollow');
+    expect(route?.data?.description).toBe('Estás sin conexión. Intenta nuevamente.');
+  });
+
+  it('should have titles for all routes', () => {
+    const routesWithTitle = publicRoutes.filter((r) => r.title);
+    expect(routesWithTitle.length).toBeGreaterThan(0);
+
+    // Check that main routes have titles
+    const homeRoute = publicRoutes.find((r) => r.path === 'home');
+    expect(homeRoute?.title).toBe('Inicio');
+
+    const loginRoute = publicRoutes.find((r) => r.path === 'login');
+    expect(loginRoute?.title).toBe('Login');
+  });
+
+  it('should have SEO descriptions for key routes', () => {
+    const homeRoute = publicRoutes.find((r) => r.path === 'home');
+    expect(homeRoute?.data?.description).toBeDefined();
+    expect(homeRoute?.data?.description).toContain('colombiano');
+
+    const menuRoute = publicRoutes.find((r) => r.path === 'menu');
+    expect(menuRoute?.data?.description).toBeDefined();
+    expect(menuRoute?.data?.description).toContain('platos');
   });
 });
