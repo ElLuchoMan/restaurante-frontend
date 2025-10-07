@@ -1,11 +1,20 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
 import {
   mockDashboardData,
+  mockEficienciaData,
+  mockPedidosAnalisisData,
+  mockProductosPopularesData,
+  mockRentabilidadData,
   mockProductsData,
+  mockReservasAnalisisData,
   mockSalesData,
+  mockSegmentacionData,
+  mockTimeAnalysisData,
+  mockUsersData,
 } from '../../shared/mocks/telemetry.mock';
 import {
   createHandleErrorServiceMock,
@@ -15,18 +24,35 @@ import { PurchaseData, TelemetryParams } from '../../shared/models/telemetry.mod
 import { HandleErrorService } from './handle-error.service';
 import { TelemetryService } from './telemetry.service';
 
+class MockRouter {
+  private currentUrl = '/';
+
+  navigate = jest.fn();
+
+  get url(): string {
+    return this.currentUrl;
+  }
+
+  setUrl(url: string): void {
+    this.currentUrl = url;
+  }
+}
+
 describe('TelemetryService', () => {
   let service: TelemetryService;
   let httpTestingController: HttpTestingController;
   const baseUrl = `${environment.apiUrl}/telemetria`;
   const mockHandleErrorService = createHandleErrorServiceMock();
+  let routerMock: MockRouter;
 
   beforeEach(() => {
+    routerMock = new MockRouter();
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         TelemetryService,
         { provide: HandleErrorService, useValue: mockHandleErrorService },
+        { provide: Router, useValue: routerMock },
       ],
     });
 
@@ -36,6 +62,7 @@ describe('TelemetryService', () => {
 
   afterEach(() => {
     httpTestingController.verify();
+    jest.restoreAllMocks();
     mockHandleErrorService.handleError.mockReset();
     localStorage.clear();
   });
@@ -128,6 +155,102 @@ describe('TelemetryService', () => {
     });
   });
 
+  describe('getRentabilidad', () => {
+    it('should get rentabilidad data', () => {
+      service.getRentabilidad().subscribe((response) => {
+        expect(response).toEqual(mockRentabilidadData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/rentabilidad`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockRentabilidadData);
+    });
+  });
+
+  describe('getSegmentacion', () => {
+    it('should get segmentacion data', () => {
+      service.getSegmentacion().subscribe((response) => {
+        expect(response).toEqual(mockSegmentacionData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/segmentacion`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockSegmentacionData);
+    });
+  });
+
+  describe('getEficiencia', () => {
+    it('should get eficiencia data', () => {
+      service.getEficiencia().subscribe((response) => {
+        expect(response).toEqual(mockEficienciaData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/eficiencia`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockEficienciaData);
+    });
+  });
+
+  describe('getReservasAnalisis', () => {
+    it('should get reservas analisis data', () => {
+      service.getReservasAnalisis().subscribe((response) => {
+        expect(response).toEqual(mockReservasAnalisisData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/reservas-analisis`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockReservasAnalisisData);
+    });
+  });
+
+  describe('getPedidosAnalisis', () => {
+    it('should get pedidos analisis data', () => {
+      service.getPedidosAnalisis().subscribe((response) => {
+        expect(response).toEqual(mockPedidosAnalisisData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/pedidos-analisis`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockPedidosAnalisisData);
+    });
+  });
+
+  describe('getUsers', () => {
+    it('should get users data', () => {
+      service.getUsers().subscribe((response) => {
+        expect(response).toEqual(mockUsersData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/users`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockUsersData);
+    });
+  });
+
+  describe('getTimeAnalysis', () => {
+    it('should get time analysis data', () => {
+      service.getTimeAnalysis().subscribe((response) => {
+        expect(response).toEqual(mockTimeAnalysisData);
+      });
+
+      const req = httpTestingController.expectOne(`${baseUrl}/time-analysis`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockTimeAnalysisData);
+    });
+  });
+
+  describe('getProductosPopulares', () => {
+    it('should get popular products data', () => {
+      service.getProductosPopulares().subscribe((response) => {
+        expect(response).toEqual(mockProductosPopularesData);
+      });
+
+      const req = httpTestingController.expectOne(`${environment.apiUrl}/productos-populares`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockProductosPopularesData);
+    });
+  });
+
   describe('Error handling', () => {
     it('should handle network errors', () => {
       service.getDashboard().subscribe();
@@ -169,6 +292,35 @@ describe('TelemetryService', () => {
       expect(req.request.method).toBe('GET');
       expect(req.request.params.keys().length).toBe(0);
       req.flush(mockSalesData);
+    });
+
+    it('should build params with advanced filters', () => {
+      const params: TelemetryParams = {
+        periodo: 'personalizado',
+        limit: 15,
+        mes: 5,
+        año: 2024,
+        fecha_inicio: '2024-01-01',
+        fecha_fin: '2024-01-31',
+        hora_inicio: '08:00',
+        hora_fin: '18:00',
+      };
+
+      service.getSegmentacion(params).subscribe();
+
+      const req = httpTestingController.expectOne(
+        (request) => request.url === `${baseUrl}/segmentacion`,
+      );
+      expect(req.request.method).toBe('GET');
+      expect(req.request.params.get('periodo')).toBe('personalizado');
+      expect(req.request.params.get('limit')).toBe('15');
+      expect(req.request.params.get('mes')).toBe('5');
+      expect(req.request.params.get('año')).toBe('2024');
+      expect(req.request.params.get('fecha_inicio')).toBe('2024-01-01');
+      expect(req.request.params.get('fecha_fin')).toBe('2024-01-31');
+      expect(req.request.params.get('hora_inicio')).toBe('08:00');
+      expect(req.request.params.get('hora_fin')).toBe('18:00');
+      req.flush(mockSegmentacionData);
     });
   });
 
@@ -298,6 +450,10 @@ describe('TelemetryService', () => {
     });
 
     describe('getEvents', () => {
+      it('should return empty array when there are no events stored', () => {
+        expect(service.getEvents()).toEqual([]);
+      });
+
       it('should return all events when no limit', () => {
         service.logLoginAttempt();
         service.logLoginSuccess();
@@ -350,6 +506,27 @@ describe('TelemetryService', () => {
         expect(metrics.purchasesByPaymentMethod['EFECTIVO']).toBe(1);
         expect(metrics.productsCount['Bandeja Paisa']).toBe(2);
         expect(metrics.usersByPurchases['123']).toBe(1);
+      });
+
+      it('should aggregate purchase metrics without payment method label', () => {
+        const fixedTimestamp = Date.UTC(2024, 0, 5, 10, 0, 0);
+
+        service.logEvent({
+          type: 'purchase',
+          paymentMethodId: 9,
+          subtotal: 42000,
+          timestamp: fixedTimestamp,
+          items: [{ productId: 99, quantity: 3 }],
+          userId: 777,
+        });
+
+        const metrics = service.getAggregatedMetrics();
+
+        expect(metrics.purchasesByPaymentMethod).toEqual({});
+        expect(metrics.productsCount['99']).toBe(3);
+        expect(metrics.usersByPurchases['777']).toBe(1);
+        expect(Object.values(metrics.salesByHour)[0]).toBe(42000);
+        expect(Object.values(metrics.salesByWeekday)[0]).toBe(42000);
       });
     });
 
@@ -430,6 +607,51 @@ describe('TelemetryService', () => {
   });
 
   describe('Device Detection & User Info', () => {
+    describe('initializeDeviceType', () => {
+      it('should skip initialization when window is undefined', () => {
+        const originalWindow = (globalThis as any).window;
+        (globalThis as any).window = undefined;
+
+        const getItemSpy = jest.spyOn(Storage.prototype, 'getItem');
+        service['initializeDeviceType']();
+
+        expect(getItemSpy).not.toHaveBeenCalled();
+
+        getItemSpy.mockRestore();
+        (globalThis as any).window = originalWindow;
+      });
+
+      it('should use stored device type without detecting again', () => {
+        localStorage.setItem(service['deviceTypeKey'], 'android');
+        const detectSpy = jest.spyOn<any, any>(service, 'detectDeviceType');
+        const setDeviceTypeSpy = jest.spyOn(service, 'setDeviceType');
+
+        service['initializeDeviceType']();
+
+        expect(detectSpy).not.toHaveBeenCalled();
+        expect(setDeviceTypeSpy).not.toHaveBeenCalled();
+
+        detectSpy.mockRestore();
+        setDeviceTypeSpy.mockRestore();
+      });
+
+      it('should detect and store device type when missing', () => {
+        localStorage.removeItem(service['deviceTypeKey']);
+        const detectSpy = jest
+          .spyOn<any, any>(service, 'detectDeviceType')
+          .mockReturnValue('web-mobile');
+        const setDeviceTypeSpy = jest.spyOn(service, 'setDeviceType');
+
+        service['initializeDeviceType']();
+
+        expect(detectSpy).toHaveBeenCalled();
+        expect(setDeviceTypeSpy).toHaveBeenCalledWith('web-mobile');
+
+        detectSpy.mockRestore();
+        setDeviceTypeSpy.mockRestore();
+      });
+    });
+
     describe('setUserDocument / getUserDocument', () => {
       it('should set and get user document from localStorage', () => {
         service.setUserDocument('1234567890');
@@ -603,6 +825,16 @@ describe('TelemetryService', () => {
         const result = (service as any).detectDeviceType();
         expect(result).toBe('desktop');
       });
+
+      it('should return desktop when window is undefined', () => {
+        const originalWindow = (globalThis as any).window;
+        (globalThis as any).window = undefined;
+
+        const result = (service as any).detectDeviceType();
+        expect(result).toBe('desktop');
+
+        (globalThis as any).window = originalWindow;
+      });
     });
   });
 
@@ -647,6 +879,68 @@ describe('TelemetryService', () => {
         throw new Error('Router error');
       });
       expect(service.getCurrentScreen()).toBeNull();
+    });
+  });
+
+  describe('generateId and uid', () => {
+    it('should use crypto.randomUUID when available', () => {
+      const originalSelf = (globalThis as any).self;
+      const randomUUID = jest.fn().mockReturnValue('uuid-123');
+      (globalThis as any).self = { crypto: { randomUUID } };
+
+      const id = (service as any).generateId();
+
+      expect(randomUUID).toHaveBeenCalled();
+      expect(id).toBe('uuid-123');
+
+      (globalThis as any).self = originalSelf;
+    });
+
+    it('should fallback to uid when crypto.randomUUID is unavailable', () => {
+      const originalSelf = (globalThis as any).self;
+      (globalThis as any).self = undefined;
+      const uidSpy = jest.spyOn<any, any>(service, 'uid');
+
+      const id = (service as any).generateId();
+
+      expect(uidSpy).toHaveBeenCalled();
+      expect(typeof id).toBe('string');
+
+      uidSpy.mockRestore();
+      (globalThis as any).self = originalSelf;
+    });
+
+    it('should generate a unique id using uid()', () => {
+      const first = (service as any).uid();
+      const second = (service as any).uid();
+
+      expect(first).not.toBe(second);
+      expect(typeof first).toBe('string');
+      expect(typeof second).toBe('string');
+    });
+  });
+
+  describe('LocalStorage fallback behavior', () => {
+    let originalLocalStorage: Storage | undefined;
+
+    beforeEach(() => {
+      originalLocalStorage = (globalThis as any).localStorage;
+      (globalThis as any).localStorage = undefined;
+    });
+
+    afterEach(() => {
+      (globalThis as any).localStorage = originalLocalStorage;
+    });
+
+    it('should safely handle methods when localStorage is unavailable', () => {
+      expect(service.getEvents()).toEqual([]);
+      expect(service.getUserDocument()).toBeNull();
+      expect(service.getDeviceType()).toBe('desktop');
+
+      expect(() => service.setUserDocument('999')).not.toThrow();
+      expect(() => service.setDeviceType('android')).not.toThrow();
+      expect(() => service.clearUserInfo()).not.toThrow();
+      expect(() => service.clear()).not.toThrow();
     });
   });
 });
