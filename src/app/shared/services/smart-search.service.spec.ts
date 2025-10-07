@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { firstValueFrom } from 'rxjs';
+
 import { Producto } from '../models/producto.model';
 import { SearchFilters, SmartSearchService } from './smart-search.service';
 
@@ -44,6 +46,17 @@ describe('SmartSearchService', () => {
         imagen: 'cafe.jpg',
         cantidad: 1,
       },
+      {
+        productoId: 4,
+        nombre: 'Tacos Picantes',
+        descripcion: 'Tortillas con pollo y salsa de ají muy picante',
+        precio: 22000,
+        categoria: 'Platos Principales',
+        subcategoria: 'Tacos',
+        calorias: 550,
+        imagen: 'tacos.jpg',
+        cantidad: 1,
+      },
     ];
   });
 
@@ -70,7 +83,7 @@ describe('SmartSearchService', () => {
   });
 
   describe('updateFilters', () => {
-    it('should update filters correctly', () => {
+    it('should update filters correctly', async () => {
       const newFilters: Partial<SearchFilters> = {
         query: 'hamburguesa',
         category: 'Platos Principales',
@@ -79,55 +92,50 @@ describe('SmartSearchService', () => {
 
       service.updateFilters(newFilters);
 
-      service.getCurrentFilters().subscribe((filters) => {
-        expect(filters.query).toBe('hamburguesa');
-        expect(filters.category).toBe('Platos Principales');
-        expect(filters.priceRange.min).toBe(20000);
-        expect(filters.priceRange.max).toBe(30000);
-      });
+      const filters = await firstValueFrom(service.getCurrentFilters());
+      expect(filters.query).toBe('hamburguesa');
+      expect(filters.category).toBe('Platos Principales');
+      expect(filters.priceRange.min).toBe(20000);
+      expect(filters.priceRange.max).toBe(30000);
     });
   });
 
   describe('addToSearchHistory', () => {
-    it('should add query to search history', () => {
+    it('should add query to search history', async () => {
       service.addToSearchHistory('hamburguesa');
 
-      service.getSearchHistory().subscribe((history) => {
-        expect(history).toContain('hamburguesa');
-        expect(history[0]).toBe('hamburguesa');
-      });
+      const history = await firstValueFrom(service.getSearchHistory());
+      expect(history).toContain('hamburguesa');
+      expect(history[0]).toBe('hamburguesa');
     });
 
-    it('should not add empty queries', () => {
+    it('should not add empty queries', async () => {
       service.addToSearchHistory('');
       service.addToSearchHistory('   ');
 
-      service.getSearchHistory().subscribe((history) => {
-        expect(history).not.toContain('');
-        expect(history).not.toContain('   ');
-      });
+      const history = await firstValueFrom(service.getSearchHistory());
+      expect(history).not.toContain('');
+      expect(history).not.toContain('   ');
     });
 
-    it('should limit history to 10 items', () => {
+    it('should limit history to 10 items', async () => {
       for (let i = 0; i < 15; i++) {
         service.addToSearchHistory(`query${i}`);
       }
 
-      service.getSearchHistory().subscribe((history) => {
-        expect(history.length).toBe(10);
-        expect(history[0]).toBe('query14');
-        expect(history[9]).toBe('query5');
-      });
+      const history = await firstValueFrom(service.getSearchHistory());
+      expect(history.length).toBe(10);
+      expect(history[0]).toBe('query14');
+      expect(history[9]).toBe('query5');
     });
 
-    it('should not add duplicate queries', () => {
+    it('should not add duplicate queries', async () => {
       service.addToSearchHistory('hamburguesa');
       service.addToSearchHistory('ensalada');
       service.addToSearchHistory('hamburguesa');
 
-      service.getSearchHistory().subscribe((history) => {
-        expect(history).toEqual(['hamburguesa', 'ensalada']);
-      });
+      const history = await firstValueFrom(service.getSearchHistory());
+      expect(history).toEqual(['hamburguesa', 'ensalada']);
     });
   });
 
@@ -155,14 +163,18 @@ describe('SmartSearchService', () => {
       expect(productSuggestion?.text).toContain('Hamburguesa');
     });
 
-    it('should return semantic suggestions', () => {
-      // Usar un término que existe en los productos mock
-      const suggestions = service.getSuggestions('hambur', mockProducts);
+    it('should return semantic suggestions when matching keywords', () => {
+      const suggestions = service.getSuggestions('picante', mockProducts);
 
-      expect(suggestions.length).toBeGreaterThan(0);
-      // Verificar que hay al menos una sugerencia de producto
-      const productSuggestion = suggestions.find((s) => s.type === 'product');
-      expect(productSuggestion).toBeTruthy();
+      const dietarySuggestion = suggestions.find((s) => s.type === 'dietary');
+      expect(dietarySuggestion).toBeTruthy();
+      expect(dietarySuggestion?.count).toBeGreaterThan(0);
+    });
+
+    it('should not add semantic suggestions when no product matches keywords', () => {
+      const suggestions = service.getSuggestions('rápido', mockProducts);
+
+      expect(suggestions.some((s) => s.type === 'dietary')).toBe(false);
     });
 
     it('should limit suggestions to 8 items', () => {
@@ -225,10 +237,11 @@ describe('SmartSearchService', () => {
 
       const results = service.searchProducts(mockProducts, filters);
 
-      // Hamburguesa (650) y Ensalada (320) están en el rango
-      expect(results.length).toBe(2);
+      // Hamburguesa (650), Ensalada (320) y Tacos (550) están en el rango
+      expect(results.length).toBe(3);
       expect(results.some((p) => p.calorias === 650)).toBeTruthy();
       expect(results.some((p) => p.calorias === 320)).toBeTruthy();
+      expect(results.some((p) => p.calorias === 550)).toBeTruthy();
     });
 
     it('should filter by allergens', () => {
@@ -237,10 +250,11 @@ describe('SmartSearchService', () => {
 
       const results = service.searchProducts(mockProducts, filters);
 
-      // Should exclude products with 'queso' in description
-      // Solo Café no tiene queso
-      expect(results.length).toBe(1);
-      expect(results[0].nombre).toBe('Café Colombiano');
+      // Debe excluir productos con 'queso' en la descripción
+      expect(results.length).toBe(2);
+      expect(results.map((product) => product.nombre)).toEqual(
+        expect.arrayContaining(['Café Colombiano', 'Tacos Picantes']),
+      );
     });
 
     it('should sort by name ascending', () => {
@@ -250,9 +264,12 @@ describe('SmartSearchService', () => {
 
       const results = service.searchProducts(mockProducts, filters);
 
-      expect(results[0].nombre).toBe('Café Colombiano');
-      expect(results[1].nombre).toBe('Ensalada César');
-      expect(results[2].nombre).toBe('Hamburguesa Clásica');
+      expect(results.map((product) => product.nombre)).toEqual([
+        'Café Colombiano',
+        'Ensalada César',
+        'Hamburguesa Clásica',
+        'Tacos Picantes',
+      ]);
     });
 
     it('should sort by price descending', () => {
@@ -262,9 +279,7 @@ describe('SmartSearchService', () => {
 
       const results = service.searchProducts(mockProducts, filters);
 
-      expect(results[0].precio).toBe(25000);
-      expect(results[1].precio).toBe(18000);
-      expect(results[2].precio).toBe(5000);
+      expect(results.map((product) => product.precio)).toEqual([25000, 22000, 18000, 5000]);
     });
 
     it('should apply semantic search', () => {
@@ -273,8 +288,40 @@ describe('SmartSearchService', () => {
 
       const results = service.searchProducts(mockProducts, filters);
 
-      // Should find products that match semantic keywords
-      expect(results.length).toBeGreaterThanOrEqual(0);
+      expect(results.some((product) => product.nombre === 'Tacos Picantes')).toBe(true);
+    });
+
+    it('should sort by calories ascending', () => {
+      const filters = service.getDefaultFilters();
+      filters.sortBy = 'calories';
+      filters.sortOrder = 'asc';
+
+      const results = service.searchProducts(mockProducts, filters);
+
+      expect(results.map((product) => product.calorias)).toEqual([5, 320, 550, 650]);
+    });
+
+    it('should sort by popularity descending using productoId', () => {
+      const filters = service.getDefaultFilters();
+      filters.sortBy = 'popularity';
+      filters.sortOrder = 'desc';
+
+      const results = service.searchProducts(mockProducts, filters);
+
+      expect(results.map((product) => product.productoId)).toEqual([4, 3, 2, 1]);
+    });
+
+    it('should sort by rating using Math.random value', () => {
+      const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.8);
+      const filters = service.getDefaultFilters();
+      filters.sortBy = 'rating';
+      filters.sortOrder = 'asc';
+
+      const results = service.searchProducts(mockProducts, filters);
+
+      expect(results).toEqual(mockProducts);
+      expect(randomSpy).toHaveBeenCalled();
+      randomSpy.mockRestore();
     });
   });
 
@@ -287,16 +334,15 @@ describe('SmartSearchService', () => {
       localStorage.clear();
     });
 
-    it('should save and load search history', () => {
+    it('should save and load search history', async () => {
       service.addToSearchHistory('test query');
 
       // Create new service instance to test persistence
       const newService = new SmartSearchService();
       newService.loadSearchHistory();
 
-      newService.getSearchHistory().subscribe((history) => {
-        expect(history).toContain('test query');
-      });
+      const history = await firstValueFrom(newService.getSearchHistory());
+      expect(history).toContain('test query');
     });
 
     it('should handle localStorage errors gracefully', () => {
@@ -313,8 +359,55 @@ describe('SmartSearchService', () => {
         service.addToSearchHistory('test');
       }).not.toThrow();
 
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'No se pudo guardar el historial de búsqueda:',
+        expect.any(Error),
+      );
+
       setItemSpy.mockRestore();
       consoleWarnSpy.mockRestore();
+    });
+
+    it('should load history when stored value exists', async () => {
+      localStorage.setItem('restaurant_search_history', JSON.stringify(['arepa']));
+
+      const newService = new SmartSearchService();
+      newService.loadSearchHistory();
+
+      const history = await firstValueFrom(newService.getSearchHistory());
+      expect(history).toEqual(['arepa']);
+    });
+
+    it('should handle invalid JSON when loading history', async () => {
+      localStorage.setItem('restaurant_search_history', 'invalid json');
+
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const newService = new SmartSearchService();
+
+      newService.loadSearchHistory();
+
+      const history = await firstValueFrom(newService.getSearchHistory());
+      expect(history).toEqual([]);
+      expect(warnSpy).toHaveBeenCalledWith(
+        'No se pudo cargar el historial de búsqueda:',
+        expect.any(Error),
+      );
+
+      warnSpy.mockRestore();
+    });
+
+    it('should clear search history and remove data from localStorage', async () => {
+      service.addToSearchHistory('picada');
+      localStorage.setItem('restaurant_search_history', JSON.stringify(['picada']));
+      const removeSpy = jest.spyOn(Storage.prototype, 'removeItem');
+
+      service.clearSearchHistory();
+
+      const history = await firstValueFrom(service.getSearchHistory());
+      expect(history).toEqual([]);
+      expect(removeSpy).toHaveBeenCalledWith('restaurant_search_history');
+
+      removeSpy.mockRestore();
     });
   });
 });
