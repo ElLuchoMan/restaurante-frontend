@@ -239,4 +239,45 @@ describe('AuthRefreshInterceptor', () => {
       });
     }, 50); // La segunda request llega mientras la primera está refrescando
   }, 10000); // Aumentar timeout del test
+
+  it('should error queued requests when no token is available after refresh completes', (done) => {
+    const mockError = new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' });
+    const mockResponse = new HttpResponse({ status: 200, body: { data: 'test' } });
+    const newToken = 'new-access-token';
+
+    mockNext
+      .mockReturnValueOnce(throwError(() => mockError))
+      .mockReturnValueOnce(throwError(() => mockError))
+      .mockReturnValueOnce(of(mockResponse));
+
+    userService.attemptTokenRefresh.mockReturnValue(of(true).pipe(delay(20)));
+    userService.getToken
+      .mockReturnValueOnce(newToken)
+      .mockReturnValueOnce(newToken)
+      .mockReturnValueOnce(null);
+
+    const interceptor = authRefreshInterceptor;
+
+    const firstResult = TestBed.runInInjectionContext(() => interceptor(mockRequest, mockNext));
+    firstResult.subscribe({
+      next: (response) => {
+        expect(response).toBe(mockResponse);
+      },
+      error: (error) => fail(error),
+    });
+
+    setTimeout(() => {
+      const secondResult = TestBed.runInInjectionContext(() => interceptor(mockRequest, mockNext));
+
+      secondResult.subscribe({
+        next: () => fail('Expected queued request to error'),
+        error: (error) => {
+          expect(error.message).toBe('No token available');
+          expect(router.navigate).not.toHaveBeenCalled();
+          expect(userService.attemptTokenRefresh).toHaveBeenCalledTimes(1);
+          done();
+        },
+      });
+    }, 5);
+  }, 10000);
 });
