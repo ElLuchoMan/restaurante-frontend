@@ -48,6 +48,8 @@ describe('NativeTopbarComponent', () => {
   let router: Router;
   let mainElement: HTMLElement;
   let topbarElement: HTMLElement;
+  let addEventListenerSpy: jest.SpyInstance;
+  let removeEventListenerSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     getUnseenCount.mockReset();
@@ -77,6 +79,9 @@ describe('NativeTopbarComponent', () => {
     topbarElement.classList.add('home-topbar');
     document.body.appendChild(topbarElement);
 
+    addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+    removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
+
     fixture = TestBed.createComponent(NativeTopbarComponent);
     component = fixture.componentInstance;
     userService = TestBed.inject(UserService) as unknown as UserServiceStub;
@@ -93,6 +98,8 @@ describe('NativeTopbarComponent', () => {
     mainElement.remove();
     topbarElement.remove();
     jest.clearAllMocks();
+    addEventListenerSpy.mockRestore();
+    removeEventListenerSpy.mockRestore();
   });
 
   it('debería crearse', () => {
@@ -117,6 +124,30 @@ describe('NativeTopbarComponent', () => {
     expect(spy).not.toHaveBeenCalled();
     component['platformId'] = originalPlatform;
     spy.mockRestore();
+  });
+
+  it('maneja errores al cargar el centro de notificaciones', () => {
+    const originalRequire = module.require.bind(module);
+    const requireSpy = jest
+      .spyOn(module, 'require')
+      .mockImplementation((path: string) => {
+        if (path.includes('notification-center.store')) {
+          throw new Error('No disponible');
+        }
+        return originalRequire(path);
+      });
+
+    addEventListenerSpy.mockClear();
+    removeEventListenerSpy.mockClear();
+
+    const secondaryFixture = TestBed.createComponent(NativeTopbarComponent);
+
+    expect(() => secondaryFixture.detectChanges()).not.toThrow();
+    expect(addEventListenerSpy).not.toHaveBeenCalled();
+    expect(removeEventListenerSpy).not.toHaveBeenCalled();
+
+    secondaryFixture.destroy();
+    requireSpy.mockRestore();
   });
 
   it('emite acciones de login cuando el usuario no está autenticado', () => {
@@ -173,6 +204,18 @@ describe('NativeTopbarComponent', () => {
     expect(component.topBarActions).toEqual([]);
   });
 
+  it('no ejecuta acciones cuando no hay ruta ni logout', async () => {
+    const logoutSpy = jest.spyOn(component, 'onLogout');
+    const navigateSpy = router.navigate as jest.Mock;
+    navigateSpy.mockClear();
+
+    await component.onActionClick({ icon: 'fa', ariaLabel: 'sin accion' });
+
+    expect(logoutSpy).not.toHaveBeenCalled();
+    expect(navigateSpy).not.toHaveBeenCalled();
+    logoutSpy.mockRestore();
+  });
+
   it('navega al ejecutar una acción con ruta', async () => {
     const action: TopBarAction = {
       icon: 'fa fa-user',
@@ -219,11 +262,7 @@ describe('NativeTopbarComponent', () => {
     expect(mainElement.style.paddingTop).toBe('0px');
   });
 
-  it.skip('aplica padding dinámico fuera de la página principal', async () => {
-    // SKIP: Test complejo de mockear debido a la navegación del router.
-    // La funcionalidad está cubierta por el test de Home que sí pasa.
-    // TODO: Revisar en futuras actualizaciones de Angular Testing
-
+  it('aplica padding dinámico fuera de la página principal', async () => {
     // Asegurarse de que topbarElement está en el DOM (puede haberse eliminado en tests anteriores)
     if (!document.querySelector('.home-topbar')) {
       topbarElement = document.createElement('div');
@@ -232,7 +271,6 @@ describe('NativeTopbarComponent', () => {
     }
 
     component['mainEl'] = mainElement;
-    // Navegar realmente a una ruta que no es home
     await router.navigate(['/reservas']);
     fixture.detectChanges();
 
@@ -258,6 +296,15 @@ describe('NativeTopbarComponent', () => {
     cartService.count$.next(7);
     expect(component.cartCount).toBe(7);
     expect(component.topBarActions[0].badge).toBe(7);
+  });
+
+  it('recalcula el padding cuando el router emite NavigationEnd', async () => {
+    const spy = jest.spyOn(component as any, 'applyTopPadding');
+    component['mainEl'] = mainElement;
+
+    await router.navigate(['/reservas']);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
   });
 
   it('gestiona correctamente los cambios del centro de notificaciones', () => {
@@ -307,11 +354,15 @@ describe('NativeTopbarComponent', () => {
     const nextSpy = jest.spyOn(destroy$, 'next');
     const completeSpy = jest.spyOn(destroy$, 'complete');
 
+    removeEventListenerSpy.mockClear();
+
     component.ngOnDestroy();
 
     expect(nextSpy).toHaveBeenCalled();
     expect(completeSpy).toHaveBeenCalled();
     expect(destroy$.isStopped).toBe(true);
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('notification-center:update', expect.any(Function));
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('focus', expect.any(Function));
     // jsdom convierte '' a '0px', ambos son valores válidos para resetear
     expect(['', '0px']).toContain(mainElement.style.paddingTop);
   });
