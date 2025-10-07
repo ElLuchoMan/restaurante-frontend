@@ -183,6 +183,21 @@ describe('HomeComponent', () => {
     document.body.removeChild(footerEl);
   }));
 
+  it('ngOnInit: en servidor no ejecuta lógica específica del navegador', () => {
+    const detectSpy = jest.spyOn(component as any, 'detectMobileDevice');
+    const loadSpy = jest.spyOn(component, 'loadProductosPopulares');
+    (component as any).platformId = 'server';
+
+    component.ngOnInit();
+
+    expect(component.isWebView).toBe(false);
+    expect(detectSpy).not.toHaveBeenCalled();
+    expect(loadSpy).not.toHaveBeenCalled();
+    expect(document.body.classList.contains('is-native')).toBe(false);
+
+    component.ngOnDestroy();
+  });
+
   it('ngAfterViewInit: cuando TransferState ya tiene la clave, retorna temprano', fakeAsync(() => {
     // Agregar elemento del carrusel necesario
     const el = document.createElement('div');
@@ -219,6 +234,15 @@ describe('HomeComponent', () => {
     delete (window as any).bootstrap;
   }));
 
+  it('ngAfterViewInit: omite inicialización cuando la plataforma no es navegador', () => {
+    const initSpy = jest.spyOn(component as any, 'initFooterObserver');
+    (component as any).platformId = 'server';
+
+    component.ngAfterViewInit();
+
+    expect(initSpy).not.toHaveBeenCalled();
+  });
+
   it('initFooterObserver: reintenta si no hay footer', fakeAsync(() => {
     // Asegurar entorno browser
     fixture.detectChanges();
@@ -228,6 +252,14 @@ describe('HomeComponent', () => {
     // Verificar que el método se ejecutó (el contador puede no incrementarse si no hay footer)
     expect((component as any).footerObserverInitAttempts).toBeGreaterThanOrEqual(attemptsBefore);
   }));
+
+  it('initFooterObserver: retorna inmediatamente en plataforma no navegador', () => {
+    (component as any).platformId = 'server';
+
+    (component as any).initFooterObserver();
+
+    expect((component as any).footerObserver).toBeUndefined();
+  });
 
   it('initFooterObserver: oculta/muestra la barra al ver el footer', () => {
     // Render inicial (para que si la plantilla incluye la barra, exista)
@@ -287,6 +319,46 @@ describe('HomeComponent', () => {
     expect(() => callback?.([{ isIntersecting: true }])).not.toThrow();
 
     document.body.removeChild(footer);
+  });
+
+  it('initFooterObserver: establece el estado inicial de la barra de acciones', () => {
+    fixture.detectChanges();
+    const originalObserver = (window as any).IntersectionObserver;
+    let latestCallback: ((entries: Array<Partial<IntersectionObserverEntry>>) => void) | undefined;
+    (window as any).IntersectionObserver = class {
+      constructor(cb: any) {
+        latestCallback = cb;
+      }
+      observe() {}
+      disconnect() {}
+    } as any;
+
+    const footer = document.createElement('div');
+    footer.className = 'footer';
+    let visible = true;
+    footer.getBoundingClientRect = () =>
+      (visible
+        ? ({ top: 0, bottom: 10, height: 10, width: 10, left: 0, right: 10 } as any)
+        : ({ top: 1000, bottom: 1010, height: 10, width: 10, left: 0, right: 10 } as any));
+    document.body.appendChild(footer);
+
+    const bar = document.createElement('div');
+    bar.className = 'quick-actions-bar';
+    document.body.appendChild(bar);
+
+    (component as any).initFooterObserver();
+    expect(bar.classList.contains('qa-hidden')).toBe(true);
+
+    visible = false;
+    (component as any).initFooterObserver();
+    expect(bar.classList.contains('qa-hidden')).toBe(false);
+
+    document.body.removeChild(footer);
+    document.body.removeChild(bar);
+    if (latestCallback) {
+      latestCallback([{ isIntersecting: false }]);
+    }
+    (window as any).IntersectionObserver = originalObserver;
   });
 
   it('renderiza hero en navegador (no webview)', () => {
