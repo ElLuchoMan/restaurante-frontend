@@ -8,8 +8,8 @@ import {
   mockEficienciaData,
   mockPedidosAnalisisData,
   mockProductosPopularesData,
-  mockRentabilidadData,
   mockProductsData,
+  mockRentabilidadData,
   mockReservasAnalisisData,
   mockSalesData,
   mockSegmentacionData,
@@ -27,7 +27,9 @@ import { TelemetryService } from './telemetry.service';
 class MockRouter {
   private currentUrl = '/';
 
-  navigate = jest.fn();
+  navigate(): Promise<boolean> {
+    return Promise.resolve(true);
+  }
 
   get url(): string {
     return this.currentUrl;
@@ -610,7 +612,7 @@ describe('TelemetryService', () => {
     describe('initializeDeviceType', () => {
       it('should skip initialization when window is undefined', () => {
         const originalWindow = (globalThis as any).window;
-        (globalThis as any).window = undefined;
+        delete (globalThis as any).window;
 
         const getItemSpy = jest.spyOn(Storage.prototype, 'getItem');
         service['initializeDeviceType']();
@@ -884,16 +886,30 @@ describe('TelemetryService', () => {
 
   describe('generateId and uid', () => {
     it('should use crypto.randomUUID when available', () => {
-      const originalSelf = (globalThis as any).self;
-      const randomUUID = jest.fn().mockReturnValue('uuid-123');
-      (globalThis as any).self = { crypto: { randomUUID } };
+      // Mockear crypto.randomUUID en el objeto global self
+      let randomUUIDCalled = false;
+      const mockRandomUUID = () => {
+        randomUUIDCalled = true;
+        return 'uuid-123';
+      };
+      const originalCrypto = self.crypto;
+      Object.defineProperty(self, 'crypto', {
+        value: { randomUUID: mockRandomUUID },
+        writable: true,
+        configurable: true,
+      });
 
       const id = (service as any).generateId();
 
-      expect(randomUUID).toHaveBeenCalled();
+      expect(randomUUIDCalled).toBe(true);
       expect(id).toBe('uuid-123');
 
-      (globalThis as any).self = originalSelf;
+      // Restaurar
+      Object.defineProperty(self, 'crypto', {
+        value: originalCrypto,
+        writable: true,
+        configurable: true,
+      });
     });
 
     it('should fallback to uid when crypto.randomUUID is unavailable', () => {

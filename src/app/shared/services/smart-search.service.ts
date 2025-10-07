@@ -177,7 +177,7 @@ export class SmartSearchService {
 
       // Búsqueda semántica
       const semanticMatch = Array.from(this.semanticMap.entries()).some(([semantic, keywords]) => {
-        if (semantic.toLowerCase().includes(queryLower)) {
+        if (queryLower.includes(semantic.toLowerCase())) {
           return keywords.some(
             (keyword) =>
               product.nombre.toLowerCase().includes(keyword) ||

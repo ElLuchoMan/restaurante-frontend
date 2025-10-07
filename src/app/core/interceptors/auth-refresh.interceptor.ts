@@ -17,6 +17,12 @@ const refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<
   null,
 );
 
+// Función para resetear el estado (solo para testing)
+export function resetAuthRefreshState(): void {
+  isRefreshing = false;
+  refreshTokenSubject.next(null);
+}
+
 export const authRefreshInterceptor: HttpInterceptorFn = (req, next) => {
   const userService = inject(UserService);
   const router = inject(Router);
