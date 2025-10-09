@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
 import { CategoriaService } from '../../../../core/services/categoria.service';
+import { ModalService } from '../../../../core/services/modal.service';
 import { SubcategoriaService } from '../../../../core/services/subcategoria.service';
 import { Categoria } from '../../../../shared/models/categoria.model';
 import { Subcategoria } from '../../../../shared/models/subcategoria.model';
@@ -38,6 +39,7 @@ export class GestionarCategoriasComponent implements OnInit {
     private categoriaService: CategoriaService,
     private subcategoriaService: SubcategoriaService,
     private toastr: ToastrService,
+    private modalService: ModalService,
   ) {}
 
   ngOnInit(): void {
@@ -137,12 +139,33 @@ export class GestionarCategoriasComponent implements OnInit {
   eliminarCategoria(categoria: Categoria): void {
     if (!categoria.categoriaId) return;
 
-    if (!confirm(`¿Está seguro de eliminar la categoría "${categoria.nombre}"?`)) {
-      return;
-    }
+    // Diferir la apertura del modal al siguiente ciclo para mejorar la fluidez
+    setTimeout(() => {
+      this.modalService.openModal({
+        title: 'Confirmar eliminación',
+        message: `¿Está seguro de eliminar la categoría "${categoria.nombre}"?`,
+        buttons: [
+          {
+            label: 'Cancelar',
+            class: 'btn btn-secondary',
+            action: () => this.modalService.closeModal(),
+          },
+          {
+            label: 'Eliminar',
+            class: 'btn btn-danger primary',
+            action: () => {
+              this.modalService.closeModal();
+              this.confirmarEliminacionCategoria(categoria.categoriaId!);
+            },
+          },
+        ],
+      });
+    }, 0);
+  }
 
+  private confirmarEliminacionCategoria(categoriaId: number): void {
     this.cargando = true;
-    this.categoriaService.delete(categoria.categoriaId).subscribe({
+    this.categoriaService.delete(categoriaId).subscribe({
       next: () => {
         this.cargarCategorias();
         this.cargarSubcategorias(); // Recargar subcategorías también
@@ -234,12 +257,33 @@ export class GestionarCategoriasComponent implements OnInit {
   eliminarSubcategoria(subcategoria: Subcategoria): void {
     if (!subcategoria.subcategoriaId) return;
 
-    if (!confirm(`¿Está seguro de eliminar la subcategoría "${subcategoria.nombre}"?`)) {
-      return;
-    }
+    // Diferir la apertura del modal al siguiente ciclo para mejorar la fluidez
+    setTimeout(() => {
+      this.modalService.openModal({
+        title: 'Confirmar eliminación',
+        message: `¿Está seguro de eliminar la subcategoría "${subcategoria.nombre}"?`,
+        buttons: [
+          {
+            label: 'Cancelar',
+            class: 'btn btn-secondary',
+            action: () => this.modalService.closeModal(),
+          },
+          {
+            label: 'Eliminar',
+            class: 'btn btn-danger primary',
+            action: () => {
+              this.modalService.closeModal();
+              this.confirmarEliminacionSubcategoria(subcategoria.subcategoriaId!);
+            },
+          },
+        ],
+      });
+    }, 0);
+  }
 
+  private confirmarEliminacionSubcategoria(subcategoriaId: number): void {
     this.cargando = true;
-    this.subcategoriaService.delete(subcategoria.subcategoriaId).subscribe({
+    this.subcategoriaService.delete(subcategoriaId).subscribe({
       next: () => {
         this.cargarSubcategorias(this.categoriaSeleccionadaFiltro || undefined);
         this.toastr.success('Subcategoría eliminada correctamente', 'Éxito');

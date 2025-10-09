@@ -1,9 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 
 import { CategoriaService } from '../../../../core/services/categoria.service';
+import { ModalService } from '../../../../core/services/modal.service';
 import { SubcategoriaService } from '../../../../core/services/subcategoria.service';
 import {
   mockCategoriaCreateResponse,
@@ -15,6 +16,7 @@ import {
 } from '../../../../shared/mocks/subcategoria.mock';
 import {
   createCategoriaServiceMock,
+  createModalServiceMock,
   createSubcategoriaServiceMock,
   createToastrMock,
 } from '../../../../shared/mocks/test-doubles';
@@ -26,11 +28,13 @@ describe('GestionarCategoriasComponent', () => {
   let mockCategoriaService: jest.Mocked<CategoriaService>;
   let mockSubcategoriaService: jest.Mocked<SubcategoriaService>;
   let mockToastr: jest.Mocked<ToastrService>;
+  let mockModalService: jest.Mocked<ModalService>;
 
   beforeEach(async () => {
     mockCategoriaService = createCategoriaServiceMock();
     mockSubcategoriaService = createSubcategoriaServiceMock();
     mockToastr = createToastrMock();
+    mockModalService = createModalServiceMock();
 
     await TestBed.configureTestingModule({
       imports: [GestionarCategoriasComponent, FormsModule],
@@ -38,6 +42,7 @@ describe('GestionarCategoriasComponent', () => {
         { provide: CategoriaService, useValue: mockCategoriaService },
         { provide: SubcategoriaService, useValue: mockSubcategoriaService },
         { provide: ToastrService, useValue: mockToastr },
+        { provide: ModalService, useValue: mockModalService },
       ],
     }).compileComponents();
 
@@ -220,47 +225,81 @@ describe('GestionarCategoriasComponent', () => {
       mockSubcategoriaService.list.mockReturnValue(of(mockSubcategoriasResponse.data));
     });
 
-    it('should not delete if no categoriaId', () => {
-      const confirmSpy = jest.spyOn(window, 'confirm');
+    it('should not open modal if no categoriaId', fakeAsync(() => {
       component.eliminarCategoria({ nombre: 'Test' });
+      tick();
 
-      expect(confirmSpy).not.toHaveBeenCalled();
-      confirmSpy.mockRestore();
-    });
+      expect(mockModalService.openModal).not.toHaveBeenCalled();
+    }));
 
-    it('should not delete if user cancels', () => {
-      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
+    it('should open confirmation modal with correct data', fakeAsync(() => {
       component.eliminarCategoria({ categoriaId: 1, nombre: 'Test' });
+      tick();
 
+      expect(mockModalService.openModal).toHaveBeenCalledWith({
+        title: 'Confirmar eliminación',
+        message: '¿Está seguro de eliminar la categoría "Test"?',
+        buttons: [
+          {
+            label: 'Cancelar',
+            class: 'btn btn-secondary',
+            action: expect.any(Function),
+          },
+          {
+            label: 'Eliminar',
+            class: 'btn btn-danger primary',
+            action: expect.any(Function),
+          },
+        ],
+      });
+    }));
+
+    it('should close modal when user cancels', fakeAsync(() => {
+      component.eliminarCategoria({ categoriaId: 1, nombre: 'Test' });
+      tick();
+
+      // Obtener el botón de cancelar y ejecutar su action
+      const modalCall = mockModalService.openModal.mock.calls[0][0];
+      const cancelButton = modalCall.buttons![0];
+      cancelButton.action();
+
+      expect(mockModalService.closeModal).toHaveBeenCalled();
       expect(mockCategoriaService.delete).not.toHaveBeenCalled();
-      confirmSpy.mockRestore();
-    });
+    }));
 
-    it('should delete categoria if user confirms', () => {
-      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+    it('should delete categoria when user confirms', fakeAsync(() => {
       mockCategoriaService.delete.mockReturnValue(of({} as any));
-
       component.eliminarCategoria({ categoriaId: 1, nombre: 'Test' });
+      tick();
 
+      // Obtener el botón de eliminar y ejecutar su action
+      const modalCall = mockModalService.openModal.mock.calls[0][0];
+      const deleteButton = modalCall.buttons![1];
+      deleteButton.action();
+
+      expect(mockModalService.closeModal).toHaveBeenCalled();
       expect(mockCategoriaService.delete).toHaveBeenCalledWith(1);
       expect(mockToastr.success).toHaveBeenCalledWith('Categoría eliminada correctamente', 'Éxito');
-      confirmSpy.mockRestore();
-    });
+    }));
 
-    it('should handle error when deleting categoria', () => {
-      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+    it('should handle error when deleting categoria', fakeAsync(() => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       mockCategoriaService.delete.mockReturnValue(throwError(() => new Error('Error')));
 
       component.eliminarCategoria({ categoriaId: 1, nombre: 'Test' });
+      tick();
+
+      // Ejecutar la acción de eliminar
+      const modalCall = mockModalService.openModal.mock.calls[0][0];
+      const deleteButton = modalCall.buttons![1];
+      deleteButton.action();
 
       expect(mockToastr.error).toHaveBeenCalledWith(
         'Error al eliminar la categoría. Puede tener subcategorías o productos asociados.',
         'Error',
       );
-      confirmSpy.mockRestore();
       consoleSpy.mockRestore();
-    });
+    }));
   });
 
   describe('abrirFormSubcategoria', () => {
@@ -386,50 +425,84 @@ describe('GestionarCategoriasComponent', () => {
       mockSubcategoriaService.list.mockReturnValue(of(mockSubcategoriasResponse.data));
     });
 
-    it('should not delete if no subcategoriaId', () => {
-      const confirmSpy = jest.spyOn(window, 'confirm');
+    it('should not open modal if no subcategoriaId', fakeAsync(() => {
       component.eliminarSubcategoria({ nombre: 'Test', categoriaId: 1 });
+      tick();
 
-      expect(confirmSpy).not.toHaveBeenCalled();
-      confirmSpy.mockRestore();
-    });
+      expect(mockModalService.openModal).not.toHaveBeenCalled();
+    }));
 
-    it('should not delete if user cancels', () => {
-      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
+    it('should open confirmation modal with correct data', fakeAsync(() => {
       component.eliminarSubcategoria({ subcategoriaId: 1, nombre: 'Test', categoriaId: 1 });
+      tick();
 
+      expect(mockModalService.openModal).toHaveBeenCalledWith({
+        title: 'Confirmar eliminación',
+        message: '¿Está seguro de eliminar la subcategoría "Test"?',
+        buttons: [
+          {
+            label: 'Cancelar',
+            class: 'btn btn-secondary',
+            action: expect.any(Function),
+          },
+          {
+            label: 'Eliminar',
+            class: 'btn btn-danger primary',
+            action: expect.any(Function),
+          },
+        ],
+      });
+    }));
+
+    it('should close modal when user cancels', fakeAsync(() => {
+      component.eliminarSubcategoria({ subcategoriaId: 1, nombre: 'Test', categoriaId: 1 });
+      tick();
+
+      // Obtener el botón de cancelar y ejecutar su action
+      const modalCall = mockModalService.openModal.mock.calls[0][0];
+      const cancelButton = modalCall.buttons![0];
+      cancelButton.action();
+
+      expect(mockModalService.closeModal).toHaveBeenCalled();
       expect(mockSubcategoriaService.delete).not.toHaveBeenCalled();
-      confirmSpy.mockRestore();
-    });
+    }));
 
-    it('should delete subcategoria if user confirms', () => {
-      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+    it('should delete subcategoria when user confirms', fakeAsync(() => {
       mockSubcategoriaService.delete.mockReturnValue(of({} as any));
-
       component.eliminarSubcategoria({ subcategoriaId: 1, nombre: 'Test', categoriaId: 1 });
+      tick();
 
+      // Obtener el botón de eliminar y ejecutar su action
+      const modalCall = mockModalService.openModal.mock.calls[0][0];
+      const deleteButton = modalCall.buttons![1];
+      deleteButton.action();
+
+      expect(mockModalService.closeModal).toHaveBeenCalled();
       expect(mockSubcategoriaService.delete).toHaveBeenCalledWith(1);
       expect(mockToastr.success).toHaveBeenCalledWith(
         'Subcategoría eliminada correctamente',
         'Éxito',
       );
-      confirmSpy.mockRestore();
-    });
+    }));
 
-    it('should handle error when deleting subcategoria', () => {
-      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+    it('should handle error when deleting subcategoria', fakeAsync(() => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       mockSubcategoriaService.delete.mockReturnValue(throwError(() => new Error('Error')));
 
       component.eliminarSubcategoria({ subcategoriaId: 1, nombre: 'Test', categoriaId: 1 });
+      tick();
+
+      // Ejecutar la acción de eliminar
+      const modalCall = mockModalService.openModal.mock.calls[0][0];
+      const deleteButton = modalCall.buttons![1];
+      deleteButton.action();
 
       expect(mockToastr.error).toHaveBeenCalledWith(
         'Error al eliminar la subcategoría. Puede tener productos asociados.',
         'Error',
       );
-      confirmSpy.mockRestore();
       consoleSpy.mockRestore();
-    });
+    }));
   });
 
   describe('filtrarSubcategorias', () => {
