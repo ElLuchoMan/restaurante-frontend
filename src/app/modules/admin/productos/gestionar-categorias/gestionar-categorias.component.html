@@ -24,226 +24,200 @@
     <div class="row" *ngIf="!cargando">
       <!-- Columna de Categorías -->
       <div class="col-lg-6 mb-4">
-        <div class="card">
-          <div class="card-body">
-            <!-- Header de Categorías -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h2 class="h5 mb-0">Categorías</h2>
-              <button class="btn btn-warning btn-sm" (click)="abrirFormCategoria()">
-                <i class="fas fa-plus me-1"></i> Nueva Categoría
-              </button>
-            </div>
-            <!-- Tabla de Categorías -->
+        <div class="card glow-border">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Categorías</h5>
+            <button class="btn btn-warning btn-sm" (click)="abrirFormCategoria()">
+              <i class="fas fa-plus me-1"></i> Nueva Categoría
+            </button>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <!-- Mensaje si no hay categorías -->
             <div *ngIf="categorias.length === 0" class="text-center text-muted py-4">
               No hay categorías registradas
             </div>
 
-            <div class="table-responsive" *ngIf="categorias.length > 0">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th class="text-end">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let categoria of categorias">
-                    <td>{{ categoria.categoriaId }}</td>
-                    <td>{{ categoria.nombre }}</td>
-                    <td class="text-end">
-                      <button
-                        class="btn btn-sm btn-outline-primary me-1"
-                        (click)="abrirFormCategoria(categoria)"
-                        title="Editar"
-                      >
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-outline-danger"
-                        (click)="eliminarCategoria(categoria)"
-                        title="Eliminar"
-                      >
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <!-- Lista de Categorías -->
+            <div *ngFor="let categoria of categorias" class="sales-item">
+              <div class="method-name">
+                <strong>{{ categoria.nombre }}</strong>
+              </div>
+              <div class="method-stats">
+                <button
+                  class="btn btn-sm btn-outline-primary me-1"
+                  (click)="abrirFormCategoria(categoria)"
+                  title="Editar"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="eliminarCategoria(categoria)"
+                  title="Eliminar"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
             </div>
+          </div>
 
-            <!-- Formulario de Categoría -->
-            <div class="mt-4 p-3 bg-light rounded" *ngIf="mostrarFormCategoria">
-              <h3 class="h6 mb-3">
-                {{ editandoCategoria ? 'Editar Categoría' : 'Nueva Categoría' }}
-              </h3>
-              <form (ngSubmit)="guardarCategoria()">
-                <div class="mb-3">
-                  <label for="nombreCategoria" class="form-label">Nombre *</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="nombreCategoria"
-                    [(ngModel)]="categoriaForm.nombre"
-                    name="nombreCategoria"
-                    required
-                    maxlength="100"
-                    placeholder="Ej: Entradas, Platos principales"
-                  />
-                </div>
-                <div class="d-flex gap-2">
-                  <button type="submit" class="btn btn-primary btn-sm">
-                    <i class="fas fa-save me-1"></i>
-                    {{ editandoCategoria ? 'Actualizar' : 'Crear' }}
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-secondary btn-sm"
-                    (click)="cerrarFormCategoria()"
-                  >
-                    <i class="fas fa-times me-1"></i>
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            </div>
+          <!-- Formulario de Categoría -->
+          <div class="card-footer" *ngIf="mostrarFormCategoria">
+            <h6 class="mb-3">
+              {{ editandoCategoria ? 'Editar Categoría' : 'Nueva Categoría' }}
+            </h6>
+            <form (ngSubmit)="guardarCategoria()">
+              <div class="mb-3">
+                <label for="nombreCategoria" class="form-label">Nombre *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nombreCategoria"
+                  [(ngModel)]="categoriaForm.nombre"
+                  name="nombreCategoria"
+                  required
+                  maxlength="100"
+                  placeholder="Ej: Entradas, Platos principales"
+                />
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <i class="fas fa-save me-1"></i>
+                  {{ editandoCategoria ? 'Actualizar' : 'Crear' }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  (click)="cerrarFormCategoria()"
+                >
+                  <i class="fas fa-times me-1"></i>
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
 
       <!-- Columna de Subcategorías -->
       <div class="col-lg-6 mb-4">
-        <div class="card">
-          <div class="card-body">
-            <!-- Header de Subcategorías -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h2 class="h5 mb-0">Subcategorías</h2>
-              <button class="btn btn-warning btn-sm" (click)="abrirFormSubcategoria()">
-                <i class="fas fa-plus me-1"></i> Nueva Subcategoría
+        <div class="card glow-border">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Subcategorías</h5>
+            <button class="btn btn-warning btn-sm" (click)="abrirFormSubcategoria()">
+              <i class="fas fa-plus me-1"></i> Nueva Subcategoría
+            </button>
+          </div>
+
+          <!-- Filtro -->
+          <div class="card-body pb-0">
+            <label for="filtroCategoria" class="form-label">Filtrar por categoría</label>
+            <div class="input-group">
+              <select
+                class="form-select"
+                id="filtroCategoria"
+                [(ngModel)]="categoriaSeleccionadaFiltro"
+                (change)="filtrarSubcategorias()"
+              >
+                <option [ngValue]="null">Todas las categorías</option>
+                <option *ngFor="let cat of categorias" [ngValue]="cat.categoriaId">
+                  {{ cat.nombre }}
+                </option>
+              </select>
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                (click)="limpiarFiltro()"
+                title="Limpiar filtro"
+              >
+                <i class="fas fa-times"></i>
               </button>
             </div>
+          </div>
 
-            <!-- Filtro -->
-            <div class="mb-3">
-              <label for="filtroCategoria" class="form-label">Filtrar por categoría</label>
-              <div class="input-group">
-                <select
-                  class="form-select"
-                  id="filtroCategoria"
-                  [(ngModel)]="categoriaSeleccionadaFiltro"
-                  (change)="filtrarSubcategorias()"
-                >
-                  <option [ngValue]="null">Todas las categorías</option>
-                  <option *ngFor="let cat of categorias" [ngValue]="cat.categoriaId">
-                    {{ cat.nombre }}
-                  </option>
-                </select>
-                <button
-                  class="btn btn-outline-secondary"
-                  type="button"
-                  (click)="limpiarFiltro()"
-                  title="Limpiar filtro"
-                >
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Tabla de Subcategorías -->
+          <div class="card-body list-surface list-surface-tight">
+            <!-- Mensaje si no hay subcategorías -->
             <div *ngIf="subcategorias.length === 0" class="text-center text-muted py-4">
               No hay subcategorías registradas
             </div>
 
-            <div class="table-responsive" *ngIf="subcategorias.length > 0">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Categoría</th>
-                    <th class="text-end">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let subcategoria of subcategorias">
-                    <td>{{ subcategoria.subcategoriaId }}</td>
-                    <td>{{ subcategoria.nombre }}</td>
-                    <td>
-                      <span class="badge bg-secondary">
-                        {{ obtenerNombreCategoria(subcategoria.categoriaId) }}
-                      </span>
-                    </td>
-                    <td class="text-end">
-                      <button
-                        class="btn btn-sm btn-outline-primary me-1"
-                        (click)="abrirFormSubcategoria(subcategoria)"
-                        title="Editar"
-                      >
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-outline-danger"
-                        (click)="eliminarSubcategoria(subcategoria)"
-                        title="Eliminar"
-                      >
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <!-- Lista de Subcategorías -->
+            <div *ngFor="let subcategoria of subcategorias" class="sales-item">
+              <div class="method-name">
+                <strong>{{ subcategoria.nombre }}</strong>
+                <br />
+                <span class="badge bg-secondary mt-1">
+                  {{ obtenerNombreCategoria(subcategoria.categoriaId) }}
+                </span>
+              </div>
+              <div class="method-stats">
+                <button
+                  class="btn btn-sm btn-outline-primary me-1"
+                  (click)="abrirFormSubcategoria(subcategoria)"
+                  title="Editar"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="eliminarSubcategoria(subcategoria)"
+                  title="Eliminar"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
             </div>
+          </div>
 
-            <!-- Formulario de Subcategoría -->
-            <div class="mt-4 p-3 bg-light rounded" *ngIf="mostrarFormSubcategoria">
-              <h3 class="h6 mb-3">
-                {{ editandoSubcategoria ? 'Editar Subcategoría' : 'Nueva Subcategoría' }}
-              </h3>
-              <form (ngSubmit)="guardarSubcategoria()">
-                <div class="mb-3">
-                  <label for="nombreSubcategoria" class="form-label">Nombre *</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="nombreSubcategoria"
-                    [(ngModel)]="subcategoriaForm.nombre"
-                    name="nombreSubcategoria"
-                    required
-                    maxlength="100"
-                    placeholder="Ej: Sopas, Ensaladas"
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="categoriaSubcategoria" class="form-label">Categoría *</label>
-                  <select
-                    class="form-select"
-                    id="categoriaSubcategoria"
-                    [(ngModel)]="subcategoriaForm.categoriaId"
-                    name="categoriaSubcategoria"
-                    required
-                  >
-                    <option [ngValue]="undefined" disabled>Seleccione una categoría</option>
-                    <option *ngFor="let cat of categorias" [ngValue]="cat.categoriaId">
-                      {{ cat.nombre }}
-                    </option>
-                  </select>
-                </div>
-                <div class="d-flex gap-2">
-                  <button type="submit" class="btn btn-primary btn-sm">
-                    <i class="fas fa-save me-1"></i>
-                    {{ editandoSubcategoria ? 'Actualizar' : 'Crear' }}
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-secondary btn-sm"
-                    (click)="cerrarFormSubcategoria()"
-                  >
-                    <i class="fas fa-times me-1"></i>
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            </div>
+          <!-- Formulario de Subcategoría -->
+          <div class="card-footer" *ngIf="mostrarFormSubcategoria">
+            <h6 class="mb-3">
+              {{ editandoSubcategoria ? 'Editar Subcategoría' : 'Nueva Subcategoría' }}
+            </h6>
+            <form (ngSubmit)="guardarSubcategoria()">
+              <div class="mb-3">
+                <label for="nombreSubcategoria" class="form-label">Nombre *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nombreSubcategoria"
+                  [(ngModel)]="subcategoriaForm.nombre"
+                  name="nombreSubcategoria"
+                  required
+                  maxlength="100"
+                  placeholder="Ej: Sopas, Ensaladas"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="categoriaSubcategoria" class="form-label">Categoría *</label>
+                <select
+                  class="form-select"
+                  id="categoriaSubcategoria"
+                  [(ngModel)]="subcategoriaForm.categoriaId"
+                  name="categoriaSubcategoria"
+                  required
+                >
+                  <option [ngValue]="undefined" disabled>Seleccione una categoría</option>
+                  <option *ngFor="let cat of categorias" [ngValue]="cat.categoriaId">
+                    {{ cat.nombre }}
+                  </option>
+                </select>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <i class="fas fa-save me-1"></i>
+                  {{ editandoSubcategoria ? 'Actualizar' : 'Crear' }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  (click)="cerrarFormSubcategoria()"
+                >
+                  <i class="fas fa-times me-1"></i>
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
