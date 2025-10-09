@@ -188,7 +188,7 @@
                       [(ngModel)]="producto.subcategoria"
                       name="subcategoria"
                       required
-                      [disabled]="!producto.categoria || subcategoriasFiltradas?.length === 0"
+                      [disabled]="!producto.categoria || subcategoriasFiltradas.length === 0"
                     >
                       <option value="" disabled>
                         {{
@@ -255,20 +255,57 @@
                 </button>
               </div>
 
-              <!-- Input de archivo -->
-              <div class="mb-2">
+              <!-- Indicador de optimización -->
+              <div *ngIf="optimizandoImagen" class="optimization-overlay">
+                <div class="optimization-content">
+                  <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Optimizando...</span>
+                  </div>
+                  <h6 class="mb-2">Optimizando imagen...</h6>
+                  <p class="text-muted mb-3">Convirtiendo a WebP y ajustando tamaño</p>
+                  <div class="progress" style="height: 8px">
+                    <div
+                      class="progress-bar progress-bar-striped progress-bar-animated"
+                      role="progressbar"
+                      [style.width.%]="progresoOptimizacion"
+                      [attr.aria-valuenow]="progresoOptimizacion"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <span class="badge bg-primary mt-2">{{ progresoOptimizacion }}%</span>
+                </div>
+              </div>
+
+              <!-- Input de archivo con drag & drop -->
+              <div
+                class="file-upload-area"
+                [class.dragging]="isDragging"
+                [class.disabled]="optimizandoImagen"
+                (click)="!optimizandoImagen && fileInput.click()"
+                (dragover)="!optimizandoImagen && onDragOver($event)"
+                (dragleave)="!optimizandoImagen && onDragLeave($event)"
+                (drop)="!optimizandoImagen && onDrop($event)"
+              >
                 <input
+                  #fileInput
                   type="file"
-                  class="form-control"
+                  class="file-input-hidden"
                   id="imagen"
                   (change)="seleccionarImagen($event)"
-                  accept="image/*"
-                  [class.webview-input]="isWebView"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/avif,image/heic,image/heif"
+                  [disabled]="optimizandoImagen"
                 />
-              </div>
-              <div class="form-text">
-                <i class="fas fa-info-circle"></i>
-                Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB
+                <div class="file-upload-content">
+                  <i class="fas fa-cloud-upload-alt file-upload-icon"></i>
+                  <h6 class="file-upload-title">Arrastra tu imagen aquí</h6>
+                  <p class="file-upload-text">o haz clic para seleccionar</p>
+                  <span class="file-upload-hint">JPG, PNG, GIF, WEBP, AVIF, HEIC - Máx. 20MB</span>
+                  <small class="d-block mt-2 text-primary">
+                    <i class="fas fa-magic me-1"></i>
+                    Se optimizará automáticamente a 800×800px WebP (~100KB)
+                  </small>
+                </div>
               </div>
             </div>
           </div>

@@ -11,6 +11,7 @@ import { estadoProducto } from '../../../../shared/constants';
 import { Categoria } from '../../../../shared/models/categoria.model';
 import { Producto } from '../../../../shared/models/producto.model';
 import { Subcategoria } from '../../../../shared/models/subcategoria.model';
+import { ImageOptimizationService } from '../../../../shared/services/image-optimization.service';
 
 @Component({
   selector: 'app-crear-producto',
@@ -46,6 +47,12 @@ export class CrearProductoComponent implements OnInit {
 
   // Preview de imagen
   imagenPreview: string | null = null;
+  isDragging = false;
+
+  // Optimización de imagen
+  optimizandoImagen = false;
+  progresoOptimizacion = 0;
+  imagenOptimizada: File | null = null; // Guardar el File optimizado para enviar
 
   constructor(
     private productoService: ProductoService,
@@ -54,6 +61,7 @@ export class CrearProductoComponent implements OnInit {
     private toastr: ToastrService,
     private router: Router,
     private route: ActivatedRoute,
+    private imageOptimizationService: ImageOptimizationService,
   ) {}
 
   ngOnInit(): void {
@@ -135,35 +143,99 @@ export class CrearProductoComponent implements OnInit {
     const file = input.files?.[0];
 
     if (file) {
-      // Validar tamaño (max 5MB)
-      const maxSize = 5 * 1024 * 1024;
-      if (file.size > maxSize) {
-        this.toastr.warning('La imagen no debe superar los 5MB', 'Advertencia');
-        input.value = '';
-        return;
-      }
-
-      // Validar tipo
-      if (!file.type.startsWith('image/')) {
-        this.toastr.warning('Solo se permiten archivos de imagen', 'Advertencia');
-        input.value = '';
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.producto.imagenBase64 = reader.result as string;
-        this.imagenPreview = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+      this.procesarArchivo(file);
     }
   }
 
   eliminarImagen(): void {
     this.producto.imagenBase64 = undefined;
     this.imagenPreview = null;
+    this.imagenOptimizada = null;
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     if (input) input.value = '';
+  }
+
+  // Drag & Drop handlers
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      this.procesarArchivo(file);
+    }
+  }
+
+  private async procesarArchivo(file: File): Promise<void> {
+    // Validar tipo de imagen
+    if (!this.imageOptimizationService.isValidImageFile(file)) {
+      this.toastr.warning(
+        'Solo se permiten archivos de imagen (JPG, PNG, GIF, WEBP, AVIF, HEIC)',
+        'Advertencia',
+      );
+      return;
+    }
+
+    // Validar tamaño máximo antes de optimizar (max 20MB para el archivo original)
+    const maxSizeOriginal = 20 * 1024 * 1024;
+    if (file.size > maxSizeOriginal) {
+      this.toastr.warning('La imagen original no debe superar los 20MB', 'Advertencia');
+      return;
+    }
+
+    try {
+      this.optimizandoImagen = true;
+      this.progresoOptimizacion = 0;
+
+      // Optimizar imagen (convertir a WebP, redimensionar a 800x800, comprimir a 100-150KB)
+      const result = await this.imageOptimizationService.optimizeImage(file, (progress) => {
+        this.progresoOptimizacion = progress;
+      });
+
+      // Guardar el archivo optimizado para enviar al backend
+      this.imagenOptimizada = result.file;
+
+      // Crear preview
+      this.imagenPreview = URL.createObjectURL(result.file);
+
+      // Mostrar información de optimización
+      const originalSizeFormatted = this.imageOptimizationService.formatFileSize(
+        result.originalSize,
+      );
+      const optimizedSizeFormatted = this.imageOptimizationService.formatFileSize(
+        result.optimizedSize,
+      );
+      const compressionPercent = result.compressionRatio.toFixed(1);
+
+      this.toastr.success(
+        `Imagen optimizada: ${originalSizeFormatted} → ${optimizedSizeFormatted} (${compressionPercent}% de reducción)`,
+        'Éxito',
+        { timeOut: 5000 },
+      );
+    } catch (error) {
+      console.error('Error al procesar imagen:', error);
+      this.toastr.error(
+        error instanceof Error ? error.message : 'Error al procesar la imagen',
+        'Error',
+      );
+    } finally {
+      this.optimizandoImagen = false;
+      this.progresoOptimizacion = 0;
+    }
   }
 
   validarFormulario(): boolean {
@@ -194,19 +266,37 @@ export class CrearProductoComponent implements OnInit {
     if (!this.validarFormulario()) return;
 
     this.guardando = true;
-    this.productoService.createProducto(this.producto).subscribe({
-      next: (response) => {
-        if (response.code === 201) {
-          this.toastr.success('Producto creado con éxito', 'Éxito');
-          setTimeout(() => this.router.navigate(['/admin/productos']), 1500);
-        }
-      },
-      error: (err) => {
-        console.error('Error al crear producto:', err);
-        this.toastr.error('Error al crear el producto', 'Error');
-        this.guardando = false;
-      },
+
+    // Convertir nombre de subcategoría a ID
+    const subcategoria = this.subcategoriasFiltradas.find(
+      (sub) => sub.nombre === this.producto.subcategoria,
+    );
+
+    if (subcategoria?.subcategoriaId) {
+      this.producto.subcategoriaId = subcategoria.subcategoriaId;
+    }
+
+    console.log('Producto a enviar:', {
+      ...this.producto,
+      subcategoriaId: this.producto.subcategoriaId,
     });
+
+    // Enviar el archivo optimizado si existe, sino enviar el producto con imagenBase64
+    this.productoService
+      .createProducto(this.producto, this.imagenOptimizada || undefined)
+      .subscribe({
+        next: (response) => {
+          if (response.code === 201) {
+            this.toastr.success('Producto creado con éxito', 'Éxito');
+            setTimeout(() => this.router.navigate(['/admin/productos']), 1500);
+          }
+        },
+        error: (err) => {
+          console.error('Error al crear producto:', err);
+          this.toastr.error('Error al crear el producto', 'Error');
+          this.guardando = false;
+        },
+      });
   }
 
   cargarProducto(id: string): void {
@@ -238,19 +328,51 @@ export class CrearProductoComponent implements OnInit {
     if (!this.validarFormulario()) return;
 
     this.guardando = true;
-    this.productoService.updateProducto(Number(this.productoId), this.producto).subscribe({
-      next: (response) => {
-        if (response.code === 200) {
-          this.toastr.success('Producto actualizado con éxito', 'Éxito');
-          setTimeout(() => this.router.navigate(['/admin/productos']), 1500);
-        }
-      },
-      error: (err) => {
-        console.error('Error al actualizar producto:', err);
-        this.toastr.error('Error al actualizar el producto', 'Error');
-        this.guardando = false;
-      },
+
+    // Convertir nombre de subcategoría a ID
+    const subcategoria = this.subcategoriasFiltradas.find(
+      (sub) => sub.nombre === this.producto.subcategoria,
+    );
+
+    if (subcategoria?.subcategoriaId) {
+      this.producto.subcategoriaId = subcategoria.subcategoriaId;
+    }
+
+    // Preparar producto para enviar
+    const productoActualizar = { ...this.producto };
+
+    // Si NO hay nueva imagen seleccionada, eliminar el campo imagen para no reenviar la existente
+    if (!this.imagenOptimizada) {
+      delete productoActualizar.imagen;
+      delete productoActualizar.imagenBase64;
+    }
+
+    console.log('Producto a actualizar:', {
+      ...productoActualizar,
+      subcategoriaId: productoActualizar.subcategoriaId,
+      imagenNueva: !!this.imagenOptimizada,
     });
+
+    // Enviar el archivo optimizado si existe (si se cambió la imagen), sino enviar el producto sin imagen
+    this.productoService
+      .updateProducto(
+        Number(this.productoId),
+        productoActualizar,
+        this.imagenOptimizada || undefined,
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.code === 200) {
+            this.toastr.success('Producto actualizado con éxito', 'Éxito');
+            setTimeout(() => this.router.navigate(['/admin/productos']), 1500);
+          }
+        },
+        error: (err) => {
+          console.error('Error al actualizar producto:', err);
+          this.toastr.error('Error al actualizar el producto', 'Error');
+          this.guardando = false;
+        },
+      });
   }
 
   cancelar(): void {

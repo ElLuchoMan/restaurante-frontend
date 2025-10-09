@@ -11,11 +11,13 @@ import { estadoProducto } from '../../../../shared/constants';
 import { mockCategorias, mockSubcategorias } from '../../../../shared/mocks/categoria.mock';
 import {
   createCategoriaServiceMock,
-  createFileReaderMock,
+  createImageOptimizationServiceMock,
   createProductoServiceMock,
   createSubcategoriaServiceMock,
   createToastrMock,
+  createURLCreateObjectURLMock,
 } from '../../../../shared/mocks/test-doubles';
+import { ImageOptimizationService } from '../../../../shared/services/image-optimization.service';
 import { CrearProductoComponent } from './crear-producto.component';
 
 describe('CrearProductoComponent', () => {
@@ -25,6 +27,7 @@ describe('CrearProductoComponent', () => {
   let mockCategoriaService: any;
   let mockSubcategoriaService: any;
   let mockToastr: any;
+  let mockImageOptimizationService: any;
   let router: Router;
   let activatedRouteMock: any;
 
@@ -33,6 +36,7 @@ describe('CrearProductoComponent', () => {
     mockCategoriaService = createCategoriaServiceMock();
     mockSubcategoriaService = createSubcategoriaServiceMock();
     mockToastr = createToastrMock();
+    mockImageOptimizationService = createImageOptimizationServiceMock();
     activatedRouteMock = { snapshot: { paramMap: convertToParamMap({}) } };
 
     // Configurar respuestas por defecto
@@ -46,6 +50,7 @@ describe('CrearProductoComponent', () => {
         { provide: CategoriaService, useValue: mockCategoriaService },
         { provide: SubcategoriaService, useValue: mockSubcategoriaService },
         { provide: ToastrService, useValue: mockToastr },
+        { provide: ImageOptimizationService, useValue: mockImageOptimizationService },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
@@ -199,44 +204,109 @@ describe('CrearProductoComponent', () => {
   });
 
   describe('seleccionarImagen', () => {
-    it('should set image and preview when valid file is selected', () => {
-      const file = new File([''], 'test.png', { type: 'image/png' });
+    it('should optimize image and set preview when valid file is selected', async () => {
+      const file = new File(['test'], 'test.png', { type: 'image/png' });
+      Object.defineProperty(file, 'size', { value: 500 * 1024 });
       const event = { target: { files: [file] } };
-      const readerMock: any = createFileReaderMock('data:image/png;base64,AAA');
-      jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
+
+      global.URL.createObjectURL = createURLCreateObjectURLMock();
 
       component.seleccionarImagen(event as any);
+      await new Promise((resolve) => setTimeout(resolve, 0)); // Esperar async
 
-      expect(component.producto.imagenBase64).toBe('data:image/png;base64,AAA');
-      expect(component.imagenPreview).toBe('data:image/png;base64,AAA');
+      expect(mockImageOptimizationService.isValidImageFile).toHaveBeenCalledWith(file);
+      expect(mockImageOptimizationService.optimizeImage).toHaveBeenCalledWith(
+        file,
+        expect.any(Function),
+      );
+      // Ya no se llama fileToBase64, ahora se guarda el File directamente
+      expect(component.imagenOptimizada).toBeTruthy();
+      expect(component.imagenPreview).toBe('blob:mock-url');
+      expect(mockToastr.success).toHaveBeenCalled();
     });
 
-    it('should warn when file size exceeds 5MB', () => {
-      const largeFile = new File(['x'.repeat(6 * 1024 * 1024)], 'large.png', {
+    it('should warn when file size exceeds 20MB', async () => {
+      const largeFile = new File(['x'.repeat(21 * 1024 * 1024)], 'large.png', {
         type: 'image/png',
       });
-      const event = { target: { files: [largeFile], value: 'path' } };
+      Object.defineProperty(largeFile, 'size', { value: 21 * 1024 * 1024 });
+      const event = { target: { files: [largeFile] } };
+
+      mockImageOptimizationService.isValidImageFile.mockReturnValue(true);
 
       component.seleccionarImagen(event as any);
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockToastr.warning).toHaveBeenCalledWith(
-        'La imagen no debe superar los 5MB',
+        'La imagen original no debe superar los 20MB',
         'Advertencia',
       );
-      expect((event.target as any).value).toBe('');
+      expect(mockImageOptimizationService.optimizeImage).not.toHaveBeenCalled();
     });
 
-    it('should warn when file is not an image', () => {
+    it('should warn when file is not a valid image', async () => {
       const textFile = new File([''], 'test.txt', { type: 'text/plain' });
-      const event = { target: { files: [textFile], value: 'path' } };
+      const event = { target: { files: [textFile] } };
+
+      mockImageOptimizationService.isValidImageFile.mockReturnValue(false);
 
       component.seleccionarImagen(event as any);
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockToastr.warning).toHaveBeenCalledWith(
-        'Solo se permiten archivos de imagen',
+        'Solo se permiten archivos de imagen (JPG, PNG, GIF, WEBP, AVIF, HEIC)',
         'Advertencia',
       );
-      expect((event.target as any).value).toBe('');
+      expect(mockImageOptimizationService.optimizeImage).not.toHaveBeenCalled();
+    });
+
+    it('should handle optimization error', async () => {
+      const file = new File(['test'], 'test.png', { type: 'image/png' });
+      Object.defineProperty(file, 'size', { value: 500 * 1024 });
+      const event = { target: { files: [file] } };
+
+      mockImageOptimizationService.optimizeImage.mockRejectedValue(
+        new Error('Optimization failed'),
+      );
+
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      component.seleccionarImagen(event as any);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(mockToastr.error).toHaveBeenCalledWith('Optimization failed', 'Error');
+      expect(component.optimizandoImagen).toBe(false);
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should report progress during optimization', async () => {
+      const file = new File(['test'], 'test.png', { type: 'image/png' });
+      Object.defineProperty(file, 'size', { value: 500 * 1024 });
+      const event = { target: { files: [file] } };
+
+      let progressCallback: any;
+      mockImageOptimizationService.optimizeImage.mockImplementation((f: File, cb: any) => {
+        progressCallback = cb;
+        return Promise.resolve({
+          file: new File(['optimized'], 'test.webp', { type: 'image/webp' }),
+          originalSize: 500 * 1024,
+          optimizedSize: 100 * 1024,
+          compressionRatio: 80,
+          format: 'webp',
+          dimensions: { width: 800, height: 800 },
+        });
+      });
+
+      global.URL.createObjectURL = createURLCreateObjectURLMock();
+
+      component.seleccionarImagen(event as any);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Simular progreso
+      if (progressCallback) {
+        progressCallback(50);
+        expect(component.progresoOptimizacion).toBe(50);
+      }
     });
   });
 
@@ -354,7 +424,11 @@ describe('CrearProductoComponent', () => {
       component.crearProducto();
 
       expect(component.guardando).toBe(true);
-      expect(mockProductoService.createProducto).toHaveBeenCalledWith(component.producto);
+      // Ahora se envía el File optimizado como segundo parámetro (o undefined si no hay)
+      expect(mockProductoService.createProducto).toHaveBeenCalledWith(
+        component.producto,
+        undefined,
+      );
       expect(mockToastr.success).toHaveBeenCalledWith('Producto creado con éxito', 'Éxito');
 
       tick(1500);
@@ -449,7 +523,13 @@ describe('CrearProductoComponent', () => {
       component.actualizarProducto();
 
       expect(component.guardando).toBe(true);
-      expect(mockProductoService.updateProducto).toHaveBeenCalledWith(2, component.producto);
+      // Ahora se envía el File optimizado como tercer parámetro (o undefined si no hay)
+      // Y se envía una copia del producto sin los campos imagen/imagenBase64
+      expect(mockProductoService.updateProducto).toHaveBeenCalledWith(
+        2,
+        expect.any(Object),
+        undefined,
+      );
       expect(mockToastr.success).toHaveBeenCalledWith('Producto actualizado con éxito', 'Éxito');
 
       tick(1500);

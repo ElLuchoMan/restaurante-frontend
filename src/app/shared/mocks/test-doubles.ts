@@ -757,3 +757,96 @@ export function createFavoritesServiceMock() {
     toggleFavorite: jest.fn().mockReturnValue(true),
   } as any;
 }
+
+export function createImageOptimizationServiceMock() {
+  return {
+    optimizeImage: jest.fn().mockResolvedValue({
+      file: new File(['optimized'], 'test.webp', { type: 'image/webp' }),
+      originalSize: 500 * 1024,
+      optimizedSize: 100 * 1024,
+      compressionRatio: 80,
+      format: 'webp',
+      dimensions: { width: 800, height: 800 },
+    }),
+    fileToBase64: jest.fn().mockResolvedValue('base64EncodedString'),
+    isValidImageFile: jest.fn().mockReturnValue(true),
+    formatFileSize: jest.fn().mockImplementation((bytes: number) => {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+    }),
+  } as any;
+}
+
+// Mocks para browser-image-compression tests
+export function createImageCompressionMock() {
+  return jest.fn().mockResolvedValue(new File(['optimized'], 'test.webp', { type: 'image/webp' }));
+}
+
+export function createURLCreateObjectURLMock(url = 'blob:mock-url') {
+  return jest.fn().mockReturnValue(url);
+}
+
+export function createURLRevokeObjectURLMock() {
+  return jest.fn();
+}
+
+export function createImageMockSuccess(width = 800, height = 800) {
+  return class MockImage {
+    public onload: (() => void) | null = null;
+    public onerror: (() => void) | null = null;
+    public width = width;
+    public height = height;
+    public src = '';
+
+    constructor() {
+      setTimeout(() => {
+        if (this.onload) {
+          this.onload();
+        }
+      }, 0);
+    }
+  } as any;
+}
+
+export function createImageMockError() {
+  return class MockImage {
+    public onload: (() => void) | null = null;
+    public onerror: (() => void) | null = null;
+    public width = 0;
+    public height = 0;
+    public src = '';
+
+    constructor() {
+      setTimeout(() => {
+        if (this.onerror) {
+          this.onerror();
+        }
+      }, 0);
+    }
+  } as any;
+}
+
+export function createFileReaderMockSuccess(base64Result: string) {
+  return {
+    readAsDataURL: jest.fn(),
+    result: base64Result,
+    onload: null as any,
+    onerror: null as any,
+  };
+}
+
+export function createFileReaderMockError() {
+  return {
+    readAsDataURL: jest.fn(),
+    result: null,
+    onload: null as any,
+    onerror: null as any,
+  };
+}
+
+export function createFileReaderConstructorMock(mockReader: any) {
+  return jest.fn(() => mockReader) as any;
+}

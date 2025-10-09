@@ -66,6 +66,22 @@ export class ProductoService {
       if (producto.subcategoriaId != null)
         form.append('subcategoriaId', String(producto.subcategoriaId));
       form.append('imagen', file);
+
+      // Log del FormData para debug
+      console.log('=== FormData a enviar ===');
+      form.forEach((value, key) => {
+        if (value instanceof File) {
+          console.log(`${key}:`, {
+            name: value.name,
+            size: `${(value.size / 1024).toFixed(2)} KB`,
+            type: value.type,
+          });
+        } else {
+          console.log(`${key}:`, value);
+        }
+      });
+      console.log('========================');
+
       return this.http
         .post<ApiResponse<Producto>>(`${this.baseUrl}`, form)
         .pipe(catchError(this.handleError.handleError));
@@ -118,6 +134,22 @@ export class ProductoService {
       if (producto.subcategoriaId != null)
         form.append('subcategoriaId', String(producto.subcategoriaId));
       form.append('imagen', file);
+
+      // Log del FormData para debug
+      console.log('=== FormData a enviar (UPDATE) ===');
+      form.forEach((value, key) => {
+        if (value instanceof File) {
+          console.log(`${key}:`, {
+            name: value.name,
+            size: `${(value.size / 1024).toFixed(2)} KB`,
+            type: value.type,
+          });
+        } else {
+          console.log(`${key}:`, value);
+        }
+      });
+      console.log('================================');
+
       return this.http
         .put<ApiResponse<Producto>>(`${this.baseUrl}`, form, { params: { id: id.toString() } })
         .pipe(catchError(this.handleError.handleError));
