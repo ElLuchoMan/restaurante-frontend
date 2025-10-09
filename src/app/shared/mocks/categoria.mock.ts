@@ -1,13 +1,15 @@
 import { ApiResponse } from '../models/api-response.model';
 import { Categoria } from '../models/categoria.model';
 
+export const mockCategorias: Categoria[] = [
+  { categoriaId: 1, nombre: 'Bebidas' },
+  { categoriaId: 2, nombre: 'Comida' },
+];
+
 export const mockCategoriasResponse: ApiResponse<Categoria[]> = {
   code: 200,
   message: 'Categorías obtenidas',
-  data: [
-    { categoriaId: 1, nombre: 'Bebidas' },
-    { categoriaId: 2, nombre: 'Comida rapida' },
-  ],
+  data: mockCategorias,
 };
 
 export const mockCategoriaByIdResponse: ApiResponse<Categoria> = {

@@ -1,13 +1,15 @@
 import { ApiResponse } from '../models/api-response.model';
 import { Subcategoria } from '../models/subcategoria.model';
 
+export const mockSubcategorias: Subcategoria[] = [
+  { subcategoriaId: 1, nombre: 'Gaseosas', categoriaId: 1 },
+  { subcategoriaId: 9, nombre: 'Hamburguesas', categoriaId: 2 },
+];
+
 export const mockSubcategoriasResponse: ApiResponse<Subcategoria[]> = {
   code: 200,
   message: 'Subcategorías obtenidas',
-  data: [
-    { subcategoriaId: 1, nombre: 'Gaseosas', categoriaId: 1 },
-    { subcategoriaId: 2, nombre: 'Hamburguesas', categoriaId: 2 },
-  ],
+  data: mockSubcategorias,
 };
 
 export const mockSubcategoriaByIdResponse: ApiResponse<Subcategoria> = {

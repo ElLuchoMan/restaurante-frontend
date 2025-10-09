@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { forkJoin } from 'rxjs';
 
 import { CategoriaService } from '../../../../core/services/categoria.service';
 import { ProductoService } from '../../../../core/services/producto.service';
@@ -69,11 +70,13 @@ export class CrearProductoComponent implements OnInit {
     this.productoId = this.route.snapshot.paramMap.get('id');
     this.esEdicion = !!this.productoId;
 
-    this.cargarCategorias();
-    this.cargarSubcategorias();
-
+    // Si es edición, cargar todo en paralelo antes de mapear el producto
     if (this.esEdicion) {
-      this.cargarProducto(this.productoId!);
+      this.cargarDatosEdicion();
+    } else {
+      // Si es creación, solo cargar las listas
+      this.cargarCategorias();
+      this.cargarSubcategorias();
     }
   }
 
@@ -104,6 +107,71 @@ export class CrearProductoComponent implements OnInit {
       error: (err) => {
         console.error('Error al cargar subcategorías:', err);
         this.toastr.error('Error al cargar subcategorías', 'Error');
+      },
+    });
+  }
+
+  /**
+   * Carga categorías, subcategorías y producto en paralelo para edición
+   */
+  cargarDatosEdicion(): void {
+    this.cargando = true;
+
+    forkJoin({
+      categorias: this.categoriaService.list(),
+      subcategorias: this.subcategoriaService.list(),
+      producto: this.productoService.getProductoById(Number(this.productoId)),
+    }).subscribe({
+      next: (result) => {
+        // Guardar listas
+        this.categorias = result.categorias;
+        this.subcategorias = result.subcategorias;
+        this.subcategoriasFiltradas = result.subcategorias;
+
+        // Procesar producto
+        if (result.producto?.data) {
+          this.producto = result.producto.data;
+
+          // Configurar preview de imagen si existe
+          if (this.producto.imagenBase64) {
+            this.imagenPreview = this.producto.imagenBase64;
+          }
+
+          // Mapear subcategoriaId a nombres de categoría y subcategoría
+          if (this.producto.subcategoriaId) {
+            const subcategoria = this.subcategorias.find(
+              (sub) => sub.subcategoriaId === this.producto.subcategoriaId,
+            );
+
+            if (subcategoria) {
+              // Asignar nombre de subcategoría
+              this.producto.subcategoria = subcategoria.nombre;
+
+              // Buscar y asignar nombre de categoría
+              const categoriaId =
+                typeof subcategoria.categoriaId === 'object' &&
+                'categoriaId' in subcategoria.categoriaId
+                  ? (subcategoria.categoriaId as any).categoriaId
+                  : subcategoria.categoriaId;
+
+              const categoria = this.categorias.find((cat) => cat.categoriaId === categoriaId);
+
+              if (categoria) {
+                this.producto.categoria = categoria.nombre;
+                // Filtrar subcategorías según la categoría seleccionada
+                this.onCategoriaChange();
+              }
+            }
+          }
+        }
+
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar datos para edición:', err);
+        this.toastr.error('Error al cargar los datos del producto', 'Error');
+        this.cargando = false;
+        this.router.navigate(['/admin/productos']);
       },
     });
   }
@@ -299,6 +367,10 @@ export class CrearProductoComponent implements OnInit {
       });
   }
 
+  /**
+   * Carga un producto por ID (método legacy, usar cargarDatosEdicion para edición)
+   * @deprecated Usar cargarDatosEdicion() que carga todo en paralelo
+   */
   cargarProducto(id: string): void {
     this.cargando = true;
     this.productoService.getProductoById(Number(id)).subscribe({
@@ -309,8 +381,6 @@ export class CrearProductoComponent implements OnInit {
           if (this.producto.imagenBase64) {
             this.imagenPreview = this.producto.imagenBase64;
           }
-          // Filtrar subcategorías según la categoría cargada
-          this.onCategoriaChange();
         }
         this.cargando = false;
       },
