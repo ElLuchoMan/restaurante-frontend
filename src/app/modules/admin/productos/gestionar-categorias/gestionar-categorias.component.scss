@@ -1,2 +1,67 @@
-// Este componente usa exclusivamente los estilos globales definidos en _base.scss
-// No requiere estilos personalizados adicionales, siguiendo la guía de diseño estándar
+@import '../../../../../assets/variables';
+
+// ===== FILTRO DE CATEGORÍAS =====
+.filter-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .form-select {
+    padding-right: 3.5rem; // Espacio para el ícono del dropdown y el botón X
+  }
+
+  // Botón X discreto (estilo similar al de ver-productos)
+  .btn-clear-filter {
+    position: absolute;
+    right: 38px; // Movido más a la izquierda para no superponerse con el dropdown
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-muted;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    padding: 0;
+    z-index: 2;
+
+    i {
+      font-size: 0.9rem;
+    }
+
+    &:hover {
+      background: rgba($danger, 0.1);
+      color: $danger;
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+// ===== BADGE DE CATEGORÍA MODERNO =====
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, rgba($primary, 0.08) 0%, rgba($primary, 0.12) 100%);
+  color: $primary;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba($primary, 0.15);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba($primary, 0.12) 0%, rgba($primary, 0.18) 100%);
+    border-color: rgba($primary, 0.25);
+    transform: translateY(-1px);
+  }
+}

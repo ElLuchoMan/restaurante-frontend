@@ -312,9 +312,17 @@ export class GestionarCategoriasComponent implements OnInit {
     this.cargarSubcategorias();
   }
 
-  obtenerNombreCategoria(categoriaId?: number): string {
+  obtenerNombreCategoria(categoriaId?: number | any): string {
     if (!categoriaId) return 'Sin categoría';
-    const categoria = this.categorias.find((c) => c.categoriaId === categoriaId);
+
+    // El backend puede devolver el categoriaId como objeto en lugar de número
+    // Extraer el ID real si es un objeto
+    const idReal =
+      typeof categoriaId === 'object' && categoriaId.categoriaId
+        ? categoriaId.categoriaId
+        : categoriaId;
+
+    const categoria = this.categorias.find((c) => c.categoriaId === idReal);
     return categoria ? categoria.nombre : 'Desconocida';
   }
 }

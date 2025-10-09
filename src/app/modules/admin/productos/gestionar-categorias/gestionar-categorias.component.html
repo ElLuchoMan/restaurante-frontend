@@ -112,7 +112,7 @@
           <!-- Filtro -->
           <div class="card-body pb-0">
             <label for="filtroCategoria" class="form-label">Filtrar por categoría</label>
-            <div class="input-group">
+            <div class="filter-group">
               <select
                 class="form-select"
                 id="filtroCategoria"
@@ -125,10 +125,11 @@
                 </option>
               </select>
               <button
-                class="btn btn-outline-secondary"
+                class="btn-clear-filter"
                 type="button"
                 (click)="limpiarFiltro()"
                 title="Limpiar filtro"
+                *ngIf="categoriaSeleccionadaFiltro !== null"
               >
                 <i class="fas fa-times"></i>
               </button>
@@ -146,7 +147,7 @@
               <div class="method-name">
                 <strong>{{ subcategoria.nombre }}</strong>
                 <br />
-                <span class="badge bg-secondary mt-1">
+                <span class="category-badge">
                   {{ obtenerNombreCategoria(subcategoria.categoriaId) }}
                 </span>
               </div>
