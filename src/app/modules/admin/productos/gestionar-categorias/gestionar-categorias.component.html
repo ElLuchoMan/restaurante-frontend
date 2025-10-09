@@ -60,42 +60,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Formulario de Categoría -->
-          <div class="card-footer" *ngIf="mostrarFormCategoria">
-            <h6 class="mb-3">
-              {{ editandoCategoria ? 'Editar Categoría' : 'Nueva Categoría' }}
-            </h6>
-            <form (ngSubmit)="guardarCategoria()">
-              <div class="mb-3">
-                <label for="nombreCategoria" class="form-label">Nombre *</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="nombreCategoria"
-                  [(ngModel)]="categoriaForm.nombre"
-                  name="nombreCategoria"
-                  required
-                  maxlength="100"
-                  placeholder="Ej: Entradas, Platos principales"
-                />
-              </div>
-              <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm">
-                  <i class="fas fa-save me-1"></i>
-                  {{ editandoCategoria ? 'Actualizar' : 'Crear' }}
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-sm"
-                  (click)="cerrarFormCategoria()"
-                >
-                  <i class="fas fa-times me-1"></i>
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
         </div>
       </div>
 
@@ -168,57 +132,6 @@
                 </button>
               </div>
             </div>
-          </div>
-
-          <!-- Formulario de Subcategoría -->
-          <div class="card-footer" *ngIf="mostrarFormSubcategoria">
-            <h6 class="mb-3">
-              {{ editandoSubcategoria ? 'Editar Subcategoría' : 'Nueva Subcategoría' }}
-            </h6>
-            <form (ngSubmit)="guardarSubcategoria()">
-              <div class="mb-3">
-                <label for="nombreSubcategoria" class="form-label">Nombre *</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="nombreSubcategoria"
-                  [(ngModel)]="subcategoriaForm.nombre"
-                  name="nombreSubcategoria"
-                  required
-                  maxlength="100"
-                  placeholder="Ej: Sopas, Ensaladas"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="categoriaSubcategoria" class="form-label">Categoría *</label>
-                <select
-                  class="form-select"
-                  id="categoriaSubcategoria"
-                  [(ngModel)]="subcategoriaForm.categoriaId"
-                  name="categoriaSubcategoria"
-                  required
-                >
-                  <option [ngValue]="undefined" disabled>Seleccione una categoría</option>
-                  <option *ngFor="let cat of categorias" [ngValue]="cat.categoriaId">
-                    {{ cat.nombre }}
-                  </option>
-                </select>
-              </div>
-              <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm">
-                  <i class="fas fa-save me-1"></i>
-                  {{ editandoSubcategoria ? 'Actualizar' : 'Crear' }}
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-sm"
-                  (click)="cerrarFormSubcategoria()"
-                >
-                  <i class="fas fa-times me-1"></i>
-                  Cancelar
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       </div>

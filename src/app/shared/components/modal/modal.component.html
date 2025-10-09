@@ -112,6 +112,7 @@
           {{ modalData.select.label }}
         </label>
         <select class="form-select-enhanced" [(ngModel)]="modalData.select.selected">
+          <option [value]="null" disabled>Seleccione una opción</option>
           <option *ngFor="let item of modalData.select.options" [value]="item.value">
             {{ item.label }}
           </option>
@@ -124,8 +125,12 @@
           <i class="fas fa-edit"></i>
           {{ modalData.input.label }}
         </label>
-        <textarea class="form-textarea-enhanced" [(ngModel)]="modalData.input.value" rows="4">
-        </textarea>
+        <input
+          type="text"
+          class="form-input-enhanced"
+          [(ngModel)]="modalData.input.value"
+          placeholder="Ingrese el nombre"
+        />
       </div>
 
       <!-- Campo de observaciones (solo para roles que pueden comprar: Cliente, Mesero, Cocinero) -->

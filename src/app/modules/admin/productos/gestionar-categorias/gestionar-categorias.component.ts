@@ -22,16 +22,6 @@ export class GestionarCategoriasComponent implements OnInit {
   cargando = false;
   error = '';
 
-  // Formularios
-  mostrarFormCategoria = false;
-  mostrarFormSubcategoria = false;
-  editandoCategoria = false;
-  editandoSubcategoria = false;
-
-  // Datos de formulario
-  categoriaForm: Categoria = { nombre: '' };
-  subcategoriaForm: Subcategoria = { nombre: '', categoriaId: undefined };
-
   // Filtro de subcategorías
   categoriaSeleccionadaFiltro: number | null = null;
 
@@ -79,52 +69,66 @@ export class GestionarCategoriasComponent implements OnInit {
 
   // ===== CATEGORÍAS =====
   abrirFormCategoria(categoria?: Categoria): void {
-    if (categoria && categoria.categoriaId) {
-      this.editandoCategoria = true;
-      this.categoriaForm = { ...categoria };
-    } else {
-      this.editandoCategoria = false;
-      this.categoriaForm = { nombre: '' };
-    }
-    this.mostrarFormCategoria = true;
+    const esEdicion = !!(categoria && categoria.categoriaId);
+    const nombreActual = categoria?.nombre || '';
+
+    setTimeout(() => {
+      this.modalService.openModal({
+        title: esEdicion ? 'Editar Categoría' : 'Nueva Categoría',
+        input: {
+          label: 'Nombre de la categoría',
+          value: nombreActual,
+        },
+        buttons: [
+          {
+            label: 'Cancelar',
+            class: 'btn btn-secondary',
+            action: () => this.modalService.closeModal(),
+          },
+          {
+            label: esEdicion ? 'Actualizar' : 'Crear',
+            class: 'btn btn-primary primary',
+            action: () => {
+              const inputElement = document.querySelector(
+                '.form-input-enhanced',
+              ) as HTMLInputElement;
+              const nombreNuevo = inputElement?.value.trim() || '';
+
+              if (!nombreNuevo) {
+                this.toastr.warning('El nombre de la categoría es obligatorio', 'Validación');
+                return;
+              }
+
+              this.modalService.closeModal();
+              this.guardarCategoria(nombreNuevo, categoria?.categoriaId);
+            },
+          },
+        ],
+      });
+    }, 0);
   }
 
-  cerrarFormCategoria(): void {
-    this.mostrarFormCategoria = false;
-    this.categoriaForm = { nombre: '' };
-    this.editandoCategoria = false;
-  }
-
-  guardarCategoria(): void {
-    if (!this.categoriaForm.nombre.trim()) {
-      this.toastr.warning('El nombre de la categoría es obligatorio', 'Validación');
-      return;
-    }
-
+  private guardarCategoria(nombre: string, categoriaId?: number): void {
     this.cargando = true;
 
-    if (this.editandoCategoria && this.categoriaForm.categoriaId) {
+    if (categoriaId) {
       // Editar
-      this.categoriaService
-        .update(this.categoriaForm.categoriaId, { nombre: this.categoriaForm.nombre })
-        .subscribe({
-          next: () => {
-            this.cargarCategorias();
-            this.cerrarFormCategoria();
-            this.toastr.success('Categoría actualizada correctamente', 'Éxito');
-          },
-          error: (err) => {
-            console.error(err);
-            this.toastr.error('Error al actualizar la categoría', 'Error');
-            this.cargando = false;
-          },
-        });
-    } else {
-      // Crear
-      this.categoriaService.create({ nombre: this.categoriaForm.nombre }).subscribe({
+      this.categoriaService.update(categoriaId, { nombre }).subscribe({
         next: () => {
           this.cargarCategorias();
-          this.cerrarFormCategoria();
+          this.toastr.success('Categoría actualizada correctamente', 'Éxito');
+        },
+        error: (err) => {
+          console.error(err);
+          this.toastr.error('Error al actualizar la categoría', 'Error');
+          this.cargando = false;
+        },
+      });
+    } else {
+      // Crear
+      this.categoriaService.create({ nombre }).subscribe({
+        next: () => {
+          this.cargarCategorias();
           this.toastr.success('Categoría creada correctamente', 'Éxito');
         },
         error: (err) => {
@@ -184,73 +188,100 @@ export class GestionarCategoriasComponent implements OnInit {
 
   // ===== SUBCATEGORÍAS =====
   abrirFormSubcategoria(subcategoria?: Subcategoria): void {
-    if (subcategoria && subcategoria.subcategoriaId) {
-      this.editandoSubcategoria = true;
-      this.subcategoriaForm = { ...subcategoria };
-    } else {
-      this.editandoSubcategoria = false;
-      this.subcategoriaForm = { nombre: '', categoriaId: undefined };
+    const esEdicion = !!(subcategoria && subcategoria.subcategoriaId);
+    const nombreActual = subcategoria?.nombre || '';
+
+    // Extraer el ID real de la categoría (puede venir como objeto o como número)
+    let categoriaIdActual: number | null = null;
+    if (subcategoria?.categoriaId) {
+      categoriaIdActual =
+        typeof subcategoria.categoriaId === 'object' && 'categoriaId' in subcategoria.categoriaId
+          ? (subcategoria.categoriaId as any).categoriaId
+          : (subcategoria.categoriaId as number);
     }
-    this.mostrarFormSubcategoria = true;
+
+    setTimeout(() => {
+      this.modalService.openModal({
+        title: esEdicion ? 'Editar Subcategoría' : 'Nueva Subcategoría',
+        input: {
+          label: 'Nombre de la subcategoría',
+          value: nombreActual,
+        },
+        select: {
+          label: 'Categoría',
+          options: this.categorias.map((cat) => ({
+            label: cat.nombre,
+            value: cat.categoriaId!,
+          })),
+          selected: categoriaIdActual,
+        },
+        buttons: [
+          {
+            label: 'Cancelar',
+            class: 'btn btn-secondary',
+            action: () => this.modalService.closeModal(),
+          },
+          {
+            label: esEdicion ? 'Actualizar' : 'Crear',
+            class: 'btn btn-primary primary',
+            action: () => {
+              const inputElement = document.querySelector(
+                '.form-input-enhanced',
+              ) as HTMLInputElement;
+              const selectElement = document.querySelector(
+                '.form-select-enhanced',
+              ) as HTMLSelectElement;
+              const nombreNuevo = inputElement?.value.trim() || '';
+              const categoriaIdNueva = selectElement?.value ? Number(selectElement.value) : null;
+
+              if (!nombreNuevo) {
+                this.toastr.warning('El nombre de la subcategoría es obligatorio', 'Validación');
+                return;
+              }
+
+              if (!categoriaIdNueva) {
+                this.toastr.warning('Debe seleccionar una categoría', 'Validación');
+                return;
+              }
+
+              this.modalService.closeModal();
+              this.guardarSubcategoria(nombreNuevo, categoriaIdNueva, subcategoria?.subcategoriaId);
+            },
+          },
+        ],
+      });
+    }, 0);
   }
 
-  cerrarFormSubcategoria(): void {
-    this.mostrarFormSubcategoria = false;
-    this.subcategoriaForm = { nombre: '', categoriaId: undefined };
-    this.editandoSubcategoria = false;
-  }
-
-  guardarSubcategoria(): void {
-    if (!this.subcategoriaForm.nombre.trim()) {
-      this.toastr.warning('El nombre de la subcategoría es obligatorio', 'Validación');
-      return;
-    }
-
-    if (!this.subcategoriaForm.categoriaId) {
-      this.toastr.warning('Debe seleccionar una categoría', 'Validación');
-      return;
-    }
-
+  private guardarSubcategoria(nombre: string, categoriaId: number, subcategoriaId?: number): void {
     this.cargando = true;
 
-    if (this.editandoSubcategoria && this.subcategoriaForm.subcategoriaId) {
+    if (subcategoriaId) {
       // Editar
-      this.subcategoriaService
-        .update(this.subcategoriaForm.subcategoriaId, {
-          nombre: this.subcategoriaForm.nombre,
-          categoriaId: this.subcategoriaForm.categoriaId,
-        })
-        .subscribe({
-          next: () => {
-            this.cargarSubcategorias(this.categoriaSeleccionadaFiltro || undefined);
-            this.cerrarFormSubcategoria();
-            this.toastr.success('Subcategoría actualizada correctamente', 'Éxito');
-          },
-          error: (err) => {
-            console.error(err);
-            this.toastr.error('Error al actualizar la subcategoría', 'Error');
-            this.cargando = false;
-          },
-        });
+      this.subcategoriaService.update(subcategoriaId, { nombre, categoriaId }).subscribe({
+        next: () => {
+          this.cargarSubcategorias(this.categoriaSeleccionadaFiltro || undefined);
+          this.toastr.success('Subcategoría actualizada correctamente', 'Éxito');
+        },
+        error: (err) => {
+          console.error(err);
+          this.toastr.error('Error al actualizar la subcategoría', 'Error');
+          this.cargando = false;
+        },
+      });
     } else {
       // Crear
-      this.subcategoriaService
-        .create({
-          nombre: this.subcategoriaForm.nombre,
-          categoriaId: this.subcategoriaForm.categoriaId,
-        })
-        .subscribe({
-          next: () => {
-            this.cargarSubcategorias(this.categoriaSeleccionadaFiltro || undefined);
-            this.cerrarFormSubcategoria();
-            this.toastr.success('Subcategoría creada correctamente', 'Éxito');
-          },
-          error: (err) => {
-            console.error(err);
-            this.toastr.error('Error al crear la subcategoría', 'Error');
-            this.cargando = false;
-          },
-        });
+      this.subcategoriaService.create({ nombre, categoriaId }).subscribe({
+        next: () => {
+          this.cargarSubcategorias(this.categoriaSeleccionadaFiltro || undefined);
+          this.toastr.success('Subcategoría creada correctamente', 'Éxito');
+        },
+        error: (err) => {
+          console.error(err);
+          this.toastr.error('Error al crear la subcategoría', 'Error');
+          this.cargando = false;
+        },
+      });
     }
   }
 
