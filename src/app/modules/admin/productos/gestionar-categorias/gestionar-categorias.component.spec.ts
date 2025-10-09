@@ -10,10 +10,7 @@ import {
   mockCategoriaCreateResponse,
   mockCategoriasResponse,
 } from '../../../../shared/mocks/categoria.mock';
-import {
-  mockSubcategoriaCreateResponse,
-  mockSubcategoriasResponse,
-} from '../../../../shared/mocks/subcategoria.mock';
+import { mockSubcategoriasResponse } from '../../../../shared/mocks/subcategoria.mock';
 import {
   createCategoriaServiceMock,
   createModalServiceMock,
@@ -519,6 +516,141 @@ describe('GestionarCategoriasComponent', () => {
     it('should return "Sin categoría" if no id provided', () => {
       const nombre = component.obtenerNombreCategoria(undefined);
       expect(nombre).toBe('Sin categoría');
+    });
+  });
+
+  describe('Búsqueda y filtrado', () => {
+    beforeEach(() => {
+      component.categorias = [
+        { categoriaId: 1, nombre: 'Bebidas' },
+        { categoriaId: 2, nombre: 'Comida rápida' },
+        { categoriaId: 3, nombre: 'Postres' },
+      ];
+      component.subcategorias = [
+        { subcategoriaId: 1, nombre: 'Gaseosas', categoriaId: 1 },
+        { subcategoriaId: 2, nombre: 'Hamburguesas', categoriaId: 2 },
+        { subcategoriaId: 3, nombre: 'Helados', categoriaId: 3 },
+      ];
+    });
+
+    describe('categoriasFiltradas', () => {
+      it('should return all categorias when no search term', () => {
+        component.busquedaCategoria = '';
+        expect(component.categoriasFiltradas.length).toBe(3);
+      });
+
+      it('should filter categorias by search term', () => {
+        component.busquedaCategoria = 'Bebidas';
+        expect(component.categoriasFiltradas.length).toBe(1);
+        expect(component.categoriasFiltradas[0].nombre).toBe('Bebidas');
+      });
+
+      it('should be case insensitive', () => {
+        component.busquedaCategoria = 'bebidas';
+        expect(component.categoriasFiltradas.length).toBe(1);
+      });
+    });
+
+    describe('categoriasVisibles', () => {
+      it('should return all when count is less than limit', () => {
+        component.limiteCategorias = 10;
+        expect(component.categoriasVisibles.length).toBe(3);
+      });
+
+      it('should return limited results when count exceeds limit', () => {
+        component.limiteCategorias = 2;
+        component.mostrarTodasCategorias = false;
+        expect(component.categoriasVisibles.length).toBe(2);
+      });
+
+      it('should return all when mostrarTodasCategorias is true', () => {
+        component.limiteCategorias = 2;
+        component.mostrarTodasCategorias = true;
+        expect(component.categoriasVisibles.length).toBe(3);
+      });
+    });
+
+    describe('hayMasCategorias', () => {
+      it('should return true when there are more categorias than limit', () => {
+        component.limiteCategorias = 2;
+        component.mostrarTodasCategorias = false;
+        expect(component.hayMasCategorias).toBe(true);
+      });
+
+      it('should return false when showing all', () => {
+        component.limiteCategorias = 2;
+        component.mostrarTodasCategorias = true;
+        expect(component.hayMasCategorias).toBe(false);
+      });
+    });
+
+    describe('verTodasCategorias', () => {
+      it('should set mostrarTodasCategorias to true', () => {
+        component.mostrarTodasCategorias = false;
+        component.verTodasCategorias();
+        expect(component.mostrarTodasCategorias).toBe(true);
+      });
+    });
+
+    describe('subcategoriasFiltradas', () => {
+      it('should filter subcategorias by search term', () => {
+        component.busquedaSubcategoria = 'Gaseosas';
+        expect(component.subcategoriasFiltradas.length).toBe(1);
+        expect(component.subcategoriasFiltradas[0].nombre).toBe('Gaseosas');
+      });
+    });
+
+    describe('verTodasSubcategorias', () => {
+      it('should set mostrarTodasSubcategorias to true', () => {
+        component.mostrarTodasSubcategorias = false;
+        component.verTodasSubcategorias();
+        expect(component.mostrarTodasSubcategorias).toBe(true);
+      });
+    });
+
+    describe('limpiarBusquedaCategoria', () => {
+      it('should clear search and reset mostrarTodas', () => {
+        component.busquedaCategoria = 'test';
+        component.mostrarTodasCategorias = true;
+
+        component.limpiarBusquedaCategoria();
+
+        expect(component.busquedaCategoria).toBe('');
+        expect(component.mostrarTodasCategorias).toBe(false);
+      });
+    });
+
+    describe('limpiarBusquedaSubcategoria', () => {
+      it('should clear search and reset mostrarTodas', () => {
+        component.busquedaSubcategoria = 'test';
+        component.mostrarTodasSubcategorias = true;
+
+        component.limpiarBusquedaSubcategoria();
+
+        expect(component.busquedaSubcategoria).toBe('');
+        expect(component.mostrarTodasSubcategorias).toBe(false);
+      });
+    });
+  });
+
+  describe('WebView detection', () => {
+    it('should detect Capacitor', () => {
+      (window as any).Capacitor = {};
+      component.detectarWebView();
+      expect(component.isWebView).toBe(true);
+      delete (window as any).Capacitor;
+    });
+
+    it('should detect Cordova', () => {
+      (window as any).cordova = {};
+      component.detectarWebView();
+      expect(component.isWebView).toBe(true);
+      delete (window as any).cordova;
+    });
+
+    it('should not detect webview in regular browser', () => {
+      component.detectarWebView();
+      expect(component.isWebView).toBe(false);
     });
   });
 });

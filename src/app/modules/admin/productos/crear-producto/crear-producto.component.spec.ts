@@ -1,31 +1,51 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
+import { CategoriaService } from '../../../../core/services/categoria.service';
 import { ProductoService } from '../../../../core/services/producto.service';
+import { SubcategoriaService } from '../../../../core/services/subcategoria.service';
 import { estadoProducto } from '../../../../shared/constants';
+import { mockCategorias, mockSubcategorias } from '../../../../shared/mocks/categoria.mock';
 import {
+  createCategoriaServiceMock,
   createFileReaderMock,
   createProductoServiceMock,
+  createSubcategoriaServiceMock,
+  createToastrMock,
 } from '../../../../shared/mocks/test-doubles';
+import { ToastrService } from 'ngx-toastr';
 import { CrearProductoComponent } from './crear-producto.component';
 
 describe('CrearProductoComponent', () => {
   let component: CrearProductoComponent;
   let fixture: ComponentFixture<CrearProductoComponent>;
-  let productoServiceMock: any;
+  let mockProductoService: any;
+  let mockCategoriaService: any;
+  let mockSubcategoriaService: any;
+  let mockToastr: any;
   let router: Router;
   let activatedRouteMock: any;
 
   beforeEach(async () => {
-    productoServiceMock = createProductoServiceMock();
+    mockProductoService = createProductoServiceMock();
+    mockCategoriaService = createCategoriaServiceMock();
+    mockSubcategoriaService = createSubcategoriaServiceMock();
+    mockToastr = createToastrMock();
     activatedRouteMock = { snapshot: { paramMap: convertToParamMap({}) } };
+
+    // Configurar respuestas por defecto
+    mockCategoriaService.list.mockReturnValue(of(mockCategorias));
+    mockSubcategoriaService.list.mockReturnValue(of(mockSubcategorias));
 
     await TestBed.configureTestingModule({
       imports: [CrearProductoComponent, RouterTestingModule],
       providers: [
-        { provide: ProductoService, useValue: productoServiceMock },
+        { provide: ProductoService, useValue: mockProductoService },
+        { provide: CategoriaService, useValue: mockCategoriaService },
+        { provide: SubcategoriaService, useValue: mockSubcategoriaService },
+        { provide: ToastrService, useValue: mockToastr },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
@@ -45,198 +65,407 @@ describe('CrearProductoComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnInit without id should not load product', () => {
-    const cargarSpy = jest.spyOn(component, 'cargarProducto');
-    fixture.detectChanges();
-    expect(component.esEdicion).toBe(false);
-    expect(cargarSpy).not.toHaveBeenCalled();
+  describe('ngOnInit', () => {
+    it('should detect WebView and load categories and subcategories', () => {
+      const detectarSpy = jest.spyOn(component, 'detectarWebView');
+      const cargarCatSpy = jest.spyOn(component, 'cargarCategorias');
+      const cargarSubSpy = jest.spyOn(component, 'cargarSubcategorias');
+
+      fixture.detectChanges();
+
+      expect(detectarSpy).toHaveBeenCalled();
+      expect(cargarCatSpy).toHaveBeenCalled();
+      expect(cargarSubSpy).toHaveBeenCalled();
+      expect(component.categorias).toEqual(mockCategorias);
+      expect(component.subcategorias).toEqual(mockSubcategorias);
+    });
+
+    it('should not load product when no id is present', () => {
+      const cargarSpy = jest.spyOn(component, 'cargarProducto');
+      fixture.detectChanges();
+      expect(component.esEdicion).toBe(false);
+      expect(cargarSpy).not.toHaveBeenCalled();
+    });
+
+    it('should load product when id is present', () => {
+      activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: '5' });
+      const cargarSpy = jest.spyOn(component, 'cargarProducto').mockImplementation(() => {});
+      fixture.detectChanges();
+      expect(component.esEdicion).toBe(true);
+      expect(cargarSpy).toHaveBeenCalledWith('5');
+    });
   });
 
-  it('ngOnInit with id should load product', () => {
-    activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: '5' });
-    const cargarSpy = jest.spyOn(component, 'cargarProducto').mockImplementation(() => {});
-    fixture.detectChanges();
-    expect(component.esEdicion).toBe(true);
-    expect(cargarSpy).toHaveBeenCalledWith('5');
+  describe('detectarWebView', () => {
+    it('should detect Capacitor', () => {
+      (window as any).Capacitor = {};
+      component.detectarWebView();
+      expect(component.isWebView).toBe(true);
+      delete (window as any).Capacitor;
+    });
+
+    it('should detect Cordova', () => {
+      (window as any).cordova = {};
+      component.detectarWebView();
+      expect(component.isWebView).toBe(true);
+      delete (window as any).cordova;
+    });
+
+    it('should not detect WebView in regular browser', () => {
+      component.detectarWebView();
+      expect(component.isWebView).toBe(false);
+    });
   });
 
-  it('seleccionarImagen should set image', () => {
-    const file = new File([''], 'test.png', { type: 'image/png' });
-    const event = { target: { files: [file] } };
-    const readerMock: any = createFileReaderMock('data:image/png;base64,AAA');
-    jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
-    component.seleccionarImagen(event as any);
-    expect(component.producto.imagenBase64).toBe('data:image/png;base64,AAA');
+  describe('cargarCategorias', () => {
+    it('should load categories successfully', () => {
+      component.cargarCategorias();
+      expect(mockCategoriaService.list).toHaveBeenCalled();
+      expect(component.categorias).toEqual(mockCategorias);
+    });
+
+    it('should handle error when loading categories', () => {
+      mockCategoriaService.list.mockReturnValue(throwError(() => new Error('Error')));
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      component.cargarCategorias();
+
+      expect(mockToastr.error).toHaveBeenCalledWith('Error al cargar categorías', 'Error');
+      consoleErrorSpy.mockRestore();
+    });
   });
 
-  it('crearProducto should validate required fields', () => {
-    component.producto.nombre = '';
-    component.producto.precio = 0;
-    component.crearProducto();
-    expect(component.mensaje).toBe('El nombre y el precio son obligatorios');
-    expect(productoServiceMock.createProducto).not.toHaveBeenCalled();
+  describe('cargarSubcategorias', () => {
+    it('should load subcategories successfully', () => {
+      component.cargarSubcategorias();
+      expect(mockSubcategoriaService.list).toHaveBeenCalled();
+      expect(component.subcategorias).toEqual(mockSubcategorias);
+      expect(component.subcategoriasFiltradas).toEqual(mockSubcategorias);
+    });
+
+    it('should handle error when loading subcategories', () => {
+      mockSubcategoriaService.list.mockReturnValue(throwError(() => new Error('Error')));
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      component.cargarSubcategorias();
+
+      expect(mockToastr.error).toHaveBeenCalledWith('Error al cargar subcategorías', 'Error');
+      consoleErrorSpy.mockRestore();
+    });
   });
 
-  it('crearProducto should send product without image and navigate', () => {
-    jest.useFakeTimers();
-    component.producto = {
-      nombre: 'Test',
-      calorias: 10,
-      descripcion: 'desc',
-      precio: 20,
-      estadoProducto: estadoProducto.DISPONIBLE,
-      cantidad: 5,
-      categoria: 'cat',
-      subcategoria: 'sub',
-    };
-    productoServiceMock.createProducto.mockReturnValue(of({ code: 201 }));
-    const navigateSpy = jest.spyOn(router, 'navigate');
+  describe('onCategoriaChange', () => {
+    beforeEach(() => {
+      // Inicializar después de detectChanges para que ngOnInit se ejecute
+      fixture.detectChanges();
+      component.categorias = mockCategorias;
+      component.subcategorias = mockSubcategorias;
+      component.subcategoriasFiltradas = mockSubcategorias;
+    });
 
-    component.crearProducto();
+    it('should filter subcategories when category is selected', () => {
+      component.producto.categoria = 'Comida';
+      component.onCategoriaChange();
 
-    expect(productoServiceMock.createProducto).toHaveBeenCalled();
-    expect(component.mensaje).toBe('Producto creado con éxito');
-    expect(navigateSpy).not.toHaveBeenCalled();
-    jest.runAllTimers();
-    expect(navigateSpy).toHaveBeenCalledWith(['/admin/productos']);
+      expect(component.subcategoriasFiltradas.length).toBeGreaterThan(0);
+      const allMatch = component.subcategoriasFiltradas.every(
+        (sub) => sub.categoriaId === 1 || (sub.categoriaId as any).categoriaId === 1,
+      );
+      expect(allMatch).toBe(true);
+    });
+
+    it('should clear subcategory if not in filtered list', () => {
+      component.producto.categoria = 'Comida';
+      component.producto.subcategoria = 'Subcategoría inexistente';
+      component.onCategoriaChange();
+
+      expect(component.producto.subcategoria).toBe('');
+    });
+
+    it('should reset filter when no category selected', () => {
+      component.producto.categoria = '';
+      component.onCategoriaChange();
+
+      expect(component.subcategoriasFiltradas).toEqual(mockSubcategorias);
+      expect(component.producto.subcategoria).toBe('');
+    });
   });
 
-  it('crearProducto should append image when present', () => {
-    component.producto = {
-      nombre: 'Test',
-      calorias: 10,
-      descripcion: 'desc',
-      precio: 20,
-      estadoProducto: estadoProducto.DISPONIBLE,
-      cantidad: 5,
-      categoria: 'cat',
-      subcategoria: 'sub',
-    };
-    const file = new File(['data'], 'image.jpg');
-    const event = { target: { files: [file] } } as any;
-    const readerMock: any = createFileReaderMock('base64data');
-    jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
-    component.seleccionarImagen(event);
-    productoServiceMock.createProducto.mockReturnValue(of({ code: 201 }));
+  describe('seleccionarImagen', () => {
+    it('should set image and preview when valid file is selected', () => {
+      const file = new File([''], 'test.png', { type: 'image/png' });
+      const event = { target: { files: [file] } };
+      const readerMock: any = createFileReaderMock('data:image/png;base64,AAA');
+      jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
 
-    component.crearProducto();
+      component.seleccionarImagen(event as any);
 
-    expect(productoServiceMock.createProducto).toHaveBeenCalledWith(
-      expect.objectContaining({ imagenBase64: 'base64data' }),
-    );
+      expect(component.producto.imagenBase64).toBe('data:image/png;base64,AAA');
+      expect(component.imagenPreview).toBe('data:image/png;base64,AAA');
+    });
+
+    it('should warn when file size exceeds 5MB', () => {
+      const largeFile = new File(['x'.repeat(6 * 1024 * 1024)], 'large.png', {
+        type: 'image/png',
+      });
+      const event = { target: { files: [largeFile], value: 'path' } };
+
+      component.seleccionarImagen(event as any);
+
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'La imagen no debe superar los 5MB',
+        'Advertencia',
+      );
+      expect((event.target as any).value).toBe('');
+    });
+
+    it('should warn when file is not an image', () => {
+      const textFile = new File([''], 'test.txt', { type: 'text/plain' });
+      const event = { target: { files: [textFile], value: 'path' } };
+
+      component.seleccionarImagen(event as any);
+
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'Solo se permiten archivos de imagen',
+        'Advertencia',
+      );
+      expect((event.target as any).value).toBe('');
+    });
   });
 
-  it('crearProducto should not navigate on error response and use defaults for optional fields', () => {
-    component.producto = {
-      nombre: 'Test',
-      precio: 20,
-      cantidad: 1,
-    } as any;
-    productoServiceMock.createProducto.mockReturnValue(of({ code: 500 }));
-    const navigateSpy = jest.spyOn(router, 'navigate');
+  describe('eliminarImagen', () => {
+    it('should clear image and preview', () => {
+      document.body.innerHTML = '<input type="file" />';
+      component.producto.imagenBase64 = 'base64data';
+      component.imagenPreview = 'base64data';
 
-    component.crearProducto();
+      component.eliminarImagen();
 
-    expect(productoServiceMock.createProducto).toHaveBeenCalled();
-    expect(component.mensaje).toBe('');
-    expect(navigateSpy).not.toHaveBeenCalled();
+      expect(component.producto.imagenBase64).toBeUndefined();
+      expect(component.imagenPreview).toBeNull();
+      document.body.innerHTML = '';
+    });
   });
 
-  it('cargarProducto should set product when data exists', () => {
-    const producto = {
-      nombre: 'n',
-      calorias: 1,
-      descripcion: 'd',
-      precio: 1,
-      estadoProducto: estadoProducto.DISPONIBLE,
-      cantidad: 1,
-      categoria: 'c',
-      subcategoria: 's',
-    };
-    productoServiceMock.getProductoById.mockReturnValue(of({ data: producto }));
-    component.cargarProducto('1');
-    expect(productoServiceMock.getProductoById).toHaveBeenCalledWith(1);
-    expect(component.producto).toEqual(producto);
+  describe('validarFormulario', () => {
+    it('should return false when nombre is empty', () => {
+      component.producto.nombre = '';
+      component.producto.precio = 10;
+      component.producto.categoria = 'Comida';
+      component.producto.subcategoria = 'Hamburguesas';
+
+      const result = component.validarFormulario();
+
+      expect(result).toBe(false);
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'El nombre del producto es obligatorio',
+        'Validación',
+      );
+    });
+
+    it('should return false when precio is 0 or negative', () => {
+      component.producto.nombre = 'Test';
+      component.producto.precio = 0;
+      component.producto.categoria = 'Comida';
+      component.producto.subcategoria = 'Hamburguesas';
+
+      const result = component.validarFormulario();
+
+      expect(result).toBe(false);
+      expect(mockToastr.warning).toHaveBeenCalledWith('El precio debe ser mayor a 0', 'Validación');
+    });
+
+    it('should return false when categoria is empty', () => {
+      component.producto.nombre = 'Test';
+      component.producto.precio = 10;
+      component.producto.categoria = '';
+      component.producto.subcategoria = 'Hamburguesas';
+
+      const result = component.validarFormulario();
+
+      expect(result).toBe(false);
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'Debe seleccionar una categoría',
+        'Validación',
+      );
+    });
+
+    it('should return false when subcategoria is empty', () => {
+      component.producto.nombre = 'Test';
+      component.producto.precio = 10;
+      component.producto.categoria = 'Comida';
+      component.producto.subcategoria = '';
+
+      const result = component.validarFormulario();
+
+      expect(result).toBe(false);
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'Debe seleccionar una subcategoría',
+        'Validación',
+      );
+    });
+
+    it('should return true when all fields are valid', () => {
+      component.producto.nombre = 'Test';
+      component.producto.precio = 10;
+      component.producto.categoria = 'Comida';
+      component.producto.subcategoria = 'Hamburguesas';
+
+      const result = component.validarFormulario();
+
+      expect(result).toBe(true);
+      expect(mockToastr.warning).not.toHaveBeenCalled();
+    });
   });
 
-  it('cargarProducto should not set product when no data', () => {
-    const initial = { ...component.producto };
-    productoServiceMock.getProductoById.mockReturnValue(of({}));
-    component.cargarProducto('1');
-    expect(component.producto).toEqual(initial);
+  describe('crearProducto', () => {
+    beforeEach(() => {
+      component.producto = {
+        nombre: 'Test',
+        calorias: 10,
+        descripcion: 'desc',
+        precio: 20,
+        estadoProducto: estadoProducto.DISPONIBLE,
+        cantidad: 5,
+        categoria: 'Comida',
+        subcategoria: 'Hamburguesas',
+      };
+    });
+
+    it('should not create product when validation fails', () => {
+      component.producto.nombre = '';
+      component.crearProducto();
+
+      expect(mockProductoService.createProducto).not.toHaveBeenCalled();
+      expect(mockToastr.warning).toHaveBeenCalled();
+    });
+
+    it('should create product and navigate on success', fakeAsync(() => {
+      mockProductoService.createProducto.mockReturnValue(of({ code: 201 }));
+      const navigateSpy = jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+      component.crearProducto();
+
+      expect(component.guardando).toBe(true);
+      expect(mockProductoService.createProducto).toHaveBeenCalledWith(component.producto);
+      expect(mockToastr.success).toHaveBeenCalledWith('Producto creado con éxito', 'Éxito');
+
+      tick(1500);
+      expect(navigateSpy).toHaveBeenCalledWith(['/admin/productos']);
+    }));
+
+    it('should handle error when creating product', () => {
+      mockProductoService.createProducto.mockReturnValue(throwError(() => new Error('Error')));
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      component.crearProducto();
+
+      expect(mockToastr.error).toHaveBeenCalledWith('Error al crear el producto', 'Error');
+      expect(component.guardando).toBe(false);
+      consoleErrorSpy.mockRestore();
+    });
   });
 
-  it('actualizarProducto should return if no productId', () => {
-    component.productoId = null;
-    component.actualizarProducto();
-    expect(productoServiceMock.updateProducto).not.toHaveBeenCalled();
+  describe('cargarProducto', () => {
+    it('should load product and set preview when image exists', () => {
+      const producto = {
+        nombre: 'Test',
+        calorias: 10,
+        descripcion: 'desc',
+        precio: 20,
+        estadoProducto: estadoProducto.DISPONIBLE,
+        cantidad: 5,
+        categoria: 'Comida',
+        subcategoria: 'Hamburguesas',
+        imagenBase64: 'base64data',
+      };
+      mockProductoService.getProductoById.mockReturnValue(of({ data: producto }));
+      const onCategoriaChangeSpy = jest.spyOn(component, 'onCategoriaChange');
+
+      component.cargarProducto('1');
+
+      expect(mockProductoService.getProductoById).toHaveBeenCalledWith(1);
+      expect(component.producto).toEqual(producto);
+      expect(component.imagenPreview).toBe('base64data');
+      expect(onCategoriaChangeSpy).toHaveBeenCalled();
+      expect(component.cargando).toBe(false);
+    });
+
+    it('should handle error when loading product', () => {
+      mockProductoService.getProductoById.mockReturnValue(throwError(() => new Error('Error')));
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const navigateSpy = jest.spyOn(router, 'navigate');
+
+      component.cargarProducto('1');
+
+      expect(mockToastr.error).toHaveBeenCalledWith('Error al cargar el producto', 'Error');
+      expect(component.cargando).toBe(false);
+      expect(navigateSpy).toHaveBeenCalledWith(['/admin/productos']);
+      consoleErrorSpy.mockRestore();
+    });
   });
 
-  it('actualizarProducto should update product and navigate without image', () => {
-    jest.useFakeTimers();
-    component.productoId = '2';
-    component.producto = {
-      nombre: 'Test',
-      calorias: 10,
-      descripcion: 'desc',
-      precio: 20,
-      estadoProducto: estadoProducto.DISPONIBLE,
-      cantidad: 5,
-      categoria: 'cat',
-      subcategoria: 'sub',
-    };
-    productoServiceMock.updateProducto.mockReturnValue(of({ code: 200 }));
-    const navigateSpy = jest.spyOn(router, 'navigate');
+  describe('actualizarProducto', () => {
+    beforeEach(() => {
+      component.productoId = '2';
+      component.producto = {
+        nombre: 'Test',
+        calorias: 10,
+        descripcion: 'desc',
+        precio: 20,
+        estadoProducto: estadoProducto.DISPONIBLE,
+        cantidad: 5,
+        categoria: 'Comida',
+        subcategoria: 'Hamburguesas',
+      };
+    });
 
-    component.actualizarProducto();
+    it('should return if no productId', () => {
+      component.productoId = null;
+      component.actualizarProducto();
 
-    expect(productoServiceMock.updateProducto).toHaveBeenCalledWith(2, component.producto);
-    expect(component.mensaje).toBe('Producto actualizado con éxito');
-    jest.runAllTimers();
-    expect(navigateSpy).toHaveBeenCalledWith(['/admin/productos']);
+      expect(mockProductoService.updateProducto).not.toHaveBeenCalled();
+    });
+
+    it('should not update product when validation fails', () => {
+      component.producto.nombre = '';
+      component.actualizarProducto();
+
+      expect(mockProductoService.updateProducto).not.toHaveBeenCalled();
+      expect(mockToastr.warning).toHaveBeenCalled();
+    });
+
+    it('should update product and navigate on success', fakeAsync(() => {
+      mockProductoService.updateProducto.mockReturnValue(of({ code: 200 }));
+      const navigateSpy = jest.spyOn(router, 'navigate');
+
+      component.actualizarProducto();
+
+      expect(component.guardando).toBe(true);
+      expect(mockProductoService.updateProducto).toHaveBeenCalledWith(2, component.producto);
+      expect(mockToastr.success).toHaveBeenCalledWith('Producto actualizado con éxito', 'Éxito');
+
+      tick(1500);
+      expect(navigateSpy).toHaveBeenCalledWith(['/admin/productos']);
+    }));
+
+    it('should handle error when updating product', () => {
+      mockProductoService.updateProducto.mockReturnValue(throwError(() => new Error('Error')));
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      component.actualizarProducto();
+
+      expect(mockToastr.error).toHaveBeenCalledWith('Error al actualizar el producto', 'Error');
+      expect(component.guardando).toBe(false);
+      consoleErrorSpy.mockRestore();
+    });
   });
 
-  it('actualizarProducto should append image when present', () => {
-    component.productoId = '3';
-    component.producto = {
-      nombre: 'Test',
-      calorias: 10,
-      descripcion: 'desc',
-      precio: 20,
-      estadoProducto: estadoProducto.DISPONIBLE,
-      cantidad: 5,
-      categoria: 'cat',
-      subcategoria: 'sub',
-    };
-    const file = new File(['data'], 'img.png');
-    const event = { target: { files: [file] } } as any;
-    const readerMock: any = createFileReaderMock('imgdata');
-    jest.spyOn(window as any, 'FileReader').mockImplementation(() => readerMock);
-    component.seleccionarImagen(event);
-    productoServiceMock.updateProducto.mockReturnValue(of({ code: 200 }));
-
-    component.actualizarProducto();
-
-    expect(productoServiceMock.updateProducto).toHaveBeenCalledWith(
-      3,
-      expect.objectContaining({ imagenBase64: 'imgdata' }),
-    );
-  });
-
-  it('actualizarProducto should not navigate on error response and use defaults for optional fields', () => {
-    component.productoId = '4';
-    component.producto = {
-      nombre: 'Test',
-      precio: 20,
-      cantidad: 1,
-    } as any;
-    productoServiceMock.updateProducto.mockReturnValue(of({ code: 500 }));
-    const navigateSpy = jest.spyOn(router, 'navigate');
-
-    component.actualizarProducto();
-
-    expect(productoServiceMock.updateProducto).toHaveBeenCalled();
-    expect(component.mensaje).toBe('');
-    expect(navigateSpy).not.toHaveBeenCalled();
+  describe('cancelar', () => {
+    it('should navigate to products list', () => {
+      const navigateSpy = jest.spyOn(router, 'navigate');
+      component.cancelar();
+      expect(navigateSpy).toHaveBeenCalledWith(['/admin/productos']);
+    });
   });
 });

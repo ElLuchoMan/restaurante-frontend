@@ -22,8 +22,19 @@ export class GestionarCategoriasComponent implements OnInit {
   cargando = false;
   error = '';
 
+  // Búsqueda y límites
+  busquedaCategoria = '';
+  busquedaSubcategoria = '';
+  limiteCategorias = 10;
+  limiteSubcategorias = 10;
+  mostrarTodasCategorias = false;
+  mostrarTodasSubcategorias = false;
+
   // Filtro de subcategorías
   categoriaSeleccionadaFiltro: number | null = null;
+
+  // WebView detection
+  isWebView = false;
 
   constructor(
     private categoriaService: CategoriaService,
@@ -33,8 +44,16 @@ export class GestionarCategoriasComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.detectarWebView();
     this.cargarCategorias();
     this.cargarSubcategorias();
+  }
+
+  detectarWebView(): void {
+    // Detectar si estamos en Capacitor/Cordova
+    this.isWebView =
+      typeof (window as any).Capacitor !== 'undefined' ||
+      typeof (window as any).cordova !== 'undefined';
   }
 
   cargarCategorias(): void {
@@ -355,5 +374,75 @@ export class GestionarCategoriasComponent implements OnInit {
 
     const categoria = this.categorias.find((c) => c.categoriaId === idReal);
     return categoria ? categoria.nombre : 'Desconocida';
+  }
+
+  // ===== BÚSQUEDA Y FILTRADO =====
+  get categoriasFiltradas(): Categoria[] {
+    let filtradas = this.categorias;
+
+    // Aplicar búsqueda
+    if (this.busquedaCategoria.trim()) {
+      const termino = this.busquedaCategoria.toLowerCase().trim();
+      filtradas = filtradas.filter((cat) => cat.nombre.toLowerCase().includes(termino));
+    }
+
+    return filtradas;
+  }
+
+  get categoriasVisibles(): Categoria[] {
+    const filtradas = this.categoriasFiltradas;
+    if (this.mostrarTodasCategorias || filtradas.length <= this.limiteCategorias) {
+      return filtradas;
+    }
+    return filtradas.slice(0, this.limiteCategorias);
+  }
+
+  get hayMasCategorias(): boolean {
+    return this.categoriasFiltradas.length > this.limiteCategorias && !this.mostrarTodasCategorias;
+  }
+
+  verTodasCategorias(): void {
+    this.mostrarTodasCategorias = true;
+  }
+
+  get subcategoriasFiltradas(): Subcategoria[] {
+    let filtradas = this.subcategorias;
+
+    // Aplicar búsqueda
+    if (this.busquedaSubcategoria.trim()) {
+      const termino = this.busquedaSubcategoria.toLowerCase().trim();
+      filtradas = filtradas.filter((sub) => sub.nombre.toLowerCase().includes(termino));
+    }
+
+    return filtradas;
+  }
+
+  get subcategoriasVisibles(): Subcategoria[] {
+    const filtradas = this.subcategoriasFiltradas;
+    if (this.mostrarTodasSubcategorias || filtradas.length <= this.limiteSubcategorias) {
+      return filtradas;
+    }
+    return filtradas.slice(0, this.limiteSubcategorias);
+  }
+
+  get hayMasSubcategorias(): boolean {
+    return (
+      this.subcategoriasFiltradas.length > this.limiteSubcategorias &&
+      !this.mostrarTodasSubcategorias
+    );
+  }
+
+  verTodasSubcategorias(): void {
+    this.mostrarTodasSubcategorias = true;
+  }
+
+  limpiarBusquedaCategoria(): void {
+    this.busquedaCategoria = '';
+    this.mostrarTodasCategorias = false;
+  }
+
+  limpiarBusquedaSubcategoria(): void {
+    this.busquedaSubcategoria = '';
+    this.mostrarTodasSubcategorias = false;
   }
 }

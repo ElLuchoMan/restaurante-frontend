@@ -31,14 +31,46 @@
               <i class="fas fa-plus me-1"></i> Nueva Categoría
             </button>
           </div>
+
+          <!-- Campo de búsqueda -->
+          <div class="card-body pb-0" *ngIf="categorias.length > 0">
+            <div class="search-box">
+              <i class="fas fa-search search-icon"></i>
+              <input
+                type="text"
+                class="form-control search-input"
+                placeholder="Buscar categoría..."
+                [(ngModel)]="busquedaCategoria"
+                [class.webview-input]="isWebView"
+              />
+              <button
+                *ngIf="busquedaCategoria"
+                class="btn-clear-search"
+                (click)="limpiarBusquedaCategoria()"
+                title="Limpiar búsqueda"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
           <div class="card-body list-surface list-surface-tight">
             <!-- Mensaje si no hay categorías -->
             <div *ngIf="categorias.length === 0" class="text-center text-muted py-4">
               No hay categorías registradas
             </div>
 
+            <!-- Mensaje si no hay resultados de búsqueda -->
+            <div
+              *ngIf="categorias.length > 0 && categoriasFiltradas.length === 0"
+              class="text-center text-muted py-4"
+            >
+              <i class="fas fa-search mb-2" style="font-size: 2rem; opacity: 0.3"></i>
+              <p class="mb-0">No se encontraron categorías con "{{ busquedaCategoria }}"</p>
+            </div>
+
             <!-- Lista de Categorías -->
-            <div *ngFor="let categoria of categorias" class="sales-item">
+            <div *ngFor="let categoria of categoriasVisibles" class="sales-item">
               <div class="method-name">
                 <strong>{{ categoria.nombre }}</strong>
               </div>
@@ -59,6 +91,24 @@
                 </button>
               </div>
             </div>
+
+            <!-- Botón Ver más -->
+            <div *ngIf="hayMasCategorias" class="text-center pt-3 pb-2">
+              <button class="btn btn-outline-primary btn-sm" (click)="verTodasCategorias()">
+                <i class="fas fa-chevron-down me-1"></i>
+                Ver más ({{ categoriasFiltradas.length - limiteCategorias }} restantes)
+              </button>
+            </div>
+
+            <!-- Contador de resultados -->
+            <div
+              *ngIf="busquedaCategoria && categoriasFiltradas.length > 0"
+              class="text-center text-muted pt-2"
+              style="font-size: 0.85rem"
+            >
+              Mostrando {{ categoriasVisibles.length }} de {{ categoriasFiltradas.length }}
+              {{ categoriasFiltradas.length === 1 ? 'categoría' : 'categorías' }}
+            </div>
           </div>
         </div>
       </div>
@@ -73,7 +123,7 @@
             </button>
           </div>
 
-          <!-- Filtro -->
+          <!-- Filtro por categoría -->
           <div class="card-body pb-0">
             <label for="filtroCategoria" class="form-label">Filtrar por categoría</label>
             <div class="filter-group">
@@ -100,14 +150,45 @@
             </div>
           </div>
 
+          <!-- Campo de búsqueda -->
+          <div class="card-body pb-0 pt-2" *ngIf="subcategorias.length > 0">
+            <div class="search-box">
+              <i class="fas fa-search search-icon"></i>
+              <input
+                type="text"
+                class="form-control search-input"
+                placeholder="Buscar subcategoría..."
+                [(ngModel)]="busquedaSubcategoria"
+                [class.webview-input]="isWebView"
+              />
+              <button
+                *ngIf="busquedaSubcategoria"
+                class="btn-clear-search"
+                (click)="limpiarBusquedaSubcategoria()"
+                title="Limpiar búsqueda"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
           <div class="card-body list-surface list-surface-tight">
             <!-- Mensaje si no hay subcategorías -->
             <div *ngIf="subcategorias.length === 0" class="text-center text-muted py-4">
               No hay subcategorías registradas
             </div>
 
+            <!-- Mensaje si no hay resultados de búsqueda -->
+            <div
+              *ngIf="subcategorias.length > 0 && subcategoriasFiltradas.length === 0"
+              class="text-center text-muted py-4"
+            >
+              <i class="fas fa-search mb-2" style="font-size: 2rem; opacity: 0.3"></i>
+              <p class="mb-0">No se encontraron subcategorías con "{{ busquedaSubcategoria }}"</p>
+            </div>
+
             <!-- Lista de Subcategorías -->
-            <div *ngFor="let subcategoria of subcategorias" class="sales-item">
+            <div *ngFor="let subcategoria of subcategoriasVisibles" class="sales-item">
               <div class="method-name">
                 <strong>{{ subcategoria.nombre }}</strong>
                 <br />
@@ -131,6 +212,24 @@
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
+            </div>
+
+            <!-- Botón Ver más -->
+            <div *ngIf="hayMasSubcategorias" class="text-center pt-3 pb-2">
+              <button class="btn btn-outline-primary btn-sm" (click)="verTodasSubcategorias()">
+                <i class="fas fa-chevron-down me-1"></i>
+                Ver más ({{ subcategoriasFiltradas.length - limiteSubcategorias }} restantes)
+              </button>
+            </div>
+
+            <!-- Contador de resultados -->
+            <div
+              *ngIf="busquedaSubcategoria && subcategoriasFiltradas.length > 0"
+              class="text-center text-muted pt-2"
+              style="font-size: 0.85rem"
+            >
+              Mostrando {{ subcategoriasVisibles.length }} de {{ subcategoriasFiltradas.length }}
+              {{ subcategoriasFiltradas.length === 1 ? 'subcategoría' : 'subcategorías' }}
             </div>
           </div>
         </div>

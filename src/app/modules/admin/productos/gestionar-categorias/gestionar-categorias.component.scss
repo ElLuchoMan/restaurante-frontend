@@ -1,5 +1,82 @@
 @import '../../../../../assets/variables';
 
+// ===== CAMPO DE BÚSQUEDA =====
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  .search-icon {
+    position: absolute;
+    left: 1rem;
+    color: $text-muted;
+    font-size: 0.9rem;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .search-input {
+    padding-left: 2.75rem;
+    padding-right: 2.75rem;
+    border-radius: 12px;
+    border: 1px solid $border-subtle;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px $ring-primary-12;
+      outline: none;
+    }
+
+    &::placeholder {
+      color: $text-muted;
+      font-size: 0.85rem;
+    }
+
+    // Optimizaciones para WebView
+    &.webview-input {
+      font-size: 1rem; // Tamaño más grande para touch
+      padding: 0.75rem 3rem 0.75rem 3rem;
+      -webkit-appearance: none; // Eliminar estilos nativos
+      appearance: none;
+    }
+  }
+
+  .btn-clear-search {
+    position: absolute;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-muted;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    padding: 0;
+    z-index: 2;
+
+    i {
+      font-size: 0.9rem;
+    }
+
+    &:hover {
+      background: rgba($danger, 0.1);
+      color: $danger;
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
 // ===== FILTRO DE CATEGORÍAS =====
 .filter-group {
   position: relative;
@@ -63,5 +140,92 @@
     background: linear-gradient(135deg, rgba($primary, 0.12) 0%, rgba($primary, 0.18) 100%);
     border-color: rgba($primary, 0.25);
     transform: translateY(-1px);
+  }
+}
+
+// ===== OPTIMIZACIONES WEBVIEW =====
+// Detectado a través de la clase .webview-mode o la propiedad isWebView
+:host-context(.webview-mode) {
+  .sales-item {
+    padding: 1rem; // Touch targets más grandes
+    min-height: 60px; // Área táctil mínima
+
+    .btn {
+      min-width: 44px; // Touch target recomendado iOS
+      min-height: 44px;
+    }
+  }
+
+  .btn-warning,
+  .btn-outline-primary,
+  .btn-outline-danger {
+    padding: 0.65rem 1.25rem; // Botones más grandes en WebView
+    font-size: 0.95rem;
+  }
+
+  // Botones de header más grandes en WebView
+  .card-header {
+    .btn-warning {
+      min-width: 180px; // Ancho mínimo para texto completo
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      white-space: nowrap; // Evitar que el texto se rompa
+    }
+  }
+}
+
+// Asegurar que los botones de header siempre tengan buen tamaño
+.card-header {
+  padding: 1.25rem 1.5rem;
+  gap: 0.75rem;
+
+  .btn-warning {
+    white-space: nowrap;
+    flex-shrink: 0; // No permitir que se encoja
+
+    i {
+      margin-right: 0.5rem;
+    }
+  }
+
+  h5 {
+    flex: 1 1 auto;
+    margin-bottom: 0;
+  }
+}
+
+// ===== RESPONSIVE (MOBILE & WEB MOBILE) =====
+@media (max-width: 575px) {
+  .card-header {
+    padding: 1rem 1.25rem;
+
+    h5 {
+      font-size: 1rem; // Título un poco más pequeño en móvil
+    }
+
+    .btn-warning {
+      font-size: 0.85rem; // Botón un poco más compacto
+      padding: 0.6rem 1rem;
+
+      i {
+        margin-right: 0.35rem; // Menos espacio entre ícono y texto
+      }
+    }
+  }
+
+  .search-box {
+    .search-input {
+      font-size: 1rem; // Tamaño más grande en móvil
+      padding: 0.75rem 2.75rem;
+    }
+  }
+}
+
+// ===== ANIMACIONES SUAVES =====
+.sales-item {
+  transition: background-color 0.2s ease;
+
+  &:active {
+    background-color: rgba($primary, 0.05);
   }
 }

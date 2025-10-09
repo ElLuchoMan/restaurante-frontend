@@ -1,64 +1,316 @@
-<div class="container mt-4">
-  <h1 class="text-center mb-4">Crear Producto</h1>
-
-  <div class="card card-normal p-4">
-    <div class="form-group">
-      <label>Nombre:</label>
-      <input type="text" class="form-control" [(ngModel)]="producto.nombre" required />
+<div class="page-shell">
+  <div class="container">
+    <!-- Título -->
+    <div class="mb-4">
+      <h1 class="section-title">
+        {{ esEdicion ? 'Editar Producto' : 'Crear Producto' }}
+      </h1>
+      <p class="subtitle text-center mb-4">
+        {{
+          esEdicion
+            ? 'Modifica los datos del producto existente'
+            : 'Completa los datos del nuevo producto'
+        }}
+      </p>
     </div>
 
-    <div class="form-group">
-      <label>Descripción:</label>
-      <textarea class="form-control" [(ngModel)]="producto.descripcion"></textarea>
+    <!-- Loader -->
+    <div *ngIf="cargando" class="text-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label>Calorías:</label>
-      <input type="number" class="form-control" [(ngModel)]="producto.calorias" />
+    <!-- Formulario -->
+    <div *ngIf="!cargando" class="row justify-content-center">
+      <div class="col-lg-10">
+        <form
+          (ngSubmit)="esEdicion ? actualizarProducto() : crearProducto()"
+          #productoForm="ngForm"
+        >
+          <!-- Card Principal -->
+          <div class="card glow-border mb-4">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Información General</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <!-- Nombre -->
+                <div class="col-md-6 mb-3">
+                  <div class="input-float">
+                    <span class="icon" aria-hidden="true">
+                      <i class="fas fa-tag"></i>
+                    </span>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="nombre"
+                      [(ngModel)]="producto.nombre"
+                      name="nombre"
+                      required
+                      maxlength="100"
+                      placeholder=" "
+                      [class.webview-input]="isWebView"
+                    />
+                    <label for="nombre" class="float-label">
+                      Nombre del Producto <span class="text-danger">*</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Precio -->
+                <div class="col-md-6 mb-3">
+                  <div class="input-float">
+                    <span class="icon" aria-hidden="true">
+                      <i class="fas fa-dollar-sign"></i>
+                    </span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="precio"
+                      [(ngModel)]="producto.precio"
+                      name="precio"
+                      required
+                      min="0"
+                      step="0.01"
+                      placeholder=" "
+                      [class.webview-input]="isWebView"
+                    />
+                    <label for="precio" class="float-label">
+                      Precio (COP) <span class="text-danger">*</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Descripción -->
+                <div class="col-12 mb-3">
+                  <div class="input-float">
+                    <span class="icon" aria-hidden="true">
+                      <i class="fas fa-align-left"></i>
+                    </span>
+                    <textarea
+                      class="form-control"
+                      id="descripcion"
+                      [(ngModel)]="producto.descripcion"
+                      name="descripcion"
+                      rows="3"
+                      maxlength="500"
+                      placeholder=" "
+                      [class.webview-input]="isWebView"
+                      style="resize: vertical; min-height: 80px"
+                    ></textarea>
+                    <label for="descripcion" class="float-label">Descripción (Opcional)</label>
+                  </div>
+                  <div class="form-text">
+                    {{ producto.descripcion?.length || 0 }}/500 caracteres
+                  </div>
+                </div>
+
+                <!-- Calorías -->
+                <div class="col-md-6 mb-3">
+                  <div class="input-float">
+                    <span class="icon" aria-hidden="true">
+                      <i class="fas fa-fire"></i>
+                    </span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="calorias"
+                      [(ngModel)]="producto.calorias"
+                      name="calorias"
+                      min="0"
+                      placeholder=" "
+                      [class.webview-input]="isWebView"
+                    />
+                    <label for="calorias" class="float-label">Calorías (kcal)</label>
+                  </div>
+                </div>
+
+                <!-- Cantidad -->
+                <div class="col-md-6 mb-3">
+                  <div class="input-float">
+                    <span class="icon" aria-hidden="true">
+                      <i class="fas fa-boxes"></i>
+                    </span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="cantidad"
+                      [(ngModel)]="producto.cantidad"
+                      name="cantidad"
+                      min="0"
+                      placeholder=" "
+                      [class.webview-input]="isWebView"
+                    />
+                    <label for="cantidad" class="float-label">Cantidad Disponible</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Categorización -->
+          <div class="card glow-border mb-4">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="fas fa-folder me-2"></i> Categorización</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <!-- Categoría -->
+                <div class="col-md-6 mb-3">
+                  <div class="input-float">
+                    <span class="icon" aria-hidden="true">
+                      <i class="fas fa-folder"></i>
+                    </span>
+                    <select
+                      class="form-control"
+                      id="categoria"
+                      [(ngModel)]="producto.categoria"
+                      name="categoria"
+                      required
+                      (change)="onCategoriaChange()"
+                      [class.webview-input]="isWebView"
+                    >
+                      <option value="" disabled>Seleccione una categoría</option>
+                      <option *ngFor="let cat of categorias" [value]="cat.nombre">
+                        {{ cat.nombre }}
+                      </option>
+                    </select>
+                    <label for="categoria" class="float-label">
+                      Categoría <span class="text-danger">*</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Subcategoría -->
+                <div class="col-md-6 mb-3">
+                  <div class="input-float">
+                    <span class="icon" aria-hidden="true">
+                      <i class="fas fa-folder-open"></i>
+                    </span>
+                    <select
+                      class="form-control"
+                      id="subcategoria"
+                      [(ngModel)]="producto.subcategoria"
+                      name="subcategoria"
+                      required
+                      [disabled]="!producto.categoria || subcategoriasFiltradas.length === 0"
+                      [class.webview-input]="isWebView"
+                    >
+                      <option value="" disabled>
+                        {{
+                          producto.categoria
+                            ? 'Seleccione una subcategoría'
+                            : 'Primero seleccione una categoría'
+                        }}
+                      </option>
+                      <option *ngFor="let sub of subcategoriasFiltradas" [value]="sub.nombre">
+                        {{ sub.nombre }}
+                      </option>
+                    </select>
+                    <label for="subcategoria" class="float-label">
+                      Subcategoría <span class="text-danger">*</span>
+                    </label>
+                  </div>
+                  <div
+                    class="form-text"
+                    *ngIf="subcategoriasFiltradas.length === 0 && producto.categoria"
+                  >
+                    <i class="fas fa-info-circle"></i>
+                    No hay subcategorías para esta categoría
+                  </div>
+                </div>
+
+                <!-- Estado -->
+                <div class="col-md-6 mb-3">
+                  <div class="input-float">
+                    <span class="icon" aria-hidden="true">
+                      <i class="fas fa-toggle-on"></i>
+                    </span>
+                    <select
+                      class="form-control"
+                      id="estado"
+                      [(ngModel)]="producto.estadoProducto"
+                      name="estado"
+                      [class.webview-input]="isWebView"
+                    >
+                      <option [value]="estadoProducto.DISPONIBLE">Disponible</option>
+                      <option [value]="estadoProducto.NO_DISPONIBLE">No Disponible</option>
+                    </select>
+                    <label for="estado" class="float-label">Estado</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Imagen -->
+          <div class="card glow-border mb-4">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="fas fa-image me-2"></i> Imagen del Producto</h5>
+            </div>
+            <div class="card-body">
+              <!-- Preview de imagen -->
+              <div *ngIf="imagenPreview" class="imagen-preview-container mb-3">
+                <img [src]="imagenPreview" alt="Preview" class="imagen-preview" />
+                <button
+                  type="button"
+                  class="btn btn-danger btn-sm btn-eliminar-imagen"
+                  (click)="eliminarImagen()"
+                  title="Eliminar imagen"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+
+              <!-- Input de archivo -->
+              <div class="mb-2">
+                <input
+                  type="file"
+                  class="form-control"
+                  id="imagen"
+                  (change)="seleccionarImagen($event)"
+                  accept="image/*"
+                  [class.webview-input]="isWebView"
+                />
+              </div>
+              <div class="form-text">
+                <i class="fas fa-info-circle"></i>
+                Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="card glow-border">
+            <div class="card-body d-flex justify-content-between flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="cancelar()"
+                [disabled]="guardando"
+              >
+                <i class="fas fa-times me-2"></i>
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="guardando || !productoForm.valid"
+              >
+                <span *ngIf="!guardando">
+                  <i class="fas fa-save me-2"></i>
+                  {{ esEdicion ? 'Actualizar Producto' : 'Crear Producto' }}
+                </span>
+                <span *ngIf="guardando">
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Guardando...
+                </span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
-
-    <div class="form-group">
-      <label>Precio:</label>
-      <input type="number" class="form-control" [(ngModel)]="producto.precio" required />
-    </div>
-
-    <div class="form-group">
-      <label>Cantidad:</label>
-      <input type="number" class="form-control" [(ngModel)]="producto.cantidad" />
-    </div>
-
-    <div class="form-group">
-      <label>Estado del Producto:</label>
-      <select class="form-control" [(ngModel)]="producto.estadoProducto">
-        <option [value]="estadoProducto.DISPONIBLE">Disponible</option>
-        <option [value]="estadoProducto.NO_DISPONIBLE">No Disponible</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Categoría:</label>
-      <input type="text" class="form-control" [(ngModel)]="producto.categoria" />
-    </div>
-
-    <div class="form-group">
-      <label>Subcategoría:</label>
-      <input type="text" class="form-control" [(ngModel)]="producto.subcategoria" />
-    </div>
-
-    <div class="form-group">
-      <label>Imagen:</label>
-      <input type="file" class="form-control" (change)="seleccionarImagen($event)" />
-    </div>
-
-    <button
-      class="btn btn-primary mt-3"
-      (click)="esEdicion ? actualizarProducto() : crearProducto()"
-    >
-      {{ esEdicion ? 'Actualizar Producto' : 'Crear Producto' }}
-    </button>
-  </div>
-
-  <div class="alert alert-info text-center mt-4" *ngIf="mensaje">
-    {{ mensaje }}
   </div>
 </div>
