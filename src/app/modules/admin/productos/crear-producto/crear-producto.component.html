@@ -50,7 +50,6 @@
                       required
                       maxlength="100"
                       placeholder=" "
-                      [class.webview-input]="isWebView"
                     />
                     <label for="nombre" class="float-label">
                       Nombre del Producto <span class="text-danger">*</span>
@@ -74,7 +73,6 @@
                       min="0"
                       step="0.01"
                       placeholder=" "
-                      [class.webview-input]="isWebView"
                     />
                     <label for="precio" class="float-label">
                       Precio (COP) <span class="text-danger">*</span>
@@ -96,7 +94,6 @@
                       rows="3"
                       maxlength="500"
                       placeholder=" "
-                      [class.webview-input]="isWebView"
                       style="resize: vertical; min-height: 80px"
                     ></textarea>
                     <label for="descripcion" class="float-label">Descripción (Opcional)</label>
@@ -120,7 +117,6 @@
                       name="calorias"
                       min="0"
                       placeholder=" "
-                      [class.webview-input]="isWebView"
                     />
                     <label for="calorias" class="float-label">Calorías (kcal)</label>
                   </div>
@@ -140,7 +136,6 @@
                       name="cantidad"
                       min="0"
                       placeholder=" "
-                      [class.webview-input]="isWebView"
                     />
                     <label for="cantidad" class="float-label">Cantidad Disponible</label>
                   </div>
@@ -169,7 +164,6 @@
                       name="categoria"
                       required
                       (change)="onCategoriaChange()"
-                      [class.webview-input]="isWebView"
                     >
                       <option value="" disabled>Seleccione una categoría</option>
                       <option *ngFor="let cat of categorias" [value]="cat.nombre">
@@ -194,8 +188,7 @@
                       [(ngModel)]="producto.subcategoria"
                       name="subcategoria"
                       required
-                      [disabled]="!producto.categoria || subcategoriasFiltradas.length === 0"
-                      [class.webview-input]="isWebView"
+                      [disabled]="!producto.categoria || subcategoriasFiltradas?.length === 0"
                     >
                       <option value="" disabled>
                         {{
@@ -214,7 +207,7 @@
                   </div>
                   <div
                     class="form-text"
-                    *ngIf="subcategoriasFiltradas.length === 0 && producto.categoria"
+                    *ngIf="subcategoriasFiltradas?.length === 0 && producto.categoria"
                   >
                     <i class="fas fa-info-circle"></i>
                     No hay subcategorías para esta categoría
@@ -232,7 +225,6 @@
                       id="estado"
                       [(ngModel)]="producto.estadoProducto"
                       name="estado"
-                      [class.webview-input]="isWebView"
                     >
                       <option [value]="estadoProducto.DISPONIBLE">Disponible</option>
                       <option [value]="estadoProducto.NO_DISPONIBLE">No Disponible</option>

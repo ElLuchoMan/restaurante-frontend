@@ -1,4 +1,5 @@
 @use '../../../../assets/_variables.scss' as *;
+@use '../../../../assets/_base.scss' as *;
 @use 'sass:color';
 
 // ✅ Progress Button System movido a _base.scss como .btn-progress

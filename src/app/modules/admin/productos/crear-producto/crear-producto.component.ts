@@ -101,6 +101,11 @@ export class CrearProductoComponent implements OnInit {
   }
 
   onCategoriaChange(): void {
+    // Verificar que las propiedades necesarias estén inicializadas
+    if (!this.categorias || !this.subcategorias) {
+      return;
+    }
+
     if (this.producto.categoria) {
       // Filtrar subcategorías por la categoría seleccionada
       const categoria = this.categorias.find((c) => c.nombre === this.producto.categoria);
@@ -114,7 +119,10 @@ export class CrearProductoComponent implements OnInit {
         });
       }
       // Limpiar subcategoría si ya no está en la lista filtrada
-      if (!this.subcategoriasFiltradas.find((sub) => sub.nombre === this.producto.subcategoria)) {
+      if (
+        this.subcategoriasFiltradas &&
+        !this.subcategoriasFiltradas.find((sub) => sub.nombre === this.producto.subcategoria)
+      ) {
         this.producto.subcategoria = '';
       }
     } else {

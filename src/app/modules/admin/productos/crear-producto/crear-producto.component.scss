@@ -1,4 +1,5 @@
-@import '../../../../../assets/variables';
+@use '../../../../../assets/_variables.scss' as *;
+@use '../../../../../assets/_base.scss' as *;
 
 // ===== PREVIEW DE IMAGEN =====
 .imagen-preview-container {
@@ -109,14 +110,8 @@
 }
 
 // ===== OPTIMIZACIONES WEBVIEW =====
+// Los estilos de input-float se manejan globalmente en _base.scss
 :host-context(.webview-mode) {
-  .input-float {
-    .form-control {
-      font-size: 1rem !important;
-      padding: 0.75rem 1rem 0.75rem 3rem !important;
-    }
-  }
-
   .btn {
     min-height: 48px;
     padding: 0.85rem 1.75rem;
@@ -126,14 +121,6 @@
   .imagen-preview {
     max-width: 100%;
   }
-}
-
-// WebView input específico
-.webview-input {
-  font-size: 1rem !important;
-  padding: 0.75rem 1rem 0.75rem 3rem !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
 }
 
 // ===== RESPONSIVE =====
