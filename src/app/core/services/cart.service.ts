@@ -85,11 +85,17 @@ export class CartService {
     this.saveCart(items);
   }
 
-  /** Cambia la cantidad de un producto; si llega a 0 lo elimina */
-  changeQty(productId: number, delta: number): void {
+  /**
+   * Cambia la cantidad de un producto específico; si llega a 0 lo elimina
+   * @param productId ID del producto
+   * @param delta Cambio en la cantidad (+1 o -1)
+   * @param observaciones Observaciones específicas del producto (para identificar la instancia exacta)
+   */
+  changeQty(productId: number, delta: number, observaciones?: string): void {
     const items = this.items$.value
       .map((p) => {
-        if (p.productoId === productId) {
+        // Coincide si tiene el mismo ID y las mismas observaciones
+        if (p.productoId === productId && (p.observaciones || '') === (observaciones || '')) {
           return { ...p, cantidad: (p.cantidad || 1) + delta };
         }
         return p;
@@ -98,9 +104,15 @@ export class CartService {
     this.saveCart(items);
   }
 
-  /** Elimina por completo un producto del carrito */
-  remove(productId: number): void {
-    const items = this.items$.value.filter((p) => p.productoId !== productId);
+  /**
+   * Elimina por completo una instancia específica de un producto del carrito
+   * @param productId ID del producto
+   * @param observaciones Observaciones específicas del producto (para identificar la instancia exacta)
+   */
+  remove(productId: number, observaciones?: string): void {
+    const items = this.items$.value.filter(
+      (p) => !(p.productoId === productId && (p.observaciones || '') === (observaciones || '')),
+    );
     this.saveCart(items);
   }
 

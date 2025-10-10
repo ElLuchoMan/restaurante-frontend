@@ -38,6 +38,16 @@
   --light: #{$light};
   --dark: #{$dark};
   --primary-dark: #{color.adjust($primary, $lightness: -15%)};
+
+  /* RGB versions for alpha transparency */
+  --primary-rgb: 255, 193, 7;
+  --danger-rgb: 198, 40, 40;
+
+  /* Additional gray scales */
+  --gray-light: #{$gray-light};
+  --gray-lighter: #{$gray-lighter};
+  --gray-darker: #2d3748;
+
   --breakpoint-xs: 0;
   --breakpoint-sm: 576px;
   --breakpoint-md: 768px;

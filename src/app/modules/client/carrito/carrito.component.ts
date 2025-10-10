@@ -72,14 +72,24 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
 
   sumar(p: Producto) {
-    this.cart.changeQty(p.productoId!, +1);
+    this.cart.changeQty(p.productoId!, +1, p.observaciones);
   }
   restar(p: Producto) {
-    this.cart.changeQty(p.productoId!, -1);
+    this.cart.changeQty(p.productoId!, -1, p.observaciones);
   }
   eliminar(p: Producto) {
-    this.cart.remove(p.productoId!);
-    this.live.announce(`${p.nombre} eliminado del carrito`);
+    this.cart.remove(p.productoId!, p.observaciones);
+    const obsText = p.observaciones ? ` (${p.observaciones})` : '';
+    this.live.announce(`${p.nombre}${obsText} eliminado del carrito`);
+  }
+
+  trackByProductId(index: number, producto: Producto): string {
+    // Usar combinación de ID + observaciones para identificar instancias únicas
+    return `${producto.productoId}-${producto.observaciones || 'sin-obs'}`;
+  }
+
+  volverAlMenu() {
+    this.router.navigate(['/cliente/menu']);
   }
 
   crearOrden() {
@@ -99,9 +109,20 @@ export class CarritoComponent implements OnInit, OnDestroy {
       },
     ];
 
+    // Construir mensaje con observaciones de productos (si existen)
+    const productosConObs = this.carrito.filter((p) => p.observaciones && p.observaciones.trim());
+    let mensaje = '';
+
+    if (productosConObs.length > 0) {
+      mensaje = 'Observaciones de productos:\n\n';
+      productosConObs.forEach((p) => {
+        mensaje += `• ${p.nombre} (x${p.cantidad}): ${p.observaciones}\n`;
+      });
+    }
+
     this.modalService.openModal({
       title: 'Finalizar Pedido',
-      input: { label: 'Observaciones', value: '' },
+      message: mensaje || undefined, // Solo mostrar si hay observaciones
       selects,
       buttons: [
         {
@@ -115,11 +136,11 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
 
   private async onCheckoutConfirm() {
-    const { selects, input } = this.modalService.getModalData();
+    const { selects } = this.modalService.getModalData();
     const [methodSelect, deliverySelect] = selects!;
     const methodId = methodSelect.selected as number;
     const metodoLabel = methodSelect.options?.find((o) => o.value === methodId)?.label || '';
-    const observacion = input?.value || '';
+    const observacion = this.modalService.getObservaciones() || ''; // Obtener del campo automático
     const needsDelivery =
       deliverySelect.selected === true || String(deliverySelect.selected).toLowerCase() === 'true';
 

@@ -1,54 +1,195 @@
-<div class="container mt-4">
-  <h1 class="text-center mb-4">Carrito</h1>
+<div class="page-shell">
+  <div class="carrito-container">
+    <!-- Header -->
+    <div class="carrito-header">
+      <h1 class="section-title">
+        <span class="carrito-icon">🛒</span>
+        Mi Carrito
+      </h1>
+      <p class="carrito-subtitle" *ngIf="carrito.length">
+        {{ carrito.length }} {{ carrito.length === 1 ? 'producto' : 'productos' }} en tu carrito
+      </p>
+    </div>
 
-  <ng-container *ngIf="carrito.length; else vacio">
-    <div class="row">
-      <div class="col-sm-6 col-md-4 col-lg-3 mb-3" *ngFor="let p of carrito">
-        <div class="card carrito-card h-100">
-          <img
-            [src]="p.imagen || 'assets/img/logo2.webp'"
-            class="card-img-top"
-            alt="{{ p.nombre }}"
-            loading="lazy"
-            decoding="async"
-            fetchpriority="low"
-            sizes="(min-width: 992px) 25vw, (min-width: 768px) 33vw, (min-width: 576px) 50vw, 100vw"
-            width="300"
-            height="200"
-          />
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">{{ p.nombre }}</h5>
-            <p class="card-text mb-2">Precio: ${{ p.precio }}</p>
-
-            <!-- Mostrar observaciones si existen -->
-            <div *ngIf="p.observaciones" class="alert alert-info mb-2 py-1 px-2 small">
-              <strong>📝 Observaciones:</strong><br />
-              {{ p.observaciones }}
+    <ng-container *ngIf="carrito.length; else vacio">
+      <div class="carrito-layout">
+        <!-- Lista de productos -->
+        <div class="productos-lista">
+          <div class="producto-item" *ngFor="let p of carrito; trackBy: trackByProductId">
+            <div class="producto-imagen">
+              <img
+                [src]="p.imagen || 'assets/img/logo2.webp'"
+                [alt]="p.nombre"
+                loading="lazy"
+                decoding="async"
+                fetchpriority="low"
+              />
             </div>
 
-            <div class="d-flex align-items-center mb-2">
-              <!-- Botones icono-only -->
-              <button class="btn-icon" (click)="restar(p)">−</button>
-              <span class="mx-2">{{ p.cantidad }}</span>
-              <button class="btn-icon_plus" (click)="sumar(p)">+</button>
+            <div class="producto-info">
+              <h3 class="producto-nombre">{{ p.nombre }}</h3>
+
+              <div class="producto-detalles">
+                <span class="producto-precio">${{ p.precio | number: '1.0-0' }}</span>
+                <span class="producto-calorias" *ngIf="p.calorias"> 🔥 {{ p.calorias }} cal </span>
+              </div>
+
+              <!-- Observaciones -->
+              <div class="producto-observaciones" *ngIf="p.observaciones">
+                <div class="observaciones-badge">
+                  <span class="icon">📝</span>
+                  <span class="text">{{ p.observaciones }}</span>
+                </div>
+              </div>
             </div>
-            <button class="btn btn-sm btn-danger mt-auto" (click)="eliminar(p)">Eliminar</button>
+
+            <div class="producto-acciones">
+              <div class="cantidad-control">
+                <button
+                  class="cantidad-btn cantidad-btn--minus"
+                  (click)="restar(p)"
+                  [disabled]="p.cantidad === 1"
+                  aria-label="Disminuir cantidad"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M3 8H13"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </button>
+                <span class="cantidad-valor">{{ p.cantidad }}</span>
+                <button
+                  class="cantidad-btn cantidad-btn--plus"
+                  (click)="sumar(p)"
+                  aria-label="Aumentar cantidad"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M8 3V13M3 8H13"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="producto-subtotal">
+                <span class="subtotal-label">Subtotal</span>
+                <span class="subtotal-valor"
+                  >${{ p.precio * (p.cantidad || 1) | number: '1.0-0' }}</span
+                >
+              </div>
+
+              <button class="btn-eliminar" (click)="eliminar(p)" aria-label="Eliminar producto">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path
+                    d="M5 7L6 17C6 18.1046 6.89543 19 8 19H12C13.1046 19 14 18.1046 14 17L15 7M5 7H3M5 7H7M15 7H17M15 7H13M7 7V5C7 3.89543 7.89543 3 9 3H11C12.1046 3 13 3.89543 13 5V7M7 7H13"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen del carrito -->
+        <div class="carrito-resumen">
+          <div class="resumen-card">
+            <h2 class="resumen-title">Resumen del pedido</h2>
+
+            <div class="resumen-detalles">
+              <div class="resumen-fila">
+                <span class="label">Subtotal ({{ carrito.length }} productos)</span>
+                <span class="valor">${{ subtotal | number: '1.0-0' }}</span>
+              </div>
+
+              <div class="resumen-separator"></div>
+
+              <div class="resumen-fila resumen-total">
+                <span class="label">Total</span>
+                <span class="valor">${{ subtotal | number: '1.0-0' }}</span>
+              </div>
+            </div>
+
+            <button class="btn-finalizar" (click)="crearOrden()">
+              <span>Finalizar Compra</span>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M7 10L13 10M13 10L10 7M13 10L10 13"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+
+            <!-- Información adicional -->
+            <div class="resumen-info">
+              <div class="info-item">
+                <span class="info-icon">🔥</span>
+                <div class="info-content">
+                  <span class="info-label">Calorías totales</span>
+                  <span class="info-valor">{{ totalCalorias | number: '1.0-0' }} cal</span>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <span class="info-icon">📦</span>
+                <div class="info-content">
+                  <span class="info-label">Productos</span>
+                  <span class="info-valor">{{ carrito.length }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </ng-container>
 
-    <div class="d-flex justify-content-between align-items-center mt-4 resumen">
-      <h4>
-        Subtotal: ${{ subtotal }}
-        <br />
-        <small class="ms-4">Calorías totales: {{ totalCalorias }}</small>
-      </h4>
-      <button class="btn btn-primary" (click)="crearOrden()">Crear Orden</button>
-    </div>
-  </ng-container>
-
-  <ng-template #vacio>
-    <div class="alert alert-info text-center">No hay productos en el carrito.</div>
-  </ng-template>
+    <ng-template #vacio>
+      <div class="carrito-vacio">
+        <div class="vacio-content">
+          <div class="vacio-icon">
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+              <circle cx="60" cy="60" r="50" fill="#f8f9fa" />
+              <path
+                d="M45 50C45 47.2386 47.2386 45 50 45H70C72.7614 45 75 47.2386 75 50V75L60 85L45 75V50Z"
+                fill="#e9ecef"
+              />
+              <circle cx="50" cy="60" r="3" fill="#6c757d" />
+              <circle cx="70" cy="60" r="3" fill="#6c757d" />
+              <path
+                d="M50 70C50 70 55 75 60 75C65 75 70 70 70 70"
+                stroke="#6c757d"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <h2 class="vacio-title">Tu carrito está vacío</h2>
+          <p class="vacio-mensaje">¡Agrega productos deliciosos y comienza a disfrutar!</p>
+          <button class="btn-volver" (click)="volverAlMenu()">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path
+                d="M10 3L3 10L10 17M3 10H17"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>Ver Menú</span>
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
 </div>
