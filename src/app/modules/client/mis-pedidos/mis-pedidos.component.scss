@@ -1,133 +1,736 @@
 @use '../../../../assets/_variables.scss' as *;
 
-.container {
-  max-width: 960px;
+/* ============================================
+   CONTAINER
+   ============================================ */
+.pedidos-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
 }
 
-.cards {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fill, minmax(296px, 1fr));
+/* ============================================
+   HEADER
+   ============================================ */
+.pedidos-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: fadeInDown 0.5s ease-out;
 }
 
-.pedido-card {
-  background: var(--white);
-  border: 1px solid var(--primary);
-  border-radius: 16px;
-  display: grid;
-  gap: 12px;
-  padding: 16px;
-  transition:
-    transform 0.1s ease,
-    box-shadow 0.1s ease;
+.pedidos-subtitle {
+  color: $text-muted;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  font-weight: 400;
+}
 
-  &:hover {
-    box-shadow: 0 4px 16px rgb(0 0 0 / 6%);
-    transform: translateY(-2px);
+/* ============================================
+   LOADING STATE
+   ============================================ */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba($primary, 0.1);
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  margin-top: 1.5rem;
+  color: $text-muted;
+  font-size: 1rem;
+}
+
+/* ============================================
+   ERROR STATE
+   ============================================ */
+.error-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: rgba($danger, 0.05);
+  border-radius: 20px;
+  border: 1px solid rgba($danger, 0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+.error-icon {
+  font-size: 4rem;
+  color: $danger;
+  margin-bottom: 1rem;
+}
+
+.error-title {
+  color: $text-heading-strong;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.error-message {
+  color: $text-muted;
+  font-size: 1rem;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, rgba($primary, 0.05) 0%, rgba($secondary, 0.05) 100%);
+  border-radius: 20px;
+  border: 1px solid rgba($primary, 0.1);
+  animation: fadeIn 0.3s ease;
+}
+
+.empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.empty-title {
+  color: $text-heading-strong;
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.empty-message {
+  color: $text-muted;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+/* ============================================
+   PEDIDOS GRID (DESKTOP)
+   ============================================ */
+.pedidos-desktop {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  animation: fadeIn 0.5s ease;
+
+  @media (max-width: 991px) {
+    display: none; // Ocultar en mobile
   }
 }
 
-.pedido-card__header {
+/* ============================================
+   PEDIDOS LISTA (MOBILE)
+   ============================================ */
+.pedidos-mobile {
+  display: none; // Ocultar en desktop
+
+  @media (max-width: 991px) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    animation: fadeIn 0.5s ease;
+  }
+}
+
+/* ============================================
+   PEDIDO CARD
+   ============================================ */
+.pedido-card {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  padding: 1.75rem;
+  position: relative;
+  transition: all 0.3s ease;
+  animation: slideInUp 0.5s ease-out;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, $primary 0%, $secondary 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+    border-color: rgba($primary, 0.3);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &--terminado {
+    border-color: rgba($success, 0.2);
+
+    &::before {
+      background: $success;
+    }
+  }
+}
+
+/* ============================================
+   PEDIDO BADGE
+   ============================================ */
+.pedido-badge {
+  display: inline-flex;
   align-items: center;
-  display: grid;
-  gap: 12px;
-  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 30px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  animation: bounceIn 0.5s ease;
+
+  i {
+    font-size: 1rem;
+  }
+
+  &--success {
+    background: rgba($success, 0.1);
+    color: $success;
+    border: 1px solid rgba($success, 0.3);
+  }
+
+  &--warning {
+    background: rgba($warning, 0.1);
+    color: #e4a300; // warning más oscuro para mejor legibilidad
+    border: 1px solid rgba($warning, 0.3);
+  }
+
+  &--danger {
+    background: rgba($danger, 0.1);
+    color: $danger;
+    border: 1px solid rgba($danger, 0.3);
+  }
+
+  &--info {
+    background: rgba($info, 0.1);
+    color: $info;
+    border: 1px solid rgba($info, 0.3);
+  }
+
+  &--default {
+    background: rgba($text-muted, 0.1);
+    color: $text-muted;
+    border: 1px solid rgba($text-muted, 0.3);
+  }
 }
 
-.pedido-card__icon {
-  background: var(--white);
-  border: 1px solid var(--secondary);
-  border-radius: 50%;
-  display: grid;
-  font-size: 22px;
-  height: 44px;
-  place-items: center;
-  width: 44px;
-}
-
-.pedido-card__title {
-  display: grid;
-  gap: 4px;
-}
-
-.pedido-card__id {
-  color: var(--secondary);
-  font-weight: 700;
-  margin: 0;
-}
-
-.pedido-card__tags {
+/* ============================================
+   PEDIDO HEADER
+   ============================================ */
+.pedido-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f3f4f6;
 }
 
-.tag {
-  background: var(--light);
-  border: 1px solid var(--quaternary);
-  border-radius: 999px;
-  color: var(--dark);
-  display: inline-block;
-  font-size: 0.8rem;
-  padding: 2px 10px;
+.pedido-numero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.tag--ok {
-  background: rgb(17 228 10 / 6%);
-  border-color: var(--success);
-  color: var(--success);
-}
-
-.tag--warn {
-  background: rgb(255 193 7 / 10%);
-  border-color: var(--warning);
-  color: var(--warning);
-}
-
-.tag--danger {
-  background: rgb(220 53 69 / 8%);
-  border-color: var(--danger);
-  color: var(--danger);
-}
-
-.tag--muted {
-  background: rgb(0 0 0 / 3%);
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-/* Meta base */
-.pedido-card__meta {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-}
-
-.meta__item {
-  background: rgb(0 0 0 / 2%);
-  display: grid;
-  gap: 1px;
-  padding: 8px 10px;
-}
-
-.meta__label {
+.pedido-numero-label {
   font-size: 0.75rem;
-  opacity: 0.7;
+  color: $text-muted;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.meta__value {
+.pedido-numero-value {
+  font-size: 1.5rem;
+  color: $text-heading-strong;
+  font-weight: 700;
+}
+
+.pedido-tipo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba($text-muted, 0.08);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  color: $text-body;
+  font-weight: 500;
+
+  i {
+    font-size: 1.1rem;
+    color: $text-muted;
+  }
+
+  &--delivery {
+    background: rgba($primary, 0.08);
+    color: $primary;
+
+    i {
+      color: $primary;
+    }
+  }
+}
+
+/* ============================================
+   PEDIDO INFO
+   ============================================ */
+.pedido-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.875rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f3f4f6;
+    border-color: rgba($primary, 0.2);
+  }
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.info-icon {
+  font-size: 1.25rem;
+  color: $primary;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  color: $text-muted;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  color: $text-heading-strong;
   font-weight: 600;
 }
 
-/* Ajuste “simple”: menos densidad visual */
-.meta--simple .meta__item {
-  border-radius: 10px;
-  padding: 6px 8px;
+/* ============================================
+   PEDIDO TOTAL
+   ============================================ */
+.pedido-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba($primary, 0.08) 0%, rgba($secondary, 0.08) 100%);
+  border-radius: 15px;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba($primary, 0.15);
 }
 
-.pedido-card__footer {
+.pedido-total-label {
+  font-size: 1rem;
+  color: $text-body;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pedido-total-value {
+  font-size: 1.75rem;
+  color: $text-heading-strong;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* ============================================
+   PEDIDO FOOTER
+   ============================================ */
+.pedido-footer {
   display: flex;
   justify-content: flex-end;
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba($primary, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }
 
-/* Los estilos .btn-link están disponibles globalmente en _base.scss */
+/* ============================================
+   PEDIDO ITEM (MOBILE - ACORDEÓN)
+   ============================================ */
+.pedido-item {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &--expanded {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border-color: rgba($primary, 0.3);
+  }
+}
+
+.pedido-item-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left;
+
+  &:active {
+    background-color: rgba($primary, 0.05);
+  }
+}
+
+.pedido-item-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pedido-item-numero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  .numero-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: $text-heading-strong;
+  }
+}
+
+.pedido-item-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  i {
+    font-size: 0.85rem;
+  }
+
+  &.badge--success {
+    background: rgba($success, 0.1);
+    color: $success;
+    border: 1px solid rgba($success, 0.3);
+  }
+
+  &.badge--warning {
+    background: rgba($warning, 0.1);
+    color: #e4a300;
+    border: 1px solid rgba($warning, 0.3);
+  }
+
+  &.badge--danger {
+    background: rgba($danger, 0.1);
+    color: $danger;
+    border: 1px solid rgba($danger, 0.3);
+  }
+
+  &.badge--info {
+    background: rgba($info, 0.1);
+    color: $info;
+    border: 1px solid rgba($info, 0.3);
+  }
+
+  &.badge--default {
+    background: rgba($text-muted, 0.1);
+    color: $text-muted;
+    border: 1px solid rgba($text-muted, 0.3);
+  }
+}
+
+.pedido-item-fecha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: $text-muted;
+  flex-wrap: wrap;
+
+  i {
+    font-size: 0.9rem;
+    color: $primary;
+  }
+
+  .separator {
+    color: #e5e7eb;
+    font-weight: 700;
+  }
+}
+
+.pedido-item-toggle {
+  font-size: 1.25rem;
+  color: $text-muted;
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+
+  &.rotated {
+    transform: rotate(180deg);
+    color: $primary;
+  }
+}
+
+// Contenido expandible
+.pedido-item-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.expanded {
+    max-height: 1000px; // Valor alto para permitir expansión
+  }
+}
+
+.pedido-item-details {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid #f3f4f6;
+  animation: fadeInDown 0.3s ease;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.95rem;
+  color: $text-body;
+
+  i {
+    font-size: 1.1rem;
+    color: $primary;
+    width: 20px;
+    text-align: center;
+  }
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  &--total {
+    justify-content: space-between;
+    padding: 1rem 0;
+    margin-top: 0.5rem;
+    border-top: 2px solid #e5e7eb;
+    border-bottom: none;
+
+    .total-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: $text-body;
+    }
+
+    .total-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: $text-heading-strong;
+      letter-spacing: -0.5px;
+    }
+  }
+}
+
+.detail-actions {
+  margin-top: 1rem;
+
+  .btn-block {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .pedidos-container {
+    padding: 0 1rem 1.5rem;
+  }
+
+  .pedidos-header {
+    margin-bottom: 2rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .pedidos-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .pedido-card {
+    padding: 1.5rem;
+  }
+
+  .pedido-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .info-row {
+    grid-template-columns: 1fr;
+  }
+
+  .pedido-total {
+    padding: 1rem;
+  }
+
+  .pedido-total-value {
+    font-size: 1.5rem;
+  }
+}

@@ -10,13 +10,14 @@ import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { ReservaPopulada } from '../../../../shared/models/reserva.model';
+import { FormatDatePipe } from '../../../../shared/pipes/format-date.pipe';
 
 @Component({
   selector: 'app-consultar-reserva',
   standalone: true,
   templateUrl: './consultar-reserva.component.html',
   styleUrls: ['./consultar-reserva.component.scss'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FormatDatePipe],
 })
 export class ConsultarReservaComponent implements OnInit {
   reservas: ReservaPopulada[] = [];

@@ -265,14 +265,13 @@ export class CarritoComponent implements OnInit, OnDestroy {
       // PASO 3: Crear registro de pago
       const now = new Date();
 
-      // Obtener fecha/hora en zona horaria de Bogotá
-      const TZ = 'America/Bogota';
-      const year = now.toLocaleString('en-US', { timeZone: TZ, year: 'numeric' });
-      const month = now.toLocaleString('en-US', { timeZone: TZ, month: '2-digit' });
-      const day = now.toLocaleString('en-US', { timeZone: TZ, day: '2-digit' });
-      const hour = now.toLocaleString('en-US', { timeZone: TZ, hour: '2-digit', hour12: false });
-      const minute = now.toLocaleString('en-US', { timeZone: TZ, minute: '2-digit' });
-      const second = now.toLocaleString('en-US', { timeZone: TZ, second: '2-digit' });
+      // Obtener fecha/hora UTC con formato correcto (el backend maneja la conversión a Bogotá)
+      const year = now.getUTCFullYear();
+      const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(now.getUTCDate()).padStart(2, '0');
+      const hour = String(now.getUTCHours()).padStart(2, '0');
+      const minute = String(now.getUTCMinutes()).padStart(2, '0');
+      const second = String(now.getUTCSeconds()).padStart(2, '0');
 
       const fechaPago = `${year}-${month}-${day}`;
       const horaPago = `${hour}:${minute}:${second}`;

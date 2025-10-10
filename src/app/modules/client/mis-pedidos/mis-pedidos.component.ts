@@ -40,6 +40,7 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
   pedidos: PedidoCard[] = [];
   loading = true;
   error = '';
+  expandedPedidoId: number | null = null;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -145,5 +146,88 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
     const m = h.match(/(\d{2}):(\d{2}):(\d{2})/);
     if (m) return { hh: +m[1], mm: +m[2], ss: +m[3] };
     return { hh: 0, mm: 0, ss: 0 };
+  }
+
+  /**
+   * Retorna la clase CSS para el estado del pedido
+   */
+  getEstadoClass(estado: string): string {
+    const estadoUpper = estado.toUpperCase();
+    switch (estadoUpper) {
+      case 'TERMINADO':
+      case 'ENTREGADO':
+        return 'success';
+      case 'INICIADO':
+      case 'EN_PREPARACION':
+      case 'PREPARACION':
+        return 'warning';
+      case 'CANCELADO':
+        return 'danger';
+      case 'EN_CAMINO':
+        return 'info';
+      default:
+        return 'default';
+    }
+  }
+
+  /**
+   * Retorna el icono FontAwesome para el estado del pedido
+   */
+  getEstadoIcon(estado: string): string {
+    const estadoUpper = estado.toUpperCase();
+    switch (estadoUpper) {
+      case 'TERMINADO':
+      case 'ENTREGADO':
+        return 'fa-check-circle';
+      case 'INICIADO':
+      case 'EN_PREPARACION':
+      case 'PREPARACION':
+        return 'fa-fire';
+      case 'CANCELADO':
+        return 'fa-times-circle';
+      case 'EN_CAMINO':
+        return 'fa-truck';
+      default:
+        return 'fa-info-circle';
+    }
+  }
+
+  /**
+   * Retorna la etiqueta legible para el estado del pedido
+   */
+  getEstadoLabel(estado: string): string {
+    const estadoUpper = estado.toUpperCase();
+    switch (estadoUpper) {
+      case 'TERMINADO':
+        return 'Terminado';
+      case 'ENTREGADO':
+        return 'Entregado';
+      case 'INICIADO':
+        return 'Iniciado';
+      case 'EN_PREPARACION':
+      case 'PREPARACION':
+        return 'En Preparación';
+      case 'CANCELADO':
+        return 'Cancelado';
+      case 'EN_CAMINO':
+        return 'En Camino';
+      default:
+        return estado;
+    }
+  }
+
+  /**
+   * Toggle para expandir/colapsar un pedido en mobile
+   */
+  togglePedido(pedidoId: number | undefined): void {
+    if (!pedidoId) return;
+    this.expandedPedidoId = this.expandedPedidoId === pedidoId ? null : pedidoId;
+  }
+
+  /**
+   * Verifica si un pedido está expandido
+   */
+  isPedidoExpanded(pedidoId: number | undefined): boolean {
+    return this.expandedPedidoId === pedidoId;
   }
 }

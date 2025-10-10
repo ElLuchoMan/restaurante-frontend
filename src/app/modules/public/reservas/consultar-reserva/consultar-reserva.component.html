@@ -94,8 +94,8 @@
       <div class="reservas-list" aria-label="Lista de reservas">
         <div class="reserva-item" *ngFor="let r of reservas">
           <div class="reserva-left">
-            <div class="reserva-fecha">{{ r.fechaReserva }}</div>
-            <div class="reserva-hora">{{ r.horaReserva }}</div>
+            <div class="reserva-fecha">{{ r.fechaReserva | formatDate: 'date' }}</div>
+            <div class="reserva-hora">{{ r.horaReserva | formatDate: 'time' }}</div>
           </div>
           <div class="reserva-center">
             <div class="reserva-cliente">{{ r.nombreCompleto }}</div>

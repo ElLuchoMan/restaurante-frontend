@@ -1,103 +1,222 @@
-<div class="container-fluid mt-4">
-  <div class="container">
-    <h1 class="text-center mb-4">Mis pedidos</h1>
+<div class="page-shell">
+  <div class="pedidos-container">
+    <!-- Header -->
+    <header class="pedidos-header">
+      <h1 class="section-title">Mis Pedidos</h1>
+      <p class="pedidos-subtitle">Revisa el estado de tus pedidos y su historial</p>
+    </header>
 
+    <!-- Loading State -->
     @if (loading) {
-      <div class="text-center text-muted">Cargando pedidos…</div>
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Cargando tus pedidos...</p>
+      </div>
     }
-    @if (error) {
-      <div class="alert alert-danger">{{ error }}</div>
+
+    <!-- Error State -->
+    @if (error && !loading) {
+      <div class="error-state">
+        <i class="fas fa-exclamation-circle error-icon"></i>
+        <h3 class="error-title">¡Ups! Algo salió mal</h3>
+        <p class="error-message">{{ error }}</p>
+      </div>
     }
+
+    <!-- Empty State -->
     @if (!loading && !error && (!pedidos || pedidos.length === 0)) {
-      <div class="alert alert-info">Aún no tienes pedidos.</div>
+      <div class="empty-state">
+        <div class="empty-icon">🍽️</div>
+        <h3 class="empty-title">Aún no tienes pedidos</h3>
+        <p class="empty-message">¡Explora nuestro menú y realiza tu primer pedido!</p>
+        <a routerLink="/menu" class="btn-primary">
+          <i class="fas fa-utensils"></i>
+          Ver Menú
+        </a>
+      </div>
     }
+
+    <!-- Pedidos Grid (Desktop) -->
     @if (!loading && pedidos.length) {
-      <div class="cards">
+      <div class="pedidos-grid pedidos-desktop">
         @for (p of pedidos; track p.pedidoId; let i = $index) {
-          <article class="pedido-card pedido-card--compact">
-            <header class="pedido-card__header">
-              <div
-                class="pedido-card__icon"
-                [attr.aria-label]="p.delivery ? 'Domicilio' : 'En sitio'"
-              >
-                {{ p.delivery ? '🚚' : '🍽️' }}
+          <article
+            class="pedido-card"
+            [class.pedido-card--terminado]="p.estadoPedido === 'TERMINADO'"
+          >
+            <!-- Estado Badge -->
+            <div
+              class="pedido-badge"
+              [class]="'pedido-badge--' + getEstadoClass(p.estadoPedido || '')"
+            >
+              <i [class]="'fas ' + getEstadoIcon(p.estadoPedido || '')"></i>
+              {{ getEstadoLabel(p.estadoPedido || '') }}
+            </div>
+
+            <!-- Header -->
+            <div class="pedido-header">
+              <div class="pedido-numero">
+                <span class="pedido-numero-label">Pedido</span>
+                <span class="pedido-numero-value">#{{ p.pedidoId || i + 1 }}</span>
               </div>
-
-              <div class="pedido-card__title">
-                <h3 class="pedido-card__id">Pedido #{{ i + 1 }}</h3>
-
-                <div class="pedido-card__tags">
-                  <span
-                    class="tag"
-                    [ngClass]="{
-                      'tag--ok': p.estadoPedido === 'TERMINADO',
-                      'tag--warn': p.estadoPedido === 'INICIADO',
-                      'tag--danger': p.estadoPedido === 'CANCELADO',
-                    }"
-                  >
-                    {{ p.estadoPedido }}
-                  </span>
-
-                  @if (p.delivery) {
-                    <span class="tag">Domicilio</span>
-                  } @else {
-                    <span class="tag tag--muted">En restaurante</span>
-                  }
-                </div>
-              </div>
-            </header>
-
-            <!-- META SIMPLIFICADA -->
-            <div class="pedido-card__meta meta--simple">
-              <div class="meta__item">
-                <span class="meta__label">Fecha</span>
-                <span class="meta__value">{{ p.fechaPedido | formatDate: 'date' }}</span>
-              </div>
-
-              <div class="meta__item">
-                <span class="meta__label">Hora</span>
-                <span class="meta__value">{{ p.horaPedido | formatDate: 'time' }}</span>
-              </div>
-
-              <div class="meta__item">
-                <span class="meta__label">Estado del pago</span>
-                <span class="meta__value">
-                  {{ p.pagoId ? 'Sí' : 'Sin pago' }}
-                  @if (p.estadoPago) {
-                    <small class="muted">({{ p.estadoPago }})</small>
-                  }
-                </span>
-              </div>
-
-              @if (p.documentoCliente) {
-                <div class="meta__item">
-                  <span class="meta__label">Documento cliente</span>
-                  <span class="meta__value">{{ p.documentoCliente }}</span>
-                </div>
-              }
-
-              @if (p.metodoPago) {
-                <div class="meta__item">
-                  <span class="meta__label">Método de pago</span>
-                  <span class="meta__value">{{ p.metodoPago }}</span>
-                </div>
-              }
-
-              <div class="meta__item">
-                <span class="meta__label">Total</span>
-                <span class="meta__value">
-                  @if (p.total !== undefined) {
-                    $ {{ p.total | number: '1.0-0' }}
-                  } @else {
-                    —
-                  }
-                </span>
+              <div class="pedido-tipo" [class.pedido-tipo--delivery]="p.delivery">
+                <i [class]="p.delivery ? 'fas fa-shipping-fast' : 'fas fa-store'"></i>
+                <span>{{ p.delivery ? 'Domicilio' : 'En Restaurante' }}</span>
               </div>
             </div>
 
-            <footer class="pedido-card__footer">
-              <a class="btn-link" [routerLink]="['/cliente/pedido', p.pedidoId]">Ver detalle</a>
-            </footer>
+            <!-- Información Principal -->
+            <div class="pedido-info">
+              <!-- Fecha y Hora -->
+              <div class="info-row">
+                <div class="info-item">
+                  <i class="fas fa-calendar-alt info-icon"></i>
+                  <div class="info-content">
+                    <span class="info-label">Fecha</span>
+                    <span class="info-value">{{ p.fechaPedido | formatDate: 'date' }}</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-clock info-icon"></i>
+                  <div class="info-content">
+                    <span class="info-label">Hora</span>
+                    <span class="info-value">{{ p.horaPedido | formatDate: 'time' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Productos -->
+              @if (p.items) {
+                <div class="info-row">
+                  <div class="info-item info-item--full">
+                    <i class="fas fa-shopping-bag info-icon"></i>
+                    <div class="info-content">
+                      <span class="info-label">Productos</span>
+                      <span class="info-value"
+                        >{{ p.items }} {{ p.items === 1 ? 'producto' : 'productos' }}</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Método de Pago -->
+              @if (p.metodoPago) {
+                <div class="info-row">
+                  <div class="info-item info-item--full">
+                    <i class="fas fa-credit-card info-icon"></i>
+                    <div class="info-content">
+                      <span class="info-label">Método de pago</span>
+                      <span class="info-value">{{ p.metodoPago }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Total -->
+            <div class="pedido-total">
+              <span class="pedido-total-label">Total</span>
+              <span class="pedido-total-value">
+                @if (p.total !== undefined) {
+                  ${{ p.total | number: '1.0-0' }}
+                } @else {
+                  —
+                }
+              </span>
+            </div>
+
+            <!-- Footer -->
+            <div class="pedido-footer">
+              <a class="btn btn-primary" [routerLink]="['/cliente/pedido', p.pedidoId]">
+                <i class="fas fa-eye"></i>
+                Ver Detalle
+              </a>
+            </div>
+          </article>
+        }
+      </div>
+
+      <!-- Pedidos Lista Compacta (Mobile) -->
+      <div class="pedidos-lista pedidos-mobile">
+        @for (p of pedidos; track p.pedidoId; let i = $index) {
+          <article class="pedido-item" [class.pedido-item--expanded]="isPedidoExpanded(p.pedidoId)">
+            <!-- Header Compacto (siempre visible) -->
+            <button class="pedido-item-header" (click)="togglePedido(p.pedidoId)" type="button">
+              <div class="pedido-item-main">
+                <div class="pedido-item-numero">
+                  <span class="numero-label">Pedido #{{ p.pedidoId || i + 1 }}</span>
+                  <span
+                    class="pedido-item-badge"
+                    [class]="'badge--' + getEstadoClass(p.estadoPedido || '')"
+                  >
+                    <i [class]="'fas ' + getEstadoIcon(p.estadoPedido || '')"></i>
+                    {{ getEstadoLabel(p.estadoPedido || '') }}
+                  </span>
+                </div>
+                <div class="pedido-item-fecha">
+                  <i class="fas fa-calendar-day"></i>
+                  <span>{{ p.fechaPedido | formatDate: 'date' }}</span>
+                  <span class="separator">•</span>
+                  <i class="fas fa-clock"></i>
+                  <span>{{ p.horaPedido | formatDate: 'time' }}</span>
+                </div>
+              </div>
+              <i
+                class="fas fa-chevron-down pedido-item-toggle"
+                [class.rotated]="isPedidoExpanded(p.pedidoId)"
+              ></i>
+            </button>
+
+            <!-- Contenido Expandible -->
+            <div class="pedido-item-content" [class.expanded]="isPedidoExpanded(p.pedidoId)">
+              <div class="pedido-item-details">
+                <!-- Tipo -->
+                <div class="detail-row">
+                  <i [class]="p.delivery ? 'fas fa-shipping-fast' : 'fas fa-store'"></i>
+                  <span>{{ p.delivery ? 'Domicilio' : 'En Restaurante' }}</span>
+                </div>
+
+                <!-- Productos -->
+                @if (p.items) {
+                  <div class="detail-row">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>{{ p.items }} {{ p.items === 1 ? 'producto' : 'productos' }}</span>
+                  </div>
+                }
+
+                <!-- Método de Pago -->
+                @if (p.metodoPago) {
+                  <div class="detail-row">
+                    <i class="fas fa-credit-card"></i>
+                    <span>{{ p.metodoPago }}</span>
+                  </div>
+                }
+
+                <!-- Total -->
+                <div class="detail-row detail-row--total">
+                  <span class="total-label">Total</span>
+                  <span class="total-value">
+                    @if (p.total !== undefined) {
+                      ${{ p.total | number: '1.0-0' }}
+                    } @else {
+                      —
+                    }
+                  </span>
+                </div>
+
+                <!-- Botón Ver Detalle -->
+                <div class="detail-actions">
+                  <a
+                    class="btn btn-primary btn-block"
+                    [routerLink]="['/cliente/pedido', p.pedidoId]"
+                  >
+                    <i class="fas fa-eye"></i>
+                    Ver Detalle Completo
+                  </a>
+                </div>
+              </div>
+            </div>
           </article>
         }
       </div>

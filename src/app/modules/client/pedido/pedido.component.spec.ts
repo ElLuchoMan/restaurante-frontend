@@ -166,4 +166,73 @@ describe('PedidoComponent', () => {
     tick();
     expect(component.pedido.total).toBe(200 * 2 + 50 * 3);
   }));
+
+  describe('getEstadoClass', () => {
+    it('should return success for TERMINADO and ENTREGADO', () => {
+      expect(component.getEstadoClass('TERMINADO')).toBe('success');
+      expect(component.getEstadoClass('ENTREGADO')).toBe('success');
+      expect(component.getEstadoClass('terminado')).toBe('success');
+    });
+
+    it('should return warning for INICIADO and EN_PREPARACION', () => {
+      expect(component.getEstadoClass('INICIADO')).toBe('warning');
+      expect(component.getEstadoClass('EN_PREPARACION')).toBe('warning');
+      expect(component.getEstadoClass('PREPARACION')).toBe('warning');
+    });
+
+    it('should return danger for CANCELADO', () => {
+      expect(component.getEstadoClass('CANCELADO')).toBe('danger');
+    });
+
+    it('should return info for EN_CAMINO', () => {
+      expect(component.getEstadoClass('EN_CAMINO')).toBe('info');
+    });
+
+    it('should return default for unknown states', () => {
+      expect(component.getEstadoClass('UNKNOWN')).toBe('default');
+      expect(component.getEstadoClass('')).toBe('default');
+    });
+  });
+
+  describe('getEstadoIcon', () => {
+    it('should return check-circle for TERMINADO and ENTREGADO', () => {
+      expect(component.getEstadoIcon('TERMINADO')).toBe('fa-check-circle');
+      expect(component.getEstadoIcon('ENTREGADO')).toBe('fa-check-circle');
+    });
+
+    it('should return fire for INICIADO and EN_PREPARACION', () => {
+      expect(component.getEstadoIcon('INICIADO')).toBe('fa-fire');
+      expect(component.getEstadoIcon('EN_PREPARACION')).toBe('fa-fire');
+      expect(component.getEstadoIcon('PREPARACION')).toBe('fa-fire');
+    });
+
+    it('should return times-circle for CANCELADO', () => {
+      expect(component.getEstadoIcon('CANCELADO')).toBe('fa-times-circle');
+    });
+
+    it('should return truck for EN_CAMINO', () => {
+      expect(component.getEstadoIcon('EN_CAMINO')).toBe('fa-truck');
+    });
+
+    it('should return info-circle for unknown states', () => {
+      expect(component.getEstadoIcon('UNKNOWN')).toBe('fa-info-circle');
+    });
+  });
+
+  describe('getEstadoLabel', () => {
+    it('should return correct labels for known states', () => {
+      expect(component.getEstadoLabel('TERMINADO')).toBe('Terminado');
+      expect(component.getEstadoLabel('ENTREGADO')).toBe('Entregado');
+      expect(component.getEstadoLabel('INICIADO')).toBe('Iniciado');
+      expect(component.getEstadoLabel('EN_PREPARACION')).toBe('En Preparación');
+      expect(component.getEstadoLabel('PREPARACION')).toBe('En Preparación');
+      expect(component.getEstadoLabel('CANCELADO')).toBe('Cancelado');
+      expect(component.getEstadoLabel('EN_CAMINO')).toBe('En Camino');
+    });
+
+    it('should return the original estado for unknown states', () => {
+      expect(component.getEstadoLabel('UNKNOWN')).toBe('UNKNOWN');
+      expect(component.getEstadoLabel('Custom')).toBe('Custom');
+    });
+  });
 });

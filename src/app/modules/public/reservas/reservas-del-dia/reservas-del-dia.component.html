@@ -14,7 +14,7 @@
               [attr.data-tooltip]="`Hora: ${r.horaReserva}`"
               [attr.aria-label]="`Hora de la reserva: ${r.horaReserva}`"
             >
-              {{ r.horaReserva }}
+              {{ r.horaReserva | formatDate: 'time' }}
             </div>
           </div>
           <div class="reserva-center">

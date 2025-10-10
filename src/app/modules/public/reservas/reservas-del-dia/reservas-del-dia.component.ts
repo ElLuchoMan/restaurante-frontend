@@ -8,11 +8,12 @@ import { ReservaNotificationsService } from '../../../../core/services/reserva-n
 import { ReservaService } from '../../../../core/services/reserva.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { ReservaPopulada } from '../../../../shared/models/reserva.model';
+import { FormatDatePipe } from '../../../../shared/pipes/format-date.pipe';
 
 @Component({
   selector: 'app-reservas-del-dia',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormatDatePipe],
   templateUrl: './reservas-del-dia.component.html',
   styleUrls: ['./reservas-del-dia.component.scss'],
 })

@@ -218,4 +218,52 @@ describe('MisPedidosComponent', () => {
       expect(res).toEqual({ hh: 0, mm: 0, ss: 0 });
     });
   });
+
+  describe('togglePedido', () => {
+    it('should expand a pedido when clicked', () => {
+      component.expandedPedidoId = null;
+      component.togglePedido(1);
+      expect(component.expandedPedidoId).toBe(1);
+    });
+
+    it('should collapse a pedido when clicked again', () => {
+      component.expandedPedidoId = 1;
+      component.togglePedido(1);
+      expect(component.expandedPedidoId).toBeNull();
+    });
+
+    it('should switch between pedidos', () => {
+      component.expandedPedidoId = 1;
+      component.togglePedido(2);
+      expect(component.expandedPedidoId).toBe(2);
+    });
+
+    it('should do nothing if pedidoId is undefined', () => {
+      component.expandedPedidoId = 1;
+      component.togglePedido(undefined);
+      expect(component.expandedPedidoId).toBe(1);
+    });
+  });
+
+  describe('isPedidoExpanded', () => {
+    it('should return true if pedido is expanded', () => {
+      component.expandedPedidoId = 1;
+      expect(component.isPedidoExpanded(1)).toBe(true);
+    });
+
+    it('should return false if pedido is not expanded', () => {
+      component.expandedPedidoId = 1;
+      expect(component.isPedidoExpanded(2)).toBe(false);
+    });
+
+    it('should return false if no pedido is expanded', () => {
+      component.expandedPedidoId = null;
+      expect(component.isPedidoExpanded(1)).toBe(false);
+    });
+
+    it('should return false if pedidoId is undefined', () => {
+      component.expandedPedidoId = 1;
+      expect(component.isPedidoExpanded(undefined)).toBe(false);
+    });
+  });
 });
