@@ -24,11 +24,13 @@ export class FormatDatePipe implements PipeTransform {
         if ((m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/))) {
           // ISO date
           const [, yy, mm, dd] = m;
-          dateObj = new Date(+yy, +mm - 1, +dd);
+          // Crear la fecha anclada a medianoche de Bogotá para evitar desfases por TZ del entorno
+          dateObj = this.createDateAtBogotaMidnight(+yy, +mm - 1, +dd);
         } else if ((m = s.match(/^(\d{2})-(\d{2})-(\d{4})$/))) {
           // Español
           const [, dd, mm, yy] = m;
-          dateObj = new Date(+yy, +mm - 1, +dd);
+          // Crear la fecha anclada a medianoche de Bogotá para evitar desfases por TZ del entorno
+          dateObj = this.createDateAtBogotaMidnight(+yy, +mm - 1, +dd);
         } else {
           dateObj = new Date(s);
         }
@@ -93,5 +95,10 @@ export class FormatDatePipe implements PipeTransform {
     const month = date.toLocaleDateString('en-US', { timeZone, month: '2-digit' });
     const day = date.toLocaleDateString('en-US', { timeZone, day: '2-digit' });
     return `${day}-${month}-${year}`;
+  }
+
+  private createDateAtBogotaMidnight(year: number, monthIndex: number, day: number): Date {
+    // Bogotá es UTC-5 sin DST. 00:00 en Bogotá corresponde a 05:00 UTC.
+    return new Date(Date.UTC(year, monthIndex, day, 5, 0, 0));
   }
 }
