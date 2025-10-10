@@ -22,10 +22,15 @@ export class PedidoService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  assignPago(pedidoId: number, pagoId: number): Observable<ApiResponse<any>> {
+  assignPago(
+    pedidoId: number,
+    pagoId: number,
+    cambiarEstado: boolean = false,
+  ): Observable<ApiResponse<any>> {
     const params = new HttpParams()
       .set('pedido_id', pedidoId.toString())
-      .set('pago_id', pagoId.toString());
+      .set('pago_id', pagoId.toString())
+      .set('cambiar_estado', cambiarEstado.toString());
     return this.http
       .post<ApiResponse<any>>(`${this.baseUrl}/asignar-pago`, null, { params })
       .pipe(catchError(this.handleError.handleError));

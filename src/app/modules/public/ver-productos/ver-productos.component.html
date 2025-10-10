@@ -541,6 +541,24 @@
                     <i class="fas fa-fire text-orange"></i>
                     <span>{{ producto.calorias }} cal</span>
                   </div>
+                  <!-- Stock disponible (solo para ADMIN) -->
+                  <div
+                    class="meta-item"
+                    *ngIf="userRole === 'Administrador' && producto.cantidad !== undefined"
+                  >
+                    <i
+                      class="fas fa-boxes"
+                      [class.text-danger]="producto.cantidad <= 10"
+                      [class.text-warning]="producto.cantidad > 10 && producto.cantidad <= 20"
+                      [class.text-success]="producto.cantidad > 20"
+                    ></i>
+                    <span
+                      [class.text-danger]="producto.cantidad <= 10"
+                      [class.text-warning]="producto.cantidad > 10 && producto.cantidad <= 20"
+                    >
+                      {{ producto.cantidad }} disponibles
+                    </span>
+                  </div>
                 </div>
               </div>
             </article>

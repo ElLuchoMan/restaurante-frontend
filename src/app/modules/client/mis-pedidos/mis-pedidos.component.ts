@@ -55,7 +55,6 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
       .pipe(
         // 1) ordena por fecha (DD-MM-YYYY) + hora (0000-01-01 HH:mm:ss …)
         map((res) => {
-          console.log('Pedidos', res);
           const base: Pedido[] = res?.data || [];
           return [...base].sort((a, b) => {
             const da = this.toComparableDate(a.fechaPedido, a.horaPedido);

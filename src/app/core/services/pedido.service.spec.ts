@@ -50,10 +50,21 @@ describe('PedidoService', () => {
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });
 
-  it('assigns pago', () => {
+  it('assigns pago with default cambiar_estado=false', () => {
     const mock = { code: 200, message: 'ok' };
     service.assignPago(1, 2).subscribe((res) => expect(res).toEqual(mock));
-    const req = http.expectOne(`${baseUrl}/asignar-pago?pedido_id=1&pago_id=2`);
+    const req = http.expectOne(
+      `${baseUrl}/asignar-pago?pedido_id=1&pago_id=2&cambiar_estado=false`,
+    );
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toBeNull();
+    req.flush(mock);
+  });
+
+  it('assigns pago with cambiar_estado=true', () => {
+    const mock = { code: 200, message: 'ok' };
+    service.assignPago(1, 2, true).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}/asignar-pago?pedido_id=1&pago_id=2&cambiar_estado=true`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBeNull();
     req.flush(mock);
@@ -64,7 +75,9 @@ describe('PedidoService', () => {
       next: () => fail('should have failed'),
       error: (err) => expect(err).toBeTruthy(),
     });
-    const req = http.expectOne(`${baseUrl}/asignar-pago?pedido_id=1&pago_id=2`);
+    const req = http.expectOne(
+      `${baseUrl}/asignar-pago?pedido_id=1&pago_id=2&cambiar_estado=false`,
+    );
     req.error(new ErrorEvent('Network error'));
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });

@@ -9,6 +9,7 @@ import { ClienteService } from '../../../core/services/cliente.service';
 import { DomicilioService } from '../../../core/services/domicilio.service';
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
+import { PagoService } from '../../../core/services/pago.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
@@ -20,6 +21,7 @@ import {
   createDomicilioServiceMock,
   createMetodosPagoServiceMock,
   createModalServiceMock,
+  createPagoServiceMock,
   createPedidoServiceMock,
   createProductoPedidoServiceMock,
   createRouterMock,
@@ -41,6 +43,7 @@ describe('CarritoComponent', () => {
   let domicilioServiceMock: any;
   let pedidoServiceMock: any;
   let productoPedidoServiceMock: any;
+  let pagoServiceMock: any;
   let userServiceMock: any;
   let clienteServiceMock: any;
   let routerMock: any;
@@ -58,6 +61,7 @@ describe('CarritoComponent', () => {
     domicilioServiceMock = createDomicilioServiceMock();
     pedidoServiceMock = createPedidoServiceMock();
     productoPedidoServiceMock = createProductoPedidoServiceMock();
+    pagoServiceMock = createPagoServiceMock({ data: { pagoId: 301 } });
     userServiceMock = createUserServiceMock();
     clienteServiceMock = createClienteServiceMock();
     routerMock = createRouterMock();
@@ -73,6 +77,7 @@ describe('CarritoComponent', () => {
         { provide: DomicilioService, useValue: domicilioServiceMock },
         { provide: PedidoService, useValue: pedidoServiceMock },
         { provide: ProductoPedidoService, useValue: productoPedidoServiceMock },
+        { provide: PagoService, useValue: pagoServiceMock },
         { provide: UserService, useValue: userServiceMock },
         { provide: ClienteService, useValue: clienteServiceMock },
         { provide: Router, useValue: routerMock },
@@ -124,13 +129,13 @@ describe('CarritoComponent', () => {
 
   it('should interact with cart service for item operations', async () => {
     await setup();
-    const product = { productoId: 1 } as Producto;
+    const product = { productoId: 1, observaciones: 'Sin cebolla' } as Producto;
     component.sumar(product);
-    expect(cartServiceMock.changeQty).toHaveBeenCalledWith(1, 1);
+    expect(cartServiceMock.changeQty).toHaveBeenCalledWith(1, 1, 'Sin cebolla');
     component.restar(product);
-    expect(cartServiceMock.changeQty).toHaveBeenCalledWith(1, -1);
+    expect(cartServiceMock.changeQty).toHaveBeenCalledWith(1, -1, 'Sin cebolla');
     component.eliminar(product);
-    expect(cartServiceMock.remove).toHaveBeenCalledWith(1);
+    expect(cartServiceMock.remove).toHaveBeenCalledWith(1, 'Sin cebolla');
   });
 
   it('should open modal with payment options when creating order', async () => {
@@ -142,7 +147,8 @@ describe('CarritoComponent', () => {
     expect(modalServiceMock.openModal).toHaveBeenCalled();
     const config = modalServiceMock.openModal.mock.calls[0][0];
     expect(config.selects[0].options).toEqual([{ label: 'Card', value: 1 }]);
-    expect(config.input).toEqual({ label: 'Observaciones', value: '' });
+    // El campo de observaciones ahora es automático en el modal, no se pasa como input
+    expect(config.input).toBeUndefined();
     config.buttons[0].action();
     expect(modalServiceMock.closeModal).toHaveBeenCalled();
     config.buttons[1].action();
@@ -158,8 +164,8 @@ describe('CarritoComponent', () => {
     config.selects[1].selected = true;
     modalServiceMock.getModalData.mockReturnValue({
       selects: config.selects,
-      input: { value: 'nota' },
     });
+    modalServiceMock.getObservaciones.mockReturnValue('nota');
 
     userServiceMock.getUserId.mockReturnValue(42);
     const fetchClienteSpy = jest
@@ -176,6 +182,7 @@ describe('CarritoComponent', () => {
     await config.buttons[1].action();
 
     expect(modalServiceMock.getModalData).toHaveBeenCalled();
+    expect(modalServiceMock.getObservaciones).toHaveBeenCalled();
     const modalData = modalServiceMock.getModalData.mock.results[0].value;
     expect(modalData.selects[1].selected).toBe(true);
     expect(fetchClienteSpy).toHaveBeenCalled();
@@ -192,8 +199,8 @@ describe('CarritoComponent', () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
       selects: [{ selected: 2, options: [{ label: 'M2', value: 2 }] }, { selected: false }],
-      input: { value: '' },
     });
+    modalServiceMock.getObservaciones.mockReturnValue('');
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
     await (component as any).onCheckoutConfirm();
     expect(modalServiceMock.closeModal).toHaveBeenCalled();
@@ -204,8 +211,8 @@ describe('CarritoComponent', () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
       selects: [{ selected: 99, options: [{ label: 'M1', value: 1 }] }, { selected: false }],
-      input: { value: '' },
     });
+    modalServiceMock.getObservaciones.mockReturnValue('');
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
     await (component as any).onCheckoutConfirm();
     expect(finalizeSpy).toHaveBeenCalledWith(99, null);
@@ -215,8 +222,8 @@ describe('CarritoComponent', () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
       selects: [{ selected: 3, options: [{ label: 'M3', value: 3 }] }, { selected: true }],
-      input: { value: 'obs' },
     });
+    modalServiceMock.getObservaciones.mockReturnValue('obs');
     userServiceMock.getUserId.mockReturnValue(77);
     clienteServiceMock.getClienteId.mockReturnValue(
       of({ data: { direccion: 'dir', telefono: 'tel', observaciones: '' } }),
@@ -237,8 +244,8 @@ describe('CarritoComponent', () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
       selects: [{ selected: 4, options: [{ label: 'M4', value: 4 }] }, { selected: 'true' }],
-      input: { value: '' },
     });
+    modalServiceMock.getObservaciones.mockReturnValue('');
     userServiceMock.getUserId.mockReturnValue(88);
     clienteServiceMock.getClienteId.mockReturnValue(
       of({ data: { direccion: 'dir2', telefono: 'tel2', observaciones: '' } }),
@@ -255,8 +262,8 @@ describe('CarritoComponent', () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
       selects: [{ selected: 1, options: [{ label: 'M1', value: 1 }] }, { selected: true }],
-      input: { value: '' },
     });
+    modalServiceMock.getObservaciones.mockReturnValue('');
     userServiceMock.getUserId.mockReturnValue(10);
     clienteServiceMock.getClienteId.mockReturnValue(throwError(() => new Error('fail')));
     const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
@@ -271,8 +278,8 @@ describe('CarritoComponent', () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
       selects: [{ selected: 1, options: [{ label: 'M1', value: 1 }] }, { selected: true }],
-      input: { value: '' },
     });
+    modalServiceMock.getObservaciones.mockReturnValue('');
     userServiceMock.getUserId.mockReturnValue(10);
     // Respuesta sin data para forzar el throw dentro de fetchCliente
     clienteServiceMock.getClienteId.mockReturnValue(of({ data: null }));
@@ -288,8 +295,8 @@ describe('CarritoComponent', () => {
     await setup();
     modalServiceMock.getModalData.mockReturnValue({
       selects: [{ selected: 4, options: [{ label: 'M4', value: 4 }] }, { selected: true }],
-      input: { value: '' },
     });
+    modalServiceMock.getObservaciones.mockReturnValue('');
     userServiceMock.getUserId.mockReturnValue(20);
     clienteServiceMock.getClienteId.mockReturnValue(
       of({ data: { direccion: 'a', telefono: 'b', observaciones: '' } }),
@@ -306,54 +313,73 @@ describe('CarritoComponent', () => {
   it('should create order flow without domicilio', async () => {
     await setup();
     component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 2, precio: 10 }];
+    component.subtotal = 20;
     userServiceMock.getUserId.mockReturnValue(5);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    // pedido-cliente eliminado: ya no se requiere mock
-    pedidoServiceMock.assignDomicilio.mockReturnValue(of({}));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301 } }));
+    pedidoServiceMock.assignPago.mockReturnValue(of({}));
     await (component as any).finalizeOrder(1, null);
+    // Sin domicilio: delivery: false, sin pk_id_domicilio
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: false,
+      restauranteId: 1,
+      documentoCliente: 5,
     });
-    expect(pedidoServiceMock.assignPago).not.toHaveBeenCalled();
-    expect(pedidoServiceMock.assignDomicilio).not.toHaveBeenCalled();
+    expect(productoPedidoServiceMock.create).toHaveBeenCalledWith(99, [
+      { productoId: 1, cantidad: 2 },
+    ]);
+    expect(pagoServiceMock.createPago).toHaveBeenCalledWith(
+      expect.objectContaining({
+        monto: 20,
+        metodoPagoId: 1,
+        estadoPago: 'PENDIENTE',
+      }),
+    );
+    expect(pedidoServiceMock.assignPago).toHaveBeenCalledWith(99, 301, false);
     expect(cartServiceMock.clearCart).toHaveBeenCalled();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/cliente/mis-pedidos']);
   });
 
-  it('should assign domicilio when domicilioId is provided', async () => {
+  it('should create order with domicilio when domicilioId is provided', async () => {
     await setup();
     component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
+    component.subtotal = 10;
     userServiceMock.getUserId.mockReturnValue(5);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 50 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    // pedido-cliente eliminado: ya no se requiere mock
-    pedidoServiceMock.assignDomicilio.mockReturnValue(
-      of({ data: { delivery: true, estadoPedido: 'EN CURSO' } }),
-    );
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 302 } }));
+    pedidoServiceMock.assignPago.mockReturnValue(of({}));
     await (component as any).finalizeOrder(2, 7);
+    // Con domicilio: delivery: true, pk_id_domicilio incluido
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: true,
+      restauranteId: 1,
+      documentoCliente: 5,
+      pk_id_domicilio: 7,
     });
-    expect(pedidoServiceMock.assignPago).not.toHaveBeenCalled();
-    expect(pedidoServiceMock.assignDomicilio).toHaveBeenCalledWith(50, 7);
+    expect(pagoServiceMock.createPago).toHaveBeenCalled();
+    expect(pedidoServiceMock.assignPago).toHaveBeenCalledWith(50, 302, false);
   });
 
-  it('should warn when assignDomicilio returns delivery not true', async () => {
+  it('should handle complete flow with domicilio', async () => {
     await setup();
     component.carrito = [{ productoId: 2, nombre: 'P2', cantidad: 1, precio: 5 }];
+    component.subtotal = 5;
     userServiceMock.getUserId.mockReturnValue(6);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 60 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    // pedido-cliente eliminado: ya no se requiere mock
-    pedidoServiceMock.assignDomicilio.mockReturnValue(of({ data: { delivery: false } }));
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 303 } }));
+    pedidoServiceMock.assignPago.mockReturnValue(of({}));
     await (component as any).finalizeOrder(2, 8);
-    expect(warnSpy).toHaveBeenCalledWith(
-      'Respuesta inesperada al asignar domicilio',
-      expect.objectContaining({ delivery: false }),
-    );
-    warnSpy.mockRestore();
+    expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
+      delivery: true,
+      restauranteId: 1,
+      documentoCliente: 6,
+      pk_id_domicilio: 8,
+    });
+    expect(pagoServiceMock.createPago).toHaveBeenCalled();
+    expect(pedidoServiceMock.assignPago).toHaveBeenCalledWith(60, 303, false);
   });
 
   it('should handle error in finalizeOrder flow', async () => {
@@ -375,13 +401,15 @@ describe('CarritoComponent', () => {
       { productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 },
       { productoId: 2, nombre: 'P2', cantidad: 2, precio: 5 },
     ];
+    (component as any).subtotal = 20;
     (component as any).paymentMethods = [{ metodoPagoId: 2, tipo: 'Nequi' }];
     userServiceMock.getUserId.mockReturnValue(42);
 
     // Mock flujo de API para que finalizeOrder complete OK
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 123 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    // pedido-cliente eliminado: ya no se requiere mock
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 304 } }));
+    pedidoServiceMock.assignPago.mockReturnValue(of({}));
 
     await (component as any).finalizeOrder(2, null);
 

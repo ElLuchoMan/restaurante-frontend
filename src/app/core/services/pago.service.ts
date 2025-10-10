@@ -17,7 +17,6 @@ export class PagoService {
   ) {}
 
   createPago(payload: PagoCreate): Observable<ApiResponse<Pago>> {
-    console.log('Creating pago with payload:', payload);
     return this.http
       .post<ApiResponse<Pago>>(this.baseUrl, payload)
       .pipe(catchError(this.handleError.handleError));

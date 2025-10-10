@@ -13,14 +13,16 @@ import { DomicilioService } from '../../../core/services/domicilio.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
+import { PagoService } from '../../../core/services/pago.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
-import { estadoDomicilio } from '../../../shared/constants';
+import { estadoDomicilio, estadoPago } from '../../../shared/constants';
 import { Cliente } from '../../../shared/models/cliente.model';
 import { Domicilio, DomicilioRequest } from '../../../shared/models/domicilio.model';
 import { MetodosPago } from '../../../shared/models/metodo-pago.model';
+import { PagoCreate } from '../../../shared/models/pago.model';
 import { Producto } from '../../../shared/models/producto.model';
 
 @Component({
@@ -45,6 +47,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
     private domicilioService: DomicilioService,
     private pedidoService: PedidoService,
     private productoPedidoService: ProductoPedidoService,
+    private pagoService: PagoService,
     private userService: UserService,
     private clienteService: ClienteService,
     private router: Router,
@@ -149,12 +152,15 @@ export class CarritoComponent implements OnInit, OnDestroy {
     try {
       let domicilioId: number | null = null;
 
+      // 🔹 Si requiere domicilio, crearlo PRIMERO
       if (needsDelivery) {
         const clienteId = this.userService.getUserId();
         const cliente = await this.fetchCliente(clienteId);
         domicilioId = await this.crearDomicilio(cliente, clienteId, metodoLabel, observacion);
+        console.log(`✅ Domicilio creado con ID: ${domicilioId}`);
       }
 
+      // 🔹 Crear el pedido (con o sin domicilio según corresponda)
       await this.finalizeOrder(methodId, domicilioId);
     } catch (err) {
       this.handleError(err, 'No se pudo completar el checkout');
@@ -231,13 +237,22 @@ export class CarritoComponent implements OnInit, OnDestroy {
 
   private async finalizeOrder(methodId: number, domicilioId: number | null): Promise<void> {
     try {
+      const documentoCliente = this.userService.getUserId();
+
+      // PASO 1: Crear pedido base (con pk_id_domicilio si se requiere)
+      const pedidoPayload: any = {
+        delivery: domicilioId !== null,
+        restauranteId: 1,
+        ...(documentoCliente && { documentoCliente }),
+        ...(domicilioId !== null && { pk_id_domicilio: domicilioId }),
+      };
+
       const pedidoRes = await firstValueFrom(
-        this.pedidoService
-          .createPedido({ delivery: domicilioId !== null })
-          .pipe(takeUntil(this.destroy$)),
+        this.pedidoService.createPedido(pedidoPayload).pipe(takeUntil(this.destroy$)),
       );
       const pedidoId = pedidoRes.data.pedidoId!;
 
+      // PASO 2: Asociar productos al pedido
       const detalles = this.carrito.map((p) => ({
         productoId: p.productoId!,
         cantidad: p.cantidad!,
@@ -247,43 +262,76 @@ export class CarritoComponent implements OnInit, OnDestroy {
         this.productoPedidoService.create(pedidoId, detalles as any).pipe(takeUntil(this.destroy$)),
       );
 
-      // Backend ya incluye documentoCliente en el modelo de pedido; no se requiere relación explícita
+      // PASO 3: Crear registro de pago
+      const now = new Date();
 
-      if (domicilioId !== null) {
-        const resp = await firstValueFrom(
-          this.pedidoService.assignDomicilio(pedidoId, domicilioId).pipe(takeUntil(this.destroy$)),
-        );
-        // Sólo validamos que delivery se mantenga TRUE; el estado sigue siendo INICIADO por contrato
-        if (resp.data?.delivery !== true) {
-          console.warn('Respuesta inesperada al asignar domicilio', resp.data);
-        }
-      }
+      // Obtener fecha/hora en zona horaria de Bogotá
+      const TZ = 'America/Bogota';
+      const year = now.toLocaleString('en-US', { timeZone: TZ, year: 'numeric' });
+      const month = now.toLocaleString('en-US', { timeZone: TZ, month: '2-digit' });
+      const day = now.toLocaleString('en-US', { timeZone: TZ, day: '2-digit' });
+      const hour = now.toLocaleString('en-US', { timeZone: TZ, hour: '2-digit', hour12: false });
+      const minute = now.toLocaleString('en-US', { timeZone: TZ, minute: '2-digit' });
+      const second = now.toLocaleString('en-US', { timeZone: TZ, second: '2-digit' });
 
-      // Telemetría de compra completada
+      const fechaPago = `${year}-${month}-${day}`;
+      const horaPago = `${hour}:${minute}:${second}`;
+
+      const nuevoPago: PagoCreate = {
+        fechaPago,
+        horaPago,
+        monto: this.subtotal,
+        estadoPago: estadoPago.PENDIENTE,
+        metodoPagoId: methodId,
+      };
+
+      const pagoRes = await firstValueFrom(
+        this.pagoService.createPago(nuevoPago).pipe(takeUntil(this.destroy$)),
+      );
+      const pagoId = pagoRes.data.pagoId!;
+
+      // PASO 4: Asignar pago al pedido (sin cambiar estados)
+      await firstValueFrom(
+        this.pedidoService.assignPago(pedidoId, pagoId, false).pipe(takeUntil(this.destroy$)),
+      );
+
+      // ✅ Telemetría de compra completada
       const itemsSnapshot = this.carrito.map((p) => ({
         productId: p.productoId!,
         name: p.nombre,
         quantity: p.cantidad!,
         unitPrice: p.precio,
       }));
-      const subtotal = itemsSnapshot.reduce((acc, it) => acc + it.unitPrice * it.quantity, 0);
-      // Obtener label del método desde paymentMethods
       const methodLabel =
         this.paymentMethods.find((m) => m.metodoPagoId === methodId)?.tipo ?? String(methodId);
+
       this.telemetry.logPurchase({
-        userId: this.userService.getUserId?.() ?? null,
+        userId: documentoCliente || null,
         paymentMethodId: methodId,
         paymentMethodLabel: methodLabel,
         requiresDelivery: domicilioId !== null,
         items: itemsSnapshot,
-        subtotal,
+        subtotal: this.subtotal,
       });
 
+      // Limpiar carrito y redirigir
       this.cart.clearCart();
-      this.live.announce('Carrito vaciado');
+      this.live.announce('Pedido creado exitosamente');
+      this.toastr.success(
+        'Tu pedido ha sido creado. Pronto recibirás actualizaciones.',
+        'Pedido Exitoso',
+      );
       this.router.navigate(['/cliente/mis-pedidos']);
-    } catch (err) {
-      this.handleError(err, 'Error en el flujo de finalización del pedido');
+    } catch (err: any) {
+      // Manejar errores específicos
+      if (err.error?.message?.includes('Inventario insuficiente')) {
+        this.toastr.error(
+          'No hay suficiente inventario para algunos productos. Por favor, reduce las cantidades.',
+          'Inventario Insuficiente',
+        );
+      } else {
+        this.handleError(err, 'Error al crear el pedido. Intenta nuevamente.');
+      }
       throw err;
     }
   }
