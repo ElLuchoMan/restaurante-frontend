@@ -266,4 +266,39 @@ describe('MisPedidosComponent', () => {
       expect(component.isPedidoExpanded(undefined)).toBe(false);
     });
   });
+
+  describe('getEstado helpers coverage', () => {
+    it('getEstadoClass covers all branches', () => {
+      expect(component['getEstadoClass']('TERMINADO')).toBe('success');
+      expect(component['getEstadoClass']('ENTREGADO')).toBe('success');
+      expect(component['getEstadoClass']('INICIADO')).toBe('warning');
+      expect(component['getEstadoClass']('EN_PREPARACION')).toBe('warning');
+      expect(component['getEstadoClass']('PREPARACION')).toBe('warning');
+      expect(component['getEstadoClass']('CANCELADO')).toBe('danger');
+      expect(component['getEstadoClass']('EN_CAMINO')).toBe('info');
+      expect(component['getEstadoClass']('OTRO')).toBe('default');
+    });
+
+    it('getEstadoIcon covers all branches', () => {
+      expect(component['getEstadoIcon']('TERMINADO')).toBe('fa-check-circle');
+      expect(component['getEstadoIcon']('ENTREGADO')).toBe('fa-check-circle');
+      expect(component['getEstadoIcon']('INICIADO')).toBe('fa-fire');
+      expect(component['getEstadoIcon']('EN_PREPARACION')).toBe('fa-fire');
+      expect(component['getEstadoIcon']('PREPARACION')).toBe('fa-fire');
+      expect(component['getEstadoIcon']('CANCELADO')).toBe('fa-times-circle');
+      expect(component['getEstadoIcon']('EN_CAMINO')).toBe('fa-truck');
+      expect(component['getEstadoIcon']('OTRO')).toBe('fa-info-circle');
+    });
+
+    it('getEstadoLabel covers all branches', () => {
+      expect(component['getEstadoLabel']('TERMINADO')).toBe('Terminado');
+      expect(component['getEstadoLabel']('ENTREGADO')).toBe('Entregado');
+      expect(component['getEstadoLabel']('INICIADO')).toBe('Iniciado');
+      expect(component['getEstadoLabel']('EN_PREPARACION')).toBe('En Preparación');
+      expect(component['getEstadoLabel']('PREPARACION')).toBe('En Preparación');
+      expect(component['getEstadoLabel']('CANCELADO')).toBe('Cancelado');
+      expect(component['getEstadoLabel']('EN_CAMINO')).toBe('En Camino');
+      expect(component['getEstadoLabel']('OTRO')).toBe('OTRO');
+    });
+  });
 });

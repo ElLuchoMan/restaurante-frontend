@@ -422,4 +422,78 @@ describe('CarritoComponent', () => {
       }),
     );
   });
+
+  it('should generate stable trackBy key including observaciones', async () => {
+    await setup();
+    const key = component.trackByProductId(0, {
+      productoId: 10,
+      observaciones: 'sin sal',
+    } as any);
+    expect(key).toBe('10-sin sal');
+  });
+
+  it('should navigate back to menu on volverAlMenu', async () => {
+    await setup();
+    component.volverAlMenu();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/cliente/menu']);
+  });
+
+  it('should show specific toastr on inventory insufficient error', async () => {
+    await setup();
+    (component as any).carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
+    pedidoServiceMock.createPedido.mockReturnValue(
+      throwError(() => ({ error: { message: 'Inventario insuficiente para P1' } })),
+    );
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+    await (component as any)
+      .finalizeOrder(1, null)
+      .catch(() => {})
+      .finally(() => errorSpy.mockRestore());
+    expect(toastrServiceMock.error).toHaveBeenCalledWith(
+      'No hay suficiente inventario para algunos productos. Por favor, reduce las cantidades.',
+      'Inventario Insuficiente',
+    );
+    expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
+  });
+
+  it('should include per-product observations when creating domicilio', async () => {
+    await setup();
+    component.carrito = [
+      { productoId: 1, nombre: 'Arepa', cantidad: 2, precio: 10, observaciones: 'tostada' },
+      { productoId: 2, nombre: 'Jugo', cantidad: 1, precio: 5, observaciones: 'sin azúcar' },
+    ] as any;
+    modalServiceMock.getModalData.mockReturnValue({
+      selects: [{ selected: 3, options: [{ label: 'Efectivo', value: 3 }] }, { selected: true }],
+    });
+    modalServiceMock.getObservaciones.mockReturnValue('puerta azul');
+    userServiceMock.getUserId.mockReturnValue(123);
+    clienteServiceMock.getClienteId.mockReturnValue(
+      of({ data: { direccion: 'Calle 1', telefono: '300', observaciones: '' } }),
+    );
+    domicilioServiceMock.createDomicilio.mockReturnValue(of({ data: { domicilioId: 77 } }));
+
+    const finalizeSpy = jest.spyOn(component as any, 'finalizeOrder').mockResolvedValue(undefined);
+
+    await (component as any).onCheckoutConfirm();
+
+    const payload = domicilioServiceMock.createDomicilio.mock.calls[0][0];
+    expect(String(payload.observaciones)).toContain('Observaciones por producto:');
+    expect(String(payload.observaciones)).toContain('• Arepa (x2): tostada');
+    expect(String(payload.observaciones)).toContain('• Jugo (x1): sin azúcar');
+    expect(finalizeSpy).toHaveBeenCalledWith(3, 77);
+  });
+
+  it('should show generic error when finalizeOrder fails with other errors', async () => {
+    await setup();
+    pedidoServiceMock.createPedido.mockReturnValue(throwError(() => new Error('boom')));
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+    await (component as any)
+      .finalizeOrder(2, null)
+      .catch(() => {})
+      .finally(() => errorSpy.mockRestore());
+    expect(toastrServiceMock.error).toHaveBeenCalledWith(
+      'Error al crear el pedido. Intenta nuevamente.',
+      'Error',
+    );
+  });
 });

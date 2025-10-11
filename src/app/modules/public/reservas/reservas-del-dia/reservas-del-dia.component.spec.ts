@@ -209,6 +209,31 @@ describe('ReservasDelDiaComponent', () => {
 
       expect(reservaNotificationsService.notifyEstadoCambio).toHaveBeenCalled();
     });
+
+    it('should swallow errors from notifyEstadoCambio (catch path)', async () => {
+      const reservaSinDoc = { ...reserva, documentoCliente: null };
+      reservaService.actualizarReserva.mockReturnValue(
+        of({ code: 200, message: 'Actualización exitosa', data: reservaSinDoc }),
+      );
+      // provoke rejection inside notify
+      jest
+        .spyOn(reservaNotificationsService, 'notifyEstadoCambio')
+        .mockRejectedValueOnce(new Error('notify fail'));
+
+      await component['actualizarReserva'](reservaSinDoc);
+
+      // Should still update list without throwing
+      expect(toastr.success).toHaveBeenCalled();
+    });
+
+    it('should not update local list if reserva not found (idx -1)', async () => {
+      component.reservas = [];
+      reservaService.actualizarReserva.mockReturnValue(
+        of({ code: 200, message: 'ok', data: reserva }),
+      );
+      await component['actualizarReserva'](reserva);
+      expect(component.reservas).toEqual([]);
+    });
   });
 
   describe('Data normalization and enrichment', () => {
