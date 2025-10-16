@@ -27,7 +27,7 @@
     "@angular/platform-server": "20.3.0",
     "@angular/router": "20.1.6",
     "@angular/service-worker": "20.1.6",
-    "@angular/ssr": "20.3.1",
+    "@angular/ssr": "20.3.6",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.7",
