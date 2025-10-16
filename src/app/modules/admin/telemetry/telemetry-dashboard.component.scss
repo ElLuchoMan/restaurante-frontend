@@ -1,1 +1,9 @@
 @use '../../../../assets/_variables.scss' as *;
+
+/* CORRECCIÓN iOS: Espaciado adicional solo para iOS en webview */
+@supports (-webkit-touch-callout: none) {
+  /* Solo iOS */
+  :host ::ng-deep .container-fluid.page-shell {
+    padding-top: calc(4rem + env(safe-area-inset-top, 0px)) !important;
+  }
+}

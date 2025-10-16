@@ -249,8 +249,8 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
       this.mainEl.style.paddingTop = '0px';
       return;
     }
-    // Usar altura fija de 60px para consistencia
-    this.mainEl.style.paddingTop = `calc(60px + max(env(safe-area-inset-top), 0px))`;
+    // Usar altura fija de 60px para consistencia (safe area ya se maneja en CSS topbar)
+    this.mainEl.style.paddingTop = '60px';
   }
 
   ngOnDestroy(): void {

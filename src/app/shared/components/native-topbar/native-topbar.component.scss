@@ -3,7 +3,7 @@
 // Solo aplicar estilos en webview (el componente ya tiene *ngIf="isWebView")
 .home-topbar {
   position: fixed;
-  top: 0;
+  top: env(safe-area-inset-top, 0); // iOS: respeta isla dinámica, Android: 0
   left: 0;
   right: 0;
   z-index: 1040;
