@@ -13622,9 +13622,54 @@ a.link {
 /* ====== WEBVIEW COMPONENTS SYSTEM ====== */
 /* Sistema de componentes específicos para WebView nativo - El fogón DE MARÍA */
 
-// Margen superior para compensar topbar nativa
+/* RESTAURAR: Método original para todos los WebView */
 .mt-webview-topbar {
   margin-top: 4rem !important; // Espacio para topbar nativa
+}
+
+/* ANDROID: Mantener espaciado original (funciona bien) */
+.is-webview .mt-webview-topbar {
+  margin-top: 4rem !important; // Android: mantener espaciado original
+}
+
+/* iOS ESPECÍFICO: Espaciado ULTRA AGRESIVO para TODA la app */
+
+/* iOS: Secciones Home con mt-webview-topbar (funcionan perfecto) */
+body.capacitor-ios-webview .mt-webview-topbar {
+  margin-top: 1.5rem !important;
+}
+
+/* iOS: FORZAR espaciado en páginas internas (menú, admin, etc.) */
+body.capacitor-ios-webview .volver-container {
+  margin-top: 1.5rem !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* iOS: FORZAR espaciado en TODOS los containers */
+body.capacitor-ios-webview main.is-webview > .container,
+body.capacitor-ios-webview main.is-webview > .container-fluid,
+body.capacitor-ios-webview .is-webview .container,
+body.capacitor-ios-webview .is-webview .container-fluid {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* iOS: FORZAR padding reducido en secciones py-* */
+body.capacitor-ios-webview .py-5,
+body.capacitor-ios-webview .py-4,
+body.capacitor-ios-webview .container-fluid.py-5,
+body.capacitor-ios-webview .container-fluid.py-4,
+body.capacitor-ios-webview .container.py-5,
+body.capacitor-ios-webview .container.py-4 {
+  padding-top: 1.5rem !important;
+  margin-top: 0 !important;
+}
+
+/* iOS: Títulos section-title */
+body.capacitor-ios-webview .section-title {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
 }
 
 // Cards unificadas para WebView - Altura fija y alineación perfecta
