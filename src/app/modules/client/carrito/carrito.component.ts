@@ -14,6 +14,7 @@ import { LiveAnnouncerService } from '../../../core/services/live-announcer.serv
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { PagoService } from '../../../core/services/pago.service';
+import { PedidoNotificationsService } from '../../../core/services/pedido-notifications.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
@@ -54,6 +55,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private telemetry: TelemetryService,
     private live: LiveAnnouncerService,
+    private pedidoNotifications: PedidoNotificationsService,
   ) {}
 
   ngOnInit(): void {
@@ -312,6 +314,22 @@ export class CarritoComponent implements OnInit, OnDestroy {
         items: itemsSnapshot,
         subtotal: this.subtotal,
       });
+
+      // ✅ Enviar notificaciones
+      try {
+        // Notificar al cliente
+        if (documentoCliente) {
+          await this.pedidoNotifications.notifyCreacion(documentoCliente, pedidoId);
+        }
+
+        // Notificar al admin solo si es domicilio
+        if (domicilioId !== null) {
+          await this.pedidoNotifications.notifyAdminDomicilio(pedidoId, domicilioId);
+        }
+      } catch (notifError) {
+        // No fallar el flujo si las notificaciones fallan
+        console.warn('Error al enviar notificaciones:', notifError);
+      }
 
       // Limpiar carrito y redirigir
       this.cart.clearCart();

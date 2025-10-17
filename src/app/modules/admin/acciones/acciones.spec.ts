@@ -27,8 +27,8 @@ describe('AccionesComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debería tener 3 acciones definidas', () => {
-    expect(component.acciones).toHaveLength(3);
+  it('debería tener 4 acciones definidas', () => {
+    expect(component.acciones).toHaveLength(4);
   });
 
   it('debería incluir la acción de Telemetría', () => {
@@ -51,6 +51,14 @@ describe('AccionesComponent', () => {
     expect(notificaciones?.ruta).toBe('/admin/enviar-notificacion');
     expect(notificaciones?.icono).toBe('fa-bell');
     expect(notificaciones?.descripcion).toContain('clientes y trabajadores');
+  });
+
+  it('debería incluir la acción de Pedidos', () => {
+    const pedidos = component.acciones.find((a) => a.titulo === 'Pedidos');
+    expect(pedidos).toBeDefined();
+    expect(pedidos?.ruta).toBe('/admin/pedidos');
+    expect(pedidos?.icono).toBe('fa-truck');
+    expect(pedidos?.descripcion).toContain('pedidos, domicilios y pagos');
   });
 
   describe('navegarA', () => {

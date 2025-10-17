@@ -660,6 +660,13 @@ export function createReservaNotificationsServiceMock() {
   } as any;
 }
 
+export function createPedidoNotificationsServiceMock() {
+  return {
+    notifyCreacion: jest.fn().mockResolvedValue(null),
+    notifyAdminDomicilio: jest.fn().mockResolvedValue(null),
+  } as any;
+}
+
 export function createCategoriaServiceMock() {
   return {
     list: jest.fn(),
@@ -777,6 +784,13 @@ export function createImageOptimizationServiceMock() {
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
     }),
+  } as any;
+}
+
+export function createPrecioProductoHistServiceMock() {
+  return {
+    list: jest.fn(),
+    getById: jest.fn(),
   } as any;
 }
 

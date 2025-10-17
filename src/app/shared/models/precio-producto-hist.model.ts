@@ -1,6 +1,8 @@
 export interface PrecioProductoHist {
-  productoId?: number;
-  precio?: number;
-  fechaVigencia?: string;
+  precioHistId?: number;
+  productoId: number;
+  nombre?: string;
+  precio: number;
+  fechaVigencia: string;
   estadoProducto?: string;
 }

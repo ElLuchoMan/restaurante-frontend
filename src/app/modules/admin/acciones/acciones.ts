@@ -37,6 +37,13 @@ export class AccionesComponent {
       color: 'green',
     },
     {
+      titulo: 'Pedidos',
+      descripcion: 'Gestionar pedidos, domicilios y pagos del restaurante',
+      icono: 'fa-truck',
+      ruta: '/admin/pedidos',
+      color: 'red',
+    },
+    {
       titulo: 'Notificaciones',
       descripcion: 'Enviar notificaciones push a clientes y trabajadores',
       icono: 'fa-bell',

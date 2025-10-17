@@ -10,6 +10,7 @@ import { DomicilioService } from '../../../core/services/domicilio.service';
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { PagoService } from '../../../core/services/pago.service';
+import { PedidoNotificationsService } from '../../../core/services/pedido-notifications.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
@@ -22,6 +23,7 @@ import {
   createMetodosPagoServiceMock,
   createModalServiceMock,
   createPagoServiceMock,
+  createPedidoNotificationsServiceMock,
   createPedidoServiceMock,
   createProductoPedidoServiceMock,
   createRouterMock,
@@ -49,6 +51,7 @@ describe('CarritoComponent', () => {
   let routerMock: any;
   let toastrServiceMock: any;
   let telemetryMock: any;
+  let pedidoNotificationsMock: any;
 
   async function setup({
     items = [],
@@ -67,6 +70,7 @@ describe('CarritoComponent', () => {
     routerMock = createRouterMock();
     toastrServiceMock = createToastrMock();
     telemetryMock = createTelemetryServiceMock();
+    pedidoNotificationsMock = createPedidoNotificationsServiceMock();
 
     await TestBed.configureTestingModule({
       imports: [CarritoComponent, CommonModule],
@@ -83,6 +87,7 @@ describe('CarritoComponent', () => {
         { provide: Router, useValue: routerMock },
         { provide: ToastrService, useValue: toastrServiceMock },
         { provide: TelemetryService, useValue: telemetryMock },
+        { provide: PedidoNotificationsService, useValue: pedidoNotificationsMock },
       ],
     }).compileComponents();
 
@@ -337,6 +342,9 @@ describe('CarritoComponent', () => {
       }),
     );
     expect(pedidoServiceMock.assignPago).toHaveBeenCalledWith(99, 301, false);
+    // Verificar notificación al cliente (sin domicilio, no se notifica al admin)
+    expect(pedidoNotificationsMock.notifyCreacion).toHaveBeenCalledWith(5, 99);
+    expect(pedidoNotificationsMock.notifyAdminDomicilio).not.toHaveBeenCalled();
     expect(cartServiceMock.clearCart).toHaveBeenCalled();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/cliente/mis-pedidos']);
   });
@@ -360,6 +368,9 @@ describe('CarritoComponent', () => {
     });
     expect(pagoServiceMock.createPago).toHaveBeenCalled();
     expect(pedidoServiceMock.assignPago).toHaveBeenCalledWith(50, 302, false);
+    // Verificar notificación al cliente y al admin (domicilio)
+    expect(pedidoNotificationsMock.notifyCreacion).toHaveBeenCalledWith(5, 50);
+    expect(pedidoNotificationsMock.notifyAdminDomicilio).toHaveBeenCalledWith(50, 7);
   });
 
   it('should handle complete flow with domicilio', async () => {
@@ -495,5 +506,47 @@ describe('CarritoComponent', () => {
       'Error al crear el pedido. Intenta nuevamente.',
       'Error',
     );
+  });
+
+  it('should not break flow when notification fails', async () => {
+    await setup();
+    component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
+    component.subtotal = 10;
+    userServiceMock.getUserId.mockReturnValue(5);
+    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
+    productoPedidoServiceMock.create.mockReturnValue(of({}));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301 } }));
+    pedidoServiceMock.assignPago.mockReturnValue(of({}));
+    // Mock notificación falla
+    pedidoNotificationsMock.notifyCreacion.mockRejectedValue(new Error('Notification failed'));
+
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+    await (component as any).finalizeOrder(1, null);
+
+    // Verificar que el flujo continuó (carrito limpio, navegación exitosa)
+    expect(cartServiceMock.clearCart).toHaveBeenCalled();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/cliente/mis-pedidos']);
+    expect(warnSpy).toHaveBeenCalledWith('Error al enviar notificaciones:', expect.any(Error));
+
+    warnSpy.mockRestore();
+  });
+
+  it('should not call notifyCreacion when documentoCliente is null', async () => {
+    await setup();
+    component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
+    component.subtotal = 10;
+    userServiceMock.getUserId.mockReturnValue(null);
+    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
+    productoPedidoServiceMock.create.mockReturnValue(of({}));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301 } }));
+    pedidoServiceMock.assignPago.mockReturnValue(of({}));
+
+    await (component as any).finalizeOrder(1, null);
+
+    // No se debe notificar si no hay documentoCliente
+    expect(pedidoNotificationsMock.notifyCreacion).not.toHaveBeenCalled();
+    expect(pedidoNotificationsMock.notifyAdminDomicilio).not.toHaveBeenCalled();
+    expect(cartServiceMock.clearCart).toHaveBeenCalled();
   });
 });

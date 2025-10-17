@@ -49,6 +49,13 @@ export class ProductosComponent implements OnInit {
       ruta: '/admin/productos/categorias',
       color: 'orange',
     },
+    {
+      titulo: 'Histórico de Precios',
+      descripcion: 'Ver historial de cambios de precios',
+      icono: 'fa-chart-line',
+      ruta: '/admin/productos/historico-precios',
+      color: 'purple',
+    },
   ];
 
   constructor(

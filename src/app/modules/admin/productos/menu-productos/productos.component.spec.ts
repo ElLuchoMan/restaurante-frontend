@@ -54,8 +54,8 @@ describe('ProductosComponent', () => {
     expect(navegarASpy).toHaveBeenCalledWith('/admin/productos/crear');
   });
 
-  it('should have 3 options in the menu', () => {
-    expect(component.opciones).toHaveLength(3);
+  it('should have 4 options in the menu', () => {
+    expect(component.opciones).toHaveLength(4);
   });
 
   it('should include categorias option in menu', () => {
@@ -66,6 +66,16 @@ describe('ProductosComponent', () => {
     expect(categoriasOption?.titulo).toBe('Gestionar Categorías');
     expect(categoriasOption?.icono).toBe('fa-tags');
     expect(categoriasOption?.color).toBe('orange');
+  });
+
+  it('should include historico precios option in menu', () => {
+    const historicoPreciosOption = component.opciones.find(
+      (op) => op.ruta === '/admin/productos/historico-precios',
+    );
+    expect(historicoPreciosOption).toBeDefined();
+    expect(historicoPreciosOption?.titulo).toBe('Histórico de Precios');
+    expect(historicoPreciosOption?.icono).toBe('fa-chart-line');
+    expect(historicoPreciosOption?.color).toBe('purple');
   });
 
   it('navegarA should navigate to the specified route', () => {
