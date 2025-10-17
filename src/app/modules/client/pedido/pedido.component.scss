@@ -4,9 +4,9 @@
    CONTAINER
    ============================================ */
 .pedido-detalle-container {
-  max-width: 900px;
+  max-width: 650px;
   margin: 0 auto;
-  padding: 0 1rem 2rem;
+  padding: 0 1rem 0.5rem;
 }
 
 /* ============================================
@@ -14,7 +14,7 @@
    ============================================ */
 .pedido-detalle-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 0.75rem;
   animation: fadeInDown 0.5s ease-out;
 }
 
@@ -26,23 +26,23 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
+  padding: 3rem 2rem;
   animation: fadeIn 0.3s ease;
 }
 
 .loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba($primary, 0.1);
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba($primary, 0.1);
   border-top-color: $primary;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 .loading-text {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   color: $text-muted;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 /* ============================================
@@ -50,7 +50,7 @@
    ============================================ */
 .error-state {
   text-align: center;
-  padding: 3rem 2rem;
+  padding: 2rem 1.5rem;
   background: rgba($danger, 0.05);
   border-radius: 20px;
   border: 1px solid rgba($danger, 0.2);
@@ -58,126 +58,209 @@
 }
 
 .error-icon {
-  font-size: 4rem;
+  font-size: 3rem;
   color: $danger;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .error-title {
   color: $text-heading-strong;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   margin-bottom: 0.5rem;
   font-weight: 700;
 }
 
 .error-message {
   color: $text-muted;
-  font-size: 1rem;
-  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
 }
 
 /* ============================================
-   PEDIDO CONTENT
+   PEDIDO CONTENT - TICKET DIGITAL
    ============================================ */
 .pedido-content {
   animation: fadeInUp 0.5s ease;
 }
 
-.pedido-main-card {
+.ticket-card {
   background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
-  padding: 2rem;
-  margin-bottom: 2rem;
+  border-radius: 24px;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  position: relative;
   animation: slideInUp 0.5s ease-out;
+
+  // Efecto de perforaciones en los bordes (tipo ticket)
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    right: -10px;
+    height: 20px;
+    background: radial-gradient(circle at 10px 10px, transparent 8px, #ffffff 8px);
+    background-size: 20px 20px;
+    z-index: 1;
+  }
+
+  &::before {
+    top: -10px;
+  }
+
+  &::after {
+    bottom: -10px;
+  }
 }
 
 /* ============================================
-   STATUS BAR
+   ESTADO BANNER
    ============================================ */
-.pedido-status-bar {
+.estado-banner {
+  position: relative;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba($primary, 0.15) 0%, rgba($secondary, 0.1) 100%);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   gap: 1rem;
-  padding-bottom: 1.5rem;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #f3f4f6;
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 30px;
-  font-size: 1rem;
-  font-weight: 700;
-  animation: bounceIn 0.5s ease;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-
-  i {
-    font-size: 1.25rem;
-  }
+  border-bottom: 2px dashed rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 
   &--success {
-    background: rgba($success, 0.1);
-    color: $success;
-    border: 2px solid rgba($success, 0.3);
+    background: linear-gradient(135deg, rgba($success, 0.15) 0%, rgba($success, 0.05) 100%);
   }
 
   &--warning {
-    background: rgba($warning, 0.1);
-    color: #e4a300;
-    border: 2px solid rgba($warning, 0.3);
+    background: linear-gradient(135deg, rgba($warning, 0.15) 0%, rgba($warning, 0.05) 100%);
   }
 
   &--danger {
-    background: rgba($danger, 0.1);
-    color: $danger;
-    border: 2px solid rgba($danger, 0.3);
+    background: linear-gradient(135deg, rgba($danger, 0.15) 0%, rgba($danger, 0.05) 100%);
   }
 
   &--info {
-    background: rgba($info, 0.1);
-    color: $info;
-    border: 2px solid rgba($info, 0.3);
-  }
-
-  &--default {
-    background: rgba($text-muted, 0.1);
-    color: $text-muted;
-    border: 2px solid rgba($text-muted, 0.3);
+    background: linear-gradient(135deg, rgba($info, 0.15) 0%, rgba($info, 0.05) 100%);
   }
 }
 
-.tipo-badge {
-  display: inline-flex;
+.estado-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: rgba($text-muted, 0.08);
-  border-radius: 30px;
-  font-size: 0.95rem;
-  color: $text-body;
+  justify-content: center;
+  background: #ffffff;
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.1),
+    0 0 0 3px rgba($primary, 0.2);
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+
+  i {
+    font-size: 1.4rem;
+    color: $primary;
+  }
+
+  .estado-banner--success & {
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.1),
+      0 0 0 4px rgba($success, 0.2);
+
+    i {
+      color: $success;
+    }
+  }
+
+  .estado-banner--warning & {
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.1),
+      0 0 0 4px rgba($warning, 0.2);
+
+    i {
+      color: #e4a300;
+    }
+  }
+
+  .estado-banner--danger & {
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.1),
+      0 0 0 4px rgba($danger, 0.2);
+
+    i {
+      color: $danger;
+    }
+  }
+
+  .estado-banner--info & {
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.1),
+      0 0 0 4px rgba($info, 0.2);
+
+    i {
+      color: $info;
+    }
+  }
+}
+
+.estado-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.estado-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: $text-muted;
   font-weight: 600;
-  border: 1px solid #e5e7eb;
+}
+
+.estado-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: $text-heading-strong;
+  margin: 0;
+  letter-spacing: -0.3px;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   DELIVERY BADGE
+   ============================================ */
+.delivery-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  margin: 0.75rem 1.25rem;
+  background: rgba($text-muted, 0.08);
+  border: 1.5px solid rgba($text-muted, 0.2);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $text-body;
+  transition: all 0.3s ease;
 
   i {
     font-size: 1.1rem;
     color: $text-muted;
   }
 
-  &--delivery {
-    background: rgba($primary, 0.1);
-    color: $primary;
+  &--active {
+    background: linear-gradient(135deg, rgba($primary, 0.12) 0%, rgba($primary, 0.08) 100%);
     border-color: rgba($primary, 0.3);
+    color: $primary;
+    box-shadow: 0 4px 12px rgba($primary, 0.15);
 
     i {
       color: $primary;
+      animation: bounce 2s ease-in-out infinite;
     }
   }
 }
@@ -185,186 +268,268 @@
 /* ============================================
    INFO GRID
    ============================================ */
-.pedido-info-grid {
+.info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+  padding: 0 1.25rem 0.75rem;
 }
 
-.info-card {
+.info-box {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem;
-  background: linear-gradient(135deg, rgba($primary, 0.03) 0%, rgba($secondary, 0.03) 100%);
-  border-radius: 15px;
-  border: 1px solid #e5e7eb;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  background: linear-gradient(135deg, rgba($primary, 0.04) 0%, transparent 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-    border-color: rgba($primary, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    border-color: rgba($primary, 0.2);
+  }
+
+  &--full {
+    grid-column: 1 / -1;
   }
 }
 
-.info-card-icon {
-  font-size: 1.75rem;
-  color: $primary;
+.info-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, $primary 0%, rgba($primary, 0.8) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba($primary, 0.25);
+
+  i {
+    font-size: 0.95rem;
+    color: $text-heading-strong;
+  }
 }
 
-.info-card-content {
+.info-text {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.0625rem;
   flex: 1;
 }
 
-.info-card-label {
-  font-size: 0.8rem;
+.info-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
   color: $text-muted;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.info-card-value {
-  font-size: 1.1rem;
+.info-value {
+  font-size: 0.85rem;
   color: $text-heading-strong;
   font-weight: 700;
 }
 
 /* ============================================
-   PRODUCTOS SECTION
+   TICKET DIVIDER
    ============================================ */
-.productos-section {
-  margin-bottom: 2rem;
-}
+.ticket-divider {
+  position: relative;
+  text-align: center;
+  margin: 0.75rem 0;
+  padding: 0 1.25rem;
 
-.productos-title {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: $text-heading-strong;
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #f3f4f6;
+  &::before {
+    content: '';
+    position: absolute;
+    left: 1.25rem;
+    right: 1.25rem;
+    top: 50%;
+    height: 1px;
+    background: repeating-linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.1) 0,
+      rgba(0, 0, 0, 0.1) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  }
 
-  i {
-    font-size: 1.5rem;
-    color: $primary;
+  span {
+    position: relative;
+    display: inline-block;
+    padding: 0.3rem 0.875rem;
+    background: linear-gradient(135deg, $primary 0%, rgba($primary, 0.9) 100%);
+    color: $text-heading-strong;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-radius: 16px;
+    box-shadow: 0 3px 8px rgba($primary, 0.3);
   }
 }
 
-.productos-lista {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.producto-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem;
-  background: #f9fafb;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #f3f4f6;
-    transform: translateX(4px);
-    border-color: rgba($primary, 0.2);
-  }
-}
-
-.producto-info {
-  flex: 1;
+/* ============================================
+   PRODUCTOS LIST
+   ============================================ */
+.productos-list {
+  padding: 0 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.producto-nombre {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 1.1rem;
-  color: $text-heading-strong;
-  font-weight: 600;
-}
+.producto-card {
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+  border-radius: 10px;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
 
-.producto-icon {
-  font-size: 1.25rem;
-  color: $primary;
-}
-
-.producto-detalles {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  font-size: 0.9rem;
-  color: $text-muted;
-}
-
-.producto-cantidad {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-weight: 600;
-
-  i {
-    font-size: 0.75rem;
+  &:hover {
+    transform: translateX(4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    border-color: rgba($primary, 0.3);
   }
 }
 
-.producto-precio-unitario {
+.producto-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.producto-icon-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba($primary, 0.15) 0%, rgba($primary, 0.08) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    font-size: 0.875rem;
+    color: $primary;
+  }
+}
+
+.producto-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: $text-heading-strong;
+  margin: 0;
+  flex: 1;
+  line-height: 1.2;
+}
+
+.producto-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 2.5rem;
+}
+
+.producto-quantity-price {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.quantity-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 0.5rem;
+  background: $primary;
+  color: $text-heading-strong;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba($primary, 0.3);
+}
+
+.unit-price {
+  font-size: 0.8rem;
+  color: $text-muted;
   font-weight: 500;
 }
 
 .producto-subtotal {
-  font-size: 1.25rem;
+  font-size: 1rem;
+  font-weight: 800;
   color: $text-heading-strong;
-  font-weight: 700;
-  flex-shrink: 0;
+  letter-spacing: -0.2px;
 }
 
 /* ============================================
-   TOTAL SECTION
+   TOTAL STAMP
    ============================================ */
-.pedido-total-section {
-  padding-top: 1.5rem;
-  border-top: 2px solid #e5e7eb;
+.total-stamp {
+  margin: 0.875rem 1.25rem 1rem;
+  animation: scaleIn 0.5s ease-out 0.3s both;
 }
 
-.total-row {
+.stamp-border {
+  position: relative;
+  padding: 2px;
+  background: linear-gradient(135deg, $primary 0%, rgba($primary, 0.7) 100%);
+  border-radius: 14px;
+  box-shadow:
+    0 8px 20px rgba($primary, 0.3),
+    0 0 0 2px rgba($primary, 0.1);
+}
+
+.stamp-content {
+  background: linear-gradient(135deg, rgba($primary, 0.15) 0%, rgba($primary, 0.08) 100%);
+  border-radius: 12px;
+  padding: 0.875rem 1.125rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, rgba($primary, 0.1) 0%, rgba($secondary, 0.1) 100%);
-  border-radius: 15px;
-  border: 2px solid rgba($primary, 0.2);
+  position: relative;
+  overflow: hidden;
+
+  // Patrón de fondo decorativo
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba($primary, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
 }
 
-.total-label {
-  font-size: 1.25rem;
-  color: $text-body;
+.stamp-label {
+  font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  color: $text-body;
+  position: relative;
+  z-index: 1;
 }
 
-.total-value {
-  font-size: 2rem;
+.stamp-amount {
+  font-size: 1.75rem;
+  font-weight: 900;
   color: $text-heading-strong;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.8px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* ============================================
@@ -412,79 +577,486 @@
   }
 }
 
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.9);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* ============================================
    RESPONSIVE
    ============================================ */
+
+// Tablet y menores
 @media (max-width: 768px) {
   .pedido-detalle-container {
-    padding: 0 1rem 1.5rem;
+    padding: 0 0.75rem 1.5rem;
   }
 
   .pedido-detalle-header {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 
-  .pedido-main-card {
-    padding: 1.5rem;
+  .estado-banner {
+    padding: 0.5rem 0.875rem;
+    gap: 0.5rem;
   }
 
-  .pedido-status-bar {
-    flex-direction: column;
-    align-items: flex-start;
+  .estado-icon-wrapper {
+    width: 32px;
+    height: 32px;
+
+    i {
+      font-size: 1rem;
+    }
   }
 
-  .status-badge,
-  .tipo-badge {
-    width: 100%;
-    justify-content: center;
+  .estado-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.375rem;
   }
 
-  .pedido-info-grid {
+  .estado-label {
+    display: none;
+  }
+
+  .estado-title {
+    font-size: 0.9rem;
+  }
+
+  .delivery-badge {
+    padding: 0.375rem 0.875rem;
+    margin: 0.5rem 1.25rem;
+    font-size: 0.8rem;
+  }
+
+  .info-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.5rem;
+    padding: 0 1.25rem 0.625rem;
   }
 
-  .producto-item {
+  .info-box {
+    padding: 0.5rem 0.625rem;
+  }
+
+  .info-icon {
+    width: 32px;
+    height: 32px;
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+
+  .info-value {
+    font-size: 0.8rem;
+  }
+
+  .ticket-divider {
+    padding: 0 1rem;
+    margin: 0.5rem 0;
+
+    &::before {
+      left: 1rem;
+      right: 1rem;
+    }
+
+    span {
+      font-size: 0.7rem;
+    }
+  }
+
+  .productos-list {
+    margin: 0 1rem;
+    gap: 0.5rem;
+  }
+
+  .producto-card {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .total-stamp {
+    margin: 0.625rem 1rem 0.75rem;
+  }
+
+  .stamp-border {
+    border-radius: 12px;
+  }
+
+  .stamp-content {
+    padding: 0.625rem 0.875rem;
+  }
+
+  .stamp-label {
+    font-size: 0.8rem;
+  }
+
+  .stamp-amount {
+    font-size: 1.375rem;
+  }
+
+  .producto-details {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 0.5rem;
+    padding-left: 2.75rem;
   }
 
   .producto-subtotal {
     align-self: flex-end;
-    font-size: 1.5rem;
+  }
+}
+
+// Mobile pequeño
+@media (max-width: 576px) {
+  .pedido-detalle-container {
+    max-width: 100%;
+    padding: 0 0.5rem 1rem;
   }
 
-  .total-row {
+  .ticket-card {
+    border-radius: 20px;
+  }
+
+  .estado-banner {
+    padding: 0.4rem 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .estado-icon-wrapper {
+    width: 28px;
+    height: 28px;
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+
+  .estado-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .estado-label {
+    display: none;
+  }
+
+  .estado-title {
+    font-size: 0.85rem;
+  }
+
+  .delivery-badge {
+    padding: 0.3rem 0.75rem;
+    margin: 0.4rem 1rem;
+    font-size: 0.75rem;
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+
+  .info-grid {
+    gap: 0.4rem;
+    padding: 0 1rem 0.5rem;
+  }
+
+  .info-box {
+    padding: 0.4rem 0.5rem;
+  }
+
+  .info-icon {
+    width: 28px;
+    height: 28px;
+
+    i {
+      font-size: 0.8rem;
+    }
+  }
+
+  .info-value {
+    font-size: 0.75rem;
+  }
+
+  .ticket-divider {
+    margin: 0.4rem 0;
+  }
+
+  .ticket-divider span {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.625rem;
+  }
+
+  .productos-list {
+    padding: 0 1rem;
+    gap: 0.4rem;
+  }
+
+  .producto-card {
+    padding: 0.5rem;
+  }
+
+  .producto-name {
+    font-size: 0.875rem;
+  }
+
+  .producto-meta {
+    font-size: 0.75rem;
+  }
+
+  .quantity-badge {
+    min-width: 24px;
+    height: 20px;
+    font-size: 0.75rem;
+  }
+
+  .producto-subtotal {
+    font-size: 0.95rem;
+  }
+
+  .total-stamp {
+    margin: 0.5rem 1rem 0.625rem;
+  }
+
+  .stamp-border {
+    border-radius: 10px;
+    padding: 2px;
+  }
+
+  .stamp-content {
+    padding: 0.5rem 0.75rem;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
     text-align: center;
+    border-radius: 8px;
   }
 
-  .total-value {
-    font-size: 1.75rem;
+  .stamp-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+  }
+
+  .stamp-amount {
+    font-size: 1.25rem;
+    letter-spacing: -0.5px;
+  }
+}
+
+// WebView específico (Capacitor/Cordova) - Ultra compacto
+@media (max-width: 991px) {
+  body.platform-android,
+  body.platform-ios {
+    .pedido-detalle-container {
+      max-width: 100%;
+      padding: 0 0.75rem 0.25rem;
+    }
+
+    .pedido-detalle-header {
+      margin-bottom: 0.5rem;
+
+      .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+      }
+    }
+
+    .ticket-card {
+      border-radius: 16px;
+    }
+
+    .estado-banner {
+      padding: 0.5rem 0.75rem;
+      gap: 0.5rem;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .estado-icon-wrapper {
+      width: 28px;
+      height: 28px;
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.08),
+        0 0 0 2px rgba($primary, 0.15);
+
+      i {
+        font-size: 0.875rem;
+      }
+    }
+
+    .estado-content {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .estado-label {
+      display: none; // Ocultamos el label en WebView para ahorrar espacio
+    }
+
+    .estado-title {
+      font-size: 0.875rem;
+      letter-spacing: 0;
+      margin: 0;
+    }
+
+    .delivery-badge {
+      padding: 0.3rem 0.75rem;
+      margin: 0.4rem 1rem;
+      font-size: 0.75rem;
+      border-radius: 8px;
+
+      i {
+        font-size: 0.875rem;
+      }
+    }
+
+    .info-grid {
+      gap: 0.4rem;
+      padding: 0 1rem 0.4rem;
+    }
+
+    .info-box {
+      padding: 0.4rem 0.5rem;
+      gap: 0.4rem;
+      border-radius: 8px;
+    }
+
+    .info-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+
+      i {
+        font-size: 0.8rem;
+      }
+    }
+
+    .info-label {
+      font-size: 0.55rem;
+    }
+
+    .info-value {
+      font-size: 0.75rem;
+    }
+
+    .ticket-divider {
+      margin: 0.4rem 0;
+      padding: 0 1rem;
+
+      &::before {
+        left: 1rem;
+        right: 1rem;
+      }
+
+      span {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.625rem;
+      }
+    }
+
+    .productos-list {
+      padding: 0 1rem;
+      gap: 0.4rem;
+    }
+
+    .producto-card {
+      padding: 0.5rem;
+      border-radius: 8px;
+    }
+
+    .producto-header {
+      margin-bottom: 0.4rem;
+      gap: 0.4rem;
+    }
+
+    .producto-icon-badge {
+      width: 26px;
+      height: 26px;
+
+      i {
+        font-size: 0.8rem;
+      }
+    }
+
+    .producto-name {
+      font-size: 0.85rem;
+      line-height: 1.15;
+    }
+
+    .producto-details {
+      padding-left: 2rem;
+    }
+
+    .quantity-badge {
+      min-width: 24px;
+      height: 20px;
+      font-size: 0.75rem;
+      padding: 0 0.4rem;
+    }
+
+    .unit-price {
+      font-size: 0.75rem;
+    }
+
+    .producto-subtotal {
+      font-size: 0.95rem;
+    }
+
+    .total-stamp {
+      margin: 0.5rem 1rem 0.625rem;
+    }
+
+    .stamp-border {
+      border-radius: 10px;
+      padding: 2px;
+    }
+
+    .stamp-content {
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    .stamp-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.5px;
+    }
+
+    .stamp-amount {
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+    }
   }
 }
