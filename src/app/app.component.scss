@@ -33,8 +33,13 @@
 /* Espaciadores para barra inferior (mobile) y margen seguro (desktop/webview) */
 /* (revert) sin espaciadores globales */
 
-/* Compensación global en WebView: evita solapamiento con topbar y dock */
+/* Compensación global en WebView: ORIGINAL */
 .is-webview {
-  padding-top: var(--native-topbar-h);
+  padding-top: var(--native-topbar-h); // Padding original para Android
   padding-bottom: calc(var(--quick-actions-h) + env(safe-area-inset-bottom));
+}
+
+/* iOS ESPECÍFICO: Padding igual que en Home (que se ve perfecto) */
+body.capacitor-ios-webview .is-webview {
+  padding-top: 0 !important; // iOS: SIN padding principal (igual que Home)
 }

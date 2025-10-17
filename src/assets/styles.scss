@@ -24,17 +24,86 @@ body {
   /* Evitar rubber-band en iOS dentro de WebView */
   overscroll-behavior: none;
 
-  /* Compat iOS 11 */
+  /* Compat iOS 11 - solo laterales y bottom (top se maneja en native-topbar) */
   padding-top: constant(safe-area-inset-top);
   padding-right: constant(safe-area-inset-right);
   padding-bottom: constant(safe-area-inset-bottom);
   padding-left: constant(safe-area-inset-left);
 
-  /* Navegadores modernos */
+  /* Navegadores modernos - solo laterales y bottom (top se maneja en native-topbar) */
   padding-top: env(safe-area-inset-top);
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
+}
+
+/* CORRECCIÓN iOS: Remover padding-top del body en webview iOS para evitar doble safe-area */
+@supports (-webkit-touch-callout: none) {
+  /* Solo iOS */
+  body.capacitor-ios {
+    padding-top: 0 !important;
+  }
+}
+
+/* EFECTO BLUR iOS: Contenido borroso detrás de la isla dinámica - DEBUG VERSION */
+.blur-overlay-ios-debug {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: env(safe-area-inset-top, 50px) !important;
+  /* Fondo visible para debug */
+  background: rgba(255, 0, 0, 0.3) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  z-index: 1030 !important;
+  pointer-events: none !important;
+  display: block !important;
+}
+
+/* Zona específica isla dinámica - más visible */
+.blur-overlay-ios-debug::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 140px !important;
+  height: 100% !important;
+  /* Fondo azul para debug de la isla */
+  background: rgba(0, 0, 255, 0.4) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  border-radius: 0 0 20px 20px !important;
+}
+
+/* Versión final (activar cuando debug funcione) */
+.blur-overlay-ios-final {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: env(safe-area-inset-top, 50px) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(25px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+  z-index: 1030 !important;
+  pointer-events: none !important;
+  display: block !important;
+}
+
+.blur-overlay-ios-final::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 140px !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(35px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(35px) saturate(200%) !important;
+  border-radius: 0 0 20px 20px !important;
 }
 
 /* Utilidades opcionales */

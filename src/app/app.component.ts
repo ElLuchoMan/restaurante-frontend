@@ -80,6 +80,11 @@ export class AppComponent implements OnInit, OnDestroy {
       typeof cap.getPlatform === 'function' &&
       cap.getPlatform() !== 'web'
     );
+
+    // Detectar plataforma específica y añadir clases CSS
+    if (this.isWebView) {
+      this.detectPlatformAndAddClass(cap);
+    }
     // stream para saber si estamos en Home (para mostrar/ocultar footer en mobile)
     this.isHome$ = this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),
@@ -215,6 +220,76 @@ export class AppComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.location.back();
+  }
+
+  /**
+   * Detecta la plataforma específica y añade clases CSS para estilos diferenciados
+   */
+  private detectPlatformAndAddClass(cap: any): void {
+    try {
+      const platform = cap?.getPlatform?.();
+      
+      if (platform === 'ios') {
+        document.body.classList.add('capacitor-ios-webview');
+        this.applyiOSSpacingFix();
+      } else if (platform === 'android') {
+        document.body.classList.add('capacitor-android-webview');
+      } else {
+        // Fallback detection
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
+          document.body.classList.add('capacitor-ios-webview');
+          this.applyiOSSpacingFix();
+        } else if (userAgent.includes('android')) {
+          document.body.classList.add('capacitor-android-webview');
+        }
+      }
+    } catch (error) {
+      console.warn('[Platform] Error detecting platform:', error);
+    }
+  }
+
+  /**
+   * Aplica estilos inline forzados para espaciado iOS
+   */
+  private applyiOSSpacingFix(): void {
+    // Esperar a que el DOM esté listo
+    setTimeout(() => {
+      // Forzar espaciado en containers principales
+      const mainElement = document.querySelector('main.is-webview') as HTMLElement;
+      if (mainElement) {
+        mainElement.style.paddingTop = '0';
+      }
+
+      // Forzar espaciado en botón volver
+      const volverContainer = document.querySelector('.volver-container') as HTMLElement;
+      if (volverContainer) {
+        volverContainer.style.marginTop = '1.5rem';
+        volverContainer.style.marginBottom = '0';
+        volverContainer.style.paddingTop = '0';
+      }
+
+      // Forzar espaciado en containers y secciones
+      const containers = document.querySelectorAll('.is-webview .container, .is-webview .container-fluid');
+      containers.forEach((container: Element) => {
+        const el = container as HTMLElement;
+        if (el.classList.contains('py-5') || el.classList.contains('py-4')) {
+          el.style.paddingTop = '1.5rem';
+          el.style.marginTop = '0';
+        } else {
+          el.style.paddingTop = '0';
+          el.style.marginTop = '0';
+        }
+      });
+    }, 100);
+
+    // Re-aplicar en cambios de ruta
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      setTimeout(() => this.applyiOSSpacingFix(), 100);
+    });
   }
 
   ngOnDestroy(): void {

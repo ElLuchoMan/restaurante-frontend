@@ -83,11 +83,24 @@ export class NativePushService {
           await FirebaseMessaging.requestPermissions();
         } catch {}
 
-        const tokenRes: { token?: string } = (await FirebaseMessaging.getToken()) as any;
-        fcmToken = tokenRes?.token || undefined;
+        // Manejo especial para iOS donde Firebase puede no estar completamente configurado
+        try {
+          const tokenRes: { token?: string } = (await FirebaseMessaging.getToken()) as any;
+          fcmToken = tokenRes?.token || undefined;
+        } catch (e: any) {
+          // En iOS, si Firebase no está configurado correctamente, usar fallback
+          const cap: any = (window as any).Capacitor;
+          const isIOS = cap?.getPlatform?.() === 'ios';
+          if (isIOS && (e?.message?.includes('APNS') || e?.message?.includes('Firebase'))) {
+            console.warn('[Push] Firebase no configurado en iOS, usando fallback');
+            fcmToken = undefined; // Permitir que continúe al fallback
+          } else {
+            throw e; // Re-throw si no es el error esperado de iOS
+          }
+        }
 
         // Listener nativo de FirebaseMessaging en foreground (único)
-        if (!this.listenersBound) {
+        if (!this.listenersBound && fcmToken) { // Solo si tenemos token válido
           this.listenersBound = true;
           try {
             FirebaseMessaging.addListener('notificationReceived', async (notification: any) => {
