@@ -1,76 +1,156 @@
-<div class="container-fluid mt-4">
-  <div class="container">
-    <div class="row justify-content-center">
-      <h1 class="text-center mb-4">Mi Perfil</h1>
-      <div class="card card-normal p-4">
-        <section class="perfil">
-          <div class="perfil__container">
-            <header class="perfil__header">
-              <div class="perfil__avatar" aria-hidden="true">👤</div>
+<div class="page-shell">
+  <div class="perfil-container">
+    <!-- Loading State -->
+    <div class="loading-overlay" *ngIf="cargando">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Cargando tu perfil...</p>
+    </div>
 
-              <div class="perfil__titles">
-                <h1 class="perfil__title">
-                  {{ nombre }}
-                  <span class="badge badge--ok" *ngIf="observaciones">
-                    {{ observaciones }}
-                  </span>
-                </h1>
-                <p class="perfil__subtitle">
-                  Esta es tu información personal que tenemos registrada
-                </p>
-              </div>
-            </header>
+    <!-- Error State -->
+    <div class="error-banner" *ngIf="!cargando && errorCargando">
+      <div class="error-icon">⚠️</div>
+      <div class="error-content">
+        <h3 class="error-title">No pudimos cargar algunos datos</h3>
+        <p class="error-text">Se mostrarán valores por defecto. Por favor, intenta más tarde.</p>
+      </div>
+    </div>
 
-            <div class="perfil__panel">
-              <div class="perfil__row">
-                <div class="chip">
-                  <span class="chip__label">Documento</span>
-                  <span class="chip__value">{{ documento || '—' }}</span>
-                </div>
+    <!-- Profile Header with Gradient -->
+    <div class="perfil-hero">
+      <div class="hero-decoration"></div>
+      <div class="hero-content">
+        <div class="avatar-wrapper">
+          <div class="avatar-circle">
+            <div class="avatar-icon">👤</div>
+            <div class="avatar-ring"></div>
+          </div>
+        </div>
+        
+        <div class="hero-info">
+          <div class="welcome-badge">¡Bienvenido!</div>
+          <h1 class="hero-name">{{ nombre }}</h1>
+          <div class="hero-badges">
+            <span class="status-badge status-badge--premium" *ngIf="observaciones">
+              <span class="badge-icon">⭐</span>
+              {{ observaciones }}
+            </span>
+            <span class="status-badge status-badge--verified">
+              <span class="badge-icon">✓</span>
+              Verificado
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-                <div class="chip">
-                  <span class="chip__label">Teléfono</span>
-                  <span class="chip__value">{{ telefono || 'No registrado' }}</span>
-                </div>
+    <!-- Profile Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--primary">📋</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ documento || '—' }}</div>
+          <div class="stat-label">Documento</div>
+        </div>
+      </div>
 
-                <div class="chip">
-                  <span class="chip__label">Dirección</span>
-                  <span class="chip__value">{{ direccion || 'No registrada' }}</span>
-                </div>
-                <div class="chip">
-                  <span class="chip__label">Correo</span>
-                  <span class="chip__value">{{ correo || 'No registrada' }}</span>
-                </div>
-              </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--success">📞</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ telefono || 'No registrado' }}</div>
+          <div class="stat-label">Teléfono</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--info">📧</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ correo || 'No registrado' }}</div>
+          <div class="stat-label">Correo electrónico</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--warning">📍</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ direccion || 'No registrada' }}</div>
+          <div class="stat-label">Dirección de entrega</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <section class="quick-actions-section">
+      <h2 class="section-title">
+        <span class="title-decoration"></span>
+        Acciones rápidas
+      </h2>
+
+      <div class="action-cards-grid">
+        <!-- Mis Pedidos Card -->
+        <a class="action-card action-card--orange" routerLink="/cliente/mis-pedidos" aria-label="Ver mis pedidos">
+          <div class="action-card-bg"></div>
+          <div class="action-card-content">
+            <div class="action-icon-wrapper">
+              <div class="action-icon">🧾</div>
             </div>
-            <div class="perfil__grid">
-              <a class="card" routerLink="/cliente/mis-pedidos" aria-label="Ir a mis pedidos">
-                <div class="card__icon">🧾</div>
-                <div class="card__title">Mis pedidos</div>
-                <p class="card__text">Consulta tu historial y el estado de tus órdenes.</p>
-                <span class="card__cta">Ver pedidos</span>
-              </a>
-              <a class="card" routerLink="/reservas/consultar" aria-label="Ir a mis reservas">
-                <div class="card__icon">📅</div>
-                <div class="card__title">Mis reservas</div>
-                <p class="card__text">Ver y gestionar tus reservas.</p>
-                <span class="card__cta">Ver reservas</span>
-              </a>
-              <div class="card card--disabled" title="Próximamente" aria-disabled="true">
-                <div class="card__icon">👤</div>
-                <div class="card__title">Datos personales</div>
-                <p class="card__text">Próximamente podrás editar tus datos.</p>
-                <span class="card__cta">Próximamente</span>
-              </div>
-            </div>
-            <div class="state" *ngIf="cargando || errorCargando">
-              <div class="state__box" *ngIf="cargando">Cargando tu perfil…</div>
-              <div class="state__box" *ngIf="!cargando && errorCargando">
-                No pudimos cargar tus datos. Se mostrarán valores por defecto.
-              </div>
+            <h3 class="action-title">Mis Pedidos</h3>
+            <p class="action-description">Consulta el historial completo de tus órdenes y su estado actual</p>
+            <div class="action-footer">
+              <span class="action-link">
+                Ver pedidos
+                <span class="arrow-icon">→</span>
+              </span>
             </div>
           </div>
-        </section>
+        </a>
+
+        <!-- Mis Reservas Card -->
+        <a class="action-card action-card--blue" routerLink="/reservas/consultar" aria-label="Ver mis reservas">
+          <div class="action-card-bg"></div>
+          <div class="action-card-content">
+            <div class="action-icon-wrapper">
+              <div class="action-icon">📅</div>
+            </div>
+            <h3 class="action-title">Mis Reservas</h3>
+            <p class="action-description">Gestiona tus reservas de mesa y consulta próximas visitas</p>
+            <div class="action-footer">
+              <span class="action-link">
+                Ver reservas
+                <span class="arrow-icon">→</span>
+              </span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Datos Personales Card (Disabled) -->
+        <div class="action-card action-card--disabled" title="Próximamente disponible" aria-disabled="true">
+          <div class="action-card-bg"></div>
+          <div class="action-card-content">
+            <div class="action-icon-wrapper">
+              <div class="action-icon">👤</div>
+            </div>
+            <h3 class="action-title">Editar Perfil</h3>
+            <p class="action-description">Actualiza tu información personal y preferencias</p>
+            <div class="action-footer">
+              <span class="action-link action-link--disabled">
+                <span class="coming-soon-badge">Próximamente</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Help Section -->
+    <div class="help-banner">
+      <div class="help-icon">💡</div>
+      <div class="help-content">
+        <h3 class="help-title">¿Necesitas ayuda?</h3>
+        <p class="help-text">Estamos aquí para ayudarte con cualquier duda sobre tu cuenta o servicios.</p>
+        <a routerLink="/contacto" class="help-button">
+          Contactar soporte
+          <span class="button-icon">→</span>
+        </a>
       </div>
     </div>
   </div>
