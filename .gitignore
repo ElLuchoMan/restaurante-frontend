@@ -47,5 +47,9 @@ Thumbs.db
 public/app-config.local.json
 VAPID_KEYS.txt
 
+# Firebase/Google Services credentials (NEVER commit these)
+android/app/google-services.json
+ios/App/App/GoogleService-Info.plist
+
 # Local Netlify folder
 .netlify

@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyB2XZa5FL0LLCkg0b6pkKBAgS8L0I4D9VM</string>
+	<string>YOUR_API_KEY_HERE</string>
 	<key>GCM_SENDER_ID</key>
-	<string>977580285525</string>
+	<string>YOUR_GCM_SENDER_ID</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>fogon.maria.app</string>
+	<string>com.elfogondemaria.app</string>
 	<key>PROJECT_ID</key>
-	<string>el-fogon-de-maria</string>
+	<string>YOUR_PROJECT_ID</string>
 	<key>STORAGE_BUCKET</key>
-	<string>el-fogon-de-maria.firebasestorage.app</string>
+	<string>YOUR_STORAGE_BUCKET</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:977580285525:ios:bc0ecb7b60c5c26183bedc</string>
+	<string>YOUR_GOOGLE_APP_ID</string>
 </dict>
 </plist>
+
