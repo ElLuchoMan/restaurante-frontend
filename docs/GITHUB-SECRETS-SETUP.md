@@ -1,325 +1,308 @@
-# 🔐 Configuración de GitHub Secrets
+# 🔐 Configurar Firebase con GitHub Secrets
 
-## 📊 Token de Codecov (Cobertura de Tests)
+Esta guía explica cómo gestionar las credenciales de Firebase de forma segura usando **GitHub Secrets**.
 
-### ¿Qué es Codecov?
+## 📋 Tabla de Contenidos
 
-Codecov es un servicio que analiza y visualiza la cobertura de código de tus tests automáticamente en cada PR y commit.
+- [¿Por qué GitHub Secrets?](#por-qué-github-secrets)
+- [Configuración Inicial](#configuración-inicial)
+- [Desarrollo Local](#desarrollo-local)
+- [CI/CD con GitHub Actions](#cicd-con-github-actions)
+- [Troubleshooting](#troubleshooting)
 
-### 📝 Configuración del Token
+## ¿Por qué GitHub Secrets?
 
-1. **Crear cuenta en Codecov**
-   - Ve a [https://codecov.io](https://codecov.io)
-   - Haz login con tu cuenta de GitHub
-   - Autoriza a Codecov para acceder a tus repositorios
+✅ **Ventajas:**
+- Credenciales nunca se commitean al repositorio
+- Gestionadas centralizadamente en GitHub
+- Acceso controlado por permisos del repositorio
+- Fácil rotación sin modificar código
+- Funciona automáticamente en CI/CD
 
-2. **Agregar el repositorio**
-   - En el dashboard de Codecov, busca `restaurante-frontend`
-   - Click en el repositorio para agregarlo
+❌ **Evitamos:**
+- Exponer API keys públicamente
+- Compartir credenciales por email/chat
+- Credenciales hardcodeadas en el código
 
-3. **Obtener el token**
-   - En la configuración del repositorio en Codecov
-   - Ve a **Settings** → **General** → **Repository Upload Token**
-   - Copia el token (algo como: `abc123def456...`)
+## Configuración Inicial
 
-4. **Agregar el token a GitHub Secrets**
-   - Ve a tu repositorio en GitHub: `https://github.com/TU_USUARIO/restaurante-frontend`
-   - Navega a **Settings** → **Secrets and variables** → **Actions**
-   - Click en **"New repository secret"**
-   - Name: `CODECOV_TOKEN`
-   - Value: Pega el token copiado de Codecov
-   - Click en **"Add secret"**
+### Paso 1: Obtener las Credenciales de Firebase
 
-### 🚀 Uso en CI
+#### Para Android (`google-services.json`):
+1. Ve a [Firebase Console](https://console.firebase.google.com/)
+2. Selecciona tu proyecto
+3. Ve a **Project Settings** (⚙️ icono de configuración)
+4. En la sección **Your apps**, selecciona tu app Android
+5. Descarga el archivo `google-services.json`
 
-Ya configurado en `.github/workflows/ci.yml`:
+#### Para iOS (`GoogleService-Info.plist`):
+1. En la misma pantalla de **Project Settings**
+2. Selecciona tu app iOS
+3. Descarga el archivo `GoogleService-Info.plist`
+
+### Paso 2: Convertir Archivos a Base64 (Opcional pero Recomendado)
+
+```bash
+# Para Android
+cat android/app/google-services.json | base64 > google-services-base64.txt
+
+# Para iOS
+cat ios/App/App/GoogleService-Info.plist | base64 > google-service-info-base64.txt
+```
+
+**Alternativa:** Puedes copiar el contenido completo del archivo directamente (formato JSON/XML).
+
+### Paso 3: Agregar Secrets a GitHub
+
+1. Ve a tu repositorio en GitHub
+2. Click en **Settings** > **Secrets and variables** > **Actions**
+3. Click en **New repository secret**
+4. Crea los siguientes secrets:
+
+#### Secret 1: `GOOGLE_SERVICES_JSON`
+- **Name:** `GOOGLE_SERVICES_JSON`
+- **Value:** Contenido completo del archivo `google-services.json` (o base64)
+
+#### Secret 2: `GOOGLE_SERVICE_INFO_PLIST`
+- **Name:** `GOOGLE_SERVICE_INFO_PLIST`
+- **Value:** Contenido completo del archivo `GoogleService-Info.plist` (o base64)
+
+![GitHub Secrets Setup](https://docs.github.com/assets/cb-28517/images/help/settings/actions-secret-button.png)
+
+## Desarrollo Local
+
+### Opción 1: Archivos Locales (Recomendado)
+
+Coloca los archivos manualmente en tu máquina:
+
+```bash
+# Android
+cp ~/Downloads/google-services.json android/app/
+
+# iOS
+cp ~/Downloads/GoogleService-Info.plist ios/App/App/
+
+# Verifica que NO aparecen en git
+git status  # No deben listarse
+```
+
+### Opción 2: Variables de Entorno Locales
+
+1. Crea un archivo `.env.local` (ya está en `.gitignore`):
+
+```bash
+# .env.local
+export GOOGLE_SERVICES_JSON='{"project_info": {...}}'  # Contenido completo
+export GOOGLE_SERVICE_INFO_PLIST='<?xml version="1.0"...'  # Contenido completo
+```
+
+2. Carga las variables y ejecuta el script:
+
+```bash
+source .env.local
+npm run firebase:setup
+```
+
+### Setup en Nueva Máquina (PC/Mac)
+
+```bash
+# 1. Clona el repositorio
+git clone https://github.com/ElLuchoMan/restaurante-frontend.git
+cd restaurante-frontend
+
+# 2. Instala dependencias
+npm install
+
+# 3. Coloca las credenciales (Opción A - Manual)
+cp ~/Downloads/google-services.json android/app/
+cp ~/Downloads/GoogleService-Info.plist ios/App/App/
+
+# O (Opción B - Con variables de entorno)
+export GOOGLE_SERVICES_JSON='...'
+export GOOGLE_SERVICE_INFO_PLIST='...'
+npm run firebase:setup
+
+# 4. Compila normalmente
+npm run android  # o npm run ios
+```
+
+## CI/CD con GitHub Actions
+
+Las credenciales se inyectan automáticamente en GitHub Actions usando los secrets.
+
+### Ejemplo de Workflow para Android
 
 ```yaml
-- name: Upload coverage reports to Codecov
-  uses: codecov/codecov-action@v5
-  with:
-    token: ${{ secrets.CODECOV_TOKEN }}
+name: Build Android
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Firebase Credentials
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          npm run firebase:setup
+
+      - name: Build Android
+        run: |
+          npm run build
+          npx cap sync android
+          cd android && ./gradlew assembleRelease
 ```
 
-Codecov detectará automáticamente el archivo `coverage/lcov.info` generado por Jest.
-
-### 📈 Badge de Cobertura
-
-El badge ya está agregado en el README:
-
-```markdown
-[![codecov](https://codecov.io/gh/TU_USUARIO/restaurante-frontend/branch/master/graph/badge.svg)](https://codecov.io/gh/TU_USUARIO/restaurante-frontend)
-```
-
----
-
-## Variables VAPID para Notificaciones Push
-
-### 📦 Claves Generadas
-
-Se han generado las siguientes claves VAPID para notificaciones web:
-
-**✅ Clave Pública (Frontend):**
-```
-BCFXrcyYwESaGDguqj1kidjzHw1QzAx47thsynar5jA2TdDF9fc9nXNCi11ugeAip_UNAFBzcqKt6GG157uK-Pg
-```
-
-**🔒 Clave Privada (Backend):**
-```
-6ACdjLgL8qw8s2RGvnkRyARS56T0NSC4NxWCxeC69Ew
-```
-
----
-
-## 🛠️ Configuración en GitHub
-
-### Para el Repositorio Frontend
-
-1. **Ir a tu repositorio en GitHub**
-   ```
-   https://github.com/TU_USUARIO/restaurante-frontend
-   ```
-
-2. **Navegar a Settings → Secrets and variables → Actions**
-
-3. **Crear un nuevo Repository Secret:**
-   - Click en **"New repository secret"**
-   - Name: `VAPID_PUBLIC_KEY`
-   - Value: `BCFXrcyYwESaGDguqj1kidjzHw1QzAx47thsynar5jA2TdDF9fc9nXNCi11ugeAip_UNAFBzcqKt6GG157uK-Pg`
-   - Click en **"Add secret"**
-
-### Para el Repositorio Backend
-
-1. **Ir a tu repositorio backend en GitHub**
-   ```
-   https://github.com/TU_USUARIO/restaurante-backend
-   ```
-
-2. **Navegar a Settings → Secrets and variables → Actions**
-
-3. **Crear un nuevo Repository Secret:**
-   - Click en **"New repository secret"**
-   - Name: `VAPID_PRIVATE_KEY`
-   - Value: `6ACdjLgL8qw8s2RGvnkRyARS56T0NSC4NxWCxeC69Ew`
-   - Click en **"Add secret"**
-
----
-
-## 🚀 Uso en CI/CD
-
-### En GitHub Actions (Frontend)
+### Ejemplo de Workflow para iOS
 
 ```yaml
-# .github/workflows/deploy.yml
-steps:
-  - name: Build
-    run: npm run build
-    env:
-      VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+name: Build iOS
+
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Firebase Credentials
+        env:
+          GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+        run: |
+          npm run firebase:setup
+
+      - name: Build iOS
+        run: |
+          npm run build
+          npx cap sync ios
+          cd ios/App && xcodebuild -workspace App.xcworkspace -scheme App -configuration Release
 ```
 
-### En Railway/Render (Backend)
+## Rotar Credenciales
 
-**Variables de Entorno:**
-```bash
-VAPID_PUBLIC_KEY=BCFXrcyYwESaGDguqj1kidjzHw1QzAx47thsynar5jA2TdDF9fc9nXNCi11ugeAip_UNAFBzcqKt6GG157uK-Pg
-VAPID_PRIVATE_KEY=6ACdjLgL8qw8s2RGvnkRyARS56T0NSC4NxWCxeC69Ew
-VAPID_SUBJECT=mailto:admin@elfogondemaria.com
-```
+Si las credenciales fueron comprometidas:
 
----
+1. **Regenera en Firebase Console:**
+   - Descarga nuevos archivos `google-services.json` y `GoogleService-Info.plist`
 
-## 📝 Uso en el Código
+2. **Actualiza GitHub Secrets:**
+   - Ve a **Settings** > **Secrets and variables** > **Actions**
+   - Edita `GOOGLE_SERVICES_JSON` y `GOOGLE_SERVICE_INFO_PLIST`
+   - Pega los nuevos valores
 
-### Frontend (Angular)
+3. **Revoca las Antiguas:**
+   - Ve a [Google Cloud Console](https://console.cloud.google.com/)
+   - **APIs & Services** > **Credentials**
+   - Elimina o restringe las API Keys antiguas
 
-**Ya configurado en:**
-- `src/environments/environment.ts` (desarrollo)
-- `src/environments/environment.prod.ts` (producción)
+4. **Actualiza Localmente:**
+   - Reemplaza los archivos locales en tu máquina
+   - O actualiza las variables de entorno
 
-```typescript
-export const environment = {
-  // ...
-  vapidPublicKey: 'BCFXrcyYwESaGDguqj1kidjzHw1QzAx47thsynar5jA2TdDF9fc9nXNCi11ugeAip_UNAFBzcqKt6GG157uK-Pg',
-};
-```
+## Troubleshooting
 
-### Backend (Go)
-
-**Agregar en tu código Go:**
-
-```go
-package main
-
-import (
-    "os"
-    "github.com/SherClockHolmes/webpush-go"
-)
-
-var vapidKeys = &webpush.Keys{
-    Public:  os.Getenv("VAPID_PUBLIC_KEY"),
-    Private: os.Getenv("VAPID_PRIVATE_KEY"),
-}
-
-// Enviar notificación Web Push
-func sendWebPushNotification(subscription *PushSubscription, payload string) error {
-    resp, err := webpush.SendNotification(
-        []byte(payload),
-        &webpush.Subscription{
-            Endpoint: subscription.Endpoint,
-            Keys: webpush.Keys{
-                Auth:   subscription.Auth,
-                P256dh: subscription.P256dh,
-            },
-        },
-        &webpush.Options{
-            Subscriber:      os.Getenv("VAPID_SUBJECT"), // mailto:tu@email.com
-            VAPIDPublicKey:  vapidKeys.Public,
-            VAPIDPrivateKey: vapidKeys.Private,
-            TTL:             30,
-        },
-    )
-
-    if err != nil {
-        return err
-    }
-
-    defer resp.Body.Close()
-    return nil
-}
-```
-
-**Dependencias necesarias:**
-```bash
-go get github.com/SherClockHolmes/webpush-go
-```
-
----
-
-## 🔒 Seguridad
-
-### ⚠️ IMPORTANTE: Nunca Hagas Esto
-
-❌ **NO** subas las claves directamente al código:
-```typescript
-// ❌ MAL
-const vapidKey = '6ACdjLgL8qw8s2RGvnkRyARS56T0NSC4NxWCxeC69Ew';
-```
-
-❌ **NO** las incluyas en archivos de configuración versionados:
-```json
-// ❌ MAL - config.json
-{
-  "vapidPrivateKey": "6ACdjLgL8qw8s2RGvnkRyARS56T0NSC4NxWCxeC69Ew"
-}
-```
-
-### ✅ Buenas Prácticas
-
-✅ **SÍ** usa variables de entorno:
-```typescript
-// ✅ BIEN
-const vapidKey = process.env.VAPID_PRIVATE_KEY;
-```
-
-✅ **SÍ** usa GitHub Secrets para CI/CD
-
-✅ **SÍ** usa servicios de gestión de secretos en producción:
-- AWS Secrets Manager
-- HashiCorp Vault
-- Railway/Render Environment Variables
-
----
-
-## 🧪 Verificar la Configuración
-
-### Frontend
+### Error: "google-services.json not found"
 
 ```bash
-# 1. Build de producción
-npm run build
+# Verifica que el archivo existe
+ls -la android/app/google-services.json
 
-# 2. Servir y abrir en navegador
-npx http-server dist/restaurante-frontend/browser -p 8080
-
-# 3. Abrir DevTools (F12) y verificar en consola:
-# Debe mostrar logs de [WebPush] exitosos
+# Si no existe, ejecútalo manualmente
+export GOOGLE_SERVICES_JSON='...'
+npm run firebase:setup
 ```
 
-### Backend
+### Error: "GoogleService-Info.plist not found"
 
 ```bash
-# Test rápido en Go
-go run main.go
+# Verifica que el archivo existe
+ls -la ios/App/App/GoogleService-Info.plist
 
-# Verificar que las variables estén cargadas
-curl -X POST http://localhost:8080/restaurante/v1/push/enviar \
-  -H "Content-Type: application/json" \
-  -d '{
-    "remitente": {"tipo": "SISTEMA"},
-    "destinatarios": {"tipo": "TODOS"},
-    "notificacion": {
-      "titulo": "Test",
-      "mensaje": "Prueba de notificación"
-    }
-  }'
+# Si no existe, colócalo manualmente o usa el script
+npm run firebase:setup
 ```
 
----
+### Los archivos aparecen en `git status`
 
-## 📚 Referencias
+```bash
+# Verifica que están en .gitignore
+grep "google-services.json" .gitignore
+grep "GoogleService-Info.plist" .gitignore
 
-- [Web Push Protocol (RFC 8030)](https://datatracker.ietf.org/doc/html/rfc8030)
-- [VAPID (RFC 8292)](https://datatracker.ietf.org/doc/html/rfc8292)
-- [GitHub Encrypted Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-- [webpush-go Library](https://github.com/SherClockHolmes/webpush-go)
+# Si no están, agrégalos
+echo "android/app/google-services.json" >> .gitignore
+echo "ios/App/App/GoogleService-Info.plist" >> .gitignore
+```
 
----
+### Error en GitHub Actions
 
-## 🆘 Troubleshooting
+- Verifica que los secrets están configurados en **Settings** > **Secrets and variables** > **Actions**
+- Los nombres deben coincidir exactamente: `GOOGLE_SERVICES_JSON` y `GOOGLE_SERVICE_INFO_PLIST`
+- Asegúrate de que el contenido no tiene saltos de línea extra o espacios
 
-### Error: "VAPID authentication error"
+## Restricciones Recomendadas para API Keys
 
-**Causa:** La clave pública y privada no coinciden
+### Android API Key:
+1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
+2. **APIs & Services** > **Credentials**
+3. Selecciona la API Key de Android
+4. **Application restrictions:**
+   - Tipo: **Android apps**
+   - Package name: `com.elfogondemaria.app`
+   - SHA-1: Agrega las firmas de tus certificados de debug y release
 
-**Solución:** Verifica que ambas claves sean del mismo par generado por `web-push generate-vapid-keys`
+### iOS API Key:
+1. En las mismas **Credentials**
+2. Selecciona la API Key de iOS
+3. **Application restrictions:**
+   - Tipo: **iOS apps**
+   - Bundle ID: `com.elfogondemaria.app`
 
----
+## Monitoreo
 
-### Error: "Unauthorized (401)"
+- Revisa periódicamente el uso de las API Keys en [Google Cloud Console](https://console.cloud.google.com/)
+- Configura alertas para uso anómalo
+- Rota las credenciales cada 6-12 meses
 
-**Causa:** La clave privada no está configurada correctamente en el backend
+## Recursos Adicionales
 
-**Solución:**
-1. Verifica que `VAPID_PRIVATE_KEY` esté en las variables de entorno
-2. Reinicia el servidor backend
-3. Verifica con: `echo $VAPID_PRIVATE_KEY`
+- [Firebase Security Best Practices](https://firebase.google.com/docs/projects/api-keys)
+- [GitHub Secrets Documentation](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+- [Google Cloud API Key Restrictions](https://cloud.google.com/docs/authentication/api-keys#securing_an_api_key)
 
----
+## Soporte
 
-### Las notificaciones no llegan
-
-**Checklist:**
-- [ ] ¿La clave pública está en `environment.ts`?
-- [ ] ¿La clave privada está en las variables de entorno del backend?
-- [ ] ¿El usuario aceptó los permisos de notificación?
-- [ ] ¿El dispositivo está registrado en la base de datos?
-- [ ] ¿El backend está usando la biblioteca de Web Push correctamente?
-
----
-
-## 📋 Resumen de Secrets Requeridos
-
-| Secret | Propósito | Ubicación | Requerido |
-|--------|-----------|-----------|-----------|
-| `CODECOV_TOKEN` | Subir reportes de cobertura | Frontend CI | ✅ |
-| `VAPID_PUBLIC_KEY` | Notificaciones push (cliente) | Frontend | ✅ |
-| `VAPID_PRIVATE_KEY` | Notificaciones push (servidor) | Backend | ✅ |
-| `NETLIFY_AUTH_TOKEN` | Deploy automático | Frontend Deploy | ✅ |
-| `NETLIFY_SITE_ID` | Identificador del sitio | Frontend Deploy | ✅ |
-| `APP_API_BASE` | URL base de la API | Frontend Deploy | ✅ |
-| `GMAPS_API_KEY` | Google Maps | Frontend Deploy | ⚠️ Opcional |
-
----
-
-✨ **Última actualización:** Enero 2025
+Si tienes problemas con la configuración:
+1. Revisa los logs de GitHub Actions
+2. Verifica que los secrets están correctamente configurados
+3. Contacta al administrador del repositorio

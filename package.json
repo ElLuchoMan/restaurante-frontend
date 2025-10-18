@@ -6,6 +6,7 @@
     "start": "ng serve -o --proxy-config proxy.conf.json",
     "port:free": "lsof -ti:4200 | xargs kill -9 2>/dev/null || echo 'Puerto 4200 ya está libre'",
     "mobile:clean": "bash scripts/clean-mobile.sh",
+    "firebase:setup": "bash scripts/setup-firebase-credentials.sh",
     "android:dev": "npm run start -- --host 0.0.0.0 --port 4200",
     "android:dev:adb": "adb reverse tcp:4200 tcp:4200 && npm run android:dev",
     "android:cap:live": "npx cap run android -l --external",
