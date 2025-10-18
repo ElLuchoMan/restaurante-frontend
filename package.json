@@ -4,6 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve -o --proxy-config proxy.conf.json",
+    "port:free": "lsof -ti:4200 | xargs kill -9 2>/dev/null || echo 'Puerto 4200 ya está libre'",
+    "mobile:clean": "bash scripts/clean-mobile.sh",
     "android:dev": "npm run start -- --host 0.0.0.0 --port 4200",
     "android:dev:adb": "adb reverse tcp:4200 tcp:4200 && npm run android:dev",
     "android:cap:live": "npx cap run android -l --external",
@@ -65,10 +67,10 @@
     "@angular/forms": "20.1.6",
     "@angular/platform-browser": "20.1.6",
     "@angular/platform-browser-dynamic": "20.1.6",
-    "@angular/platform-server": "20.1.6",
+    "@angular/platform-server": "^20.3.6",
     "@angular/router": "20.1.6",
     "@angular/service-worker": "20.1.6",
-    "@angular/ssr": "20.1.6",
+    "@angular/ssr": "^20.3.6",
     "@capacitor-firebase/messaging": "^6.3.1",
     "@capacitor/android": "^6.2.1",
     "@capacitor/app": "^6.0.1",
@@ -89,7 +91,7 @@
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "20.1.6",
+    "@angular-devkit/build-angular": "^20.3.6",
     "@angular/cli": "20.1.6",
     "@angular/compiler-cli": "20.1.6",
     "@capacitor/assets": "^3.0.5",
