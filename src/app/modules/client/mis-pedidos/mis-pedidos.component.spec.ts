@@ -1,33 +1,58 @@
+import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Observable, of, throwError } from 'rxjs';
 
+import { LayoutService } from '../../../core/services/layout.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
+import { EstadoPedido } from '../../../shared/constants';
 import {
   createPedidoServiceMock,
   createSpy,
   createUserServiceMock,
 } from '../../../shared/mocks/test-doubles';
 import { Pedido } from '../../../shared/models/pedido.model';
+import { PedidoTicketComponent } from '../pedido-ticket/pedido-ticket.component';
 import { MisPedidosComponent } from './mis-pedidos.component';
+
+@Component({
+  selector: 'app-pedido-ticket',
+  standalone: true,
+  template: '',
+})
+class MockPedidoTicketComponent {
+  @Input() pedido: any;
+}
 
 describe('MisPedidosComponent', () => {
   let component: MisPedidosComponent;
   let fixture: ComponentFixture<MisPedidosComponent>;
   let pedidoService: any;
   let userService: any;
+  let layoutService: any;
 
   beforeEach(async () => {
     pedidoService = createPedidoServiceMock();
     userService = createUserServiceMock();
+    layoutService = {
+      hideHeader: createSpy(),
+      showHeader: createSpy(),
+      headerVisible$: of(true),
+    };
 
     await TestBed.configureTestingModule({
       imports: [MisPedidosComponent],
       providers: [
         { provide: PedidoService, useValue: pedidoService },
         { provide: UserService, useValue: userService },
+        { provide: LayoutService, useValue: layoutService },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(MisPedidosComponent, {
+        remove: { imports: [PedidoTicketComponent] },
+        add: { imports: [MockPedidoTicketComponent] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MisPedidosComponent);
     component = fixture.componentInstance;
@@ -57,7 +82,7 @@ describe('MisPedidosComponent', () => {
       horaPedido: hora,
       createdAt: '',
       delivery: false,
-      estadoPedido: '',
+      estadoPedido: EstadoPedido.EstadoPedidoIniciado,
       pagoId: 0,
       restauranteId: 0,
     });
@@ -116,7 +141,7 @@ describe('MisPedidosComponent', () => {
       horaPedido: '0000-01-01 00:00:00 +0000 UTC',
       createdAt: '',
       delivery: false,
-      estadoPedido: '',
+      estadoPedido: EstadoPedido.EstadoPedidoIniciado,
       pagoId: 0,
       restauranteId: 0,
     };
@@ -299,6 +324,21 @@ describe('MisPedidosComponent', () => {
       expect(component['getEstadoLabel']('CANCELADO')).toBe('Cancelado');
       expect(component['getEstadoLabel']('EN_CAMINO')).toBe('En Camino');
       expect(component['getEstadoLabel']('OTRO')).toBe('OTRO');
+    });
+  });
+  describe('Modal Logic', () => {
+    it('openModal should set selectedPedido and disable scroll', () => {
+      const pedido: any = { pedidoId: 1 };
+      component.openModal(pedido);
+      expect(component.selectedPedido).toBe(pedido);
+      expect(document.body.style.overflow).toBe('hidden');
+    });
+
+    it('closeModal should clear selectedPedido and restore scroll', () => {
+      component.selectedPedido = { pedidoId: 1 } as any;
+      component.closeModal();
+      expect(component.selectedPedido).toBeNull();
+      expect(document.body.style.overflow).toBe('');
     });
   });
 });

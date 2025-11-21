@@ -1,0 +1,110 @@
+<div class="ticket-card" *ngIf="pedido">
+  <!-- Top Section -->
+  <div class="ticket-section ticket-top">
+    <!-- Ticket Header -->
+    <div class="ticket-header">
+      <h2 class="ticket-title">Detalle del Pedido #{{ pedido.pedidoId }}</h2>
+      <button class="ticket-close" (click)="onClose()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Estado Banner -->
+    <div
+      class="estado-banner"
+      [class]="'estado-banner--' + getEstadoClass(pedido.estadoPedido || '')"
+    >
+      <div class="estado-icon-wrapper">
+        <i [class]="'fas ' + getEstadoIcon(pedido.estadoPedido || '')"></i>
+      </div>
+      <div class="estado-content">
+        <span class="estado-label">Estado del Pedido</span>
+        <h2 class="estado-title">{{ getEstadoLabel(pedido.estadoPedido || '') }}</h2>
+      </div>
+    </div>
+
+    <!-- Tipo de Entrega Badge -->
+    <div class="delivery-badge" [class.delivery-badge--active]="pedido.delivery">
+      <i [class]="pedido.delivery ? 'fas fa-shipping-fast' : 'fas fa-store'"></i>
+      <span>{{ pedido.delivery ? 'Envío a Domicilio' : 'Recoger en Restaurante' }}</span>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="info-grid">
+      <div class="info-box">
+        <div class="info-icon">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="info-text">
+          <span class="info-label">Fecha</span>
+          <span class="info-value">{{ pedido.fechaPedido | formatDate: 'date' }}</span>
+        </div>
+      </div>
+      <div class="info-box">
+        <div class="info-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="info-text">
+          <span class="info-label">Hora</span>
+          <span class="info-value">{{ pedido.horaPedido | formatDate: 'time' }}</span>
+        </div>
+      </div>
+      <div class="info-box info-box--full">
+        <div class="info-icon">
+          <i class="fas fa-credit-card"></i>
+        </div>
+        <div class="info-text">
+          <span class="info-label">Método de Pago</span>
+          <span class="info-value">{{ pedido.metodoPago || 'No especificado' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Divider (Perforation) -->
+  <div class="ticket-divider">
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Bottom Section -->
+  <div class="ticket-section ticket-bottom">
+    <div class="section-label">Tu Pedido</div>
+
+    <!-- Productos -->
+    <div class="productos-list">
+      <div class="producto-card" *ngFor="let prod of pedido.productos">
+        <div class="producto-header">
+          <div class="producto-icon-badge">
+            <i class="fas fa-utensils"></i>
+          </div>
+          <h4 class="producto-name">{{ prod.NOMBRE || prod.nombre }}</h4>
+        </div>
+        <div class="producto-details">
+          <div class="producto-quantity-price">
+            <span class="quantity-badge">{{ prod.CANTIDAD || prod.cantidad }}</span>
+            <span class="unit-price"
+              >× ${{ prod.PRECIO_UNITARIO || prod.precio || 0 | number: '1.0-0' }}</span
+            >
+          </div>
+          <div class="producto-subtotal">
+            ${{
+              prod.SUBTOTAL ??
+                (prod.PRECIO_UNITARIO || prod.precio || 0) * (prod.CANTIDAD || prod.cantidad || 1)
+                | number: '1.0-0'
+            }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Stamp -->
+    <div class="total-stamp">
+      <div class="stamp-border">
+        <div class="stamp-content">
+          <span class="stamp-label">Total a Pagar</span>
+          <span class="stamp-amount">${{ pedido.total | number: '1.0-0' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

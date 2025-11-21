@@ -105,13 +105,10 @@
                     <span>{{ p.metodoPago || '—' }}</span>
                   </div>
                   <div class="detail-actions">
-                    <a
-                      class="btn btn-primary btn-block"
-                      [routerLink]="['/cliente/pedido', p.pedidoId]"
-                    >
+                    <button class="btn btn-primary btn-block" (click)="openModal(p)">
                       <i class="fas fa-eye"></i>
                       Ver Detalle Completo
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -193,13 +190,10 @@
 
                 <!-- Botón Ver Detalle -->
                 <div class="detail-actions">
-                  <a
-                    class="btn btn-primary btn-block"
-                    [routerLink]="['/cliente/pedido', p.pedidoId]"
-                  >
+                  <button class="btn btn-primary btn-block" (click)="openModal(p)">
                     <i class="fas fa-eye"></i>
                     Ver Detalle Completo
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -208,4 +202,15 @@
       </div>
     }
   </div>
+
+  <!-- Modal Overlay -->
+  @if (selectedPedido) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-content ticket-modal-content">
+          <app-pedido-ticket [pedido]="selectedPedido" (close)="closeModal()"></app-pedido-ticket>
+        </div>
+      </div>
+    </div>
+  }
 </div>

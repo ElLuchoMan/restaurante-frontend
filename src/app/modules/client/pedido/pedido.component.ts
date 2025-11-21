@@ -3,12 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { PedidoService } from '../../../core/services/pedido.service';
-import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
+import { PedidoTicketComponent } from '../pedido-ticket/pedido-ticket.component';
 
 @Component({
   selector: 'app-pedido',
   standalone: true,
-  imports: [CommonModule, FormatDatePipe],
+  imports: [CommonModule, PedidoTicketComponent],
   templateUrl: './pedido.component.html',
   styleUrls: ['./pedido.component.scss'],
 })
@@ -60,73 +60,5 @@ export class PedidoComponent implements OnInit {
         this.loading = false;
       },
     });
-  }
-
-  /**
-   * Retorna la clase CSS para el estado del pedido
-   */
-  getEstadoClass(estado: string): string {
-    const estadoUpper = estado.toUpperCase();
-    switch (estadoUpper) {
-      case 'TERMINADO':
-      case 'ENTREGADO':
-        return 'success';
-      case 'INICIADO':
-      case 'EN_PREPARACION':
-      case 'PREPARACION':
-        return 'warning';
-      case 'CANCELADO':
-        return 'danger';
-      case 'EN_CAMINO':
-        return 'info';
-      default:
-        return 'default';
-    }
-  }
-
-  /**
-   * Retorna el icono FontAwesome para el estado del pedido
-   */
-  getEstadoIcon(estado: string): string {
-    const estadoUpper = estado.toUpperCase();
-    switch (estadoUpper) {
-      case 'TERMINADO':
-      case 'ENTREGADO':
-        return 'fa-check-circle';
-      case 'INICIADO':
-      case 'EN_PREPARACION':
-      case 'PREPARACION':
-        return 'fa-fire';
-      case 'CANCELADO':
-        return 'fa-times-circle';
-      case 'EN_CAMINO':
-        return 'fa-truck';
-      default:
-        return 'fa-info-circle';
-    }
-  }
-
-  /**
-   * Retorna la etiqueta legible para el estado del pedido
-   */
-  getEstadoLabel(estado: string): string {
-    const estadoUpper = estado.toUpperCase();
-    switch (estadoUpper) {
-      case 'TERMINADO':
-        return 'Terminado';
-      case 'ENTREGADO':
-        return 'Entregado';
-      case 'INICIADO':
-        return 'Iniciado';
-      case 'EN_PREPARACION':
-      case 'PREPARACION':
-        return 'En Preparación';
-      case 'CANCELADO':
-        return 'Cancelado';
-      case 'EN_CAMINO':
-        return 'En Camino';
-      default:
-        return estado;
-    }
   }
 }

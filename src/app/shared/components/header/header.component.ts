@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { CartService } from '../../../core/services/cart.service';
+import { LayoutService } from '../../../core/services/layout.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { NetworkService } from '../../../core/services/network.service';
 import { UserService } from '../../../core/services/user.service';
@@ -38,6 +39,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private live: LiveAnnouncerService,
     private network: NetworkService,
+    private layoutService: LayoutService,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -83,6 +85,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.live.announce('Conexión restablecida');
       }
     });
+
+    // Suscribirse a la visibilidad del header desde LayoutService
+    this.layoutService.headerVisible$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((visible: boolean) => {
+        // Solo actualizar si no estamos en modo nativo (donde siempre está oculto)
+        if (!this.isNative) {
+          this.showHeader = visible;
+        }
+      });
+
     if (this.isBrowser) {
       this.checkScreenSize();
       this.bindMenuA11yHandlers();

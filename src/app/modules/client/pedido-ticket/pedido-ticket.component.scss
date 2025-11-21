@@ -1,0 +1,463 @@
+@use 'sass:color';
+@use '../../../../assets/variables' as *;
+
+.ticket-card {
+  // Remove default card styles
+  background: transparent !important;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  max-width: 400px; // Narrower for ticket look
+  margin: 0 auto;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15)); // Shadow follows the shape
+  display: flex;
+  flex-direction: column;
+}
+
+.ticket-section {
+  background: $white;
+  position: relative;
+  padding: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ticket-top {
+  border-radius: 0;
+
+  // Mask: Top Scallops (Rounded) + Bottom Notches
+  // Top strip: Scallops
+  // Bottom part: Body with notches
+
+  --scallop-size: 20px;
+  --scallop-radius: 6px;
+
+  -webkit-mask-image:
+    radial-gradient(
+      circle at top,
+      transparent var(--scallop-radius),
+      black calc(var(--scallop-radius) + 0.5px)
+    ),
+    radial-gradient(circle at bottom left, transparent 10px, black 10.5px),
+    radial-gradient(circle at bottom right, transparent 10px, black 10.5px);
+
+  -webkit-mask-position:
+    0 0,
+    bottom left,
+    bottom right;
+
+  -webkit-mask-size:
+    var(--scallop-size) calc(var(--scallop-size) + 10px),
+    51% calc(100% - var(--scallop-size)),
+    51% calc(100% - var(--scallop-size));
+
+  -webkit-mask-repeat: repeat-x, no-repeat, no-repeat;
+
+  mask-image:
+    radial-gradient(
+      circle at top,
+      transparent var(--scallop-radius),
+      black calc(var(--scallop-radius) + 0.5px)
+    ),
+    radial-gradient(circle at bottom left, transparent 10px, black 10.5px),
+    radial-gradient(circle at bottom right, transparent 10px, black 10.5px);
+
+  mask-position:
+    0 0,
+    bottom left,
+    bottom right;
+
+  mask-size:
+    var(--scallop-size) calc(var(--scallop-size) + 10px),
+    51% calc(100% - var(--scallop-size)),
+    51% calc(100% - var(--scallop-size));
+
+  mask-repeat: repeat-x, no-repeat, no-repeat;
+
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.ticket-bottom {
+  border-radius: 0;
+
+  // Mask: Bottom Scallops (Rounded) + Top Notches
+
+  --scallop-size: 20px;
+  --scallop-radius: 6px;
+
+  -webkit-mask-image:
+    radial-gradient(
+      circle at bottom,
+      transparent var(--scallop-radius),
+      black calc(var(--scallop-radius) + 0.5px)
+    ),
+    radial-gradient(circle at top left, transparent 10px, black 10.5px),
+    radial-gradient(circle at top right, transparent 10px, black 10.5px);
+
+  -webkit-mask-position:
+    0 100%,
+    top left,
+    top right;
+
+  -webkit-mask-size:
+    var(--scallop-size) calc(var(--scallop-size) + 10px),
+    51% calc(100% - var(--scallop-size)),
+    51% calc(100% - var(--scallop-size));
+
+  -webkit-mask-repeat: repeat-x, no-repeat, no-repeat;
+
+  mask-image:
+    radial-gradient(
+      circle at bottom,
+      transparent var(--scallop-radius),
+      black calc(var(--scallop-radius) + 0.5px)
+    ),
+    radial-gradient(circle at top left, transparent 10px, black 10.5px),
+    radial-gradient(circle at top right, transparent 10px, black 10.5px);
+
+  mask-position:
+    0 100%,
+    top left,
+    top right;
+
+  mask-size:
+    var(--scallop-size) calc(var(--scallop-size) + 10px),
+    51% calc(100% - var(--scallop-size)),
+    51% calc(100% - var(--scallop-size));
+
+  mask-repeat: repeat-x, no-repeat, no-repeat;
+
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Ticket Header */
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid $border-subtle;
+}
+
+.ticket-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: $text-heading-strong;
+  margin: 0;
+}
+
+.ticket-close {
+  background: $gray-lighter;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $text-muted;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: $border-subtle;
+    color: $text-heading-strong;
+    transform: rotate(90deg);
+  }
+}
+
+/* Estado Banner */
+.estado-banner {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: $white;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.estado-banner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba($white, 0.1) 0%, rgba($white, 0) 100%);
+}
+
+.estado-banner--success {
+  background: linear-gradient(135deg, $success 0%, color.adjust($success, $lightness: -10%) 100%);
+}
+.estado-banner--warning {
+  background: linear-gradient(135deg, $warning 0%, color.adjust($warning, $lightness: -10%) 100%);
+}
+.estado-banner--danger {
+  background: linear-gradient(135deg, $danger 0%, color.adjust($danger, $lightness: -10%) 100%);
+}
+.estado-banner--info {
+  background: linear-gradient(135deg, $info 0%, color.adjust($info, $lightness: -10%) 100%);
+}
+.estado-banner--default {
+  background: linear-gradient(135deg, $gray 0%, color.adjust($gray, $lightness: -10%) 100%);
+}
+
+.estado-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  background: rgba($white, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  backdrop-filter: blur(4px);
+}
+
+.estado-content {
+  flex: 1;
+}
+
+.estado-label {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.9;
+  margin-bottom: 0.125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.estado-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Delivery Badge */
+.delivery-badge {
+  background: $gray-lighter;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: $text-body;
+  font-weight: 500;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.delivery-badge--active {
+  background: rgba($info, 0.1);
+  color: $info;
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.info-box {
+  background: $gray-lighter; // Changed to light gray background for boxes
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 8px;
+}
+
+.info-box--full {
+  grid-column: 1 / -1;
+}
+
+.info-icon {
+  width: 32px;
+  height: 32px;
+  background: $white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-muted;
+  font-size: 0.875rem;
+}
+
+.info-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-label {
+  font-size: 0.6875rem;
+  color: $text-muted;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.info-value {
+  font-weight: 600;
+  color: $text-heading-strong;
+  font-size: 0.875rem;
+}
+
+/* Divider */
+.ticket-divider {
+  position: relative;
+  height: 0;
+  z-index: 1;
+}
+
+.divider-line {
+  position: absolute;
+  top: -1px; // Center on the seam
+  left: 1.5rem; // Inset from the notches
+  right: 1.5rem;
+  border-top: 2px dashed $border-subtle;
+}
+
+/* Bottom Section Labels */
+.section-label {
+  text-align: center;
+  color: $text-muted;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Productos List */
+.productos-list {
+  margin-bottom: 1.5rem;
+  max-height: 300px; // Limit height of product list
+  overflow-y: auto; // Scroll only the list
+  padding-right: 0.5rem; // Space for scrollbar
+
+  // Thin scrollbar styling
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: $border-subtle;
+    border-radius: 4px;
+  }
+}
+
+.producto-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  border-bottom: 1px dashed $border-subtle;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.producto-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.producto-icon-badge {
+  width: 24px;
+  height: 24px;
+  background: rgba($tertiary, 0.1);
+  color: $tertiary;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.producto-name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: $text-heading-strong;
+}
+
+.producto-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 2.25rem;
+}
+
+.producto-quantity-price {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quantity-badge {
+  background: $gray-lighter;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $text-body;
+}
+
+.unit-price {
+  color: $text-muted;
+  font-size: 0.8125rem;
+}
+
+.producto-subtotal {
+  font-weight: 700;
+  color: $text-heading-strong;
+  font-size: 1rem;
+}
+
+/* Total Stamp */
+.total-stamp {
+  margin-top: 1rem;
+}
+
+.stamp-border {
+  border: 2px solid $text-heading-strong;
+  border-radius: 12px;
+  padding: 0.75rem;
+  text-align: center;
+  background: $white;
+  transform: rotate(-1deg);
+}
+
+.stamp-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stamp-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: $text-muted;
+  font-weight: 600;
+}
+
+.stamp-amount {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: $text-heading-strong;
+  line-height: 1;
+}

@@ -4,10 +4,12 @@ import { RouterModule } from '@angular/router';
 import { forkJoin, of, Subject } from 'rxjs';
 import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 
+import { LayoutService } from '../../../core/services/layout.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
 import { Pedido } from '../../../shared/models/pedido.model';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
+import { PedidoTicketComponent } from '../pedido-ticket/pedido-ticket.component';
 
 type DetallesAPI = {
   pedidoId?: number;
@@ -34,18 +36,20 @@ type PedidoCard = Pedido & {
   standalone: true,
   templateUrl: './mis-pedidos.component.html',
   styleUrls: ['./mis-pedidos.component.scss'],
-  imports: [CommonModule, RouterModule, FormatDatePipe],
+  imports: [CommonModule, RouterModule, FormatDatePipe, PedidoTicketComponent],
 })
 export class MisPedidosComponent implements OnInit, OnDestroy {
   pedidos: PedidoCard[] = [];
   loading = true;
   error = '';
   expandedPedidoId: number | null = null;
+  selectedPedido: PedidoCard | null = null;
   private destroy$ = new Subject<void>();
 
   constructor(
     private pedidoService: PedidoService,
     private userService: UserService,
+    private layoutService: LayoutService,
   ) {}
 
   ngOnInit(): void {
@@ -91,6 +95,18 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  openModal(pedido: PedidoCard): void {
+    this.selectedPedido = pedido;
+    this.layoutService.hideHeader();
+    document.body.style.overflow = 'hidden'; // Prevent scrolling
+  }
+
+  closeModal(): void {
+    this.selectedPedido = null;
+    this.layoutService.showHeader();
+    document.body.style.overflow = ''; // Restore scrolling
   }
 
   private mergeDetalles(p: Pedido, det?: DetallesAPI): PedidoCard {

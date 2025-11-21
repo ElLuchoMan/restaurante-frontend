@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { LayoutService } from '../../../core/services/layout.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { UserService } from '../../../core/services/user.service';
 import { ModalData } from '../../../shared/models/modal.model';
@@ -47,6 +48,7 @@ export class ModalComponent implements OnInit {
   constructor(
     private modalService: ModalService,
     private userService: UserService,
+    private layoutService: LayoutService,
   ) {}
 
   ngOnInit() {
@@ -66,6 +68,11 @@ export class ModalComponent implements OnInit {
 
     this.modalService.isOpen$.subscribe((state) => {
       this.isOpen = state;
+      if (state) {
+        this.layoutService.hideHeader();
+      } else {
+        this.layoutService.showHeader();
+      }
       // Limpiar observaciones al cerrar el modal
       if (!state) {
         this.observaciones = '';

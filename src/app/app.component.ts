@@ -8,19 +8,21 @@ import { NetworkService } from './core/services/network.service';
 import { SeoService } from './core/services/seo.service';
 import { UserService } from './core/services/user.service';
 import { WebPushService } from './core/services/web-push.service';
+import { FooterComponent } from './shared/components/footer/footer.component';
+import { HeaderComponent } from './shared/components/header/header.component';
 import { ModalComponent } from './shared/components/modal/modal.component';
 import { NativeTopbarComponent } from './shared/components/native-topbar/native-topbar.component';
 import { NotificationPromptComponent } from './shared/components/notification-prompt/notification-prompt.component';
 import { QuickActionsComponent } from './shared/components/quick-actions/quick-actions.component';
 import { UpdateBannerComponent } from './shared/components/update-banner/update-banner.component';
-import { SharedModule } from './shared/shared.module';
 
 @Component({
   selector: 'app-root',
   imports: [
     CommonModule,
     RouterOutlet,
-    SharedModule,
+    HeaderComponent,
+    FooterComponent,
     ModalComponent,
     UpdateBannerComponent,
     QuickActionsComponent,
@@ -228,7 +230,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private detectPlatformAndAddClass(cap: any): void {
     try {
       const platform = cap?.getPlatform?.();
-      
+
       if (platform === 'ios') {
         document.body.classList.add('capacitor-ios-webview');
         this.applyiOSSpacingFix();
@@ -270,7 +272,9 @@ export class AppComponent implements OnInit, OnDestroy {
       }
 
       // Forzar espaciado en containers y secciones
-      const containers = document.querySelectorAll('.is-webview .container, .is-webview .container-fluid');
+      const containers = document.querySelectorAll(
+        '.is-webview .container, .is-webview .container-fluid',
+      );
       containers.forEach((container: Element) => {
         const el = container as HTMLElement;
         if (el.classList.contains('py-5') || el.classList.contains('py-4')) {
@@ -284,12 +288,14 @@ export class AppComponent implements OnInit, OnDestroy {
     }, 100);
 
     // Re-aplicar en cambios de ruta
-    this.router.events.pipe(
-      filter((e) => e instanceof NavigationEnd),
-      takeUntil(this.destroy$)
-    ).subscribe(() => {
-      setTimeout(() => this.applyiOSSpacingFix(), 100);
-    });
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        setTimeout(() => this.applyiOSSpacingFix(), 100);
+      });
   }
 
   ngOnDestroy(): void {
