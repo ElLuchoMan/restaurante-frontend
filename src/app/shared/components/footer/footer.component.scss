@@ -13,11 +13,11 @@
 }
 
 .footer-container {
-  background: linear-gradient(135deg, $light 0%, $header-gray-light-95 100%);
+  background: $light;
   position: relative;
   overflow: hidden;
 
-  // Efecto sutil de partículas - más suave
+  // Efecto sutil de partículas - eliminado
   &::before {
     content: '';
     position: absolute;
@@ -25,9 +25,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background:
-      radial-gradient(circle at 20% 50%, $ring-primary-15 0%, transparent 70%),
-      radial-gradient(circle at 80% 50%, $header-coffee-05 0%, transparent 70%);
+    background: rgba($primary, 0.02);
     pointer-events: none;
     z-index: 1;
   }
@@ -207,7 +205,7 @@
 
   &.facebook {
     &:hover {
-      background: linear-gradient(135deg, $info, color.adjust($info, $lightness: 10%));
+      background: $info;
       color: $white;
       border-color: $info;
     }
@@ -499,7 +497,7 @@
   font-size: 0.85rem !important;
 
   &.facebook {
-    background: linear-gradient(135deg, $info, color.adjust($info, $lightness: 10%)) !important;
+    background: $info !important;
     color: $white !important;
 
     &:hover {
@@ -982,11 +980,7 @@
 @media (min-width: 1200px) {
   .footer-container {
     &::before {
-      background:
-        radial-gradient(circle at 15% 40%, $ring-primary-15 0%, transparent 40%),
-        radial-gradient(circle at 85% 60%, $header-coffee-05 0%, transparent 40%),
-        radial-gradient(circle at 50% 20%, $header-primary-10 0%, transparent 30%),
-        radial-gradient(circle at 30% 80%, $shadow-primary-30 0%, transparent 20%);
+      background: transparent, transparent, transparent;
     }
   }
 

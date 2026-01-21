@@ -23,111 +23,13 @@
 }
 
 .ticket-top {
-  border-radius: 0;
-
-  // Mask: Top Scallops (Rounded) + Bottom Notches
-  // Top strip: Scallops
-  // Bottom part: Body with notches
-
-  --scallop-size: 20px;
-  --scallop-radius: 6px;
-
-  -webkit-mask-image:
-    radial-gradient(
-      circle at top,
-      transparent var(--scallop-radius),
-      black calc(var(--scallop-radius) + 0.5px)
-    ),
-    radial-gradient(circle at bottom left, transparent 10px, black 10.5px),
-    radial-gradient(circle at bottom right, transparent 10px, black 10.5px);
-
-  -webkit-mask-position:
-    0 0,
-    bottom left,
-    bottom right;
-
-  -webkit-mask-size:
-    var(--scallop-size) calc(var(--scallop-size) + 10px),
-    51% calc(100% - var(--scallop-size)),
-    51% calc(100% - var(--scallop-size));
-
-  -webkit-mask-repeat: repeat-x, no-repeat, no-repeat;
-
-  mask-image:
-    radial-gradient(
-      circle at top,
-      transparent var(--scallop-radius),
-      black calc(var(--scallop-radius) + 0.5px)
-    ),
-    radial-gradient(circle at bottom left, transparent 10px, black 10.5px),
-    radial-gradient(circle at bottom right, transparent 10px, black 10.5px);
-
-  mask-position:
-    0 0,
-    bottom left,
-    bottom right;
-
-  mask-size:
-    var(--scallop-size) calc(var(--scallop-size) + 10px),
-    51% calc(100% - var(--scallop-size)),
-    51% calc(100% - var(--scallop-size));
-
-  mask-repeat: repeat-x, no-repeat, no-repeat;
-
+  border-radius: 16px 16px 0 0;
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
 
 .ticket-bottom {
-  border-radius: 0;
-
-  // Mask: Bottom Scallops (Rounded) + Top Notches
-
-  --scallop-size: 20px;
-  --scallop-radius: 6px;
-
-  -webkit-mask-image:
-    radial-gradient(
-      circle at bottom,
-      transparent var(--scallop-radius),
-      black calc(var(--scallop-radius) + 0.5px)
-    ),
-    radial-gradient(circle at top left, transparent 10px, black 10.5px),
-    radial-gradient(circle at top right, transparent 10px, black 10.5px);
-
-  -webkit-mask-position:
-    0 100%,
-    top left,
-    top right;
-
-  -webkit-mask-size:
-    var(--scallop-size) calc(var(--scallop-size) + 10px),
-    51% calc(100% - var(--scallop-size)),
-    51% calc(100% - var(--scallop-size));
-
-  -webkit-mask-repeat: repeat-x, no-repeat, no-repeat;
-
-  mask-image:
-    radial-gradient(
-      circle at bottom,
-      transparent var(--scallop-radius),
-      black calc(var(--scallop-radius) + 0.5px)
-    ),
-    radial-gradient(circle at top left, transparent 10px, black 10.5px),
-    radial-gradient(circle at top right, transparent 10px, black 10.5px);
-
-  mask-position:
-    0 100%,
-    top left,
-    top right;
-
-  mask-size:
-    var(--scallop-size) calc(var(--scallop-size) + 10px),
-    51% calc(100% - var(--scallop-size)),
-    51% calc(100% - var(--scallop-size));
-
-  mask-repeat: repeat-x, no-repeat, no-repeat;
-
+  border-radius: 0 0 16px 16px;
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
@@ -189,23 +91,23 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, rgba($white, 0.1) 0%, rgba($white, 0) 100%);
+  background: rgba($white, 0.05);
 }
 
 .estado-banner--success {
-  background: linear-gradient(135deg, $success 0%, color.adjust($success, $lightness: -10%) 100%);
+  background: $success;
 }
 .estado-banner--warning {
-  background: linear-gradient(135deg, $warning 0%, color.adjust($warning, $lightness: -10%) 100%);
+  background: $warning;
 }
 .estado-banner--danger {
-  background: linear-gradient(135deg, $danger 0%, color.adjust($danger, $lightness: -10%) 100%);
+  background: $danger;
 }
 .estado-banner--info {
-  background: linear-gradient(135deg, $info 0%, color.adjust($info, $lightness: -10%) 100%);
+  background: $info;
 }
 .estado-banner--default {
-  background: linear-gradient(135deg, $gray 0%, color.adjust($gray, $lightness: -10%) 100%);
+  background: $gray;
 }
 
 .estado-icon-wrapper {

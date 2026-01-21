@@ -46,7 +46,7 @@
 // ===== OPTIMIZATION OVERLAY =====
 .optimization-overlay {
   position: relative;
-  background: linear-gradient(135deg, rgba($primary, 0.05) 0%, rgba($quaternary, 0.05) 100%);
+  background: rgba($quaternary, 0.05);
   border: 2px solid $primary;
   border-radius: 12px;
   padding: 2rem;
@@ -67,7 +67,7 @@
       background-color: rgba($primary, 0.1);
 
       .progress-bar {
-        background: linear-gradient(90deg, $primary 0%, $quaternary 100%);
+        background: transparent;
         border-radius: 10px;
       }
     }
@@ -96,7 +96,7 @@
   border-radius: 12px;
   padding: 2rem 1.5rem;
   text-align: center;
-  background: linear-gradient(135deg, rgba($primary, 0.02) 0%, rgba($quaternary, 0.02) 100%);
+  background: rgba($quaternary, 0.02);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -115,7 +115,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba($primary, 0.08) 0%, rgba($quaternary, 0.08) 100%);
+    background: rgba($quaternary, 0.08);
     opacity: 0;
     transition: opacity 0.3s ease;
   }

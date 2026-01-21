@@ -2,7 +2,7 @@
 @use 'sass:color';
 
 // ===========================================
-// Perfil de Usuario - Diseño Premium 
+// Perfil de Usuario - Diseño Premium
 // Inspirado en Material Design 3 y Fluent UI
 // ===========================================
 
@@ -56,7 +56,7 @@
 // ===========================================
 
 .error-banner {
-  background: linear-gradient(135deg, rgba($danger, 0.05) 0%, rgba($danger, 0.02) 100%);
+  background: rgba($danger, 0.02);
   border: 1px solid rgba($danger, 0.2);
   border-left: 4px solid $danger;
   border-radius: 16px;
@@ -94,13 +94,13 @@
 // ===========================================
 
 .perfil-hero {
-  background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: -10%) 100%);
+  background: transparent;
   border-radius: 16px;
   padding: 1.25rem 1rem;
   margin-bottom: 1rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 6px 20px rgba($primary, 0.2),
     0 10px 30px rgba($primary, 0.1);
 
@@ -115,7 +115,7 @@
   right: -10%;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  background: transparent;
   border-radius: 50%;
   pointer-events: none;
 }
@@ -151,7 +151,7 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-  
+
   @media (min-width: $breakpoint-md) {
     width: 72px;
     height: 72px;
@@ -176,7 +176,8 @@
 }
 
 @keyframes pulse-ring {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -246,7 +247,7 @@
   }
 
   &--premium {
-    background: linear-gradient(135deg, $success 0%, color.adjust($success, $lightness: -10%) 100%);
+    background: transparent;
     color: $white;
   }
 
@@ -300,7 +301,7 @@
     @media (min-width: $breakpoint-sm) {
       grid-column: 1 / -1;
     }
-    
+
     @media (min-width: $breakpoint-md) {
       grid-column: auto;
     }
@@ -318,19 +319,19 @@
   flex-shrink: 0;
 
   &--primary {
-    background: linear-gradient(135deg, rgba($primary, 0.15) 0%, rgba($primary, 0.05) 100%);
+    background: rgba($primary, 0.05);
   }
 
   &--success {
-    background: linear-gradient(135deg, rgba($success, 0.15) 0%, rgba($success, 0.05) 100%);
+    background: rgba($success, 0.05);
   }
 
   &--info {
-    background: linear-gradient(135deg, rgba($info, 0.15) 0%, rgba($info, 0.05) 100%);
+    background: rgba($info, 0.05);
   }
 
   &--warning {
-    background: linear-gradient(135deg, rgba($warning, 0.15) 0%, rgba($warning, 0.05) 100%);
+    background: rgba($warning, 0.05);
   }
 }
 
@@ -439,15 +440,15 @@
 }
 
 .action-card--orange .action-card-bg {
-  background: linear-gradient(135deg, $tertiary 0%, color.adjust($tertiary, $lightness: -10%) 100%);
+  background: transparent;
 }
 
 .action-card--blue .action-card-bg {
-  background: linear-gradient(135deg, $info 0%, color.adjust($info, $lightness: -10%) 100%);
+  background: transparent;
 }
 
 .action-card--disabled .action-card-bg {
-  background: linear-gradient(135deg, $gray 0%, color.adjust($gray, $lightness: -10%) 100%);
+  background: transparent;
 }
 
 .action-card-content {
@@ -552,7 +553,7 @@
 // ===========================================
 
 .help-banner {
-  background: linear-gradient(135deg, rgba($secondary, 0.05) 0%, rgba($secondary, 0.02) 100%);
+  background: rgba($secondary, 0.02);
   border: 1px solid rgba($secondary, 0.15);
   border-radius: 16px;
   padding: 1.5rem;
@@ -571,7 +572,7 @@
 .help-icon {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, rgba($primary, 0.15) 0%, rgba($primary, 0.05) 100%);
+  background: rgba($primary, 0.05);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -643,7 +644,7 @@
     margin-bottom: 0.75rem;
     border-radius: 14px;
   }
-  
+
   .hero-content {
     gap: 0.625rem;
   }
@@ -656,11 +657,11 @@
   .avatar-icon {
     font-size: 1.5rem;
   }
-  
+
   .avatar-ring {
     display: none; // Ocultar el anillo animado en mobile
   }
-  
+
   .welcome-badge {
     display: none; // Ocultar "¡Bienvenido!" en mobile
   }
@@ -669,17 +670,17 @@
     font-size: 1.15rem;
     margin: 0 0 0.375rem;
   }
-  
+
   .hero-badges {
     gap: 0.375rem;
   }
-  
+
   .status-badge {
     padding: 0.25rem 0.625rem;
     font-size: 0.7rem;
     gap: 0.25rem;
   }
-  
+
   .badge-icon {
     font-size: 0.75rem;
   }
@@ -697,12 +698,12 @@
     min-height: 42px;
     min-width: 0; // Importante para que funcione el ellipsis
     overflow: hidden; // Evitar desbordamiento
-    
+
     &--wide {
       grid-column: 1 / -1;
     }
   }
-  
+
   .stat-icon {
     width: 24px;
     height: 24px;
@@ -710,7 +711,7 @@
     border-radius: 8px;
     flex-shrink: 0; // No permitir que se encoja
   }
-  
+
   .stat-content {
     display: flex;
     flex-direction: column;
@@ -718,7 +719,7 @@
     min-width: 0; // Importante para que funcione el ellipsis
     overflow: hidden; // Evitar desbordamiento
   }
-  
+
   .stat-value {
     font-size: 0.75rem;
     margin-bottom: 0.05rem;
@@ -728,7 +729,7 @@
     white-space: nowrap;
     max-width: 100%;
   }
-  
+
   .stat-label {
     font-size: 0.6rem;
     line-height: 1;
@@ -736,7 +737,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  
 
   .action-cards-grid {
     gap: 0.875rem;
@@ -751,4 +751,3 @@
     padding: 1.25rem;
   }
 }
-

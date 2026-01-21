@@ -44,13 +44,13 @@
       object-position: center;
       transition: transform 0.3s ease;
       display: block;
-      background: linear-gradient(135deg, $light 0%, $white 100%);
+      background: transparent;
 
       // Estilo especial para logo de fallback
       &.fallback-logo {
         object-fit: contain !important;
         padding: 1.5rem;
-        background: linear-gradient(135deg, $light 0%, $white 100%) !important;
+        background: transparent !important;
       }
     }
   }

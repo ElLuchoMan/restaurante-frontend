@@ -126,7 +126,7 @@
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
-  background: linear-gradient(135deg, rgba($primary, 0.08) 0%, rgba($primary, 0.12) 100%);
+  background: rgba($primary, 0.12);
   color: $primary;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -137,7 +137,7 @@
   letter-spacing: 0.5px;
 
   &:hover {
-    background: linear-gradient(135deg, rgba($primary, 0.12) 0%, rgba($primary, 0.18) 100%);
+    background: rgba($primary, 0.18);
     border-color: rgba($primary, 0.25);
     transform: translateY(-1px);
   }

@@ -98,19 +98,11 @@ $shadow-white-20: rgba(255, 255, 255, 0.2); // Sombra blanca media
 $background-bar: #f8f9fae6; // Fondo de barra con alpha
 $border-light: rgba(0, 0, 0, 0.06); // Borde muy sutil
 
-// Gradientes predefinidos
-$gradient-primary: linear-gradient(135deg, #{$primary}, #{$primary-dark}); // Gradiente dorado
-$gradient-primary-hover: linear-gradient(
-  135deg,
-  #{$primary-dark},
-  #{$primary-darker}
-); // Gradiente dorado hover
-$gradient-neutral: linear-gradient(135deg, #{$gray-lighter} 0%, #{$white} 100%); // Gradiente neutro
-$gradient-dark-overlay: linear-gradient(
-  135deg,
-  rgba(44, 62, 80, 0.9) 0%,
-  rgba(52, 73, 94, 0.9) 100%
-); // Overlay oscuro
+// Gradientes eliminados - usando colores sólidos
+$gradient-primary: $primary;
+$gradient-primary-hover: $primary-dark;
+$gradient-neutral: $gray-lighter;
+$gradient-dark-overlay: rgba(44, 62, 80, 0.9);
 
 // Header específico - colores identificados en header.component.scss
 $header-text-primary: #2d3748; // Texto principal del navbar
@@ -143,26 +135,14 @@ $header-gray-light-80: rgba(248, 249, 250, 0.8); // Gris claro con alpha
 $header-gray-light-95: rgba(248, 249, 250, 0.95); // Gris claro fuerte
 $header-danger-30: rgba($header-danger, 0.3); // Rojo suave para sombras
 
-// Gradientes específicos del header
-$header-gradient-primary-light: linear-gradient(135deg, $header-primary-10, $header-coffee-05);
-$header-gradient-primary-medium: linear-gradient(135deg, $header-primary-20, $header-coffee-10);
-$header-gradient-golden-line: linear-gradient(
-  90deg,
-  $header-primary-80,
-  rgba($header-coffee-accent, 0.8)
-);
-$header-gradient-golden-active: linear-gradient(
-  90deg,
-  $header-golden,
-  rgba($header-coffee-accent, 0.8)
-);
-$header-gradient-danger: linear-gradient(135deg, $header-danger, $header-danger-dark);
-$header-gradient-warning: linear-gradient(135deg, rgba($primary, 0.9), rgba(255, 235, 59, 0.8));
-$header-gradient-glass-white: linear-gradient(
-  135deg,
-  rgba(255, 255, 255, 0.9),
-  $header-gray-light-80
-);
+// Gradientes específicos del header - eliminados
+$header-gradient-primary-light: $header-primary-10;
+$header-gradient-primary-medium: $header-primary-20;
+$header-gradient-golden-line: $header-primary-80;
+$header-gradient-golden-active: $header-golden;
+$header-gradient-danger: $header-danger;
+$header-gradient-warning: rgba($primary, 0.9);
+$header-gradient-glass-white: rgba(255, 255, 255, 0.9);
 
 // Colores oficiales de Instagram
 $instagram-purple: #833ab4; // Violeta profundo
@@ -170,14 +150,8 @@ $instagram-magenta: #c13584; // Rosa magenta
 $instagram-pink: #e1306c; // Rosa vibrante
 $instagram-orange: #f56040; // Naranja coral
 
-// Gradiente oficial de Instagram
-$instagram-gradient: linear-gradient(
-  135deg,
-  $instagram-purple,
-  $instagram-magenta,
-  $instagram-pink,
-  $instagram-orange
-);
+// Gradiente oficial de Instagram - eliminado
+$instagram-gradient: $instagram-purple;
 
 // Sombra específica de Instagram
 $instagram-shadow: rgba($instagram-pink, 0.3);

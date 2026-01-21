@@ -15,7 +15,7 @@
     left: 0;
     height: 100%;
     width: var(--progress, 0%);
-    background: linear-gradient(90deg, $quaternary 0%, $primary-dark 100%);
+    background: transparent;
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
     z-index: 1;

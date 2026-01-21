@@ -22,7 +22,7 @@
 
 /* Gradiente de barra superior premium */
 .premium-bar-gradient {
-  background: linear-gradient(135deg, rgba($primary, 0.95) 0%, rgba($secondary, 0.9) 100%);
+  background: rgba($secondary, 0.9);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom-left-radius: 20px;
@@ -42,14 +42,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba($white, 0.1) 25%,
-      rgba($white, 0.3) 50%,
-      rgba($white, 0.1) 75%,
-      transparent 100%
-    );
+    background: rgba($white, 0.2);
     transform: translateX(-100%);
     animation: shimmer 3s infinite;
     pointer-events: none;
@@ -58,11 +51,11 @@
 
 /* Fondos de sección para diferentes áreas */
 .section-bg-gradient-light {
-  background: linear-gradient(135deg, #faf8f3 0%, $white 100%);
+  background: transparent;
 }
 
 .section-bg-dark {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  background: transparent;
   color: $white;
 
   .section-title,

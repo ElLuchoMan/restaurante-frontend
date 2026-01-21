@@ -63,7 +63,7 @@
   right: 0;
   bottom: 0;
   height: 96px;
-  background: linear-gradient(180deg, transparent 0%, $shadow-overlay 100%);
+  background: transparent;
   pointer-events: none;
 }
 
@@ -108,14 +108,14 @@
     z-index: 2;
 
     // Reutilizar estilos de badges existentes
-    background: linear-gradient(135deg, $success, color.adjust($success, $lightness: -5%));
+    background: transparent;
 
     &.hot {
-      background: linear-gradient(135deg, $danger, color.adjust($danger, $lightness: -5%));
+      background: transparent;
     }
 
     &.weekend {
-      background: linear-gradient(135deg, $primary, $primary-dark);
+      background: transparent;
     }
   }
 
@@ -132,7 +132,7 @@
       &.fallback-logo {
         object-fit: contain !important;
         padding: 1.5rem;
-        background: linear-gradient(135deg, $light 0%, $white 100%);
+        background: transparent;
       }
     }
   }
@@ -366,14 +366,14 @@
     z-index: 2;
 
     // Reutilizar estilos de badges existentes
-    background: linear-gradient(135deg, $success, color.adjust($success, $lightness: -5%));
+    background: transparent;
 
     &.hot {
-      background: linear-gradient(135deg, $danger, color.adjust($danger, $lightness: -5%));
+      background: transparent;
     }
 
     &.weekend {
-      background: linear-gradient(135deg, $primary, $primary-dark);
+      background: transparent;
     }
   }
 
@@ -390,7 +390,7 @@
       &.fallback-logo {
         object-fit: contain !important;
         padding: 1.75rem;
-        background: linear-gradient(135deg, $light 0%, $white 100%);
+        background: transparent;
       }
     }
   }
