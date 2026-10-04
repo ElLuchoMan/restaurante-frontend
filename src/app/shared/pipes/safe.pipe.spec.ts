@@ -55,7 +55,7 @@ describe('SafePipe', () => {
 
   it('should throw an error when an invalid type is specified', () => {
     const value = 'test';
-    expect(() => pipe.transform(value, 'invalidType')).toThrowError(
+    expect(() => pipe.transform(value, 'invalidType')).toThrow(
       'Invalid safe type specified: invalidType',
     );
   });
