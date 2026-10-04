@@ -1,6 +1,6 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { LayoutService } from '../../../core/services/layout.service';
@@ -14,6 +14,7 @@ import { ModalData } from '../../../shared/models/modal.model';
   styleUrls: ['./modal.component.scss'],
   imports: [CommonModule, FormsModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [
     trigger('fadeIn', [
       transition(':enter', [

@@ -362,9 +362,7 @@ describe('AppComponent', () => {
       component.ngOnInit();
 
       const values: boolean[] = [];
-      const subscription = component.showGlobalBack$.subscribe((value) =>
-        values.push(value),
-      );
+      const subscription = component.showGlobalBack$.subscribe((value) => values.push(value));
       routerEventsSubject.next(new NavigationEnd(1, '', ''));
 
       // Assert
@@ -830,10 +828,7 @@ describe('AppComponent', () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Assert
-      expect(mockCapacitorApp.addListener).toHaveBeenCalledWith(
-        'backButton',
-        expect.any(Function),
-      );
+      expect(mockCapacitorApp.addListener).toHaveBeenCalledWith('backButton', expect.any(Function));
       const backButtonHandler = mockCapacitorApp.addListener.mock.calls[0][1];
 
       Object.defineProperty(history, 'length', {
@@ -859,10 +854,7 @@ describe('AppComponent', () => {
       component.ngOnInit();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      expect(mockCapacitorApp.addListener).toHaveBeenCalledWith(
-        'backButton',
-        expect.any(Function),
-      );
+      expect(mockCapacitorApp.addListener).toHaveBeenCalledWith('backButton', expect.any(Function));
       const backButtonHandler = mockCapacitorApp.addListener.mock.calls[0][1];
       backButtonHandler();
 

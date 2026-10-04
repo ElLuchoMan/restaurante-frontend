@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
 
 @Component({
@@ -7,6 +7,7 @@ import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
   standalone: true,
   imports: [CommonModule, FormatDatePipe],
   templateUrl: './pedido-ticket.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./pedido-ticket.component.scss'],
 })
 export class PedidoTicketComponent {

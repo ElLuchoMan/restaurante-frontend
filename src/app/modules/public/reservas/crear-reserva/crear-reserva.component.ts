@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -18,6 +18,7 @@ import { ClienteService } from './../../../../core/services/cliente.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './crear-reserva.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./crear-reserva.component.scss'],
 })
 export class CrearReservaComponent implements OnInit {

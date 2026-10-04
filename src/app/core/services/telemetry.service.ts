@@ -86,9 +86,9 @@ export class TelemetryService {
   getReservasAnalisis(params?: TelemetryParams): Observable<ApiResponse<ReservasAnalisisData>> {
     const httpParams = this.buildParams(params);
     return this.http
-      .get<
-        ApiResponse<ReservasAnalisisData>
-      >(`${this.baseUrl}/reservas-analisis`, { params: httpParams })
+      .get<ApiResponse<ReservasAnalisisData>>(`${this.baseUrl}/reservas-analisis`, {
+        params: httpParams,
+      })
       .pipe(catchError(this.handleError.handleError));
   }
 
@@ -98,9 +98,9 @@ export class TelemetryService {
   getPedidosAnalisis(params?: TelemetryParams): Observable<ApiResponse<PedidosAnalisisData>> {
     const httpParams = this.buildParams(params);
     return this.http
-      .get<
-        ApiResponse<PedidosAnalisisData>
-      >(`${this.baseUrl}/pedidos-analisis`, { params: httpParams })
+      .get<ApiResponse<PedidosAnalisisData>>(`${this.baseUrl}/pedidos-analisis`, {
+        params: httpParams,
+      })
       .pipe(catchError(this.handleError.handleError));
   }
 
@@ -221,8 +221,12 @@ export class TelemetryService {
   /**
    * Inicializa la detección del tipo de dispositivo
    */
+  private getWindow(): (Window & { Capacitor?: unknown }) | undefined {
+    return typeof window === 'undefined' ? undefined : window;
+  }
+
   private initializeDeviceType(): void {
-    if (typeof window === 'undefined') return;
+    if (!this.getWindow()) return;
 
     const storedDeviceType = localStorage.getItem(this.deviceTypeKey);
     if (!storedDeviceType) {
@@ -235,12 +239,13 @@ export class TelemetryService {
    * Detecta el tipo de dispositivo basado en el user agent y otras características
    */
   private detectDeviceType(): DeviceType {
-    if (typeof window === 'undefined') return 'desktop';
+    const win = this.getWindow();
+    if (!win) return 'desktop';
 
     const userAgent = navigator.userAgent.toLowerCase();
 
     // Detectar si es una aplicación Capacitor (Android/iOS)
-    if ((window as Window & { Capacitor?: unknown }).Capacitor) {
+    if (win.Capacitor) {
       if (userAgent.includes('android')) return 'android';
       if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'ios';
     }

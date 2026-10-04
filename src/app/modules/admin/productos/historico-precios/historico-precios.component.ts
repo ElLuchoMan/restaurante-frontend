@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { PrecioProductoHistService } from '../../../../core/services/precio-producto-hist.service';
@@ -10,6 +10,7 @@ import { PrecioProductoHist } from '../../../../shared/models/precio-producto-hi
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './historico-precios.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './historico-precios.component.scss',
 })
 export class HistoricoPreciosComponent implements OnInit {

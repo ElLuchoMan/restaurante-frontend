@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -27,6 +27,7 @@ import { ClienteService } from './../../../core/services/cliente.service';
   providers: [FormatDatePipe],
   standalone: true,
   templateUrl: './register.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {

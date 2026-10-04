@@ -161,7 +161,9 @@
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Total Pedidos</h6>
-                <h3 class="mb-0">{{ dashboardData()?.totalPedidos | number }}</h3>
+                <h3 class="mb-0">
+                  {{ $safeNavigationMigration(dashboardData()?.totalPedidos) | number }}
+                </h3>
               </div>
               <i class="fa-solid fa-shopping-cart fa-2x opacity-75"></i>
             </div>
@@ -175,7 +177,10 @@
               <div>
                 <h6 class="card-title">Ingresos Totales</h6>
                 <h3 class="mb-0">
-                  {{ dashboardData()?.totalIngresos | currency: 'COP' : 'symbol' : '1.0-0' }}
+                  {{
+                    $safeNavigationMigration(dashboardData()?.totalIngresos)
+                      | currency: 'COP' : 'symbol' : '1.0-0'
+                  }}
                 </h3>
               </div>
               <i class="fa-solid fa-dollar-sign fa-2x opacity-75"></i>
@@ -189,7 +194,9 @@
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Usuarios Registrados</h6>
-                <h3 class="mb-0">{{ dashboardData()?.totalUsuarios | number }}</h3>
+                <h3 class="mb-0">
+                  {{ $safeNavigationMigration(dashboardData()?.totalUsuarios) | number }}
+                </h3>
               </div>
               <i class="fa-solid fa-users fa-2x opacity-75"></i>
             </div>
@@ -206,7 +213,10 @@
               <div>
                 <h6 class="card-title">Valor Promedio</h6>
                 <h3 class="mb-0">
-                  {{ dashboardData()?.promedioVentaPedido | currency: 'COP' : 'symbol' : '1.0-0' }}
+                  {{
+                    $safeNavigationMigration(dashboardData()?.promedioVentaPedido)
+                      | currency: 'COP' : 'symbol' : '1.0-0'
+                  }}
                 </h3>
               </div>
               <i class="fa-solid fa-chart-line fa-2x opacity-75"></i>
@@ -220,7 +230,9 @@
             <div class="d-flex justify-content-between">
               <div>
                 <h6 class="card-title">Pedidos de Hoy</h6>
-                <h3 class="mb-0">{{ dashboardData()?.pedidosHoy | number }}</h3>
+                <h3 class="mb-0">
+                  {{ $safeNavigationMigration(dashboardData()?.pedidosHoy) | number }}
+                </h3>
               </div>
               <i class="fa-solid fa-calendar-day fa-2x opacity-75"></i>
             </div>
@@ -234,7 +246,10 @@
               <div>
                 <h6 class="card-title">Ingresos de Hoy</h6>
                 <h3 class="mb-0">
-                  {{ dashboardData()?.ingresosHoy | currency: 'COP' : 'symbol' : '1.0-0' }}
+                  {{
+                    $safeNavigationMigration(dashboardData()?.ingresosHoy)
+                      | currency: 'COP' : 'symbol' : '1.0-0'
+                  }}
                 </h3>
               </div>
               <i class="fa-solid fa-coins fa-2x opacity-75"></i>
@@ -282,7 +297,7 @@
               <span class="stats-label">Ticket Promedio:</span>
               <div class="stats-value">
                 <span class="badge bg-success">{{
-                  salesData()?.estadisticasGenerales?.ticketPromedio
+                  $safeNavigationMigration(salesData()?.estadisticasGenerales?.ticketPromedio)
                     | currency: 'COP' : 'symbol' : '1.0-0'
                 }}</span>
               </div>
@@ -291,7 +306,7 @@
               <span class="stats-label">Venta Promedio Diaria:</span>
               <div class="stats-value">
                 <span class="badge bg-warning">{{
-                  salesData()?.estadisticasGenerales?.ventaPromedioDiaria
+                  $safeNavigationMigration(salesData()?.estadisticasGenerales?.ventaPromedioDiaria)
                     | currency: 'COP' : 'symbol' : '1.0-0'
                 }}</span>
               </div>
@@ -377,7 +392,7 @@
                   class="rounded"
                   style="width: 50px; height: 50px; object-fit: cover"
                   [alt]="product.nombreProducto"
-                  onerror="this.style.display='none'"
+                  onerror="this.style.display = 'none'"
                 />
               </div>
               <div class="flex-grow-1">
@@ -417,7 +432,7 @@
                   class="rounded"
                   style="width: 50px; height: 50px; object-fit: cover"
                   [alt]="product.nombreProducto"
-                  onerror="this.style.display='none'"
+                  onerror="this.style.display = 'none'"
                 />
               </div>
               <div class="flex-grow-1">
@@ -562,8 +577,9 @@
               <span class="stats-label">Promedio Gasto por Cliente:</span>
               <div class="stats-value">
                 <span class="badge bg-primary">{{
-                  usersData()?.estadisticasUsuarios?.promedioGastoPorCliente
-                    | currency: 'COP' : 'symbol' : '1.0-0'
+                  $safeNavigationMigration(
+                    usersData()?.estadisticasUsuarios?.promedioGastoPorCliente
+                  ) | currency: 'COP' : 'symbol' : '1.0-0'
                 }}</span>
               </div>
             </div>
@@ -1100,8 +1116,9 @@
                   <div class="stats-value">
                     <span class="badge bg-primary">
                       {{
-                        rentabilidadData()?.estadisticasRentabilidad?.totalGanancias
-                          | currency: 'COP' : 'symbol' : '1.0-0'
+                        $safeNavigationMigration(
+                          rentabilidadData()?.estadisticasRentabilidad?.totalGanancias
+                        ) | currency: 'COP' : 'symbol' : '1.0-0'
                       }}
                     </span>
                   </div>
@@ -1113,8 +1130,9 @@
                   <div class="stats-value">
                     <span class="badge bg-secondary">
                       {{
-                        rentabilidadData()?.estadisticasRentabilidad?.totalIngresos
-                          | currency: 'COP' : 'symbol' : '1.0-0'
+                        $safeNavigationMigration(
+                          rentabilidadData()?.estadisticasRentabilidad?.totalIngresos
+                        ) | currency: 'COP' : 'symbol' : '1.0-0'
                       }}
                     </span>
                   </div>
@@ -1374,8 +1392,9 @@
                   <div class="stats-value">
                     <span class="badge bg-dark">
                       {{
-                        segmentacionData()?.estadisticasSegmentacion?.promedioGastoVIP
-                          | currency: 'COP' : 'symbol' : '1.0-0'
+                        $safeNavigationMigration(
+                          segmentacionData()?.estadisticasSegmentacion?.promedioGastoVIP
+                        ) | currency: 'COP' : 'symbol' : '1.0-0'
                       }}
                     </span>
                   </div>

@@ -1,5 +1,13 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { map, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -21,6 +29,7 @@ export interface TopBarAction {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './native-topbar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./native-topbar.component.scss'],
 })
 export class NativeTopbarComponent implements OnInit, OnDestroy {

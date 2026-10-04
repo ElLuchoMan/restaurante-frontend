@@ -6,7 +6,11 @@ import {
   isDevMode,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideClientHydration, Title } from '@angular/platform-browser';
+import {
+  provideClientHydration,
+  Title,
+  withNoIncrementalHydration,
+} from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import {
   PreloadAllModules,
@@ -51,7 +55,7 @@ export const appConfig: ApplicationConfig = {
         paramsInheritanceStrategy: 'always',
       }),
     ),
-    ...(!isDevMode() ? [provideClientHydration()] : []),
+    ...(!isDevMode() ? [provideClientHydration(withNoIncrementalHydration())] : []),
     provideHttpClient(
       withFetch(),
       withInterceptors([

@@ -340,10 +340,8 @@ describe('QuickActionsComponent', () => {
     observer.trigger(true);
     expect(bar.classList.contains('qa-hidden')).toBe(true);
     const paddingWhenHidden = main.style.paddingBottom;
-    expect(
-      paddingWhenHidden === '' ||
-        paddingWhenHidden.includes('calc(8px + max(env(safe-area-inset-bottom), 0px))'),
-    ).toBe(true);
+    // El parser CSS de jsdom 26 reformatea max(env(...), 0px); se valida solo el prefijo estable.
+    expect(paddingWhenHidden === '' || paddingWhenHidden.startsWith('calc(8px +')).toBe(true);
 
     observer.trigger(false);
     expect(bar.classList.contains('qa-hidden')).toBe(false);

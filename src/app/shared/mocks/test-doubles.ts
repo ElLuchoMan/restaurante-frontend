@@ -1,6 +1,7 @@
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
+import { browserLocation } from '../utils/browser-location';
 
 export function createRequestPermissionMock() {
   return jest.fn().mockResolvedValue('granted');
@@ -413,11 +414,8 @@ export function createReservaNotificationsServiceMock() {
 }
 
 export function createLocationReloadMock() {
-  const reloadMock = jest.fn();
-  // @ts-ignore - Necesitamos mockear location.reload
-  delete (window as any).location;
-  (window as any).location = { reload: reloadMock };
-  return reloadMock;
+  // jsdom 26 no permite redefinir window.location: se espía el wrapper browserLocation.
+  return jest.spyOn(browserLocation, 'reload').mockImplementation(() => {});
 }
 
 export function createInputWithPickerMock() {

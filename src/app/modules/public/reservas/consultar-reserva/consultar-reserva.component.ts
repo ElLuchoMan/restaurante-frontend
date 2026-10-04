@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
@@ -17,6 +17,7 @@ import { FormatDatePipe } from '../../../../shared/pipes/format-date.pipe';
   standalone: true,
   templateUrl: './consultar-reserva.component.html',
   styleUrls: ['./consultar-reserva.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, FormatDatePipe],
 })
 export class ConsultarReservaComponent implements OnInit {

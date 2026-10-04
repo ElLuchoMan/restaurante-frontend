@@ -3,6 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { PerformanceService } from './performance.service';
+import { browserLocation } from '../../shared/utils/browser-location';
 
 class MockRouter {
   public events = new Subject<any>();
@@ -146,20 +147,13 @@ describe('PerformanceService', () => {
 
   it('no registra métricas en consola cuando hostname no es localhost', () => {
     consoleSpy.mockClear();
-    const originalLocation = window.location;
-    Object.defineProperty(window, 'location', {
-      value: { hostname: 'example.com' } as any,
-      configurable: true,
-    });
+    const hostnameSpy = jest.spyOn(browserLocation, 'hostname').mockReturnValue('example.com');
 
     try {
       (svc as any).recordMetrics({ url: '/externa', lcp: 10 });
       expect(consoleSpy).not.toHaveBeenCalled();
     } finally {
-      Object.defineProperty(window, 'location', {
-        value: originalLocation,
-        configurable: true,
-      });
+      hostnameSpy.mockRestore();
     }
   });
 });

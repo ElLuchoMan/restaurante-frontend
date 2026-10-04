@@ -8,6 +8,7 @@ import {
   OnInit,
   PLATFORM_ID,
   ViewEncapsulation,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { map, Observable, Subject } from 'rxjs';
@@ -29,6 +30,7 @@ export interface QuickActionItem {
   imports: [CommonModule, RouterModule],
   templateUrl: './quick-actions.component.html',
   styleUrls: ['./quick-actions.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class QuickActionsComponent implements OnInit, AfterViewInit, OnDestroy {

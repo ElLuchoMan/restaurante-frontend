@@ -4,6 +4,7 @@ import { SwPush } from '@angular/service-worker';
 import { environment } from '../../../environments/environment';
 import { PushService } from './push.service';
 import { UserService } from './user.service';
+import { browserLocation } from '../../shared/utils/browser-location';
 
 @Injectable({ providedIn: 'root' })
 export class WebPushService {
@@ -202,7 +203,7 @@ export class WebPushService {
 
       const url = notification.data?.url;
       if (url && typeof window !== 'undefined') {
-        window.location.href = url;
+        browserLocation.assign(url);
       }
     });
   }

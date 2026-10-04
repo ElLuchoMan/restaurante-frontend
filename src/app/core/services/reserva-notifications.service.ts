@@ -75,10 +75,8 @@ export class ReservaNotificationsService {
     console.log('[Reservas] Notificando estado cambio:', nuevoEstado);
     let documento: number | { documentoCliente?: number; documento?: number } | null | undefined =
       (reserva?.documentoCliente as
-        | number
-        | { documentoCliente?: number; documento?: number }
-        | null
-        | undefined) ?? this.userService.getUserId?.();
+        number | { documentoCliente?: number; documento?: number } | null | undefined) ??
+      this.userService.getUserId?.();
     if (documento && typeof documento === 'object') {
       documento =
         (documento as { documentoCliente?: number; documento?: number }).documentoCliente ??
@@ -119,10 +117,8 @@ export class ReservaNotificationsService {
   ): Promise<ApiResponse<unknown> | null> {
     let documento: number | { documentoCliente?: number; documento?: number } | null | undefined =
       (reserva?.documentoCliente as
-        | number
-        | { documentoCliente?: number; documento?: number }
-        | null
-        | undefined) ?? this.userService.getUserId?.();
+        number | { documentoCliente?: number; documento?: number } | null | undefined) ??
+      this.userService.getUserId?.();
     if (documento && typeof documento === 'object') {
       documento =
         (documento as { documentoCliente?: number; documento?: number }).documentoCliente ??

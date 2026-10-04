@@ -100,7 +100,8 @@ export class NativePushService {
         }
 
         // Listener nativo de FirebaseMessaging en foreground (único)
-        if (!this.listenersBound && fcmToken) { // Solo si tenemos token válido
+        if (!this.listenersBound && fcmToken) {
+          // Solo si tenemos token válido
           this.listenersBound = true;
           try {
             FirebaseMessaging.addListener('notificationReceived', async (notification: any) => {
@@ -110,9 +111,8 @@ export class NativePushService {
               const data = notification?.data || {};
               // Guardar en el centro local si es posible
               try {
-                const { addNotification } = await import(
-                  '../../shared/utils/notification-center.store'
-                );
+                const { addNotification } =
+                  await import('../../shared/utils/notification-center.store');
                 addNotification({ title, body, data });
               } catch {}
               // Solo notificación local si app visible (evitar duplicado con notificación del sistema en background)

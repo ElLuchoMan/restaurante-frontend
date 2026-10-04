@@ -1,7 +1,7 @@
 // src/app/modules/client/carrito/carrito.component.ts
 
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom, Subject } from 'rxjs';
@@ -31,6 +31,7 @@ import { Producto } from '../../../shared/models/producto.model';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './carrito.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./carrito.component.scss'],
 })
 export class CarritoComponent implements OnInit, OnDestroy {

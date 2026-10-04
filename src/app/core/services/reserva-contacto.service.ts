@@ -27,9 +27,9 @@ export class ReservaContactoService {
       httpParams = httpParams.set('documento_cliente', String(params.documento_cliente));
 
     return this.http
-      .get<
-        ApiResponse<ReservaContacto[]>
-      >(`${this.baseUrl}/reserva_contacto`, { params: httpParams })
+      .get<ApiResponse<ReservaContacto[]>>(`${this.baseUrl}/reserva_contacto`, {
+        params: httpParams,
+      })
       .pipe(catchError(this.handleError.handleError));
   }
 

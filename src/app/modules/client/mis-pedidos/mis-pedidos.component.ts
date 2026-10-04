@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { forkJoin, of, Subject } from 'rxjs';
 import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
@@ -36,6 +36,7 @@ type PedidoCard = Pedido & {
   standalone: true,
   templateUrl: './mis-pedidos.component.html',
   styleUrls: ['./mis-pedidos.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, RouterModule, FormatDatePipe, PedidoTicketComponent],
 })
 export class MisPedidosComponent implements OnInit, OnDestroy {

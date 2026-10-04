@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { browserLocation } from '../../../shared/utils/browser-location';
 
 @Component({
   selector: 'app-offline',
@@ -26,6 +27,6 @@ import { RouterModule } from '@angular/router';
 export class OfflineComponent {
   reintentar(): void {
     // Forzar reintento de carga; si vuelve la red, la app se recupera
-    location.reload();
+    browserLocation.reload();
   }
 }

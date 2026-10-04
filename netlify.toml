@@ -3,7 +3,7 @@
   publish = "dist/restaurante-frontend/browser"
 
 [build.environment]
-  NODE_VERSION = "20.19.0"
+  NODE_VERSION = "24"
   NPM_FLAGS = "--legacy-peer-deps"
   # Deshabilitar Angular SSR Runtime de Netlify
   NETLIFY_SKIP_EDGE_FUNCTIONS = "true"

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { PedidoService } from '../../../core/services/pedido.service';
@@ -10,6 +10,7 @@ import { PedidoTicketComponent } from '../pedido-ticket/pedido-ticket.component'
   standalone: true,
   imports: [CommonModule, PedidoTicketComponent],
   templateUrl: './pedido.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./pedido.component.scss'],
 })
 export class PedidoComponent implements OnInit {

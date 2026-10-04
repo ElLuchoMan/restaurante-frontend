@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
@@ -15,6 +15,7 @@ import { FormatDatePipe } from '../../../../shared/pipes/format-date.pipe';
   standalone: true,
   imports: [CommonModule, FormatDatePipe],
   templateUrl: './reservas-del-dia.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./reservas-del-dia.component.scss'],
 })
 export class ReservasDelDiaComponent implements OnInit {

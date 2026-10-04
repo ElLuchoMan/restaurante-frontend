@@ -337,9 +337,9 @@ describe('HomeComponent', () => {
     footer.className = 'footer';
     let visible = true;
     footer.getBoundingClientRect = () =>
-      (visible
+      visible
         ? ({ top: 0, bottom: 10, height: 10, width: 10, left: 0, right: 10 } as any)
-        : ({ top: 1000, bottom: 1010, height: 10, width: 10, left: 0, right: 10 } as any));
+        : ({ top: 1000, bottom: 1010, height: 10, width: 10, left: 0, right: 10 } as any);
     document.body.appendChild(footer);
 
     const bar = document.createElement('div');

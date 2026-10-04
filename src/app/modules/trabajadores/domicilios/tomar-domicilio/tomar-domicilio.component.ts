@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -12,6 +12,7 @@ import { Domicilio } from '../../../../shared/models/domicilio.model';
   standalone: true,
   templateUrl: './tomar-domicilio.component.html',
   styleUrls: ['./tomar-domicilio.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule],
 })
 export class TomarDomicilioComponent implements OnInit {

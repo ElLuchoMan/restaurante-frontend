@@ -8,6 +8,7 @@ import {
   OnInit,
   TransferState,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -43,6 +44,7 @@ import {
   selector: 'app-ver-productos',
   templateUrl: './ver-productos.component.html',
   styleUrls: ['./ver-productos.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule, FloatingCartComponent],
 })
 export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {

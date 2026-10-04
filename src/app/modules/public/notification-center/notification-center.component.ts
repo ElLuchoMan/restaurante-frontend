@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
 import {
@@ -14,6 +14,7 @@ import {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './notification-center.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './notification-center.component.scss',
 })
 export class NotificationCenterComponent implements OnInit, OnDestroy {

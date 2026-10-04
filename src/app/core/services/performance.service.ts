@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import { browserLocation } from '../../shared/utils/browser-location';
 
 export interface PerformanceMetrics {
   // Core Web Vitals
@@ -140,7 +141,7 @@ export class PerformanceService {
     }
 
     // Log to console in development
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    if (typeof window !== 'undefined' && browserLocation.hostname() === 'localhost') {
       console.log('Performance Metrics:', metrics);
     }
   }

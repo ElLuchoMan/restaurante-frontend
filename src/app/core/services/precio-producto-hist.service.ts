@@ -27,9 +27,9 @@ export class PrecioProductoHistService {
   getById(id: number): Observable<ApiResponse<PrecioProductoHist>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .get<
-        ApiResponse<PrecioProductoHist>
-      >(`${this.baseUrl}/precio_producto_hist/search`, { params })
+      .get<ApiResponse<PrecioProductoHist>>(`${this.baseUrl}/precio_producto_hist/search`, {
+        params,
+      })
       .pipe(catchError(this.handleError.handleError));
   }
 }

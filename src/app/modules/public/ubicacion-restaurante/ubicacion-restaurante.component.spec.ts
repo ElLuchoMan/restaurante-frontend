@@ -12,6 +12,7 @@ import {
   createToastrMock,
 } from '../../../shared/mocks/test-doubles';
 import { UbicacionRestauranteComponent } from './ubicacion-restaurante.component';
+import { browserLocation } from '../../../shared/utils/browser-location';
 
 describe('UbicacionRestauranteComponent', () => {
   let component: UbicacionRestauranteComponent;
@@ -77,27 +78,12 @@ describe('UbicacionRestauranteComponent', () => {
 
   describe('call', () => {
     it('should redirect to phone number when call is invoked', () => {
-      const originalLocation = window.location;
-      let capturedHref = '';
-
-      // @ts-ignore - Mock location.href
-      delete (window as any).location;
-      (window as any).location = {
-        href: '',
-        get href() {
-          return capturedHref;
-        },
-        set href(value: string) {
-          capturedHref = value;
-        },
-      };
+      const assignSpy = jest.spyOn(browserLocation, 'assign').mockImplementation(() => {});
 
       component.call();
 
-      expect(window.location.href).toBe('tel:3042449339');
-
-      // Restore
-      (window as any).location = originalLocation;
+      expect(assignSpy).toHaveBeenCalledWith('tel:3042449339');
+      assignSpy.mockRestore();
     });
   });
 

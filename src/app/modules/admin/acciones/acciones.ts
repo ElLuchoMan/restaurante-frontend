@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 interface AccionCard {
@@ -15,6 +15,7 @@ interface AccionCard {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './acciones.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './acciones.scss',
 })
 export class AccionesComponent {

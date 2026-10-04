@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 
-import { createSpy } from '../../mocks/test-doubles';
+import { createLocationReloadMock, createSpy } from '../../mocks/test-doubles';
 import { ErrorBoundaryComponent, ErrorBoundaryConfig } from './error-boundary.component';
 
 describe('ErrorBoundaryComponent', () => {
@@ -171,10 +171,7 @@ describe('ErrorBoundaryComponent', () => {
     // no jest.fn directos, la recarga ya no se asserta directamente
 
     it('should reload page when retry button is clicked', () => {
-      const reloadMock: any = createSpy();
-      jest
-        .spyOn(window, 'location', 'get')
-        .mockReturnValue({ ...(window.location as any), reload: reloadMock } as any);
+      const reloadMock = createLocationReloadMock();
       fixture.detectChanges();
 
       const retryButton = fixture.debugElement.query(By.css('button[type="button"]'));

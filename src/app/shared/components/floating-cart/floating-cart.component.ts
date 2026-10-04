@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -16,6 +16,7 @@ interface CartItem {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './floating-cart.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./floating-cart.component.scss'],
 })
 export class FloatingCartComponent implements OnInit, OnDestroy {

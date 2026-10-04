@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { DomicilioService } from '../../../../core/services/domicilio.service';
@@ -12,6 +12,7 @@ import { Domicilio } from '../../../../shared/models/domicilio.model';
   selector: 'app-consultar-domicilio',
   templateUrl: './consultar-domicilios.component.html',
   styleUrls: ['./consultar-domicilios.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule],
 })
 export class ConsultarDomicilioComponent implements OnInit {

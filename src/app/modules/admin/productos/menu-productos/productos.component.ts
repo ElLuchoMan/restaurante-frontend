@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 
 import { UserService } from '../../../../core/services/user.service';
@@ -17,6 +17,7 @@ interface OpcionProducto {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './productos.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './productos.component.scss',
 })
 export class ProductosComponent implements OnInit {

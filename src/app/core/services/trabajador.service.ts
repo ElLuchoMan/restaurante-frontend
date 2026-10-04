@@ -24,9 +24,9 @@ export class TrabajadorService {
   }
   searchTrabajador(documento_trabajador: number): Observable<ApiResponse<Trabajador>> {
     return this.http
-      .get<
-        ApiResponse<Trabajador>
-      >(`${this.baseUrl}/trabajadores/search?id=${documento_trabajador}`)
+      .get<ApiResponse<Trabajador>>(
+        `${this.baseUrl}/trabajadores/search?id=${documento_trabajador}`,
+      )
       .pipe(catchError(this.handleError.handleError));
   }
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
@@ -11,6 +11,7 @@ import { UserService } from '../../../core/services/user.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './perfil.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./perfil.component.scss'],
 })
 export class PerfilComponent implements OnInit {

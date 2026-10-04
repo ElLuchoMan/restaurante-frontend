@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -12,6 +12,7 @@ import { EnviarNotificacionRequest } from '../../../shared/models/push.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './enviar-notificacion.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './enviar-notificacion.scss',
 })
 export class EnviarNotificacionComponent {
@@ -144,12 +145,7 @@ export class EnviarNotificacionComponent {
 
   cargarEjemplo(
     tipo:
-      | 'bienvenida'
-      | 'promo'
-      | 'reserva'
-      | 'calificacion'
-      | 'promo-clientes'
-      | 'aviso-trabajadores',
+      'bienvenida' | 'promo' | 'reserva' | 'calificacion' | 'promo-clientes' | 'aviso-trabajadores',
   ): void {
     switch (tipo) {
       case 'bienvenida':

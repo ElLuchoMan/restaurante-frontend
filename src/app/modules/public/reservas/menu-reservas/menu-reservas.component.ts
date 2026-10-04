@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 
 import { UserService } from '../../../../core/services/user.service';
@@ -17,6 +17,7 @@ interface OpcionMenu {
   standalone: true,
   templateUrl: './menu-reservas.component.html',
   styleUrls: ['./menu-reservas.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RouterOutlet, CommonModule],
 })
 export class MenuReservasComponent implements OnInit {

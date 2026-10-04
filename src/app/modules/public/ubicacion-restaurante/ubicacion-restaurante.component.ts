@@ -1,17 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
 import { DomicilioService } from '../../../core/services/domicilio.service';
 import { getGoogleMapsApiKey } from '../../../shared/utils/config';
+import { browserLocation } from '../../../shared/utils/browser-location';
 
 @Component({
   selector: 'app-ubicacion-restaurante',
   standalone: true,
   templateUrl: './ubicacion-restaurante.component.html',
   styleUrls: ['./ubicacion-restaurante.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule],
 })
 export class UbicacionRestauranteComponent implements AfterViewInit {
@@ -53,7 +55,7 @@ export class UbicacionRestauranteComponent implements AfterViewInit {
   }
 
   call(): void {
-    window.location.href = 'tel:3042449339';
+    browserLocation.assign('tel:3042449339');
   }
 
   get mapsLink(): string {

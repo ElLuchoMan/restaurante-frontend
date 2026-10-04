@@ -24,9 +24,10 @@ export class DescuentoService {
     body: Omit<AplicarDescuentoRequest, 'pedidoId'>,
   ): Observable<ApiResponse<PedidoDescuentoAplicado>> {
     return this.http
-      .post<
-        ApiResponse<PedidoDescuentoAplicado>
-      >(`${this.baseUrl}/pedidos/${pedidoId}/descuentos`, body)
+      .post<ApiResponse<PedidoDescuentoAplicado>>(
+        `${this.baseUrl}/pedidos/${pedidoId}/descuentos`,
+        body,
+      )
       .pipe(catchError(this.handleError.handleError));
   }
 

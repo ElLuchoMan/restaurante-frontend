@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { browserLocation } from '../../utils/browser-location';
 
 export interface ErrorBoundaryConfig {
   showDetails?: boolean;
@@ -36,8 +37,7 @@ export interface ErrorBoundaryConfig {
               <summary>Detalles técnicos</summary>
               <pre class="error-boundary__stack"
                 >{{ error.message }}
-{{ error.stack }}</pre
-              >
+{{ error.stack }}</pre>
             </details>
           </div>
 
@@ -180,6 +180,6 @@ export class ErrorBoundaryComponent {
 
   retry(): void {
     // Emitir evento para que el componente padre maneje el retry
-    window.location.reload();
+    browserLocation.reload();
   }
 }

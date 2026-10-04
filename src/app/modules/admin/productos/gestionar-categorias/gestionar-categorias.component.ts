@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
@@ -14,6 +14,7 @@ import { Subcategoria } from '../../../../shared/models/subcategoria.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './gestionar-categorias.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './gestionar-categorias.component.scss',
 })
 export class GestionarCategoriasComponent implements OnInit {

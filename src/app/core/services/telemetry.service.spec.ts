@@ -611,8 +611,7 @@ describe('TelemetryService', () => {
   describe('Device Detection & User Info', () => {
     describe('initializeDeviceType', () => {
       it('should skip initialization when window is undefined', () => {
-        const originalWindow = (globalThis as any).window;
-        delete (globalThis as any).window;
+        jest.spyOn(service as any, 'getWindow').mockReturnValue(undefined);
 
         const getItemSpy = jest.spyOn(Storage.prototype, 'getItem');
         service['initializeDeviceType']();
@@ -620,7 +619,6 @@ describe('TelemetryService', () => {
         expect(getItemSpy).not.toHaveBeenCalled();
 
         getItemSpy.mockRestore();
-        (globalThis as any).window = originalWindow;
       });
 
       it('should use stored device type without detecting again', () => {
@@ -713,129 +711,54 @@ describe('TelemetryService', () => {
     });
 
     describe('detectDeviceType (private method tested via reflection)', () => {
-      let originalNavigator: Navigator;
-      let originalWindow: Window & typeof globalThis;
-
-      beforeEach(() => {
-        originalNavigator = global.navigator;
-        originalWindow = global.window;
-      });
+      // jsdom 26 hace `window` y `location` no reconfigurables: se simula vía getWindow() y userAgent.
+      const detect = (userAgent: string, fakeWindow: unknown): string => {
+        jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue(userAgent);
+        jest.spyOn(service as any, 'getWindow').mockReturnValue(fakeWindow);
+        return (service as any).detectDeviceType();
+      };
 
       afterEach(() => {
-        global.navigator = originalNavigator;
-        global.window = originalWindow;
+        jest.restoreAllMocks();
       });
 
       it('should detect android with Capacitor', () => {
-        Object.defineProperty(global, 'navigator', {
-          writable: true,
-          value: { userAgent: 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36' },
-        });
-        Object.defineProperty(global, 'window', {
-          writable: true,
-          value: { Capacitor: {} },
-        });
-
-        const result = (service as any).detectDeviceType();
-        expect(result).toBe('android');
+        expect(
+          detect('Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36', { Capacitor: {} }),
+        ).toBe('android');
       });
 
       it('should detect ios with Capacitor (iPhone)', () => {
-        Object.defineProperty(global, 'navigator', {
-          writable: true,
-          value: { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)' },
-        });
-        Object.defineProperty(global, 'window', {
-          writable: true,
-          value: { Capacitor: {} },
-        });
-
-        const result = (service as any).detectDeviceType();
-        expect(result).toBe('ios');
+        expect(detect('Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)', { Capacitor: {} })).toBe('ios');
       });
 
       it('should detect ios with Capacitor (iPad)', () => {
-        Object.defineProperty(global, 'navigator', {
-          writable: true,
-          value: { userAgent: 'Mozilla/5.0 (iPad; CPU OS 14_0)' },
-        });
-        Object.defineProperty(global, 'window', {
-          writable: true,
-          value: { Capacitor: {} },
-        });
-
-        const result = (service as any).detectDeviceType();
-        expect(result).toBe('ios');
+        expect(detect('Mozilla/5.0 (iPad; CPU OS 14_0)', { Capacitor: {} })).toBe('ios');
       });
 
       it('should detect web-mobile for Android browser', () => {
-        Object.defineProperty(global, 'navigator', {
-          writable: true,
-          value: {
-            userAgent: 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Mobile',
-          },
-        });
-        Object.defineProperty(global, 'window', {
-          writable: true,
-          value: {},
-        });
-
-        const result = (service as any).detectDeviceType();
-        expect(result).toBe('web-mobile');
+        expect(detect('Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Mobile', {})).toBe(
+          'web-mobile',
+        );
       });
 
       it('should detect web-mobile for iPhone browser', () => {
-        Object.defineProperty(global, 'navigator', {
-          writable: true,
-          value: { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)' },
-        });
-        Object.defineProperty(global, 'window', {
-          writable: true,
-          value: {},
-        });
-
-        const result = (service as any).detectDeviceType();
-        expect(result).toBe('web-mobile');
+        expect(detect('Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)', {})).toBe('web-mobile');
       });
 
       it('should detect desktop for tablet (iPad)', () => {
-        Object.defineProperty(global, 'navigator', {
-          writable: true,
-          value: { userAgent: 'Mozilla/5.0 (iPad; CPU OS 14_0)' },
-        });
-        Object.defineProperty(global, 'window', {
-          writable: true,
-          value: {},
-        });
-
-        const result = (service as any).detectDeviceType();
-        expect(result).toBe('desktop');
+        expect(detect('Mozilla/5.0 (iPad; CPU OS 14_0)', {})).toBe('desktop');
       });
 
       it('should detect desktop for standard browser', () => {
-        Object.defineProperty(global, 'navigator', {
-          writable: true,
-          value: {
-            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124',
-          },
-        });
-        Object.defineProperty(global, 'window', {
-          writable: true,
-          value: {},
-        });
-
-        const result = (service as any).detectDeviceType();
-        expect(result).toBe('desktop');
+        expect(detect('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124', {})).toBe(
+          'desktop',
+        );
       });
 
       it('should return desktop when window is undefined', () => {
-        const originalWindow = (globalThis as any).window;
-        (globalThis as any).window = undefined;
-
-        const result = (service as any).detectDeviceType();
-        expect(result).toBe('desktop');
-
-        (globalThis as any).window = originalWindow;
+        jest.spyOn(service as any, 'getWindow').mockReturnValue(undefined);
+        expect((service as any).detectDeviceType()).toBe('desktop');
       });
     });
   });

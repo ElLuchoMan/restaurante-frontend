@@ -19,6 +19,7 @@ import {
 import { PushService } from './push.service';
 import { UserService } from './user.service';
 import { WebPushService } from './web-push.service';
+import { browserLocation } from '../../shared/utils/browser-location';
 
 describe('WebPushService', () => {
   let service: WebPushService;
@@ -428,10 +429,8 @@ describe('WebPushService', () => {
         .spyOn(service, 'showNotification')
         .mockImplementation(() => {});
 
-      // Mockear window.location completo ya que href no es configurable
-      const originalLocation = window.location;
-      delete (window as any).location;
-      (window as any).location = { href: '' };
+      // jsdom 26 no permite redefinir window.location: se espía el wrapper browserLocation
+      const assignSpy = jest.spyOn(browserLocation, 'assign').mockImplementation(() => {});
 
       (service as any).listenToPushMessages();
 
@@ -444,10 +443,8 @@ describe('WebPushService', () => {
 
       clicks$.next({ action: 'open', notification: { data: { url: 'https://ejemplo.com' } } });
 
-      expect(window.location.href).toBe('https://ejemplo.com');
-
-      // Restaurar location original
-      (window as any).location = originalLocation;
+      expect(assignSpy).toHaveBeenCalledWith('https://ejemplo.com');
+      assignSpy.mockRestore();
     });
   });
 

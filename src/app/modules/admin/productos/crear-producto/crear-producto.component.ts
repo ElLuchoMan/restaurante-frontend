@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -19,6 +19,7 @@ import { ImageOptimizationService } from '../../../../shared/services/image-opti
   standalone: true,
   templateUrl: './crear-producto.component.html',
   styleUrls: ['./crear-producto.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, FormsModule],
 })
 export class CrearProductoComponent implements OnInit {

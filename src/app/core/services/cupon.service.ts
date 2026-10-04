@@ -62,9 +62,10 @@ export class CuponService {
 
   redimir(codigo: string, body: RedimirCuponRequest): Observable<ApiResponse<CuponRedencion>> {
     return this.http
-      .post<
-        ApiResponse<CuponRedencion>
-      >(`${this.baseUrl}/${encodeURIComponent(codigo)}/redimir`, body)
+      .post<ApiResponse<CuponRedencion>>(
+        `${this.baseUrl}/${encodeURIComponent(codigo)}/redimir`,
+        body,
+      )
       .pipe(catchError(this.handleError.handleError));
   }
 
