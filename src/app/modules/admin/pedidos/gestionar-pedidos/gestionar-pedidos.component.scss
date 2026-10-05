@@ -1,4 +1,4 @@
-@use 'src/assets/variables' as *;
+@use '../../../../../assets/_variables.scss' as *;
 
 // Los estilos de menú ahora son globales en _base.scss
 // Usa las clases: .menu-grid, .menu-card, .menu-card--{color}
