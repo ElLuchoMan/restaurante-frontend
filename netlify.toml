@@ -29,10 +29,10 @@
   to = "/index.html"
   status = 200
 
-# Proxy a backend local durante `netlify dev` y/o deploy previews
+# Proxy al backend (Render) para `netlify dev` y deploy previews
 [[redirects]]
   from = "/restaurante/v1/*"
-  to = "http://localhost:8080/restaurante/v1/:splat"
+  to = "https://restaurante-back-wlxp.onrender.com/restaurante/v1/:splat"
   status = 200
   force = true
 
