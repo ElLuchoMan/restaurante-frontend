@@ -618,7 +618,7 @@ describe('NativePushService', () => {
       };
 
       it.each([['APNS token not set'], ['Firebase not configured']])(
-        'should warn and continue without token on iOS when error is "%s"',
+        'should warn and register with the standard registration token on iOS when error is "%s"',
         async (message) => {
           setPlatform('ios');
           mockFirebaseMessaging.getToken.mockRejectedValue(new Error(message));
@@ -629,12 +629,25 @@ describe('NativePushService', () => {
           expect(console.warn).toHaveBeenCalledWith(
             '[Push] Firebase no configurado en iOS, usando fallback',
           );
-          // El error iOS se absorbe (no se relanza), por lo que no se usa el listener de registro
-          // y al no haber token se aborta el registro del dispositivo.
-          expect(console.warn).toHaveBeenCalledWith('[Push] No FCM token');
-          expect(pushService.registrarDispositivo).not.toHaveBeenCalled();
+          expect(console.warn).not.toHaveBeenCalledWith('[Push] No FCM token');
+          expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
+            expect.objectContaining({ fcmToken: 'ios-fallback' }),
+          );
         },
       );
+
+      it('should skip registration on iOS fallback when the registration fails', async () => {
+        setPlatform('ios');
+        mockFirebaseMessaging.getToken.mockRejectedValue(new Error('APNS token not set'));
+        mockPushNotifications.addListener.mockImplementation((event: string, cb: any) => {
+          if (event === 'registrationError') setTimeout(() => cb(), 0);
+        });
+
+        await service.init();
+
+        expect(console.warn).toHaveBeenCalledWith('[Push] No FCM token');
+        expect(pushService.registrarDispositivo).not.toHaveBeenCalled();
+      });
 
       it('should not use the iOS warning path for unrelated errors on iOS', async () => {
         setPlatform('ios');

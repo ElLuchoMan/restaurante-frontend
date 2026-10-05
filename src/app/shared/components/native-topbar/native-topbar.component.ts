@@ -62,6 +62,8 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
     this.logoLink = '/home';
   }
 
+  private removeNotificationListeners: (() => void) | null = null;
+
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
     this.mainEl = document.getElementById('main') as HTMLElement | null;
@@ -82,10 +84,10 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
         update();
         window.addEventListener('notification-center:update', update);
         window.addEventListener('focus', update);
-        this.destroy$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.removeNotificationListeners = () => {
           window.removeEventListener('notification-center:update', update);
           window.removeEventListener('focus', update);
-        });
+        };
       } catch {}
     }
 
@@ -263,6 +265,8 @@ export class NativeTopbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.removeNotificationListeners?.();
+    this.removeNotificationListeners = null;
     this.destroy$.next();
     this.destroy$.complete();
 

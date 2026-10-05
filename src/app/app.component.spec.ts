@@ -1065,28 +1065,24 @@ describe('AppComponent', () => {
         expect((document.querySelector('#other') as HTMLElement).getAttribute('style')).toBeNull();
       });
 
-      it('should re-apply the spacing fix 100ms after each NavigationEnd', () => {
-        const fixSpy = jest.spyOn(component as any, 'applyiOSSpacingFix');
-        const original = (AppComponent.prototype as any).applyiOSSpacingFix;
-        // La primera llamada es real (registra la suscripción); las siguientes se stubean
-        fixSpy.mockImplementationOnce(() => original.call(component));
-        fixSpy.mockImplementation(() => undefined);
+      it('should re-apply the spacing fix 100ms after each NavigationEnd without stacking subscriptions', () => {
+        const runSpy = jest.spyOn(component as any, 'runiOSSpacingFix');
 
         (component as any).applyiOSSpacingFix();
-        expect(fixSpy).toHaveBeenCalledTimes(1);
+        expect(runSpy).toHaveBeenCalledTimes(1);
 
         routerEventsSubject.next(new NavigationEnd(1, '/a', '/a'));
-        expect(fixSpy).toHaveBeenCalledTimes(1);
+        expect(runSpy).toHaveBeenCalledTimes(2);
 
+        routerEventsSubject.next(new NavigationEnd(2, '/b', '/b'));
+        // Una sola suscripción: cada navegación dispara exactamente una re-aplicación
+        expect(runSpy).toHaveBeenCalledTimes(3);
+        expect(routerEventsSubject.observed).toBe(true);
         jest.advanceTimersByTime(100);
-        expect(fixSpy).toHaveBeenCalledTimes(2);
       });
 
       it('should stop re-applying the spacing fix after the component is destroyed', () => {
-        const fixSpy = jest.spyOn(component as any, 'applyiOSSpacingFix');
-        const original = (AppComponent.prototype as any).applyiOSSpacingFix;
-        fixSpy.mockImplementationOnce(() => original.call(component));
-        fixSpy.mockImplementation(() => undefined);
+        const runSpy = jest.spyOn(component as any, 'runiOSSpacingFix');
 
         (component as any).applyiOSSpacingFix();
         component.ngOnDestroy();
@@ -1094,7 +1090,7 @@ describe('AppComponent', () => {
         routerEventsSubject.next(new NavigationEnd(1, '/a', '/a'));
         jest.advanceTimersByTime(100);
 
-        expect(fixSpy).toHaveBeenCalledTimes(1);
+        expect(runSpy).toHaveBeenCalledTimes(1);
       });
     });
   });

@@ -263,6 +263,18 @@ export class AppComponent implements OnInit, OnDestroy {
    * Aplica estilos inline forzados para espaciado iOS
    */
   private applyiOSSpacingFix(): void {
+    this.runiOSSpacingFix();
+
+    // Re-aplicar en cambios de ruta (una sola suscripción)
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.runiOSSpacingFix());
+  }
+
+  private runiOSSpacingFix(): void {
     // Esperar a que el DOM esté listo
     setTimeout(() => {
       // Forzar espaciado en containers principales
@@ -294,16 +306,6 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       });
     }, 100);
-
-    // Re-aplicar en cambios de ruta
-    this.router.events
-      .pipe(
-        filter((e) => e instanceof NavigationEnd),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(() => {
-        setTimeout(() => this.applyiOSSpacingFix(), 100);
-      });
   }
 
   ngOnDestroy(): void {

@@ -432,4 +432,18 @@ describe('NativeTopbarComponent', () => {
     // jsdom convierte '' a '0px', ambos son valores válidos para resetear
     expect(['', '0px']).toContain(mainElement.style.paddingTop);
   });
+
+  it('quita los listeners de window al destruir el componente', () => {
+    removeEventListenerSpy.mockClear();
+
+    component.ngOnDestroy();
+
+    const removed = removeEventListenerSpy.mock.calls.map((c) => c[0]);
+    expect(removed).toEqual(expect.arrayContaining(['notification-center:update', 'focus']));
+
+    // Una segunda destrucción no vuelve a intentar quitarlos
+    removeEventListenerSpy.mockClear();
+    component.ngOnDestroy();
+    expect(removeEventListenerSpy).not.toHaveBeenCalled();
+  });
 });
