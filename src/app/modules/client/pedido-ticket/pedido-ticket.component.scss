@@ -9,7 +9,7 @@
   border: none;
   max-width: 400px; // Narrower for ticket look
   margin: 0 auto;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15)); // Shadow follows the shape
+  filter: drop-shadow(0 4px 12px rgba($black, 0.15)); // Shadow follows the shape
   display: flex;
   flex-direction: column;
 }

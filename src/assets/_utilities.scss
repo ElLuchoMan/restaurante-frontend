@@ -165,7 +165,7 @@ a.text-secondary {
 a.text-success {
   &:hover,
   &:focus {
-    color: #19692c !important;
+    color: $tone-green-19692c !important;
   }
 }
 
@@ -176,7 +176,7 @@ a.text-success {
 a.text-info {
   &:hover,
   &:focus {
-    color: #0f6674 !important;
+    color: $tone-teal-0f6674 !important;
   }
 }
 
@@ -187,7 +187,7 @@ a.text-info {
 a.text-warning {
   &:hover,
   &:focus {
-    color: #ba8b00 !important;
+    color: $tone-yellow-ba8b00 !important;
   }
 }
 
@@ -198,7 +198,7 @@ a.text-warning {
 a.text-danger {
   &:hover,
   &:focus {
-    color: #a71d2a !important;
+    color: $tone-red-a71d2a !important;
   }
 }
 
@@ -209,7 +209,7 @@ a.text-danger {
 a.text-light {
   &:hover,
   &:focus {
-    color: #d9d9d9 !important;
+    color: $tone-gray-d9d9d9 !important;
   }
 }
 
@@ -220,12 +220,12 @@ a.text-light {
 a.text-dark {
   &:hover,
   &:focus {
-    color: #0d0d0d !important;
+    color: $tone-gray-0d0d0d !important;
   }
 }
 
 .text-body {
-  color: #555 !important;
+  color: $tone-gray-555555 !important;
 }
 
 .text-muted {
@@ -233,11 +233,11 @@ a.text-dark {
 }
 
 .text-black-50 {
-  color: rgb(0 0 0 / 50%) !important;
+  color: rgba($black, 0.5) !important;
 }
 
 .text-white-50 {
-  color: rgb(255 255 255 / 50%) !important;
+  color: rgba($white, 0.5) !important;
 }
 
 .text-hide {
@@ -290,13 +290,13 @@ a.text-dark {
   }
 
   pre {
-    border: 1px solid #adb5bd;
+    border: 1px solid $gray-500;
     page-break-inside: avoid;
     white-space: pre-wrap !important;
   }
 
   blockquote {
-    border: 1px solid #adb5bd;
+    border: 1px solid $gray-500;
     page-break-inside: avoid;
   }
 
@@ -328,7 +328,7 @@ a.text-dark {
   }
 
   .badge {
-    border: 1px solid #000;
+    border: 1px solid $black;
   }
 
   .table {
@@ -343,7 +343,7 @@ a.text-dark {
   .table-bordered {
     th,
     td {
-      border: 1px solid #dee2e6 !important;
+      border: 1px solid $gray-300 !important;
     }
   }
 
@@ -354,12 +354,12 @@ a.text-dark {
     td,
     thead th,
     tbody + tbody {
-      border-color: #dee2e6;
+      border-color: $gray-300;
     }
   }
 
   .table .thead-dark th {
-    border-color: #dee2e6;
+    border-color: $gray-300;
     color: inherit;
   }
 }
@@ -529,7 +529,7 @@ h3 {
 }
 
 .carousel-caption {
-  background: rgb(0 0 0 / 30%);
+  background: rgba($black, 0.3);
   inset: 0;
   z-index: 1;
 }

@@ -156,7 +156,7 @@
   padding: 1rem;
   display: flex;
   gap: 0.875rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba($black, 0.08);
   border: 1px solid rgba($primary, 0.1);
 
   &__icon {

@@ -76,7 +76,7 @@
     left: -10px;
     right: -10px;
     bottom: -10px;
-    background: $gradient-primary;
+    background: $solid-primary;
     border-radius: 20px;
     opacity: 0;
     z-index: -1;
@@ -213,7 +213,7 @@
 
   &.instagram {
     &:hover {
-      background: $instagram-gradient;
+      background: $instagram-solid;
       color: $white;
       border-color: $instagram-pink;
     }
@@ -507,7 +507,7 @@
   }
 
   &.instagram {
-    background: $instagram-gradient !important;
+    background: $instagram-solid !important;
     color: $white !important;
 
     &:hover {
@@ -746,7 +746,7 @@
 .copyright-divider {
   width: 60px;
   height: 2px;
-  background: $gradient-primary;
+  background: $solid-primary;
   margin: 0 auto 1.5rem;
   border-radius: 1px;
 

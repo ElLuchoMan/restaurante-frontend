@@ -1,3 +1,5 @@
+@use 'src/assets/variables' as *;
+
 .main {
   align-items: center;
   display: flex;
@@ -111,7 +113,7 @@ svg {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba($black, 0.15);
   }
 
   &:focus {

@@ -2,7 +2,7 @@
 
 /* ====== Barra superior premium ====== */
 .top-bar {
-  @extend .premium-bar-gradient;
+  @extend .premium-bar;
   @extend .shimmer-effect;
   position: relative;
 

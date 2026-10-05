@@ -58,10 +58,10 @@
 
 ## 📐 Gradientes
 
-- `$gradient-primary`: `linear-gradient(135deg, #{$primary}, #{$primary-dark})`
-- `$gradient-primary-hover`: `linear-gradient(135deg, #{$primary-dark}, #{$primary-darker})`
-- `$gradient-neutral`: `linear-gradient(135deg, #{$gray-lighter} 0%, #{$white} 100%)`
-- `$gradient-dark-overlay`: `linear-gradient(135deg, rgba(44, 62, 80, 0.9) 0%, rgba(52, 73, 94, 0.9) 100%)`
+- `$solid-primary`: `linear-gradient(135deg, #{$primary}, #{$primary-dark})`
+- `$solid-primary-hover`: `linear-gradient(135deg, #{$primary-dark}, #{$primary-darker})`
+- `$solid-neutral`: `linear-gradient(135deg, #{$gray-lighter} 0%, #{$white} 100%)`
+- `$solid-dark-overlay`: `linear-gradient(135deg, rgba(44, 62, 80, 0.9) 0%, rgba(52, 73, 94, 0.9) 100%)`
 
 ## 📱 Breakpoints
 

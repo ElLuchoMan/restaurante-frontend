@@ -1,5 +1,18 @@
 @use 'sass:color';
 
+// ════════════════════════════════════════════════════════════════════════
+// COLORES Y VARIABLES GLOBALES — El fogón DE MARÍA
+//
+// Este archivo (_variables.scss) es el ÚNICO donde se permiten valores de color literales
+// (#hex, rgb(), rgba()). Todo el resto de la app (SCSS, estilos en línea de
+// componentes y SVG) debe usar estas variables ($nombre) o sus custom
+// properties CSS (var(--nombre)).
+//
+// Para cambiar la marca: edita los valores de aquí (empezando por $primary,
+// $secondary y $tertiary) y el cambio se propaga a toda la aplicación.
+// stylelint bloquea nuevos colores literales fuera de este archivo.
+// ════════════════════════════════════════════════════════════════════════
+
 $blue: #007bff;
 $indigo: #6610f2;
 $purple: #6f42c1;
@@ -36,54 +49,30 @@ $glass-bg: rgba(255, 255, 255, 0.8); // Fondo glass (más opaco para mejor contr
 $ring-primary-12: rgba($primary, 0.12); // Focus ring dorado suave
 $ring-primary-15: rgba($primary, 0.15); // Variante más visible
 $glow-primary-60: rgba($primary, 0.6); // Borde brillante dorado
-
 // Fondos adicionales para la nueva paleta
 $background-glass: rgba(255, 255, 255, 0.8); // Fondo glass
 $promotion: $tertiary; // Alias para promociones
 $disabled-bg: #e0e0e0; // Fondo para elementos deshabilitados
 $disabled-text: #9e9e9e; // Texto para elementos deshabilitados
-
 // Colores de botones específicos
 $btn-primary-bg: $primary;
 $btn-primary-text: $text-heading-strong; // Texto oscuro sobre fondo amarillo
 $btn-primary-hover: $quaternary;
-$btn-secondary-bg: transparent;
 $btn-secondary-border: $secondary;
 $btn-secondary-text: $secondary;
 $btn-secondary-hover: $secondary-hover;
-$breakpoint-xs: 0;
-$breakpoint-sm: 576px;
-$breakpoint-md: 768px;
-$breakpoint-lg: 992px;
-$breakpoint-xl: 1200px;
-// 🎨 Tipografía colombiana moderna
-$font-family-sans-serif: 'Montserrat', 'Poppins', sans-serif; // Montserrat para UI moderna
-$font-family-display: 'Alegreya Sans', 'Poppins', sans-serif; // Para textos largos/menús
 $headings-color: $text-heading-strong; // Títulos en casi negro
-$enable-responsive-font-sizes: true;
-$font-family-monospace:
-  sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
-$border-radius: 5px;
-
-// Header component variables (migrated from local styles)
-$header-height: 90px;
-$header-glass-blur: 12px;
 $logo-glow: rgba($primary, 0.3); // Dorado actualizado
-$nav-item-padding: 1rem 1.25rem;
-$transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
 // 🌟 Variables adicionales para la nueva identidad colombiana
 $brand-golden: $primary; // Maíz dorado para branding
 $brand-coffee: $secondary; // Café para contraste
 $accent-tropical: $tertiary; // Frutas tropicales para highlights
-
 // Colores adicionales para componentes específicos
 $gray-light: #999; // Gris claro para texto secundario
 $gray-lighter: #f8f9fa; // Fondo muy claro
 $primary-dark: #b8941f; // Primary más oscuro para hover
 $primary-darker: #a67d1a; // Primary aún más oscuro para active
 $text-dark: #2c3e50; // Texto oscuro para contraste sobre fondos claros
-
 // Sombras y efectos específicos
 $shadow-light: rgba(0, 0, 0, 0.04); // Sombra muy sutil
 $shadow-medium: rgba(0, 0, 0, 0.06); // Sombra media
@@ -93,17 +82,14 @@ $shadow-primary-30: rgba($primary, 0.3); // Sombra dorada más sutil
 $shadow-primary-50: rgba($primary, 0.5); // Sombra dorada más intensa
 $shadow-white-10: rgba(255, 255, 255, 0.1); // Sombra blanca sutil
 $shadow-white-20: rgba(255, 255, 255, 0.2); // Sombra blanca media
-
 // Fondos específicos para barras y overlays
 $background-bar: #f8f9fae6; // Fondo de barra con alpha
 $border-light: rgba(0, 0, 0, 0.06); // Borde muy sutil
-
-// Gradientes eliminados - usando colores sólidos
-$gradient-primary: $primary;
-$gradient-primary-hover: $primary-dark;
-$gradient-neutral: $gray-lighter;
-$gradient-dark-overlay: rgba(44, 62, 80, 0.9);
-
+// Superficies sólidas (sin degradados)
+$solid-primary: $primary;
+$solid-primary-hover: $primary-dark;
+$solid-neutral: $gray-lighter;
+$solid-dark-overlay: rgba(44, 62, 80, 0.9);
 // Header específico - colores identificados en header.component.scss
 $header-text-primary: #2d3748; // Texto principal del navbar
 $header-text-hover: #1a202c; // Texto hover del navbar
@@ -112,8 +98,7 @@ $header-golden: #d4a017; // Dorado específico del header (logo, iconos)
 $header-golden-dark: #b8900d; // Dorado oscuro para hover
 $header-alert-text: #856404; // Texto de alertas warning
 $header-danger: #dc3545; // Rojo para badges y errores
-$header-danger-dark: #c82333; // Rojo oscuro para gradientes
-
+$header-danger-dark: #c82333; // Rojo oscuro para estados activos
 // Colores con alpha específicos para el header
 $header-shadow-light: rgba(0, 0, 0, 0.08); // Sombra suave
 $header-shadow-medium: rgba(0, 0, 0, 0.1); // Sombra media
@@ -134,34 +119,441 @@ $header-white-95: rgba(255, 255, 255, 0.95); // Blanco muy fuerte
 $header-gray-light-80: rgba(248, 249, 250, 0.8); // Gris claro con alpha
 $header-gray-light-95: rgba(248, 249, 250, 0.95); // Gris claro fuerte
 $header-danger-30: rgba($header-danger, 0.3); // Rojo suave para sombras
-
-// Gradientes específicos del header - eliminados
-$header-gradient-primary-light: $header-primary-10;
-$header-gradient-primary-medium: $header-primary-20;
-$header-gradient-golden-line: $header-primary-80;
-$header-gradient-golden-active: $header-golden;
-$header-gradient-danger: $header-danger;
-$header-gradient-warning: rgba($primary, 0.9);
-$header-gradient-glass-white: rgba(255, 255, 255, 0.9);
-
+// Superficies sólidas del header
+$header-solid-primary-light: $header-primary-10;
+$header-solid-primary-medium: $header-primary-20;
+$header-solid-golden-line: $header-primary-80;
+$header-solid-golden-active: $header-golden;
+$header-solid-danger: $header-danger;
+$header-solid-warning: rgba($primary, 0.9);
+$header-solid-glass-white: rgba(255, 255, 255, 0.9);
 // Colores oficiales de Instagram
 $instagram-purple: #833ab4; // Violeta profundo
 $instagram-magenta: #c13584; // Rosa magenta
 $instagram-pink: #e1306c; // Rosa vibrante
 $instagram-orange: #f56040; // Naranja coral
-
-// Gradiente oficial de Instagram - eliminado
-$instagram-gradient: $instagram-purple;
-
+// Color sólido de Instagram
+$instagram-solid: $instagram-purple;
 // Sombra específica de Instagram
 $instagram-shadow: rgba($instagram-pink, 0.3);
-
 // Colores oficiales de otras redes sociales
 $twitter-blue: #1da1f2;
 $youtube-red: #ff0000;
 $whatsapp-green: #25d366;
-
 // Sombras específicas de redes sociales
 $twitter-shadow: rgba($twitter-blue, 0.3);
 $youtube-shadow: rgba($youtube-red, 0.3);
 $whatsapp-shadow: rgba($whatsapp-green, 0.3);
+$btn-secondary-bg: transparent;
+
+// ── Tokens migrados desde literales dispersos (antes hardcodeados en componentes) ──
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-700: #495057;
+$gray-900: #212529;
+$tone-blue-0000ff: #0000ff;
+$tone-blue-0056b3: #0056b3;
+$tone-blue-0d6efd: #0d6efd;
+$tone-blue-1e40af: #1e40af;
+$tone-gray-374151: #374151;
+$tone-blue-3b82f6: #3b82f6;
+$tone-gray-4a5568: #4a5568;
+$tone-gray-4b4b62: #4b4b62;
+$tone-blue-8b5cf6: #8b5cf6;
+$tone-blue-dbeafe: #dbeafe;
+$tone-gray-e5e7eb: #e5e7eb;
+$tone-gray-f1f3f4: #f1f3f4;
+$tone-gray-f3f4f6: #f3f4f6;
+$tone-gray-f3f6ff: #f3f6ff;
+$tone-gray-f9fafb: #f9fafb;
+$tone-gray-020202: #020202;
+$tone-gray-0d0d0d: #0d0d0d;
+$tone-gray-131313: #131313;
+$tone-gray-16181b: #16181b;
+$tone-gray-1a1a1a: #1a1a1a;
+$tone-gray-1b1b1b: #1b1b1b;
+$tone-gray-202020: #202020;
+$tone-gray-2d2d2d: #2d2d2d;
+$tone-gray-333333: #333333;
+$tone-gray-404040: #404040;
+$tone-gray-454d55: #454d55;
+$tone-gray-525252: #525252;
+$tone-gray-545b62: #545b62;
+$tone-gray-555555: #555555;
+$tone-gray-6b7280: #6b7280;
+$tone-gray-6c6c6c: #6c6c6c;
+$tone-gray-858585: #858585;
+$tone-gray-959595: #959595;
+$tone-gray-979797: #979797;
+$tone-gray-9ca3af: #9ca3af;
+$tone-gray-b0b0b0: #b0b0b0;
+$tone-gray-b9b9b9: #b9b9b9;
+$tone-gray-c6c6c6: #c6c6c6;
+$tone-gray-d6d6d6: #d6d6d6;
+$tone-gray-d9d9d9: #d9d9d9;
+$tone-gray-dededf: #dededf;
+$tone-gray-dfdfdf: #dfdfdf;
+$tone-gray-e6e6e6: #e6e6e6;
+$tone-gray-ebebeb: #ebebeb;
+$tone-gray-ececec: #ececec;
+$tone-gray-f2f2f2: #f2f2f2;
+$tone-gray-f7f7f7: #f7f7f7;
+$tone-green-065f46: #065f46;
+$tone-green-0b2e13: #0b2e13;
+$tone-green-10b981: #10b981;
+$tone-green-155724: #155724;
+$tone-green-19692c: #19692c;
+$tone-green-1c7430: #1c7430;
+$tone-green-1e7e34: #1e7e34;
+$tone-green-218838: #218838;
+$tone-green-22c55e: #22c55e;
+$tone-green-34ce57: #34ce57;
+$tone-green-48b461: #48b461;
+$tone-green-8fd19e: #8fd19e;
+$tone-green-b1dfbb: #b1dfbb;
+$tone-green-c3e6cb: #c3e6cb;
+$tone-green-d1fae5: #d1fae5;
+$tone-green-d4edda: #d4edda;
+$tone-orange-92400e: #92400e;
+$tone-orange-e6a95f: #e6a95f;
+$tone-orange-f59e0b: #f59e0b;
+$tone-orange-fbb868: #fbb868;
+$tone-orange-fbb965: #fbb965;
+$tone-orange-ffead4: #ffead4;
+$tone-gray-5d3a46: #5d3a46;
+$tone-gray-7d4d5d: #7d4d5d;
+$tone-pink-e85181: #e85181;
+$tone-pink-eb6891: #eb6891;
+$tone-pink-f8c8d7: #f8c8d7;
+$tone-pink-f8cbd9: #f8cbd9;
+$tone-pink-fbe1e9: #fbe1e9;
+$tone-gray-fceaf0: #fceaf0;
+$tone-red-491217: #491217;
+$tone-red-663333: #663333;
+$tone-red-721c24: #721c24;
+$tone-red-991b1b: #991b1b;
+$tone-red-a71d2a: #a71d2a;
+$tone-red-b21f2d: #b21f2d;
+$tone-red-bd2130: #bd2130;
+$tone-red-e15361: #e15361;
+$tone-red-e4606d: #e4606d;
+$tone-red-e74c3c: #e74c3c;
+$tone-red-ed969e: #ed969e;
+$tone-red-ef4444: #ef4444;
+$tone-red-f1b0b7: #f1b0b7;
+$tone-red-f5c6cb: #f5c6cb;
+$tone-red-f8d7da: #f8d7da;
+$tone-red-fee2e2: #fee2e2;
+$tone-gray-fef2f2: #fef2f2;
+$tone-red-ff4757: #ff4757;
+$tone-teal-062c33: #062c33;
+$tone-teal-0c5460: #0c5460;
+$tone-teal-0f6674: #0f6674;
+$tone-teal-10707f: #10707f;
+$tone-teal-117a8b: #117a8b;
+$tone-teal-138496: #138496;
+$tone-teal-244754: #244754;
+$tone-teal-336578: #336578;
+$tone-teal-36b2e0: #36b2e0;
+$tone-teal-3ab0c3: #3ab0c3;
+$tone-teal-86cfda: #86cfda;
+$tone-teal-abdde5: #abdde5;
+$tone-teal-ade0f3: #ade0f3;
+$tone-teal-bde6f5: #bde6f5;
+$tone-teal-bee5eb: #bee5eb;
+$tone-teal-d1ecf1: #d1ecf1;
+$tone-teal-d3eef8: #d3eef8;
+$tone-teal-e0f3fa: #e0f3fa;
+$tone-yellow-533f03: #533f03;
+$tone-yellow-ba8b00: #ba8b00;
+$tone-yellow-c69500: #c69500;
+$tone-yellow-c79a2f: #c79a2f;
+$tone-yellow-d39e00: #d39e00;
+$tone-yellow-deaa0c: #deaa0c;
+$tone-yellow-e0a800: #e0a800;
+$tone-yellow-e4a300: #e4a300;
+$tone-yellow-fcf8e3: #fcf8e3;
+$tone-yellow-fef3c7: #fef3c7;
+$tone-yellow-ffd700: #ffd700;
+$tone-yellow-ffda7f: #ffda7f;
+$tone-yellow-ffdf7e: #ffdf7e;
+$tone-yellow-ffe8a1: #ffe8a1;
+$tone-yellow-ffed4e: #ffed4e;
+$tone-yellow-ffeeba: #ffeeba;
+
+// Mapa de tokens expuestos como CSS custom properties (:root --nombre).
+// Si agregas un color nuevo arriba, agrégalo también aquí para usarlo con var(--nombre).
+$color-tokens: (
+  'blue': $blue,
+  'indigo': $indigo,
+  'purple': $purple,
+  'pink': $pink,
+  'red': $red,
+  'orange': $orange,
+  'yellow': $yellow,
+  'green': $green,
+  'teal': $teal,
+  'cyan': $cyan,
+  'white': $white,
+  'gray': $gray,
+  'gray-dark': $gray-dark,
+  'primary': $primary,
+  'secondary': $secondary,
+  'secondary-hover': $secondary-hover,
+  'tertiary': $tertiary,
+  'quaternary': $quaternary,
+  'success': $success,
+  'info': $info,
+  'warning': $warning,
+  'danger': $danger,
+  'light': $light,
+  'dark': $dark,
+  'black': $black,
+  'border-subtle': $border-subtle,
+  'text-heading-strong': $text-heading-strong,
+  'text-body': $text-body,
+  'text-muted': $text-muted,
+  'shadow-soft': $shadow-soft,
+  'shadow-hover': $shadow-hover,
+  'glass-bg': $glass-bg,
+  'ring-primary-12': $ring-primary-12,
+  'ring-primary-15': $ring-primary-15,
+  'glow-primary-60': $glow-primary-60,
+  'background-glass': $background-glass,
+  'promotion': $promotion,
+  'disabled-bg': $disabled-bg,
+  'disabled-text': $disabled-text,
+  'btn-primary-bg': $btn-primary-bg,
+  'btn-primary-text': $btn-primary-text,
+  'btn-primary-hover': $btn-primary-hover,
+  'btn-secondary-border': $btn-secondary-border,
+  'btn-secondary-text': $btn-secondary-text,
+  'btn-secondary-hover': $btn-secondary-hover,
+  'headings-color': $headings-color,
+  'logo-glow': $logo-glow,
+  'brand-golden': $brand-golden,
+  'brand-coffee': $brand-coffee,
+  'accent-tropical': $accent-tropical,
+  'gray-light': $gray-light,
+  'gray-lighter': $gray-lighter,
+  'primary-dark': $primary-dark,
+  'primary-darker': $primary-darker,
+  'text-dark': $text-dark,
+  'shadow-light': $shadow-light,
+  'shadow-medium': $shadow-medium,
+  'shadow-overlay': $shadow-overlay,
+  'shadow-primary-40': $shadow-primary-40,
+  'shadow-primary-30': $shadow-primary-30,
+  'shadow-primary-50': $shadow-primary-50,
+  'shadow-white-10': $shadow-white-10,
+  'shadow-white-20': $shadow-white-20,
+  'background-bar': $background-bar,
+  'border-light': $border-light,
+  'solid-primary': $solid-primary,
+  'solid-primary-hover': $solid-primary-hover,
+  'solid-neutral': $solid-neutral,
+  'solid-dark-overlay': $solid-dark-overlay,
+  'header-text-primary': $header-text-primary,
+  'header-text-hover': $header-text-hover,
+  'header-coffee-accent': $header-coffee-accent,
+  'header-golden': $header-golden,
+  'header-golden-dark': $header-golden-dark,
+  'header-alert-text': $header-alert-text,
+  'header-danger': $header-danger,
+  'header-danger-dark': $header-danger-dark,
+  'header-shadow-light': $header-shadow-light,
+  'header-shadow-medium': $header-shadow-medium,
+  'header-shadow-strong': $header-shadow-strong,
+  'header-shadow-dark': $header-shadow-dark,
+  'header-shadow-heavy': $header-shadow-heavy,
+  'header-primary-10': $header-primary-10,
+  'header-primary-15': $header-primary-15,
+  'header-primary-20': $header-primary-20,
+  'header-primary-40': $header-primary-40,
+  'header-primary-80': $header-primary-80,
+  'header-coffee-05': $header-coffee-05,
+  'header-coffee-10': $header-coffee-10,
+  'header-white-30': $header-white-30,
+  'header-white-60': $header-white-60,
+  'header-white-80': $header-white-80,
+  'header-white-95': $header-white-95,
+  'header-gray-light-80': $header-gray-light-80,
+  'header-gray-light-95': $header-gray-light-95,
+  'header-danger-30': $header-danger-30,
+  'header-solid-primary-light': $header-solid-primary-light,
+  'header-solid-primary-medium': $header-solid-primary-medium,
+  'header-solid-golden-line': $header-solid-golden-line,
+  'header-solid-golden-active': $header-solid-golden-active,
+  'header-solid-danger': $header-solid-danger,
+  'header-solid-warning': $header-solid-warning,
+  'header-solid-glass-white': $header-solid-glass-white,
+  'instagram-purple': $instagram-purple,
+  'instagram-magenta': $instagram-magenta,
+  'instagram-pink': $instagram-pink,
+  'instagram-orange': $instagram-orange,
+  'instagram-solid': $instagram-solid,
+  'instagram-shadow': $instagram-shadow,
+  'twitter-blue': $twitter-blue,
+  'youtube-red': $youtube-red,
+  'whatsapp-green': $whatsapp-green,
+  'twitter-shadow': $twitter-shadow,
+  'youtube-shadow': $youtube-shadow,
+  'whatsapp-shadow': $whatsapp-shadow,
+  'btn-secondary-bg': $btn-secondary-bg,
+  'gray-200': $gray-200,
+  'gray-300': $gray-300,
+  'gray-400': $gray-400,
+  'gray-500': $gray-500,
+  'gray-700': $gray-700,
+  'gray-900': $gray-900,
+  'tone-blue-0000ff': $tone-blue-0000ff,
+  'tone-blue-0056b3': $tone-blue-0056b3,
+  'tone-blue-0d6efd': $tone-blue-0d6efd,
+  'tone-blue-1e40af': $tone-blue-1e40af,
+  'tone-gray-374151': $tone-gray-374151,
+  'tone-blue-3b82f6': $tone-blue-3b82f6,
+  'tone-gray-4a5568': $tone-gray-4a5568,
+  'tone-gray-4b4b62': $tone-gray-4b4b62,
+  'tone-blue-8b5cf6': $tone-blue-8b5cf6,
+  'tone-blue-dbeafe': $tone-blue-dbeafe,
+  'tone-gray-e5e7eb': $tone-gray-e5e7eb,
+  'tone-gray-f1f3f4': $tone-gray-f1f3f4,
+  'tone-gray-f3f4f6': $tone-gray-f3f4f6,
+  'tone-gray-f3f6ff': $tone-gray-f3f6ff,
+  'tone-gray-f9fafb': $tone-gray-f9fafb,
+  'tone-gray-020202': $tone-gray-020202,
+  'tone-gray-0d0d0d': $tone-gray-0d0d0d,
+  'tone-gray-131313': $tone-gray-131313,
+  'tone-gray-16181b': $tone-gray-16181b,
+  'tone-gray-1a1a1a': $tone-gray-1a1a1a,
+  'tone-gray-1b1b1b': $tone-gray-1b1b1b,
+  'tone-gray-202020': $tone-gray-202020,
+  'tone-gray-2d2d2d': $tone-gray-2d2d2d,
+  'tone-gray-333333': $tone-gray-333333,
+  'tone-gray-404040': $tone-gray-404040,
+  'tone-gray-454d55': $tone-gray-454d55,
+  'tone-gray-525252': $tone-gray-525252,
+  'tone-gray-545b62': $tone-gray-545b62,
+  'tone-gray-555555': $tone-gray-555555,
+  'tone-gray-6b7280': $tone-gray-6b7280,
+  'tone-gray-6c6c6c': $tone-gray-6c6c6c,
+  'tone-gray-858585': $tone-gray-858585,
+  'tone-gray-959595': $tone-gray-959595,
+  'tone-gray-979797': $tone-gray-979797,
+  'tone-gray-9ca3af': $tone-gray-9ca3af,
+  'tone-gray-b0b0b0': $tone-gray-b0b0b0,
+  'tone-gray-b9b9b9': $tone-gray-b9b9b9,
+  'tone-gray-c6c6c6': $tone-gray-c6c6c6,
+  'tone-gray-d6d6d6': $tone-gray-d6d6d6,
+  'tone-gray-d9d9d9': $tone-gray-d9d9d9,
+  'tone-gray-dededf': $tone-gray-dededf,
+  'tone-gray-dfdfdf': $tone-gray-dfdfdf,
+  'tone-gray-e6e6e6': $tone-gray-e6e6e6,
+  'tone-gray-ebebeb': $tone-gray-ebebeb,
+  'tone-gray-ececec': $tone-gray-ececec,
+  'tone-gray-f2f2f2': $tone-gray-f2f2f2,
+  'tone-gray-f7f7f7': $tone-gray-f7f7f7,
+  'tone-green-065f46': $tone-green-065f46,
+  'tone-green-0b2e13': $tone-green-0b2e13,
+  'tone-green-10b981': $tone-green-10b981,
+  'tone-green-155724': $tone-green-155724,
+  'tone-green-19692c': $tone-green-19692c,
+  'tone-green-1c7430': $tone-green-1c7430,
+  'tone-green-1e7e34': $tone-green-1e7e34,
+  'tone-green-218838': $tone-green-218838,
+  'tone-green-22c55e': $tone-green-22c55e,
+  'tone-green-34ce57': $tone-green-34ce57,
+  'tone-green-48b461': $tone-green-48b461,
+  'tone-green-8fd19e': $tone-green-8fd19e,
+  'tone-green-b1dfbb': $tone-green-b1dfbb,
+  'tone-green-c3e6cb': $tone-green-c3e6cb,
+  'tone-green-d1fae5': $tone-green-d1fae5,
+  'tone-green-d4edda': $tone-green-d4edda,
+  'tone-orange-92400e': $tone-orange-92400e,
+  'tone-orange-e6a95f': $tone-orange-e6a95f,
+  'tone-orange-f59e0b': $tone-orange-f59e0b,
+  'tone-orange-fbb868': $tone-orange-fbb868,
+  'tone-orange-fbb965': $tone-orange-fbb965,
+  'tone-orange-ffead4': $tone-orange-ffead4,
+  'tone-gray-5d3a46': $tone-gray-5d3a46,
+  'tone-gray-7d4d5d': $tone-gray-7d4d5d,
+  'tone-pink-e85181': $tone-pink-e85181,
+  'tone-pink-eb6891': $tone-pink-eb6891,
+  'tone-pink-f8c8d7': $tone-pink-f8c8d7,
+  'tone-pink-f8cbd9': $tone-pink-f8cbd9,
+  'tone-pink-fbe1e9': $tone-pink-fbe1e9,
+  'tone-gray-fceaf0': $tone-gray-fceaf0,
+  'tone-red-491217': $tone-red-491217,
+  'tone-red-663333': $tone-red-663333,
+  'tone-red-721c24': $tone-red-721c24,
+  'tone-red-991b1b': $tone-red-991b1b,
+  'tone-red-a71d2a': $tone-red-a71d2a,
+  'tone-red-b21f2d': $tone-red-b21f2d,
+  'tone-red-bd2130': $tone-red-bd2130,
+  'tone-red-e15361': $tone-red-e15361,
+  'tone-red-e4606d': $tone-red-e4606d,
+  'tone-red-e74c3c': $tone-red-e74c3c,
+  'tone-red-ed969e': $tone-red-ed969e,
+  'tone-red-ef4444': $tone-red-ef4444,
+  'tone-red-f1b0b7': $tone-red-f1b0b7,
+  'tone-red-f5c6cb': $tone-red-f5c6cb,
+  'tone-red-f8d7da': $tone-red-f8d7da,
+  'tone-red-fee2e2': $tone-red-fee2e2,
+  'tone-gray-fef2f2': $tone-gray-fef2f2,
+  'tone-red-ff4757': $tone-red-ff4757,
+  'tone-teal-062c33': $tone-teal-062c33,
+  'tone-teal-0c5460': $tone-teal-0c5460,
+  'tone-teal-0f6674': $tone-teal-0f6674,
+  'tone-teal-10707f': $tone-teal-10707f,
+  'tone-teal-117a8b': $tone-teal-117a8b,
+  'tone-teal-138496': $tone-teal-138496,
+  'tone-teal-244754': $tone-teal-244754,
+  'tone-teal-336578': $tone-teal-336578,
+  'tone-teal-36b2e0': $tone-teal-36b2e0,
+  'tone-teal-3ab0c3': $tone-teal-3ab0c3,
+  'tone-teal-86cfda': $tone-teal-86cfda,
+  'tone-teal-abdde5': $tone-teal-abdde5,
+  'tone-teal-ade0f3': $tone-teal-ade0f3,
+  'tone-teal-bde6f5': $tone-teal-bde6f5,
+  'tone-teal-bee5eb': $tone-teal-bee5eb,
+  'tone-teal-d1ecf1': $tone-teal-d1ecf1,
+  'tone-teal-d3eef8': $tone-teal-d3eef8,
+  'tone-teal-e0f3fa': $tone-teal-e0f3fa,
+  'tone-yellow-533f03': $tone-yellow-533f03,
+  'tone-yellow-ba8b00': $tone-yellow-ba8b00,
+  'tone-yellow-c69500': $tone-yellow-c69500,
+  'tone-yellow-c79a2f': $tone-yellow-c79a2f,
+  'tone-yellow-d39e00': $tone-yellow-d39e00,
+  'tone-yellow-deaa0c': $tone-yellow-deaa0c,
+  'tone-yellow-e0a800': $tone-yellow-e0a800,
+  'tone-yellow-e4a300': $tone-yellow-e4a300,
+  'tone-yellow-fcf8e3': $tone-yellow-fcf8e3,
+  'tone-yellow-fef3c7': $tone-yellow-fef3c7,
+  'tone-yellow-ffd700': $tone-yellow-ffd700,
+  'tone-yellow-ffda7f': $tone-yellow-ffda7f,
+  'tone-yellow-ffdf7e': $tone-yellow-ffdf7e,
+  'tone-yellow-ffe8a1': $tone-yellow-ffe8a1,
+  'tone-yellow-ffed4e': $tone-yellow-ffed4e,
+  'tone-yellow-ffeeba': $tone-yellow-ffeeba
+);
+
+// ── Variables no relacionadas con color ──
+$breakpoint-xs: 0;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+// 🎨 Tipografía colombiana moderna
+$font-family-sans-serif: 'Montserrat', 'Poppins', sans-serif; // Montserrat para UI moderna
+$font-family-display: 'Alegreya Sans', 'Poppins', sans-serif; // Para textos largos/menús
+$enable-responsive-font-sizes: true;
+$font-family-monospace:
+  sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
+$border-radius: 5px;
+// Header component variables (migrated from local styles)
+$header-height: 90px;
+$header-glass-blur: 12px;
+$nav-item-padding: 1rem 1.25rem;
+$transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

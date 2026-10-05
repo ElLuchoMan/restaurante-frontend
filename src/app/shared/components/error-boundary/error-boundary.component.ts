@@ -69,8 +69,8 @@ export interface ErrorBoundaryConfig {
         justify-content: center;
         min-height: 300px;
         padding: 2rem;
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
+        background-color: var(--gray-lighter);
+        border: 1px solid var(--gray-300);
         border-radius: 0.5rem;
         margin: 1rem 0;
       }
@@ -82,19 +82,19 @@ export interface ErrorBoundaryConfig {
 
       .error-boundary__icon {
         font-size: 3rem;
-        color: #dc3545;
+        color: var(--red);
         margin-bottom: 1rem;
       }
 
       .error-boundary__title {
-        color: #495057;
+        color: var(--gray-700);
         margin-bottom: 1rem;
         font-size: 1.5rem;
         font-weight: 600;
       }
 
       .error-boundary__message {
-        color: #6c757d;
+        color: var(--gray);
         margin-bottom: 1.5rem;
         line-height: 1.5;
       }
@@ -106,18 +106,18 @@ export interface ErrorBoundaryConfig {
 
       .error-boundary__details summary {
         cursor: pointer;
-        color: #6c757d;
+        color: var(--gray);
         font-size: 0.875rem;
         margin-bottom: 0.5rem;
       }
 
       .error-boundary__stack {
-        background-color: #f1f3f4;
-        border: 1px solid #dee2e6;
+        background-color: var(--tone-gray-f1f3f4);
+        border: 1px solid var(--gray-300);
         border-radius: 0.25rem;
         padding: 0.75rem;
         font-size: 0.75rem;
-        color: #495057;
+        color: var(--gray-700);
         overflow-x: auto;
         white-space: pre-wrap;
         word-break: break-word;
@@ -144,27 +144,27 @@ export interface ErrorBoundaryConfig {
       }
 
       .btn-primary {
-        background-color: #007bff;
+        background-color: var(--blue);
         color: white;
       }
 
       .btn-primary:hover {
-        background-color: #0056b3;
+        background-color: var(--tone-blue-0056b3);
       }
 
       .btn-secondary {
-        background-color: #6c757d;
+        background-color: var(--gray);
         color: white;
       }
 
       .btn-secondary:hover {
-        background-color: #545b62;
+        background-color: var(--tone-gray-545b62);
         text-decoration: none;
         color: white;
       }
 
       .btn:focus-visible {
-        outline: 2px solid #007bff;
+        outline: 2px solid var(--blue);
         outline-offset: 2px;
       }
     `,

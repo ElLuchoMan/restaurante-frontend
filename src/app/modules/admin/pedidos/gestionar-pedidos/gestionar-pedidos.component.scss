@@ -1,7 +1,9 @@
+@use 'src/assets/variables' as *;
+
 // Los estilos de menú ahora son globales en _base.scss
 // Usa las clases: .menu-grid, .menu-card, .menu-card--{color}
 
 .subtitle {
-  color: #6b7280;
+  color: $tone-gray-6b7280;
   font-size: 0.95rem;
 }

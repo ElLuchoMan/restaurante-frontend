@@ -1,8 +1,10 @@
+@use 'src/assets/variables' as *;
+
 // Los estilos de tabla están en _base.scss
 // Reutilizamos las clases: .table, .card
 
 .subtitle {
-  color: #6b7280;
+  color: $tone-gray-6b7280;
   font-size: 0.95rem;
 }
 
@@ -11,7 +13,7 @@
     text-transform: uppercase;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #4a5568;
+    color: $tone-gray-4a5568;
   }
 
   td {
