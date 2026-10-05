@@ -20,26 +20,26 @@ export class AppConfigService {
       // En SSR/Prerender no hacemos llamadas fetch relativas
       return;
     }
-    try {
-      // 1) Intentar override local (no versionado)
-      const local = await fetch('/app-config.local.json', { cache: 'no-store' });
-      if (local.ok) {
-        const json = (await local.json()) as Partial<RuntimeAppConfig>;
-        this.config = { ...this.config, ...json } as RuntimeAppConfig;
-      }
-      // 2) Config global por entorno
-      const response = await fetch('/app-config.json', { cache: 'no-store' });
-      if (response.ok) {
-        const json = (await response.json()) as Partial<RuntimeAppConfig>;
-        this.config = { ...this.config, ...json } as RuntimeAppConfig;
-      }
-    } catch {
-      // Mantener valores por defecto
-    }
+    // 1) Override local (no versionado) y 2) config global por entorno.
+    // Cada archivo se lee por separado: si uno falta, el fallback SPA (index.html con 200)
+    // no debe impedir que se cargue el otro.
+    await this.mergeFrom('/app-config.local.json');
+    await this.mergeFrom('/app-config.json');
 
     // Exponer API key de Maps para util existente, si está configurada
     if (this.config.googleMapsApiKey) {
       (globalThis as Record<string, unknown>)['__GMAPS_API_KEY__'] = this.config.googleMapsApiKey;
+    }
+  }
+
+  private async mergeFrom(url: string): Promise<void> {
+    try {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) return;
+      const json = (await response.json()) as Partial<RuntimeAppConfig>;
+      this.config = { ...this.config, ...json } as RuntimeAppConfig;
+    } catch {
+      // Archivo ausente, HTML del fallback SPA o JSON invalido: se ignora
     }
   }
 
