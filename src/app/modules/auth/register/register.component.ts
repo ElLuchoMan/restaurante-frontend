@@ -494,15 +494,8 @@ export class RegisterComponent implements OnInit {
       if (this.horariosDiferentes && this.diasPersonalizados[dia]) {
         // Usar horario personalizado para este día
         horario = this.horariosPersonalizados[dia];
-      } else if (!this.horariosDiferentes || !this.diasPersonalizados[dia]) {
-        // Usar horario general para este día
-        horario = {
-          diaLibre: false,
-          horaInicio: this.horarioGeneral.horaInicio,
-          horaFin: this.horarioGeneral.horaFin,
-        };
       } else {
-        // Día personalizado pero sin horario definido, usar general
+        // Usar horario general para este día
         horario = {
           diaLibre: false,
           horaInicio: this.horarioGeneral.horaInicio,

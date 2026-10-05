@@ -394,4 +394,119 @@ describe('ReservaService', () => {
     expect(req.request.method).toBe('GET');
     req.flush(mockResponse);
   });
+
+  describe('crearReserva branches adicionales', () => {
+    const setup = (user: any) => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [HttpClientTestingModule],
+        providers: [
+          ReservaService,
+          { provide: HandleErrorService, useValue: createHandleErrorServiceMock() as any },
+          { provide: UserService, useValue: user },
+        ],
+      });
+      return {
+        svc: TestBed.inject(ReservaService),
+        http: TestBed.inject(HttpTestingController),
+      };
+    };
+
+    it('respeta documentoCliente explícito y no consulta contactos', () => {
+      const { svc, http } = setup({ getUserId: () => 101, getUserRole: () => 'Cliente' });
+      const body: any = { ...mockReservaBody, documentoCliente: 777 };
+      svc.crearReserva(body).subscribe((r) => expect(r).toEqual(mockReservaResponse));
+      const req = http.expectOne(`${environment.apiUrl}/reservas`);
+      expect(req.request.body.documentoCliente).toBe(777);
+      req.flush(mockReservaResponse);
+      http.verify();
+    });
+
+    it('respeta documentoContacto explícito (documentoCliente no numérico)', () => {
+      const { svc, http } = setup({ getUserId: () => undefined, getUserRole: () => undefined });
+      const body: any = { ...mockReservaBody, documentoCliente: 'abc', documentoContacto: 555 };
+      svc.crearReserva(body).subscribe();
+      const req = http.expectOne(`${environment.apiUrl}/reservas`);
+      expect(req.request.body.documentoContacto).toBe(555);
+      req.flush(mockReservaResponse);
+      http.verify();
+    });
+
+    it('documentos no numéricos se ignoran y se envía tal cual', () => {
+      const { svc, http } = setup({ getUserId: () => undefined, getUserRole: () => 'Admin' });
+      const body: any = { ...mockReservaBody, documentoCliente: 'abc', documentoContacto: 'x' };
+      svc.crearReserva(body).subscribe();
+      const req = http.expectOne(`${environment.apiUrl}/reservas`);
+      expect(req.request.body.documentoCliente).toBe('abc');
+      req.flush(mockReservaResponse);
+      http.verify();
+    });
+
+    it('Cliente con userId no numérico no consulta contactos', () => {
+      const { svc, http } = setup({ getUserId: () => 'abc', getUserRole: () => 'Cliente' });
+      svc.crearReserva(mockReservaBody).subscribe();
+      const req = http.expectOne(`${environment.apiUrl}/reservas`);
+      req.flush(mockReservaResponse);
+      http.verify();
+    });
+
+    it('Cliente con userId NaN no consulta contactos', () => {
+      const { svc, http } = setup({ getUserId: () => NaN, getUserRole: () => 'Cliente' });
+      svc.crearReserva(mockReservaBody).subscribe();
+      http.expectOne(`${environment.apiUrl}/reservas`).flush(mockReservaResponse);
+      http.verify();
+    });
+
+    it('UserService sin getUserId/getUserRole envía tal cual', () => {
+      const { svc, http } = setup({});
+      svc.crearReserva(mockReservaBody).subscribe();
+      http.expectOne(`${environment.apiUrl}/reservas`).flush(mockReservaResponse);
+      http.verify();
+    });
+
+    it('Cliente: respuesta de contactos sin data usa fallback documentoCliente', () => {
+      const { svc, http } = setup({ getUserId: () => 101, getUserRole: () => 'Cliente' });
+      svc.crearReserva(mockReservaBody).subscribe();
+      http
+        .expectOne(`${environment.apiUrl}/reserva_contacto?documento_cliente=101`)
+        .flush({ code: 200, message: 'ok', data: null });
+      const req = http.expectOne(`${environment.apiUrl}/reservas`);
+      expect(req.request.body.documentoCliente).toBe(101);
+      req.flush(mockReservaResponse);
+      http.verify();
+    });
+
+    it('Cliente: primer contacto sin contactoId usa fallback documentoCliente', () => {
+      const { svc, http } = setup({ getUserId: () => 101, getUserRole: () => 'Cliente' });
+      svc.crearReserva(mockReservaBody).subscribe();
+      http
+        .expectOne(`${environment.apiUrl}/reserva_contacto?documento_cliente=101`)
+        .flush({ code: 200, message: 'ok', data: [null] });
+      const req = http.expectOne(`${environment.apiUrl}/reservas`);
+      expect(req.request.body.documentoCliente).toBe(101);
+      req.flush(mockReservaResponse);
+      http.verify();
+    });
+  });
+
+  it('getReservasByCliente sin fecha no agrega fecha', () => {
+    service.getReservasByCliente(101).subscribe();
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/cliente?documentoCliente=101`);
+    expect(req.request.params.has('fecha')).toBe(false);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('getReservaByParameter ignora contactoId/restauranteId NaN y sin parámetros', () => {
+    service.getReservaByParameter(NaN, undefined, NaN, undefined).subscribe();
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter`);
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('getReservaByParameter sin argumentos', () => {
+    service.getReservaByParameter().subscribe();
+    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter`);
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
 });

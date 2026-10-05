@@ -66,6 +66,15 @@ describe('FloatingCartComponent', () => {
       expect(component.totalItems).toBe(1);
       expect(component.totalPrice).toBe(25000);
     });
+
+    it('should default cantidad to 1 when the item has no quantity', () => {
+      mockCartService.items$ = of([{ ...mockProduct, cantidad: 0 }]);
+
+      component.ngOnInit();
+
+      expect(component.cartItems[0].cantidad).toBe(1);
+      expect(component.totalItems).toBe(1);
+    });
   });
 
   describe('toggleExpanded', () => {

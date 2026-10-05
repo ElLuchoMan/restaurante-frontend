@@ -93,7 +93,7 @@ export class NativePushService {
           const isIOS = cap?.getPlatform?.() === 'ios';
           if (isIOS && (e?.message?.includes('APNS') || e?.message?.includes('Firebase'))) {
             console.warn('[Push] Firebase no configurado en iOS, usando fallback');
-            fcmToken = undefined; // Permitir que continúe al fallback
+            fcmToken = await this.waitForRegistrationToken();
           } else {
             throw e; // Re-throw si no es el error esperado de iOS
           }
@@ -146,14 +146,7 @@ export class NativePushService {
         }
       } catch {
         // Fallback: usar evento de registro estándar si no está disponible el plugin de Firebase
-        await new Promise<void>((resolve) => {
-          PushNotifications.addListener('registration', async (token) => {
-            fcmToken = token?.value || undefined;
-            resolve();
-          });
-          // También escuchar errores para no bloquear
-          PushNotifications.addListener('registrationError', () => resolve());
-        });
+        fcmToken = await this.waitForRegistrationToken();
       }
 
       if (!fcmToken) {
@@ -192,5 +185,17 @@ export class NativePushService {
         console.warn('[NativePushService] init error', e);
       } catch {}
     }
+  }
+
+  /** Espera el token del evento de registro estándar de PushNotifications (sin bloquear si hay error). */
+  private async waitForRegistrationToken(): Promise<string | undefined> {
+    const { PushNotifications } = await import('@capacitor/push-notifications');
+    return new Promise<string | undefined>((resolve) => {
+      PushNotifications.addListener('registration', async (token) => {
+        resolve(token?.value || undefined);
+      });
+      // También escuchar errores para no bloquear
+      PushNotifications.addListener('registrationError', () => resolve(undefined));
+    });
   }
 }

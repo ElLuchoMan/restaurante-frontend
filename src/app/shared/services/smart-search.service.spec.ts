@@ -311,6 +311,45 @@ describe('SmartSearchService', () => {
       expect(results.map((product) => product.productoId)).toEqual([4, 3, 2, 1]);
     });
 
+    it('should treat missing calories as 0 when sorting by calories', () => {
+      // El filtro de calorías de searchProducts descarta productos sin calorías,
+      // por eso se invoca el ordenamiento privado directamente.
+      const withoutCalories = [
+        { ...mockProducts[0], productoId: 12, nombre: 'Con cal', calorias: 100 },
+        { ...mockProducts[0], productoId: 10, nombre: 'Sin cal A', calorias: undefined },
+        { ...mockProducts[0], productoId: 11, nombre: 'Sin cal B', calorias: undefined },
+      ] as Producto[];
+
+      const results = (service as any).sortProducts(withoutCalories, 'calories', 'asc');
+
+      expect(results.map((p: Producto) => p.nombre)).toEqual(['Sin cal A', 'Sin cal B', 'Con cal']);
+    });
+
+    it('should treat missing productoId as 0 when sorting by popularity', () => {
+      const filters = service.getDefaultFilters();
+      filters.sortBy = 'popularity';
+      filters.sortOrder = 'asc';
+      const noIds = [
+        { ...mockProducts[0], productoId: 5, nombre: 'Con id' },
+        { ...mockProducts[0], productoId: undefined, nombre: 'Sin id A' },
+        { ...mockProducts[0], productoId: undefined, nombre: 'Sin id B' },
+      ] as Producto[];
+
+      const results = service.searchProducts(noIds, filters);
+
+      expect(results.map((p) => p.nombre)).toEqual(['Sin id A', 'Sin id B', 'Con id']);
+    });
+
+    it('should keep original order when sortBy is unknown', () => {
+      const filters = service.getDefaultFilters();
+      (filters as any).sortBy = 'unknown';
+      filters.sortOrder = 'desc';
+
+      const results = service.searchProducts(mockProducts, filters);
+
+      expect(results.map((p) => p.productoId)).toEqual(mockProducts.map((p) => p.productoId));
+    });
+
     it('should sort by rating using Math.random value', () => {
       const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.8);
       const filters = service.getDefaultFilters();
@@ -409,5 +448,15 @@ describe('SmartSearchService', () => {
 
       removeSpy.mockRestore();
     });
+  });
+
+  it('should keep an empty history when nothing is stored', async () => {
+    localStorage.clear();
+    const newService = new SmartSearchService();
+
+    newService.loadSearchHistory();
+
+    const history = await firstValueFrom(newService.getSearchHistory());
+    expect(history).toEqual([]);
   });
 });

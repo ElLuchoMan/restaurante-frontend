@@ -5,6 +5,7 @@
 - Crea feature branch desde `develop`
 - Commits: Conventional Commits (ej. `feat/ui: ...`)
 - Pull Request con lint/tests pasando
+- **Todo cambio incluye sus tests**: el umbral de cobertura es 100 % (ver README, sección Cobertura) y el CI falla si baja
 
 ## Requisitos locales
 - Node 20 LTS

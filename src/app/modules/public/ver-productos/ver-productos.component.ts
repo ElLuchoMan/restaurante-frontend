@@ -563,9 +563,7 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // Siempre mostrar última página
-    if (total > 1) {
-      pages.push(total);
-    }
+    pages.push(total);
 
     return pages;
   }
@@ -785,18 +783,18 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   // Colores por categoría
   getCategoryColor(category: string): string {
     const colorMap: { [key: string]: string } = {
-      Bebidas: '#17a2b8',
-      Postres: '#e83e8c',
-      'Platos Principales': '#fd7e14',
-      Entradas: '#28a745',
-      Sopas: '#6f42c1',
-      Ensaladas: '#20c997',
-      Carnes: '#dc3545',
-      Pescados: '#007bff',
-      Vegetariano: '#28a745',
-      Vegano: '#20c997',
+      Bebidas: 'var(--cyan)',
+      Postres: 'var(--pink)',
+      'Platos Principales': 'var(--orange)',
+      Entradas: 'var(--green)',
+      Sopas: 'var(--purple)',
+      Ensaladas: 'var(--teal)',
+      Carnes: 'var(--red)',
+      Pescados: 'var(--blue)',
+      Vegetariano: 'var(--green)',
+      Vegano: 'var(--teal)',
     };
-    return colorMap[category] || '#6c757d';
+    return colorMap[category] || 'var(--gray)';
   }
 
   // Descuentos y precios - CORREGIDO
@@ -926,18 +924,14 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
       const end = Math.min(total - 1, current + 1);
 
       for (let i = start; i <= end; i++) {
-        if (i !== 1 && i !== total) {
-          pages.push(i);
-        }
+        pages.push(i);
       }
 
       if (current < total - 3) {
         pages.push('...');
       }
 
-      if (total > 1) {
-        pages.push(total);
-      }
+      pages.push(total);
     }
 
     return pages;

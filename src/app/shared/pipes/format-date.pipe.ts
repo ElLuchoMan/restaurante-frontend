@@ -38,11 +38,8 @@ export class FormatDatePipe implements PipeTransform {
       // 3) Modo hora puro: extraer HH:mm:ss del string o parsear como Date
       else if (mode === 'time') {
         // Si es formato "0000-01-01 HH:mm:ss +0000 UTC" (del backend), extraer directo
-        if (s.match(/^0000-01-01\s+\d{2}:\d{2}:\d{2}/)) {
-          const timeMatch = s.match(/(\d{2}):(\d{2}):(\d{2})/);
-          if (timeMatch) {
-            return `${timeMatch[1]}:${timeMatch[2]}:${timeMatch[3]}`;
-          }
+        if ((m = s.match(/^0000-01-01\s+(\d{2}):(\d{2}):(\d{2})/))) {
+          return `${m[1]}:${m[2]}:${m[3]}`;
         }
         // Si es solo HH:mm:ss, devolver tal cual
         else if (s.match(/^\d{2}:\d{2}:\d{2}$/)) {

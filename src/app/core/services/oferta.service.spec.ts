@@ -84,4 +84,34 @@ describe('OfertaService', () => {
     expect(req2.request.method).toBe('DELETE');
     req2.flush({ code: 200, message: 'ok', data: {} });
   });
+
+  it('listar sin params no agrega query params', () => {
+    service.listar().subscribe();
+    const req = http.expectOne(baseUrl);
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('listar omite valores null/undefined', () => {
+    service.listar({ limit: undefined, offset: null as any }).subscribe();
+    const req = http.expectOne((r) => r.url === baseUrl);
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('obtenerActivas sin params no agrega query params', () => {
+    service.obtenerActivas().subscribe();
+    const req = http.expectOne(`${baseUrl}/activas`);
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('obtenerActivas omite valores null/undefined', () => {
+    service.obtenerActivas({ restaurante_id: 1, fecha: undefined, hora: null as any }).subscribe();
+    const req = http.expectOne((r) => r.url === `${baseUrl}/activas`);
+    expect(req.request.params.get('restaurante_id')).toBe('1');
+    expect(req.request.params.has('fecha')).toBe(false);
+    expect(req.request.params.has('hora')).toBe(false);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
 });

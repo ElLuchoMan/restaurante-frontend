@@ -40,6 +40,14 @@ describe('HorarioTrabajadorService', () => {
     req.flush(mock);
   });
 
+  it('list solo día sin documento', () => {
+    const mock = { code: 200, message: 'ok', data: [] };
+    service.list({ dia: 'Martes' }).subscribe((res) => expect(res).toEqual([]));
+    const req = http.expectOne(`${baseUrl}?dia=Martes`);
+    expect(req.request.params.has('documento')).toBe(false);
+    req.flush(mock);
+  });
+
   it('list solo documento sin día', () => {
     const mock = { code: 200, message: 'ok', data: [] };
     service.list({ documento: 456 }).subscribe((res) => expect(res).toEqual([]));

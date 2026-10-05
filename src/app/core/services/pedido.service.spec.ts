@@ -161,6 +161,16 @@ describe('PedidoService', () => {
     req.flush(mock);
   });
 
+  it('getPedidos ignora filtros null o undefined', () => {
+    const mock = { code: 200, message: 'ok', data: [] };
+    service
+      .getPedidos({ fecha: '2025-09-15', metodo_pago: null as unknown as string, mes: undefined })
+      .subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne((r) => r.url === baseUrl);
+    expect(req.request.params.keys()).toEqual(['fecha']);
+    req.flush(mock);
+  });
+
   it('updates estado of pedido', () => {
     service.updateEstado(77, 'TERMINADO').subscribe((res) => expect(res).toEqual({ code: 200 }));
     const req = http.expectOne(`${baseUrl}/actualizar-estado?pedido_id=77&estado=TERMINADO`);

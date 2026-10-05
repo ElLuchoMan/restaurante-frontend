@@ -1,9 +1,13 @@
 import { HttpErrorResponse, HttpRequest, HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { delay, of, throwError } from 'rxjs';
+import { delay, of, Subject, throwError } from 'rxjs';
 
-import { createRouterMock, createUserServiceMock } from '../../shared/mocks/test-doubles';
+import {
+  createFnMock,
+  createRouterMock,
+  createUserServiceMock,
+} from '../../shared/mocks/test-doubles';
 import { UserService } from '../services/user.service';
 import { authRefreshInterceptor, resetAuthRefreshState } from './auth-refresh.interceptor';
 
@@ -244,66 +248,56 @@ describe('AuthRefreshInterceptor', () => {
     }, 50); // La segunda request llega mientras la primera está refrescando
   }, 10000); // Aumentar timeout del test
 
-  it.skip('should error queued requests when no token is available after refresh completes', (done) => {
-    // SKIP: Este escenario es estructuralmente problemático porque requiere que el refresh
-    // reporte éxito pero que no haya token disponible. En el código real, cuando el refresh
-    // completa con éxito, pone el resultado de getToken() en refreshTokenSubject inmediatamente.
-    // Las requests encoladas reciben ese valor del subject, no llaman a getToken() nuevamente
-    // hasta después de pasar el filtro. El escenario donde el token desaparece entre el refresh
-    // y el uso por la request encolada es extremadamente raro y difícil de testear sin
-    // race conditions. Los casos importantes están cubiertos por otros tests.
+  it('should error queued requests when no token is available after refresh completes', () => {
+    // Orden determinista de llamadas a getToken() al completarse el refresh:
+    // 1) refreshTokenSubject.next(getToken()) -> emite el token nuevo
+    // 2) la request encolada (suscrita al subject) se reanuda de forma síncrona y llama getToken()
+    //    -> aquí devolvemos null para simular que el token desapareció
+    // 3) la request original reintenta con getToken() -> token nuevo
     const mockError = new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' });
     const mockResponse = new HttpResponse({ status: 200, body: { data: 'test' } });
     const newToken = 'new-access-token';
+    const refresh$ = new Subject<boolean>();
 
-    // Configuración de mockNext:
-    // 1. Primera request original: 401
-    // 2. Retry de primera request: éxito
-    // 3. Segunda request original: 401
+    // 1ª original: 401, 2ª original: 401 (se encola), reintento de la 1ª: éxito
     mockNext
       .mockReturnValueOnce(throwError(() => mockError))
-      .mockReturnValueOnce(of(mockResponse))
-      .mockReturnValueOnce(throwError(() => mockError));
-
-    userService.attemptTokenRefresh.mockReturnValue(of(true).pipe(delay(20)));
-    // Configuración de getToken:
-    // Por defecto devuelve null, pero las primeras dos llamadas devuelven el token
-    // 1. Para refreshTokenSubject.next() después del refresh
-    // 2. Para el retry de la primera request
-    // 3+ cualquier otra llamada: null (no hay token)
+      .mockReturnValueOnce(throwError(() => mockError))
+      .mockReturnValueOnce(of(mockResponse));
+    userService.attemptTokenRefresh.mockReturnValue(refresh$);
     userService.getToken
-      .mockReturnValue(null)
+      .mockReset()
       .mockReturnValueOnce(newToken)
+      .mockReturnValueOnce(null)
       .mockReturnValueOnce(newToken);
 
-    const interceptor = authRefreshInterceptor;
+    const firstNext = createFnMock();
+    const firstError = createFnMock();
+    const secondNext = createFnMock();
+    const secondError = createFnMock();
 
-    const firstResult = TestBed.runInInjectionContext(() => interceptor(mockRequest, mockNext));
-    firstResult.subscribe({
-      next: (response) => {
-        expect(response).toBe(mockResponse);
-      },
-      error: (error) => {
-        // La primera request no debería fallar ya que el refresh tiene éxito
-        done(new Error(`Primera request falló inesperadamente: ${error.message}`));
-      },
+    TestBed.runInInjectionContext(() => authRefreshInterceptor(mockRequest, mockNext)).subscribe({
+      next: firstNext,
+      error: firstError,
+    });
+    TestBed.runInInjectionContext(() => authRefreshInterceptor(mockRequest, mockNext)).subscribe({
+      next: secondNext,
+      error: secondError,
     });
 
-    // Esperar menos que el delay del refresh (20ms) para que la segunda request se encole
-    setTimeout(() => {
-      const secondResult = TestBed.runInInjectionContext(() => interceptor(mockRequest, mockNext));
+    // Solo la primera dispara el refresh; la segunda queda en espera
+    expect(userService.attemptTokenRefresh).toHaveBeenCalledTimes(1);
+    expect(secondError).not.toHaveBeenCalled();
 
-      secondResult.subscribe({
-        next: () => {
-          done(new Error('Expected queued request to error'));
-        },
-        error: (error) => {
-          expect(error.message).toBe('No token available');
-          expect(router.navigate).not.toHaveBeenCalled();
-          expect(userService.attemptTokenRefresh).toHaveBeenCalledTimes(1);
-          done();
-        },
-      });
-    }, 5);
-  }, 10000);
+    refresh$.next(true);
+    refresh$.complete();
+
+    expect(secondNext).not.toHaveBeenCalled();
+    expect(secondError).toHaveBeenCalledTimes(1);
+    expect(secondError.mock.calls[0][0].message).toBe('No token available');
+    expect(firstError).not.toHaveBeenCalled();
+    expect(firstNext).toHaveBeenCalledWith(mockResponse);
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(userService.attemptTokenRefresh).toHaveBeenCalledTimes(1);
+  });
 });

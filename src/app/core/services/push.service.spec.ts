@@ -52,6 +52,23 @@ describe('PushService', () => {
     req.flush({ code: 200, message: 'ok', data: [] });
   });
 
+  it('lista dispositivos sin params ni query string', () => {
+    service.listarDispositivos().subscribe();
+    const req = http.expectOne(`${baseUrl}/dispositivos`);
+    expect(req.request.params.keys()).toEqual([]);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('lista dispositivos omite params undefined o null', () => {
+    service
+      .listarDispositivos({ limit: 5, enabled: undefined, plataforma: null } as any)
+      .subscribe();
+    const req = http.expectOne((r) => r.url === `${baseUrl}/dispositivos`);
+    expect(req.request.params.keys()).toEqual(['limit']);
+    expect(req.request.params.get('limit')).toBe('5');
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
   it('actualiza ultima vista', () => {
     service.actualizarUltimaVista(1).subscribe();
     const req = http.expectOne(`${baseUrl}/dispositivos/1/visto`);

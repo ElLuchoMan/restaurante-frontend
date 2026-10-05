@@ -18,7 +18,7 @@
 
   .cart-button {
     background: $primary; // Color primario sólido (amarillo dorado)
-    border: 1px solid rgba(158, 79, 63, 0.15);
+    border: 1px solid rgba($header-coffee-accent, 0.15);
     border-radius: 50%;
     width: 60px;
     height: 60px;
@@ -47,7 +47,7 @@
       top: -8px;
       right: -8px;
       background: $danger;
-      color: white;
+      color: $white;
       border-radius: 50%;
       width: 24px;
       height: 24px;
@@ -66,7 +66,7 @@
     right: 0;
     width: 350px;
     max-width: 90vw;
-    background: white;
+    background: $white;
     border-radius: 20px;
     box-shadow: 0 20px 50px $shadow-soft;
     border: 1px solid $border-subtle;
@@ -88,7 +88,7 @@
       }
 
       .close-btn {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba($white, 0.2);
         border: none;
         color: $text-heading-strong;
         font-size: 1.2rem;
@@ -98,7 +98,7 @@
         transition: all 0.2s ease;
 
         &:hover {
-          background: rgba(255, 255, 255, 0.3);
+          background: rgba($white, 0.3);
           transform: rotate(90deg);
         }
       }
@@ -162,7 +162,7 @@
               gap: 0.5rem;
 
               .quantity-btn {
-                background: white;
+                background: $white;
                 border: 1px solid $border-subtle;
                 border-radius: 6px;
                 width: 28px;
@@ -174,14 +174,14 @@
                 transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                 font-size: 0.75rem;
                 color: $text-heading-strong;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                box-shadow: 0 1px 3px rgba($black, 0.05);
 
                 &:hover:not(:disabled) {
                   background: $primary;
                   color: $text-heading-strong;
-                  border-color: rgba(158, 79, 63, 0.15);
+                  border-color: rgba($header-coffee-accent, 0.15);
                   transform: translateY(-1px);
-                  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                  box-shadow: 0 2px 6px rgba($black, 0.1);
                 }
 
                 &:active:not(:disabled) {
@@ -279,17 +279,17 @@
           justify-content: center;
           gap: 0.5rem;
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 2px 8px rgba($black, 0.08);
 
           &.btn-primary {
             background: $primary; // Color primario sólido
-            border: 1px solid rgba(158, 79, 63, 0.15);
+            border: 1px solid rgba($header-coffee-accent, 0.15);
             color: $text-heading-strong;
 
             &:hover {
               background: $quaternary; // Color hover estándar
               transform: translateY(-2px);
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+              box-shadow: 0 4px 12px rgba($black, 0.12);
             }
 
             &:active {
@@ -298,10 +298,10 @@
           }
 
           &.btn-outline-secondary {
-            background: white;
+            background: $white;
             border: 1px solid $border-subtle;
             color: $text-body;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 3px rgba($black, 0.05);
 
             &:hover {
               background: rgba($danger, 0.05);

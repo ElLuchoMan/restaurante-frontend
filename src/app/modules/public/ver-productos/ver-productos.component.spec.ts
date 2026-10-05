@@ -13,6 +13,7 @@ import {
   createCategoriaServiceMock,
   createErrorBoundaryServiceMock,
   createFavoritesServiceMock,
+  createFnMock,
   createLiveAnnouncerServiceMock,
   createModalServiceMock,
   createProductoServiceMock,
@@ -178,6 +179,8 @@ describe('VerProductosComponent (isolated)', () => {
   it('gestiona obtención de productos usando TransferState como caché', () => {
     const cached = [mockProductosVerProductos[0]];
     transferState.get.mockReturnValue(cached);
+    categoriaService.list.mockReturnValue(of([]));
+    subcategoriaService.list.mockReturnValue(of([]));
 
     component.obtenerProductos();
 
@@ -629,5 +632,420 @@ describe('VerProductosComponent (isolated)', () => {
     component.ngOnDestroy();
     expect(nextSpy).toHaveBeenCalled();
     expect(completeSpy).toHaveBeenCalled();
+  });
+
+  describe('cobertura adicional', () => {
+    it('enriquece productos con subcategoría y categoría (categoriaId numérico y objeto)', () => {
+      const productos = [
+        {
+          ...mockProductosVerProductos[0],
+          subcategoriaId: 100,
+          categoria: undefined,
+          subcategoria: undefined,
+        },
+        {
+          ...mockProductosVerProductos[1],
+          subcategoriaId: 300,
+          categoria: undefined,
+          subcategoria: undefined,
+        },
+        {
+          ...mockProductosVerProductos[2],
+          subcategoriaId: 400,
+          categoria: undefined,
+          subcategoria: undefined,
+        },
+        {
+          ...mockProductosVerProductos[2],
+          productoId: 4,
+          subcategoriaId: 999,
+          categoria: undefined,
+          subcategoria: undefined,
+        },
+        {
+          ...mockProductosVerProductos[2],
+          productoId: 5,
+          subcategoriaId: 500,
+          categoria: undefined,
+          subcategoria: undefined,
+        },
+      ] as any[];
+      component.productos = productos;
+      categoriaService.list.mockReturnValue(of(mockCategoriasVerProductos));
+      subcategoriaService.list
+        .mockReturnValueOnce(
+          of([
+            { subcategoriaId: 100, categoriaId: 10, nombre: 'Calientes' },
+            { subcategoriaId: 300, categoriaId: { categoriaId: 20 }, nombre: 'Saludable' },
+            { subcategoriaId: 400, categoriaId: { pkIdCategoria: 20 }, nombre: 'Otra' },
+            { subcategoriaId: 500, categoriaId: 777, nombre: 'Huerfana' },
+          ]),
+        )
+        .mockReturnValueOnce(throwError(() => new Error('sub fail')));
+
+      component['cargarCategoriasYSubcategorias']();
+
+      expect(component.categorias).toEqual(['Bebidas', 'Platos Principales']);
+      expect(component.productos[0]).toEqual(
+        expect.objectContaining({ subcategoria: 'Calientes', categoria: 'Bebidas' }),
+      );
+      expect(component.productos[1]).toEqual(
+        expect.objectContaining({ subcategoria: 'Saludable', categoria: 'Platos Principales' }),
+      );
+      expect(component.productos[2]).toEqual(
+        expect.objectContaining({ subcategoria: 'Otra', categoria: 'Platos Principales' }),
+      );
+      expect(component.productos[3].subcategoria).toBeUndefined();
+      expect(component.productos[4]).toEqual(
+        expect.objectContaining({ subcategoria: 'Huerfana', categoria: '' }),
+      );
+      expect(component.subcategorias).toEqual(['Calientes', 'Saludable', 'Otra', 'Huerfana']);
+      expect(component.productosFiltrados).toEqual(component.productos);
+    });
+
+    it('usa forkJoin con observable vacío cuando no hay categorías', () => {
+      component.productos = [{ ...mockProductosVerProductos[0], subcategoria: undefined }] as any[];
+      categoriaService.list.mockReturnValue(of([]));
+
+      component['cargarCategoriasYSubcategorias']();
+
+      expect(subcategoriaService.list).not.toHaveBeenCalled();
+      expect(component.categorias).toEqual([]);
+      expect(component.subcategorias).toEqual([]);
+    });
+
+    it('onSearchFocus no muestra sugerencias con consulta corta', () => {
+      component.searchFilters.query = 'ab';
+      component.showSuggestions = false;
+      component.onSearchFocus();
+      expect(component.showSuggestions).toBe(false);
+    });
+
+    it('onSortChange sin orden explícito conserva la dirección actual', () => {
+      component.sortDirection = 'desc';
+      component.onSortChange('price');
+      expect(component.sortDirection).toBe('desc');
+      expect(component.searchFilters.sortBy).toBe('price');
+      expect(component.searchFilters.sortOrder).toBe('desc');
+      expect(smartSearch.updateFilters).toHaveBeenCalledWith({
+        sortBy: 'price',
+        sortOrder: 'desc',
+      });
+    });
+
+    it('updateSubcategories calcula subcategorías únicas de la categoría activa', () => {
+      component.productos = [
+        ...mockProductosVerProductos,
+        { ...mockProductosVerProductos[0], productoId: 9, subcategoria: undefined },
+      ] as any[];
+      component.searchFilters.category = 'Bebidas';
+      component['updateSubcategories']();
+      expect(component.subcategorias).toEqual(['Calientes', 'Frescos']);
+    });
+
+    it('ordena favoritos en ambas direcciones y mantiene orden si son iguales', () => {
+      component.favorites = new Set([3]);
+      const ordenados = component['sortProductsByFavorites']([...mockProductosVerProductos]);
+      expect(ordenados.map((p) => p.productoId)).toEqual([3, 1, 2]);
+
+      const reversa = component['sortProductsByFavorites']([
+        mockProductosVerProductos[1],
+        mockProductosVerProductos[2],
+      ]);
+      expect(reversa.map((p) => p.productoId)).toEqual([3, 2]);
+
+      component.favorites = new Set();
+      const iguales = component['sortProductsByFavorites']([...mockProductosVerProductos]);
+      expect(iguales.map((p) => p.productoId)).toEqual([1, 2, 3]);
+    });
+
+    it('getActiveFiltersCount cuenta cada filtro de forma independiente', () => {
+      const base = {
+        ...mockDefaultSearchFilters,
+        priceRange: { min: 0, max: 0 },
+        caloriesRange: { min: 0, max: 0 },
+      };
+      component.searchFilters = { ...base };
+      expect(component.getActiveFiltersCount()).toBe(0);
+
+      component.searchFilters = { ...base, category: 'Bebidas' };
+      expect(component.getActiveFiltersCount()).toBe(1);
+
+      component.searchFilters = { ...base, subcategory: 'Calientes' };
+      expect(component.getActiveFiltersCount()).toBe(1);
+
+      component.searchFilters = { ...base, priceRange: { min: 5, max: 0 } };
+      expect(component.getActiveFiltersCount()).toBe(1);
+
+      component.searchFilters = { ...base, priceRange: { min: 0, max: 5 } };
+      expect(component.getActiveFiltersCount()).toBe(1);
+
+      component.searchFilters = { ...base, caloriesRange: { min: 1, max: 0 } };
+      expect(component.getActiveFiltersCount()).toBe(1);
+
+      component.searchFilters = { ...base, caloriesRange: { min: 0, max: 9 } };
+      expect(component.getActiveFiltersCount()).toBe(1);
+    });
+
+    it('extraerCategoriasDeProductos ignora productos sin categoría', () => {
+      component.productos = [
+        ...mockProductosVerProductos,
+        { ...mockProductosVerProductos[0], productoId: 9, categoria: undefined },
+      ] as any[];
+      component['extraerCategoriasDeProductos']();
+      expect(component.categorias.sort()).toEqual(['Bebidas', 'Platos Principales']);
+    });
+
+    it('paginasVisibles ajusta rangos al inicio, medio y final', () => {
+      component.productosFiltrados = new Array(20).fill(mockProductosVerProductos[0]);
+      component.productosPorPagina = 1;
+
+      component.paginaActual = 3;
+      expect(component.paginasVisibles).toEqual([1, 2, 3, 4, 5, '...', 20]);
+
+      component.paginaActual = 18;
+      expect(component.paginasVisibles).toEqual([1, '...', 16, 17, 18, 19, 20]);
+
+      component.paginaActual = 10;
+      expect(component.paginasVisibles).toEqual([1, '...', 8, 9, 10, 11, 12, '...', 20]);
+    });
+
+    it('nextPage, prevPage y jumpToPage respetan los límites', () => {
+      component.productosFiltrados = new Array(3).fill(mockProductosVerProductos[0]);
+      component.productosPorPagina = 1;
+      component.paginaActual = 3;
+      component.nextPage();
+      expect(component.paginaActual).toBe(3);
+
+      component.paginaActual = 1;
+      component.prevPage();
+      expect(component.paginaActual).toBe(1);
+
+      component.jumpToPage(99);
+      expect(component.paginaActual).toBe(1);
+      component.jumpToPage('3');
+      expect(component.paginaActual).toBe(3);
+    });
+
+    it('abrirDetalle sin rol conocido no agrega botones y usa imagen por defecto', () => {
+      component.userRole = null;
+      component.abrirDetalle({ ...mockProductosVerProductos[0], imagen: undefined });
+      const config = (modalService.openModal as any).mock.calls.at(-1)?.[0];
+      expect(config.buttons).toEqual([]);
+      expect(config.image).toBe('../../../../assets/img/logo2.webp');
+      expect(config.title).toBe('Café');
+    });
+
+    it('detectWebView y setupScrollListener funcionan sin window definido de forma explícita', () => {
+      component['detectWebView']();
+      expect(component.isWebView).toBe(true);
+    });
+
+    it('loadProductEnhancements ignora productos sin id', () => {
+      component.productos = [{ ...mockProductosVerProductos[0], productoId: undefined }] as any[];
+      component.productRatings.clear();
+      component['loadProductEnhancements']();
+      expect(component.productRatings.size).toBe(0);
+      expect(component.productReviews.size).toBe(0);
+    });
+
+    it('scroll por debajo del umbral oculta el botón de subir', () => {
+      component['setupScrollListener']();
+      Object.defineProperty(window, 'pageYOffset', {
+        value: 10,
+        configurable: true,
+        writable: true,
+      });
+      (scrollListeners.scroll as EventListener)(new Event('scroll'));
+      expect(component.showScrollToTop).toBe(false);
+    });
+
+    it('ratings, reviews y estrellas', () => {
+      component.productRatings.set(1, 4.5);
+      component.productReviews.set(1, 12);
+      expect(component.getProductRating(1)).toBe(4.5);
+      expect(component.getProductRating(2)).toBe(0);
+      expect(component.getProductRating(undefined)).toBe(0);
+      expect(component.getProductReviewCount(1)).toBe(12);
+      expect(component.getProductReviewCount(2)).toBe(0);
+      expect(component.getProductReviewCount(undefined)).toBe(0);
+      expect(component.getStarsArray(3.7)).toEqual([true, true, true, false, false]);
+      expect(component.getStarsArray(0)).toEqual([false, false, false, false, false]);
+    });
+
+    it('isProductVegetarian evalúa descripción y categoría', () => {
+      const base = mockProductosVerProductos[0];
+      expect(component.isProductVegetarian({ ...base, descripcion: 'Plato Vegetariano' })).toBe(
+        true,
+      );
+      expect(
+        component.isProductVegetarian({ ...base, descripcion: 'Carne', categoria: 'Vegetariano' }),
+      ).toBe(true);
+      expect(
+        component.isProductVegetarian({ ...base, descripcion: 'Carne', categoria: 'Bebidas' }),
+      ).toBe(false);
+      expect(
+        component.isProductVegetarian({
+          ...base,
+          descripcion: undefined,
+          categoria: undefined,
+        } as any),
+      ).toBe(false);
+    });
+
+    it('isProductSpicy evalúa descripción y nombre', () => {
+      const base = mockProductosVerProductos[0];
+      expect(component.isProductSpicy({ ...base, descripcion: 'Muy picante' })).toBe(true);
+      expect(
+        component.isProductSpicy({ ...base, descripcion: 'Suave', nombre: 'Ají de gallina' }),
+      ).toBe(true);
+      expect(component.isProductSpicy({ ...base, descripcion: 'Suave', nombre: 'Flan' })).toBe(
+        false,
+      );
+      expect(
+        component.isProductSpicy({ ...base, descripcion: undefined, nombre: undefined } as any),
+      ).toBe(false);
+    });
+
+    it('getCategoryColor devuelve variables CSS y fallback gris', () => {
+      expect(component.getCategoryColor('Bebidas')).toBe('var(--cyan)');
+      expect(component.getCategoryColor('Postres')).toBe('var(--pink)');
+      expect(component.getCategoryColor('Platos Principales')).toBe('var(--orange)');
+      expect(component.getCategoryColor('Vegano')).toBe('var(--teal)');
+      expect(component.getCategoryColor('Inexistente')).toBe('var(--gray)');
+    });
+
+    it('getProductDiscount calcula porcentaje solo si hay precio original mayor', () => {
+      const producto = { ...mockProductosVerProductos[0], precio: 100 };
+      jest.spyOn(component, 'getProductOriginalPrice').mockReturnValueOnce(null);
+      expect(component.getProductDiscount(producto)).toBe(0);
+
+      jest.spyOn(component, 'getProductOriginalPrice').mockReturnValueOnce(100);
+      expect(component.getProductDiscount(producto)).toBe(0);
+
+      jest.spyOn(component, 'getProductOriginalPrice').mockReturnValueOnce(125);
+      expect(component.getProductDiscount(producto)).toBe(20);
+    });
+
+    it('getSearchSuggestions devuelve sugerencias solo sin consulta y con filtros activos', () => {
+      component.searchFilters = { ...mockDefaultSearchFilters, query: 'abc', category: 'Bebidas' };
+      expect(component.getSearchSuggestions()).toEqual([]);
+
+      component.searchFilters = {
+        ...mockDefaultSearchFilters,
+        query: '',
+        priceRange: { min: 0, max: 0 },
+        caloriesRange: { min: 0, max: 0 },
+      };
+      expect(component.getSearchSuggestions()).toEqual([]);
+
+      component.searchFilters = {
+        ...mockDefaultSearchFilters,
+        query: '',
+        priceRange: { min: 0, max: 0 },
+        caloriesRange: { min: 0, max: 0 },
+        category: 'Bebidas',
+      };
+      const sugerencias = component.getSearchSuggestions();
+      expect(sugerencias).toHaveLength(4);
+      expect(sugerencias[0]).toEqual({ text: 'Platos principales', icon: 'fa-utensils' });
+    });
+
+    it('applySuggestion actualiza consulta y aplica filtros', () => {
+      const applySpy = jest.spyOn(component as any, 'applyFilters');
+      component.applySuggestion({ text: 'Postres', icon: 'fa-ice-cream' });
+      expect(component.searchFilters.query).toBe('Postres');
+      expect(smartSearch.updateFilters).toHaveBeenCalledWith({ query: 'Postres' });
+      expect(applySpy).toHaveBeenCalled();
+    });
+
+    it('getProductPrepTime devuelve null sin categoría', () => {
+      expect(
+        component.getProductPrepTime({
+          ...mockProductosVerProductos[0],
+          categoria: undefined,
+        } as any),
+      ).toBeNull();
+    });
+
+    it('getProductOriginalPrice y descuento coherentes', () => {
+      jest.spyOn(Math, 'random').mockReturnValue(0.9);
+      const producto = { ...mockProductosVerProductos[0], precio: 100 };
+      expect(component.getProductDiscount(producto)).toBe(17);
+    });
+
+    it('getPaginationPages incluye elipsis izquierda y derecha según la página', () => {
+      component.productosFiltrados = new Array(50).fill(mockProductosVerProductos[0]);
+      component.productosPorPagina = 1;
+
+      component.paginaActual = 10;
+      expect(component.getPaginationPages()).toEqual([1, '...', 9, 10, 11, '...', 50]);
+
+      component.paginaActual = 48;
+      expect(component.getPaginationPages()).toEqual([1, '...', 47, 48, 49, 50]);
+
+      component.paginaActual = 1;
+      expect(component.getPaginationPages()).toEqual([1, 2, '...', 50]);
+    });
+
+    it('setupSearchInput es un no-op seguro', () => {
+      expect(() => component['setupSearchInput']()).not.toThrow();
+    });
+
+    it('toggleSortDirection alterna desde asc a desc y toggleViewMode desde lista a grid', () => {
+      component.sortDirection = 'asc';
+      component.toggleSortDirection();
+      expect(component.sortDirection).toBe('desc');
+      expect(component.searchFilters.sortOrder).toBe('desc');
+
+      component.viewMode = 'list';
+      component.toggleViewMode();
+      expect(component.viewMode).toBe('grid');
+    });
+
+    it('setViewMode anuncia la vista de lista', () => {
+      component.setViewMode('list');
+      expect(component.viewMode).toBe('list');
+      expect(live.announce).toHaveBeenCalledWith('Vista cambiada a lista');
+    });
+
+    it('detecta soporte de voz con SpeechRecognition estándar o sin soporte', () => {
+      const build = () =>
+        new VerProductosComponent(
+          productoService as unknown as ProductoService,
+          categoriaService as unknown as CategoriaService,
+          subcategoriaService as unknown as SubcategoriaService,
+          modalService as unknown as ModalService,
+          userService as unknown as UserService,
+          router as any,
+          cartService as unknown as CartService,
+          live as unknown as LiveAnnouncerService,
+          transferState as unknown as any,
+          errorBoundary as unknown as ErrorBoundaryService,
+          smartSearch as unknown as SmartSearchService,
+          favoritesService as unknown as FavoritesService,
+        );
+
+      delete (window as any).webkitSpeechRecognition;
+      expect(build().isVoiceSearchSupported).toBe(false);
+
+      (window as any).SpeechRecognition = createFnMock();
+      try {
+        expect(build().isVoiceSearchSupported).toBe(true);
+      } finally {
+        delete (window as any).SpeechRecognition;
+      }
+    });
+
+    it('detectWebView no marca WebView cuando navigator no está disponible', () => {
+      component.isWebView = false;
+      const spy = jest.spyOn(globalThis, 'navigator', 'get').mockReturnValue(undefined as any);
+      try {
+        component['detectWebView']();
+      } finally {
+        spy.mockRestore();
+      }
+      expect(component.isWebView).toBe(false);
+    });
   });
 });

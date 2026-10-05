@@ -143,6 +143,78 @@ describe('ImageOptimizationService', () => {
       expect(result.optimizedSize).toBe(100 * 1024);
     });
 
+    describe('búsqueda de calidad óptima', () => {
+      const KB = 1024;
+      const fileOfSize = (kb: number): File => {
+        const f = new File(['x'], 'test.webp', { type: 'image/webp' });
+        Object.defineProperty(f, 'size', { value: kb * KB });
+        return f;
+      };
+      const qualities = (): number[] =>
+        mockImageCompression.mock.calls.map(([, options]) => options!.initialQuality as number);
+
+      beforeEach(() => {
+        global.URL.createObjectURL = createURLCreateObjectURLMock();
+        global.URL.revokeObjectURL = createURLRevokeObjectURLMock();
+        global.Image = createImageMockSuccess();
+      });
+
+      const original = (): File => {
+        const f = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+        Object.defineProperty(f, 'size', { value: 2000 * KB });
+        return f;
+      };
+
+      it('sube la calidad mientras el resultado sea menor al ideal y termina cuando el rango es muy pequeño', async () => {
+        mockImageCompression
+          .mockResolvedValueOnce(fileOfSize(50)) // pasada inicial (<100KB)
+          .mockResolvedValueOnce(fileOfSize(60))
+          .mockResolvedValueOnce(fileOfSize(70))
+          .mockResolvedValueOnce(fileOfSize(80))
+          .mockResolvedValueOnce(fileOfSize(90))
+          .mockResolvedValue(fileOfSize(999)); // no debería usarse
+
+        const result = await service.optimizeImage(original());
+
+        expect(mockImageCompression).toHaveBeenCalledTimes(5);
+        const q = qualities();
+        expect(q[0]).toBe(0.8);
+        expect(q[1]).toBeCloseTo(0.65, 5);
+        expect(q[2]).toBeCloseTo(0.775, 5);
+        expect(q[3]).toBeCloseTo(0.8375, 5);
+        expect(q[4]).toBeCloseTo(0.86875, 5);
+        expect(result.optimizedSize).toBe(90 * KB);
+      });
+
+      it('baja la calidad cuando el resultado excede el máximo y se detiene al entrar en el rango ideal', async () => {
+        mockImageCompression
+          .mockResolvedValueOnce(fileOfSize(300)) // inicial > 150KB => qualityHigh = 0.7
+          .mockResolvedValueOnce(fileOfSize(200)) // > máximo => baja calidad
+          .mockResolvedValueOnce(fileOfSize(120)) // rango ideal => termina
+          .mockResolvedValue(fileOfSize(999));
+
+        const result = await service.optimizeImage(original());
+
+        expect(mockImageCompression).toHaveBeenCalledTimes(3);
+        const q = qualities();
+        expect(q[1]).toBeCloseTo(0.55, 5);
+        expect(q[2]).toBeCloseTo(0.475, 5);
+        expect(result.optimizedSize).toBe(120 * KB);
+      });
+
+      it('conserva el archivo actual si ninguna iteración logra bajar del máximo', async () => {
+        const initial = fileOfSize(300);
+        mockImageCompression.mockResolvedValueOnce(initial).mockResolvedValue(fileOfSize(200));
+
+        const result = await service.optimizeImage(original());
+
+        // 1 pasada inicial + 3 iteraciones (el rango 0.4-0.7 colapsa por debajo de 0.05)
+        expect(mockImageCompression).toHaveBeenCalledTimes(4);
+        expect(result.file).toBe(initial);
+        expect(result.optimizedSize).toBe(300 * KB);
+      });
+    });
+
     it('debe manejar error al obtener dimensiones', async () => {
       // Arrange
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });

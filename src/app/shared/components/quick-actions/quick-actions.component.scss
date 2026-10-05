@@ -22,8 +22,8 @@
     gap: 0.2rem;
     height: 44px;
     border-radius: 9px;
-    background: #ffffff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    background: $white;
+    box-shadow: 0 2px 8px rgba($black, 0.06);
     text-decoration: none;
     color: inherit;
     font-weight: 600;
@@ -39,7 +39,7 @@
     }
 
     i {
-      color: var(--bs-secondary, #c79a2f);
+      color: var(--bs-secondary, #{$tone-yellow-c79a2f});
       font-size: 0.9rem;
       transition:
         transform 140ms ease,
@@ -59,8 +59,8 @@
       letter-spacing: 0.02em;
 
       &.qa-new {
-        background: #ff4757;
-        color: #ffffff;
+        background: $tone-red-ff4757;
+        color: $white;
         animation: qa-pulse 2s infinite;
       }
     }
@@ -73,7 +73,7 @@
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      background: rgba(199, 154, 47, 0.48); // más visible y con color de marca
+      background: rgba($tone-yellow-c79a2f, 0.48); // más visible y con color de marca
       transform: translate(-50%, -50%) scale(0);
       opacity: 0;
       pointer-events: none;
@@ -81,10 +81,10 @@
     &:active,
     &.qa-tap {
       transform: scale(0.985);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.09);
+      box-shadow: 0 4px 12px rgba($black, 0.09);
       i {
         transform: scale(1.04);
-        color: color-mix(in oklab, var(--bs-secondary, #c79a2f) 86%, black 14%);
+        color: color-mix(in oklab, var(--bs-secondary, #{$tone-yellow-c79a2f}) 86%, black 14%);
       }
     }
     &:active::before,
@@ -95,8 +95,8 @@
     &:focus-visible {
       outline: none;
       box-shadow:
-        0 0 0 2px rgba(199, 154, 47, 0.2),
-        0 2px 8px rgba(0, 0, 0, 0.08);
+        0 0 0 2px rgba($tone-yellow-c79a2f, 0.2),
+        0 2px 8px rgba($black, 0.08);
     }
   }
 }
@@ -128,8 +128,8 @@
     position: relative;
     padding: 6px 8px;
     border-radius: 14px;
-    background: #fff;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    background: $white;
+    box-shadow: 0 6px 18px rgba($black, 0.08);
   }
 }
 

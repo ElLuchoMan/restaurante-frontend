@@ -57,6 +57,27 @@ describe('NetworkService', () => {
     expect(svc.consumeLastOnlinePath()).toBeNull();
   });
 
+  it('en plataforma servidor no registra listeners y permanece online', () => {
+    const addSpy = jest.spyOn(window, 'addEventListener');
+    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+    const svc = TestBed.inject(NetworkService);
+    expect(svc.current).toBe(true);
+    expect(addSpy).not.toHaveBeenCalledWith('online', expect.any(Function));
+    expect(addSpy).not.toHaveBeenCalledWith('offline', expect.any(Function));
+    addSpy.mockRestore();
+  });
+
+  it('emite true por defecto cuando navigator no está definido', (done) => {
+    Object.defineProperty(global, 'navigator', { value: undefined, configurable: true });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'browser' }] });
+    const svc = TestBed.inject(NetworkService);
+    svc.isOnline$.pipe(take(1)).subscribe((v) => {
+      expect(v).toBe(true);
+      done();
+    });
+  });
+
   it('emite true por defecto cuando navigator.onLine no existe', (done) => {
     // navigator sin propiedad onLine
     Object.defineProperty(global, 'navigator', { value: {}, configurable: true });

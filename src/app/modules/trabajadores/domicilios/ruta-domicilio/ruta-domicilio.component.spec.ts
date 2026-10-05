@@ -14,6 +14,7 @@ import { metodoPago } from '../../../../shared/constants';
 import {
   createDomicilioServiceMock,
   createDomSanitizerMock,
+  createFnMock,
   createLoggingServiceMock,
   createModalServiceMock,
   createPagoServiceMock,
@@ -439,6 +440,66 @@ describe('RutaDomicilioComponent', () => {
 
     // Assert
     expect(logSpy).toHaveBeenCalled();
+  });
+
+  describe('ramas adicionales', () => {
+    it('no ejecuta lógica de mapas/HTTP cuando no es navegador (SSR)', () => {
+      (component as any).isBrowser = false;
+      const subscribeSpy = jest.spyOn(activatedRoute.queryParams, 'subscribe');
+      domicilioService.getDomicilioById.mockClear();
+
+      component.ngOnInit();
+
+      expect(subscribeSpy).not.toHaveBeenCalled();
+      expect(domicilioService.getDomicilioById).not.toHaveBeenCalled();
+    });
+
+    it('generarRuta usa embed de direcciones cuando hay API key', () => {
+      (globalThis as any).__GMAPS_API_KEY__ = 'KEY-XYZ';
+      const sanitizer = TestBed.inject(DomSanitizer) as any;
+      sanitizer.bypassSecurityTrustResourceUrl = createFnMock((u: string) => u);
+      try {
+        component.direccionCliente = 'Carrera 7 # 1-1';
+        component.generarRuta();
+
+        const url = sanitizer.bypassSecurityTrustResourceUrl.mock.calls[0][0] as string;
+        expect(url).toContain('https://www.google.com/maps/embed/v1/directions?key=KEY-XYZ');
+        expect(url).toContain(`origin=${encodeURIComponent(component.restauranteDireccion)}`);
+        expect(url).toContain(`destination=${encodeURIComponent('Carrera 7 # 1-1')}`);
+        expect(url).toContain('mode=driving');
+      } finally {
+        delete (globalThis as any).__GMAPS_API_KEY__;
+      }
+    });
+
+    it('generarRuta usa embed genérico cuando no hay API key', () => {
+      delete (globalThis as any).__GMAPS_API_KEY__;
+      const sanitizer = TestBed.inject(DomSanitizer) as any;
+      sanitizer.bypassSecurityTrustResourceUrl = createFnMock((u: string) => u);
+
+      component.generarRuta();
+
+      const url = sanitizer.bypassSecurityTrustResourceUrl.mock.calls[0][0] as string;
+      expect(url).toContain('https://www.google.com/maps/embed?pb=');
+      expect(url).not.toContain('key=');
+    });
+
+    it('muestra éxito cuando assignPago se completa correctamente', () => {
+      const pago = TestBed.inject(PagoService) as any;
+      const pedido = TestBed.inject(PedidoService) as any;
+      pago.createPago.mockReturnValueOnce(of({ data: { pagoId: 321 } }));
+      pedido.assignPago.mockReturnValueOnce(of({}));
+      component.domicilioId = 1;
+      (component as any).pedidoId = 77;
+      modalService.getModalData.mockReturnValue({ select: { selected: 'NEQUI' } });
+      domicilioService.updateDomicilio.mockReturnValue(of({} as any));
+
+      component.marcarPago();
+      modalService.openModal.mock.calls[0][0].buttons[0].action();
+
+      expect(pedido.assignPago).toHaveBeenCalledWith(77, 321);
+      expect(toastrService.success).toHaveBeenCalledWith('Pago asignado al domicilio');
+    });
   });
 });
 

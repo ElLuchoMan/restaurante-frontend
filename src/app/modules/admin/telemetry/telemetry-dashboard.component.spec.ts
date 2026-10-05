@@ -665,4 +665,51 @@ describe('TelemetryDashboardComponent', () => {
       expect(component.error()).toBe(null);
     });
   });
+
+  describe('Error handling sin mensaje de error', () => {
+    const casos: Array<[string, string, string]> = [
+      ['sales', 'getSales', 'Error al cargar datos de ventas: Error desconocido'],
+      ['products', 'getProducts', 'Error al cargar datos de productos: Error desconocido'],
+      ['users', 'getUsers', 'Error al cargar datos de usuarios: Error desconocido'],
+      ['time', 'getTimeAnalysis', 'Error al cargar análisis temporal: Error desconocido'],
+      [
+        'rentabilidad',
+        'getRentabilidad',
+        'Error al cargar análisis de rentabilidad: Error desconocido',
+      ],
+      [
+        'segmentacion',
+        'getSegmentacion',
+        'Error al cargar segmentación de clientes: Error desconocido',
+      ],
+      ['eficiencia', 'getEficiencia', 'Error al cargar análisis de eficiencia: Error desconocido'],
+      [
+        'reservas',
+        'getReservasAnalisis',
+        'Error al cargar análisis de reservas: Error desconocido',
+      ],
+      ['pedidos', 'getPedidosAnalisis', 'Error al cargar análisis de pedidos: Error desconocido'],
+    ];
+
+    it.each(casos)(
+      'tab %s usa "Error desconocido" si el error no trae message',
+      (tab, method, msg) => {
+        (telemetry as any)[method].mockReturnValue(throwError(() => ({})));
+
+        component.setActiveTab(tab as any);
+
+        expect(component.isLoading()).toBe(false);
+        expect(component.error()).toBe(msg);
+      },
+    );
+
+    it('dashboard usa "Error desconocido" si el error no trae message', () => {
+      telemetry.getDashboard.mockReturnValue(throwError(() => ({})));
+
+      component['loadDashboardData']();
+
+      expect(component.isLoading()).toBe(false);
+      expect(component.error()).toBe('Error al cargar datos del dashboard: Error desconocido');
+    });
+  });
 });

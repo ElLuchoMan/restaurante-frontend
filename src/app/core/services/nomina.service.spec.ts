@@ -67,4 +67,20 @@ describe('NominaService', () => {
     expect(req.request.method).toBe('DELETE');
     req.flush(mock);
   });
+
+  it('list con objeto vacío no agrega parámetros', () => {
+    service.list({}).subscribe((res) => expect(res).toEqual([]));
+    const req = http.expectOne(baseUrl);
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('list con mes y anio en 0 los envía y omite fecha vacía', () => {
+    service.list({ fecha: '', mes: 0, anio: 0 }).subscribe();
+    const req = http.expectOne((r) => r.url === baseUrl);
+    expect(req.request.params.has('fecha')).toBe(false);
+    expect(req.request.params.get('mes')).toBe('0');
+    expect(req.request.params.get('anio')).toBe('0');
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
 });

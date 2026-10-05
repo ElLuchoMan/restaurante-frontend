@@ -60,8 +60,8 @@ import { WebPushService } from '../../../core/services/web-push.service';
         background: white;
         border-radius: 12px;
         padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 20px color-mix(in srgb, var(--black) 15%, transparent);
+        border: 1px solid var(--tone-gray-e5e7eb);
       }
 
       .notification-prompt__icon {

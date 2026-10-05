@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
-import { PerformanceService } from './performance.service';
 import { browserLocation } from '../../shared/utils/browser-location';
+import { PerformanceService } from './performance.service';
 
 class MockRouter {
   public events = new Subject<any>();
@@ -77,6 +77,39 @@ describe('PerformanceService', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({ providers: [{ provide: Router, useValue: router }] });
     expect(() => TestBed.inject(PerformanceService)).not.toThrow();
+  });
+
+  it('retorna temprano cuando PerformanceObserver no existe en window', () => {
+    delete (window as any).PerformanceObserver;
+    expect('PerformanceObserver' in window).toBe(false);
+    const localRouter = new MockRouter();
+    const localSvc = new PerformanceService(localRouter as unknown as Router);
+    // Sin observer no se registra ninguna métrica de vitals
+    expect(localSvc.getMetrics()).toEqual([]);
+    expect(localSvc.getCoreWebVitals()).toEqual({});
+  });
+
+  it('ignora paint distinto de first-contentful-paint y layout-shift con input reciente', () => {
+    emitEntry({ entryType: 'paint', name: 'first-paint', startTime: 300 });
+    emitEntry({ entryType: 'layout-shift', value: 0.4, hadRecentInput: true });
+    const metrics = svc.getMetrics();
+    // Misma URL: se fusionan en una sola entrada sin fcp ni cls
+    expect(metrics).toHaveLength(1);
+    expect(metrics[0].fcp).toBeUndefined();
+    expect(metrics[0].cls).toBeUndefined();
+  });
+
+  it('no registra tiempos de ruta cuando performance no está disponible', () => {
+    const original = Object.getOwnPropertyDescriptor(globalThis, 'performance');
+    Object.defineProperty(globalThis, 'performance', { value: undefined, configurable: true });
+    try {
+      expect(typeof performance).toBe('undefined');
+      router.events.next({});
+      router.events.next(new NavigationEnd(1, '/from', '/to'));
+      expect(svc.getMetrics()).toEqual([]);
+    } finally {
+      if (original) Object.defineProperty(globalThis, 'performance', original);
+    }
   });
 
   it('avisa cuando PerformanceObserver lanza error al inicializar', () => {

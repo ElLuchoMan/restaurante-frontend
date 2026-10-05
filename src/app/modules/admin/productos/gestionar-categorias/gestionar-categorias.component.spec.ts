@@ -653,4 +653,219 @@ describe('GestionarCategoriasComponent', () => {
       expect(component.isWebView).toBe(false);
     });
   });
+
+  describe('abrirFormSubcategoria - acciones del modal', () => {
+    const abrir = (sub?: any) => {
+      component.abrirFormSubcategoria(sub);
+      tick();
+      return mockModalService.openModal.mock.calls[0][0];
+    };
+    const montarDom = (nombre: string, categoria: string) => {
+      document.body.innerHTML = `<input class="form-input-enhanced" value="${nombre}" />
+        <select class="form-select-enhanced"><option value="${categoria}" selected>x</option></select>`;
+    };
+
+    beforeEach(() => {
+      mockSubcategoriaService.list.mockReturnValue(of(mockSubcategoriasResponse.data));
+      component.categorias = [
+        { categoriaId: 1, nombre: 'Bebidas' },
+        { categoriaId: 2, nombre: 'Comida' },
+      ];
+    });
+
+    afterEach(() => {
+      document.body.innerHTML = '';
+    });
+
+    it('configura input y select con categoría numérica en edición', fakeAsync(() => {
+      const modal = abrir({ subcategoriaId: 5, nombre: 'Jugos', categoriaId: 2 });
+      expect(modal.input).toEqual({ label: 'Nombre de la subcategoría', value: 'Jugos' });
+      expect(modal.select).toEqual({
+        label: 'Categoría',
+        options: [
+          { label: 'Bebidas', value: 1 },
+          { label: 'Comida', value: 2 },
+        ],
+        selected: 2,
+      });
+      expect(modal.buttons?.[1].label).toBe('Actualizar');
+    }));
+
+    it('extrae categoriaId cuando viene como objeto o como objeto sin categoriaId', fakeAsync(() => {
+      let modal = abrir({ subcategoriaId: 5, nombre: 'Jugos', categoriaId: { categoriaId: 1 } });
+      expect(modal.select?.selected).toBe(1);
+
+      mockModalService.openModal.mockClear();
+      modal = abrir({ subcategoriaId: 5, nombre: 'Jugos', categoriaId: { otro: 3 } });
+      expect(modal.select?.selected).toEqual({ otro: 3 });
+    }));
+
+    it('usa selected null para una subcategoría nueva', fakeAsync(() => {
+      const modal = abrir();
+      expect(modal.select?.selected).toBeNull();
+      expect(modal.buttons?.[1].label).toBe('Crear');
+    }));
+
+    it('cancelar cierra el modal sin guardar', fakeAsync(() => {
+      const modal = abrir();
+      modal.buttons![0].action();
+      expect(mockModalService.closeModal).toHaveBeenCalled();
+      expect(mockSubcategoriaService.create).not.toHaveBeenCalled();
+    }));
+
+    it('advierte si el nombre está vacío', fakeAsync(() => {
+      montarDom(' ', '1');
+      const modal = abrir();
+      modal.buttons![1].action();
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'El nombre de la subcategoría es obligatorio',
+        'Validación',
+      );
+      expect(mockModalService.closeModal).not.toHaveBeenCalled();
+    }));
+
+    it('advierte si no hay categoría seleccionada', fakeAsync(() => {
+      montarDom('Jugos', '');
+      const modal = abrir();
+      modal.buttons![1].action();
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'Debe seleccionar una categoría',
+        'Validación',
+      );
+      expect(mockModalService.closeModal).not.toHaveBeenCalled();
+    }));
+
+    it('advierte por nombre vacío cuando no existe el input en el DOM', fakeAsync(() => {
+      document.body.innerHTML = '';
+      const modal = abrir();
+      modal.buttons![1].action();
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'El nombre de la subcategoría es obligatorio',
+        'Validación',
+      );
+    }));
+
+    it('advierte por categoría faltante cuando no existe el select en el DOM', fakeAsync(() => {
+      document.body.innerHTML = '<input class="form-input-enhanced" value="Jugos" />';
+      const modal = abrir();
+      modal.buttons![1].action();
+      expect(mockToastr.warning).toHaveBeenCalledWith(
+        'Debe seleccionar una categoría',
+        'Validación',
+      );
+    }));
+
+    it('crea la subcategoría y recarga con el filtro activo', fakeAsync(() => {
+      mockSubcategoriaService.create.mockReturnValue(of({} as any));
+      component.categoriaSeleccionadaFiltro = 2;
+      montarDom('Jugos', '2');
+      const modal = abrir();
+      modal.buttons![1].action();
+
+      expect(mockModalService.closeModal).toHaveBeenCalled();
+      expect(mockSubcategoriaService.create).toHaveBeenCalledWith({
+        nombre: 'Jugos',
+        categoriaId: 2,
+      });
+      expect(mockSubcategoriaService.list).toHaveBeenLastCalledWith(2);
+      expect(mockToastr.success).toHaveBeenCalledWith('Subcategoría creada correctamente', 'Éxito');
+    }));
+
+    it('crea la subcategoría y recarga sin filtro activo', fakeAsync(() => {
+      mockSubcategoriaService.create.mockReturnValue(of({} as any));
+      component.categoriaSeleccionadaFiltro = null;
+      montarDom('Jugos', '2');
+      const modal = abrir();
+      modal.buttons![1].action();
+
+      expect(mockSubcategoriaService.list).toHaveBeenLastCalledWith(undefined);
+    }));
+
+    it('actualiza la subcategoría existente sin filtro activo', fakeAsync(() => {
+      mockSubcategoriaService.update.mockReturnValue(of({} as any));
+      component.categoriaSeleccionadaFiltro = null;
+      montarDom('Gaseosas light', '1');
+      const modal = abrir({ subcategoriaId: 7, nombre: 'Gaseosas', categoriaId: 1 });
+      modal.buttons![1].action();
+
+      expect(mockSubcategoriaService.update).toHaveBeenCalledWith(7, {
+        nombre: 'Gaseosas light',
+        categoriaId: 1,
+      });
+      expect(mockSubcategoriaService.list).toHaveBeenLastCalledWith(undefined);
+      expect(mockToastr.success).toHaveBeenCalledWith(
+        'Subcategoría actualizada correctamente',
+        'Éxito',
+      );
+    }));
+
+    it('actualiza la subcategoría y recarga con el filtro activo', fakeAsync(() => {
+      mockSubcategoriaService.update.mockReturnValue(of({} as any));
+      component.categoriaSeleccionadaFiltro = 1;
+      montarDom('Gaseosas light', '1');
+      const modal = abrir({ subcategoriaId: 7, nombre: 'Gaseosas', categoriaId: 1 });
+      modal.buttons![1].action();
+
+      expect(mockSubcategoriaService.list).toHaveBeenLastCalledWith(1);
+    }));
+
+    it('maneja error al crear subcategoría', fakeAsync(() => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      mockSubcategoriaService.create.mockReturnValue(throwError(() => new Error('fail')));
+      montarDom('Jugos', '1');
+      const modal = abrir();
+      modal.buttons![1].action();
+
+      expect(mockToastr.error).toHaveBeenCalledWith('Error al crear la subcategoría', 'Error');
+      expect(component.cargando).toBe(false);
+      consoleSpy.mockRestore();
+    }));
+
+    it('maneja error al actualizar subcategoría', fakeAsync(() => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      mockSubcategoriaService.update.mockReturnValue(throwError(() => new Error('fail')));
+      montarDom('Jugos', '1');
+      const modal = abrir({ subcategoriaId: 7, nombre: 'Gaseosas', categoriaId: 1 });
+      modal.buttons![1].action();
+
+      expect(mockToastr.error).toHaveBeenCalledWith('Error al actualizar la subcategoría', 'Error');
+      expect(component.cargando).toBe(false);
+      consoleSpy.mockRestore();
+    }));
+  });
+
+  describe('subcategorías visibles y nombre de categoría', () => {
+    const muchas = Array.from({ length: 12 }, (_, i) => ({
+      subcategoriaId: i + 1,
+      nombre: `Sub ${i + 1}`,
+      categoriaId: 1,
+    }));
+
+    beforeEach(() => {
+      component.subcategorias = muchas;
+    });
+
+    it('limita las subcategorías visibles cuando exceden el límite', () => {
+      expect(component.subcategoriasVisibles).toHaveLength(10);
+      expect(component.hayMasSubcategorias).toBe(true);
+    });
+
+    it('muestra todas cuando mostrarTodasSubcategorias es true', () => {
+      component.mostrarTodasSubcategorias = true;
+      expect(component.subcategoriasVisibles).toHaveLength(12);
+      expect(component.hayMasSubcategorias).toBe(false);
+    });
+
+    it('muestra todas cuando no superan el límite', () => {
+      component.subcategorias = muchas.slice(0, 3);
+      expect(component.subcategoriasVisibles).toHaveLength(3);
+      expect(component.hayMasSubcategorias).toBe(false);
+    });
+
+    it('obtenerNombreCategoria resuelve ids como objeto', () => {
+      component.categorias = [{ categoriaId: 4, nombre: 'Postres' }];
+      expect(component.obtenerNombreCategoria({ categoriaId: 4 })).toBe('Postres');
+      expect(component.obtenerNombreCategoria({ otro: 1 })).toBe('Desconocida');
+    });
+  });
 });

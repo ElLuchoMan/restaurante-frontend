@@ -7,8 +7,40 @@
     "selector-type-no-unknown": [
       true,
       {
-        "ignoreTypes": ["/^app-/"]
+        "ignoreTypes": [
+          "/^app-/"
+        ]
       }
-    ]
-  }
+    ],
+    "color-no-hex": true,
+    "color-named": [
+      "never",
+      {
+        "ignore": [
+          "inside-function"
+        ]
+      }
+    ],
+    "function-disallowed-list": [
+      "/gradient$/"
+    ],
+    "declaration-property-value-disallowed-list": {
+      "/.*/": [
+        "/rgba?\\(\\s*\\d/",
+        "/hsla?\\(/"
+      ]
+    }
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/assets/_variables.scss"
+      ],
+      "rules": {
+        "color-no-hex": null,
+        "declaration-property-value-disallowed-list": null,
+        "color-named": null
+      }
+    }
+  ]
 }

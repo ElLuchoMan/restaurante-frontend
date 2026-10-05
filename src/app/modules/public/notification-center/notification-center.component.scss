@@ -23,7 +23,7 @@
   gap: 1rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba($black, 0.06);
   border: 2px solid transparent;
   position: relative;
   overflow: hidden;
@@ -43,7 +43,7 @@
   &:hover,
   &:focus {
     transform: translateX(4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 24px rgba($black, 0.12);
     border-color: rgba($primary, 0.2);
 
     &::before {
@@ -125,40 +125,40 @@
   &.notification-reserva {
     .notification-card__icon {
       background: transparent;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 4px 12px rgba($tone-blue-3b82f6, 0.3);
     }
     &:hover::before {
-      background: #3b82f6;
+      background: $tone-blue-3b82f6;
     }
   }
 
   &.notification-pedido {
     .notification-card__icon {
       background: transparent;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 4px 12px rgba($tone-green-10b981, 0.3);
     }
     &:hover::before {
-      background: #10b981;
+      background: $tone-green-10b981;
     }
   }
 
   &.notification-promo {
     .notification-card__icon {
       background: transparent;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+      box-shadow: 0 4px 12px rgba($tone-orange-f59e0b, 0.3);
     }
     &:hover::before {
-      background: #f59e0b;
+      background: $tone-orange-f59e0b;
     }
   }
 
   &.notification-calificacion {
     .notification-card__icon {
       background: transparent;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+      box-shadow: 0 4px 12px rgba($tone-blue-8b5cf6, 0.3);
     }
     &:hover::before {
-      background: #8b5cf6;
+      background: $tone-blue-8b5cf6;
     }
   }
 }
@@ -211,7 +211,7 @@
   border-radius: 20px;
   padding: 4rem 2rem;
   text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 40px rgba($black, 0.08);
   border: 1px solid $border-subtle;
 
   &__icon {

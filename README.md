@@ -94,16 +94,16 @@ Sass variables remain only for build‑time values such as breakpoints.
 - `npm run format` / `npm run format:check` – formateo con Prettier
 
 ### Cobertura (Coverage)
-- Umbral global configurado en `jest.config.cjs`:
-  - branches: 98
-  - functions: 98
-  - lines: 98
-  - statements: 98
+- **Regla del proyecto: todo cambio debe incluir sus tests.** El umbral global en `jest.config.cjs` es **100 %** en statements, branches, functions y lines; si un cambio deja la cobertura por debajo, `npm test` y el CI fallan.
+  - Código nuevo o modificado → tests nuevos o actualizados en el mismo PR.
+  - Las guardas de SSR (`typeof window === 'undefined'`) se cubren con specs `*.ssr.spec.ts` que usan `/** @jest-environment node */`.
+  - Código inalcanzable: se elimina, no se excluye.
+  - Si en algún momento 100 % resulta insostenible, el mínimo aceptado es 99 %, pero la obligación de entregar tests con cada cambio se mantiene.
 - Reportes generados en `coverage/` (HTML, lcov, text-summary, json-summary).
 - Para inspección rápida, abre `coverage/index.html` en el navegador.
 
 ### Reglas y exclusiones de cobertura
-- El proyecto prioriza pruebas de unidades de negocio. Algunas ramas poco valiosas o no demostrables pueden excluirse con directivas Istanbul, por ejemplo:
+- Con el umbral al 100 %, las exclusiones Istanbul son un último recurso (preferir testear o eliminar el código muerto). Si hay que usarlas:
   - `/* istanbul ignore if */`
   - `/* istanbul ignore else */`
   - `/* istanbul ignore next */`

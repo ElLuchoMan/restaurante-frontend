@@ -16,14 +16,14 @@
   background: $white;
   border: 1px solid $border-light;
   border-radius: 14px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 18px rgba($black, 0.06);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
 .reserva-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 24px rgba($black, 0.08);
 }
 .hora-badge {
   background: $shadow-light;
@@ -36,7 +36,7 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba($white, 0.7);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   margin-bottom: 0.5rem;
@@ -99,10 +99,10 @@
   transition: transform 0.15s ease;
 }
 .btn-icon.ok {
-  color: #22c55e;
+  color: $tone-green-22c55e;
 }
 .btn-icon.cancel {
-  color: #ef4444;
+  color: $tone-red-ef4444;
 }
 .btn-icon:active {
   transform: scale(0.95);

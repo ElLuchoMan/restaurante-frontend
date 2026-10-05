@@ -119,6 +119,10 @@ describe('Image Utils', () => {
       expect(result).toBe('assets/img/product-1.webp');
     });
 
+    it('should return first image for a non-integer id', () => {
+      expect(getFallbackImage(1.5)).toBe('assets/img/product-1.webp');
+    });
+
     it('should return first image for zero id', () => {
       const result = getFallbackImage(0);
       expect(result).toBe('assets/img/product-1.webp');
@@ -276,6 +280,28 @@ describe('Image Utils', () => {
 
       // Limpiar
       delete (window as any).Capacitor;
+    });
+
+    it('should use default image when WebView blob fallback index is not an integer', () => {
+      (window as any).Capacitor = { platform: 'android' };
+
+      // productId fraccionario => índice no entero => sin imagen en el arreglo
+      const result = getSafeImageSrc('blob:http://localhost:4200/uuid', 1.5);
+
+      expect(result).toBe('assets/img/logo2.webp');
+
+      delete (window as any).Capacitor;
+    });
+
+    it('should use first fallback when blob conversion fails with a non-integer productId', () => {
+      const urlMock = createURLMockWithError();
+      global.URL.createObjectURL = urlMock.createObjectURL;
+      delete (window as any).Capacitor;
+      delete (window as any).cordova;
+
+      const result = getSafeImageSrc('f'.repeat(150000), 1.5);
+
+      expect(result).toBe('assets/img/product-1.webp');
     });
   });
 });

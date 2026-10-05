@@ -21,7 +21,7 @@
 }
 
 /* Gradiente de barra superior premium */
-.premium-bar-gradient {
+.premium-bar {
   background: rgba($secondary, 0.9);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -50,7 +50,7 @@
 }
 
 /* Fondos de sección para diferentes áreas */
-.section-bg-gradient-light {
+.section-bg-light {
   background: transparent;
 }
 
@@ -73,9 +73,9 @@
   max-width: 900px;
   border-radius: 16px;
   backdrop-filter: blur(8px) saturate(120%);
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba($black, 0.4);
   border: 1px solid rgba($white, 0.1);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 40px rgba($black, 0.2);
   padding: 2rem;
   transition: $transition-smooth;
 }
@@ -100,7 +100,7 @@
     position: absolute;
     inset: 0;
     border-radius: 15px;
-    background: $header-gradient-primary-light;
+    background: $header-solid-primary-light;
     opacity: 0;
     transition: $transition-smooth;
   }
@@ -113,7 +113,7 @@
     transform: translateX(-50%);
     width: 0;
     height: 2px;
-    background: $header-gradient-golden-line;
+    background: $header-solid-golden-line;
     border-radius: 1px;
     transition: $transition-smooth;
   }
@@ -137,14 +137,14 @@
 
     &::after {
       width: calc(100% - 2rem);
-      background: $header-gradient-golden-active;
+      background: $header-solid-golden-active;
     }
   }
 }
 
 /* Alert Connection - para @extend */
 .alert-connection {
-  background: $header-gradient-warning;
+  background: $header-solid-warning;
   border: 1px solid $header-primary-20;
   border-radius: 15px;
   color: $header-alert-text;

@@ -493,4 +493,188 @@ describe('HeaderComponent', () => {
       expect(completeSpy).toHaveBeenCalled();
     });
   });
+
+  describe('Non-browser platform', () => {
+    it('should default to showing the header and skip browser setup in ngOnInit', () => {
+      component.isBrowser = false;
+      const checkSpy = jest.spyOn(component, 'checkScreenSize');
+      const bindSpy = jest.spyOn(component as any, 'bindMenuA11yHandlers');
+
+      component.ngOnInit();
+
+      expect(component.isNative).toBe(false);
+      expect(component.showHeader).toBe(true);
+      // generateMenu (via auth state) invoca checkScreenSize, pero el bloque browser no
+      expect(bindSpy).not.toHaveBeenCalled();
+      expect(checkSpy).toHaveBeenCalled();
+    });
+
+    it('should not call checkScreenSize on resize', () => {
+      component.isBrowser = false;
+      const checkSpy = jest.spyOn(component, 'checkScreenSize');
+      component.onResize();
+      expect(checkSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not change imagenVisible in checkScreenSize', () => {
+      component.isBrowser = false;
+      const before = component.imagenVisible;
+      Object.defineProperty(window, 'innerWidth', {
+        writable: true,
+        configurable: true,
+        value: 500,
+      });
+      component.checkScreenSize();
+      expect(component.imagenVisible).toBe(before);
+    });
+
+    it('should not touch the DOM when logging out or closing the menu', () => {
+      jest.useFakeTimers();
+      const navbar = document.createElement('nav');
+      navbar.classList.add('navbar');
+      document.body.appendChild(navbar);
+      const collapse = document.createElement('div');
+      collapse.id = 'navbarCollapse';
+      collapse.classList.add('show');
+      document.body.appendChild(collapse);
+
+      component.isBrowser = false;
+      component.logout();
+
+      expect(navbar.classList.contains('logging-out')).toBe(false);
+      expect(collapse.classList.contains('show')).toBe(true);
+      expect(userService.logout).toHaveBeenCalled();
+
+      jest.advanceTimersByTime(200);
+      expect(router.navigate).toHaveBeenCalledWith(['/home']);
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith('Sesión cerrada correctamente');
+
+      navbar.remove();
+      collapse.remove();
+      jest.useRealTimers();
+    });
+  });
+
+  describe('Menu edge cases', () => {
+    it('should generate an empty menu for an unknown role', () => {
+      authStateSubject.next(true);
+      userService.getUserRole.mockReturnValue('Desconocido');
+      fixture.detectChanges();
+
+      expect(component.userRole).toBe('Desconocido');
+      expect(component.menuLeft).toEqual([]);
+      expect(component.menuRight).toEqual([]);
+    });
+
+    it('should set aria-expanded to false and not focus when the menu is closed after toggling', () => {
+      jest.useFakeTimers();
+      const toggler = document.createElement('button');
+      toggler.classList.add('navbar-toggler');
+      document.body.appendChild(toggler);
+      const collapse = document.createElement('div');
+      collapse.id = 'navbarCollapse';
+      document.body.appendChild(collapse);
+      const nav = document.createElement('ul');
+      nav.classList.add('navbar-nav');
+      const link = document.createElement('a');
+      link.classList.add('nav-link');
+      nav.appendChild(link);
+      collapse.appendChild(nav);
+      const focusSpy = jest.spyOn(link, 'focus');
+
+      component['bindMenuA11yHandlers']();
+      toggler.click();
+      jest.runAllTimers();
+
+      expect(toggler.getAttribute('aria-expanded')).toBe('false');
+      expect(focusSpy).not.toHaveBeenCalled();
+
+      toggler.remove();
+      collapse.remove();
+      jest.useRealTimers();
+    });
+
+    it('should focus the first nav link when the menu opens', () => {
+      jest.useFakeTimers();
+      const toggler = document.createElement('button');
+      toggler.classList.add('navbar-toggler');
+      document.body.appendChild(toggler);
+      const collapse = document.createElement('div');
+      collapse.id = 'navbarCollapse';
+      document.body.appendChild(collapse);
+      const nav = document.createElement('ul');
+      nav.classList.add('navbar-nav');
+      const link = document.createElement('a');
+      link.setAttribute('href', '#');
+      link.classList.add('nav-link');
+      nav.appendChild(link);
+      collapse.appendChild(nav);
+      const focusSpy = jest.spyOn(link, 'focus');
+
+      component['bindMenuA11yHandlers']();
+      collapse.classList.add('show');
+      toggler.click();
+      jest.runAllTimers();
+
+      expect(toggler.getAttribute('aria-expanded')).toBe('true');
+      expect(focusSpy).toHaveBeenCalled();
+
+      toggler.remove();
+      collapse.remove();
+      jest.useRealTimers();
+    });
+
+    it('should not focus anything when the menu opens without nav links', () => {
+      jest.useFakeTimers();
+      const toggler = document.createElement('button');
+      toggler.classList.add('navbar-toggler');
+      document.body.appendChild(toggler);
+      const collapse = document.createElement('div');
+      collapse.id = 'navbarCollapse';
+      document.body.appendChild(collapse);
+
+      component['bindMenuA11yHandlers']();
+      collapse.classList.add('show');
+      toggler.click();
+
+      expect(() => jest.runAllTimers()).not.toThrow();
+      expect(toggler.getAttribute('aria-expanded')).toBe('true');
+
+      toggler.remove();
+      collapse.remove();
+      jest.useRealTimers();
+    });
+
+    it('should ignore non-Escape keys inside the menu', () => {
+      const toggler = document.createElement('button');
+      toggler.classList.add('navbar-toggler');
+      document.body.appendChild(toggler);
+      const collapse = document.createElement('div');
+      collapse.id = 'navbarCollapse';
+      collapse.classList.add('show');
+      document.body.appendChild(collapse);
+
+      const cerrarMenuSpy = jest.spyOn(component, 'cerrarMenu');
+      component['bindMenuA11yHandlers']();
+      collapse.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+      expect(cerrarMenuSpy).not.toHaveBeenCalled();
+      expect(collapse.classList.contains('show')).toBe(true);
+
+      toggler.remove();
+      collapse.remove();
+    });
+
+    it('should not set aria-expanded when toggler is missing in cerrarMenu', () => {
+      const collapse = document.createElement('div');
+      collapse.id = 'navbarCollapse';
+      collapse.classList.add('show');
+      document.body.appendChild(collapse);
+
+      component.cerrarMenu();
+
+      expect(collapse.classList.contains('show')).toBe(false);
+      collapse.remove();
+    });
+  });
 });

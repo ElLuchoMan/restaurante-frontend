@@ -925,6 +925,176 @@ describe('AppComponent', () => {
     });
   });
 
+  describe('detección de plataforma WebView', () => {
+    const IOS_CLASS = 'capacitor-ios-webview';
+    const ANDROID_CLASS = 'capacitor-android-webview';
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      // Otros tests de ngOnInit pueden haber dejado clases en <body>
+      document.body.classList.remove(IOS_CLASS, ANDROID_CLASS);
+      jest.spyOn(document, 'getElementById').mockReturnValue({ focus: createSpy() } as any);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+      document.body.classList.remove(IOS_CLASS, ANDROID_CLASS);
+      document.body.innerHTML = '';
+    });
+
+    it('should add the iOS class and apply the spacing fix when platform is ios', () => {
+      (window as any).Capacitor = createCapacitorMock('ios');
+      const fixSpy = jest.spyOn(component as any, 'applyiOSSpacingFix').mockImplementation();
+
+      component.ngOnInit();
+
+      expect(document.body.classList.contains(IOS_CLASS)).toBe(true);
+      expect(document.body.classList.contains(ANDROID_CLASS)).toBe(false);
+      expect(fixSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should add the Android class (without spacing fix) when platform is android', () => {
+      (window as any).Capacitor = createCapacitorMock('android');
+      const fixSpy = jest.spyOn(component as any, 'applyiOSSpacingFix').mockImplementation();
+
+      component.ngOnInit();
+
+      expect(document.body.classList.contains(ANDROID_CLASS)).toBe(true);
+      expect(document.body.classList.contains(IOS_CLASS)).toBe(false);
+      expect(fixSpy).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['iPhone', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)'],
+      ['iPad', 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X)'],
+    ])('should fall back to the user agent and detect iOS (%s) for unknown platforms', (_n, ua) => {
+      (window as any).Capacitor = createCapacitorMock('electron');
+      jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue(ua);
+      const fixSpy = jest.spyOn(component as any, 'applyiOSSpacingFix').mockImplementation();
+
+      component.ngOnInit();
+
+      expect(component.isWebView).toBe(true);
+      expect(document.body.classList.contains(IOS_CLASS)).toBe(true);
+      expect(fixSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fall back to the user agent and detect Android for unknown platforms', () => {
+      (window as any).Capacitor = createCapacitorMock('electron');
+      jest
+        .spyOn(navigator, 'userAgent', 'get')
+        .mockReturnValue('Mozilla/5.0 (Linux; Android 14; Pixel 8)');
+      const fixSpy = jest.spyOn(component as any, 'applyiOSSpacingFix').mockImplementation();
+
+      component.ngOnInit();
+
+      expect(document.body.classList.contains(ANDROID_CLASS)).toBe(true);
+      expect(document.body.classList.contains(IOS_CLASS)).toBe(false);
+      expect(fixSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not add any class when platform and user agent are unknown', () => {
+      (window as any).Capacitor = createCapacitorMock('electron');
+      jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Mozilla/5.0 (X11; Linux x86_64)');
+
+      component.ngOnInit();
+
+      expect(document.body.classList.contains(IOS_CLASS)).toBe(false);
+      expect(document.body.classList.contains(ANDROID_CLASS)).toBe(false);
+    });
+
+    it('should warn and not throw when platform detection fails', () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const error = new Error('boom');
+      const cap = {
+        getPlatform: () => {
+          throw error;
+        },
+      };
+
+      expect(() => (component as any).detectPlatformAndAddClass(cap)).not.toThrow();
+
+      expect(warnSpy).toHaveBeenCalledWith('[Platform] Error detecting platform:', error);
+    });
+
+    describe('applyiOSSpacingFix', () => {
+      const html = `
+        <main class="is-webview" style="padding-top: 10px"></main>
+        <div class="volver-container"></div>
+        <div class="is-webview">
+          <div id="c-py5" class="container py-5"></div>
+          <div id="c-py4" class="container-fluid py-4"></div>
+          <div id="c-plain" class="container"></div>
+        </div>`;
+
+      it('should force inline spacing on webview containers after 100ms', () => {
+        document.body.innerHTML = html;
+        (component as any).applyiOSSpacingFix();
+
+        // Antes del timeout no se modifica nada
+        expect((document.querySelector('main.is-webview') as HTMLElement).style.paddingTop).toBe(
+          '10px',
+        );
+
+        jest.advanceTimersByTime(100);
+
+        expect((document.querySelector('main.is-webview') as HTMLElement).style.paddingTop).toBe(
+          '0px',
+        );
+        const volver = document.querySelector('.volver-container') as HTMLElement;
+        expect(volver.style.marginTop).toBe('1.5rem');
+        expect(volver.style.marginBottom).toBe('0px');
+        expect(volver.style.paddingTop).toBe('0px');
+
+        const py5 = document.querySelector('#c-py5') as HTMLElement;
+        const py4 = document.querySelector('#c-py4') as HTMLElement;
+        const plain = document.querySelector('#c-plain') as HTMLElement;
+        expect(py5.style.paddingTop).toBe('1.5rem');
+        expect(py5.style.marginTop).toBe('0px');
+        expect(py4.style.paddingTop).toBe('1.5rem');
+        expect(py4.style.marginTop).toBe('0px');
+        expect(plain.style.paddingTop).toBe('0px');
+        expect(plain.style.marginTop).toBe('0px');
+      });
+
+      it('should not fail when the expected elements are not in the DOM', () => {
+        document.body.innerHTML = '<div id="other"></div>';
+        (component as any).applyiOSSpacingFix();
+
+        expect(() => jest.advanceTimersByTime(100)).not.toThrow();
+        expect((document.querySelector('#other') as HTMLElement).getAttribute('style')).toBeNull();
+      });
+
+      it('should re-apply the spacing fix 100ms after each NavigationEnd without stacking subscriptions', () => {
+        const runSpy = jest.spyOn(component as any, 'runiOSSpacingFix');
+
+        (component as any).applyiOSSpacingFix();
+        expect(runSpy).toHaveBeenCalledTimes(1);
+
+        routerEventsSubject.next(new NavigationEnd(1, '/a', '/a'));
+        expect(runSpy).toHaveBeenCalledTimes(2);
+
+        routerEventsSubject.next(new NavigationEnd(2, '/b', '/b'));
+        // Una sola suscripción: cada navegación dispara exactamente una re-aplicación
+        expect(runSpy).toHaveBeenCalledTimes(3);
+        expect(routerEventsSubject.observed).toBe(true);
+        jest.advanceTimersByTime(100);
+      });
+
+      it('should stop re-applying the spacing fix after the component is destroyed', () => {
+        const runSpy = jest.spyOn(component as any, 'runiOSSpacingFix');
+
+        (component as any).applyiOSSpacingFix();
+        component.ngOnDestroy();
+
+        routerEventsSubject.next(new NavigationEnd(1, '/a', '/a'));
+        jest.advanceTimersByTime(100);
+
+        expect(runSpy).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
   describe('goBack', () => {
     it('should call location.back', () => {
       // Arrange

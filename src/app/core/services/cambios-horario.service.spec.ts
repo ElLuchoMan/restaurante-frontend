@@ -71,6 +71,15 @@ describe('CambiosHorarioService', () => {
     req.flush(mock);
   });
 
+  it('create cambio sin fecha omite fechaCambioHorario', () => {
+    const body = { horaApertura: '08:00:00' } as any;
+    const mock = { code: 201, message: 'created', data: {} };
+    service.create(body).subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(baseUrl);
+    expect(req.request.body).toEqual({ horaApertura: '08:00:00' });
+    req.flush(mock);
+  });
+
   it('create cambio with all fields including abierto', () => {
     const body = {
       fecha: '2025-09-15',

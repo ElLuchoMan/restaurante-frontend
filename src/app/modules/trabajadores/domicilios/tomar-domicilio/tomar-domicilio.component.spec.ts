@@ -2,7 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { UserService } from '../../../../core/services/user.service';
@@ -11,6 +11,7 @@ import {
   createDomicilioServiceMock,
   createUserServiceMock,
 } from '../../../../shared/mocks/test-doubles';
+import { ApiResponse } from '../../../../shared/models/api-response.model';
 import { Domicilio } from '../../../../shared/models/domicilio.model';
 import { TomarDomicilioComponent } from './tomar-domicilio.component';
 
@@ -147,6 +148,29 @@ describe('TomarDomicilioComponent', () => {
 
     expect(domicilioService.asignarDomiciliario).toHaveBeenCalledWith(1, 1);
     expect(domicilio.trabajadorAsignado).toBe(1);
+  });
+
+  it('tomarDomicilio should not assign when trabajadorId is cleared before the response', () => {
+    const domicilio: Domicilio = {
+      domicilioId: 1,
+      fechaDomicilio: '2024-01-01',
+      direccion: 'A',
+      telefono: '1',
+      estadoDomicilio: estadoDomicilio.PENDIENTE,
+      entregado: false,
+      observaciones: '',
+      createdBy: '',
+    };
+    const response$ = new Subject<ApiResponse<Domicilio>>();
+    domicilioService.asignarDomiciliario.mockReturnValue(response$);
+
+    createComponent();
+    component.trabajadorId = 1;
+    component.tomarDomicilio(domicilio);
+    component.trabajadorId = null;
+    response$.next({ code: 200, message: 'ok', data: domicilio });
+
+    expect(domicilio.trabajadorAsignado).toBeUndefined();
   });
 
   it('tomarDomicilio should return early when no trabajadorId', () => {

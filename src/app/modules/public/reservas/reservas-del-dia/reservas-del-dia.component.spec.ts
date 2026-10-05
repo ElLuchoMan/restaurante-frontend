@@ -5,9 +5,9 @@ import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
+import { ReservaService } from '../../../../core/services/reserva.service';
 import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
 import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
-import { ReservaService } from '../../../../core/services/reserva.service';
 import { estadoReserva } from '../../../../shared/constants';
 import {
   mockReserva,
@@ -549,6 +549,82 @@ describe('ReservasDelDiaComponent', () => {
       component.consultarReservasDelDia();
 
       expect(component.reservas[0].documentoCliente).toBeNull();
+    });
+  });
+
+  describe('ramas adicionales de enriquecimiento', () => {
+    const flushAsync = () => new Promise((resolve) => setTimeout(resolve, 20));
+    const consultarCon = async (reserva: any, info: any) => {
+      reservaService.getReservaByParameter.mockReturnValue(
+        of({ code: 200, message: 'OK', data: [reserva] }) as any,
+      );
+      reservaContactoService.getById.mockReturnValue(of(info));
+      component.consultarReservasDelDia();
+      await flushAsync();
+      return component.reservas[0] as any;
+    };
+
+    it('no modifica la reserva si getById devuelve vacío', async () => {
+      const r = await consultarCon(
+        { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1 },
+        undefined,
+      );
+      expect(reservaContactoService.getById).toHaveBeenCalledWith(1);
+      expect(r.nombreCompleto).toBe('');
+      expect(r.telefono).toBe('');
+    });
+
+    it('conserva el nombre existente y completa el teléfono desde la API', async () => {
+      const r = await consultarCon(
+        { ...mockReserva, nombreCompleto: 'Existente', telefono: '', contactoId: 1 },
+        { code: 200, message: 'ok', data: { nombreCompleto: 'API', telefono: '300' } },
+      );
+      expect(r.nombreCompleto).toBe('Existente');
+      expect(r.telefono).toBe('300');
+    });
+
+    it('usa vacío si el teléfono de la API es null', async () => {
+      const r = await consultarCon(
+        { ...mockReserva, nombreCompleto: 'Existente', telefono: '', contactoId: 1 },
+        { code: 200, message: 'ok', data: { nombreCompleto: 'API', telefono: null } },
+      );
+      expect(r.telefono).toBe('');
+    });
+
+    it('conserva el teléfono existente y usa vacío si el nombre de la API es null', async () => {
+      const r = await consultarCon(
+        { ...mockReserva, nombreCompleto: '', telefono: '311', contactoId: 1 },
+        { code: 200, message: 'ok', data: { nombreCompleto: null, telefono: '300' } },
+      );
+      expect(r.telefono).toBe('311');
+      expect(r.nombreCompleto).toBe('');
+    });
+
+    it('reemplaza un nombre compuesto sólo por espacios (proveniente del contacto)', async () => {
+      const r = await consultarCon(
+        {
+          ...mockReserva,
+          nombreCompleto: '',
+          telefono: '311',
+          contactoId: { contactoId: 4, nombreCompleto: '   ' },
+        },
+        { code: 200, message: 'ok', data: { nombreCompleto: 'API', telefono: '300' } },
+      );
+      expect(r.nombreCompleto).toBe('API');
+    });
+
+    it('documentoCliente queda null si ni la reserva ni la API lo traen', async () => {
+      const r = await consultarCon(
+        {
+          ...mockReserva,
+          nombreCompleto: '',
+          telefono: '',
+          contactoId: 1,
+          documentoCliente: undefined,
+        },
+        { code: 200, message: 'ok', data: { nombreCompleto: 'A', telefono: '1' } },
+      );
+      expect(r.documentoCliente).toBeNull();
     });
   });
 });
