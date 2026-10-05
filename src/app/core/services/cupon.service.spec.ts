@@ -154,6 +154,14 @@ describe('CuponService', () => {
     req.flush(mockListaCupones);
   });
 
+  it('desactiva con DELETE /cupones?id=', () => {
+    service.desactivar(7).subscribe();
+    const req = http.expectOne((r) => r.url === baseUrl);
+    expect(req.request.method).toBe('DELETE');
+    expect(req.request.params.get('id')).toBe('7');
+    req.flush({ code: 200, message: 'ok' });
+  });
+
   it('listarRedenciones sin params no agrega query params', () => {
     service.listarRedenciones().subscribe();
     const req = http.expectOne(`${baseUrl}/redenciones`);

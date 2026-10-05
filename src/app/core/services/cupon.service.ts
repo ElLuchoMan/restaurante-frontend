@@ -92,6 +92,14 @@ export class CuponService {
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /** DELETE /cupones?id= desactiva el cupón (baja lógica); 400 si ya estaba inactivo. */
+  desactivar(id: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<unknown>>(this.baseUrl, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
   private toHttpParams(params?: object): HttpParams {
     let hp = new HttpParams();
     if (params) {

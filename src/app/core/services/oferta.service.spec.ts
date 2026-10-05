@@ -116,6 +116,14 @@ describe('OfertaService', () => {
     req.flush({ code: 200, message: 'ok' });
   });
 
+  it('desactiva con DELETE /ofertas?id=', () => {
+    service.desactivar(5).subscribe();
+    const req = http.expectOne((r) => r.url === baseUrl);
+    expect(req.request.method).toBe('DELETE');
+    expect(req.request.params.get('id')).toBe('5');
+    req.flush({ code: 200, message: 'ok' });
+  });
+
   it('listar sin params no agrega query params', () => {
     service.listar().subscribe();
     const req = http.expectOne(baseUrl);
