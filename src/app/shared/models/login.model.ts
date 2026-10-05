@@ -1,8 +1,11 @@
-export interface LoginResonse {
-    token: string;
-    nombre: string;
+export interface LoginResponse {
+  token: string; // mantener compatibilidad hacia atrás
+  access_token: string;
+  refresh_token: string;
+  nombre: string;
+  rol?: string;
 }
 export interface Login {
-    documento: string;
-    password: string;
+  documento: number;
+  password: string;
 }

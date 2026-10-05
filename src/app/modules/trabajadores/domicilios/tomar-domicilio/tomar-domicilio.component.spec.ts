@@ -1,14 +1,18 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 
-import { TomarDomicilioComponent } from './tomar-domicilio.component';
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { UserService } from '../../../../core/services/user.service';
+import { estadoDomicilio } from '../../../../shared/constants';
+import {
+  createDomicilioServiceMock,
+  createUserServiceMock,
+} from '../../../../shared/mocks/test-doubles';
 import { Domicilio } from '../../../../shared/models/domicilio.model';
-import { estadoPago } from '../../../../shared/constants';
+import { TomarDomicilioComponent } from './tomar-domicilio.component';
 
 describe('TomarDomicilioComponent', () => {
   let component: TomarDomicilioComponent;
@@ -18,20 +22,15 @@ describe('TomarDomicilioComponent', () => {
   let router: Router;
 
   beforeEach(async () => {
-    domicilioService = {
-      getDomicilios: jest.fn(),
-      asignarDomiciliario: jest.fn()
-    } as unknown as jest.Mocked<DomicilioService>;
-    userService = {
-      getUserId: jest.fn()
-    } as unknown as jest.Mocked<UserService>;
+    domicilioService = createDomicilioServiceMock() as unknown as jest.Mocked<DomicilioService>;
+    userService = createUserServiceMock() as unknown as jest.Mocked<UserService>;
 
     await TestBed.configureTestingModule({
       imports: [TomarDomicilioComponent, HttpClientTestingModule, RouterTestingModule],
       providers: [
         { provide: DomicilioService, useValue: domicilioService },
-        { provide: UserService, useValue: userService }
-      ]
+        { provide: UserService, useValue: userService },
+      ],
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -44,55 +43,57 @@ describe('TomarDomicilioComponent', () => {
 
   it('should create and load available domicilios on init', () => {
     userService.getUserId.mockReturnValue(1);
-    domicilioService.getDomicilios.mockReturnValue(of({
-      code: 200,
-      message: 'ok',
-      data: [
-        {
-          domicilioId: 1,
-          fechaDomicilio: '2024-01-01',
-          direccion: 'A',
-          telefono: '1',
-          estadoPago: estadoPago.PAGADO,
-          entregado: false,
-          observaciones: '',
-          createdBy: '',
-          trabajadorAsignado: undefined
-        },
-        {
-          domicilioId: 2,
-          fechaDomicilio: '2024-01-01',
-          direccion: 'B',
-          telefono: '2',
-          estadoPago: estadoPago.PAGADO,
-          entregado: true,
-          observaciones: '',
-          createdBy: ''
-        },
-        {
-          domicilioId: 3,
-          fechaDomicilio: '2024-01-01',
-          direccion: 'C',
-          telefono: '3',
-          estadoPago: estadoPago.PAGADO,
-          entregado: false,
-          observaciones: '',
-          createdBy: '',
-          trabajadorAsignado: 99
-        },
-        {
-          domicilioId: 4,
-          fechaDomicilio: '2024-01-01',
-          direccion: 'D',
-          telefono: '4',
-          estadoPago: estadoPago.PAGADO,
-          entregado: false,
-          observaciones: '',
-          createdBy: '',
-          trabajadorAsignado: 1
-        }
-      ] as Domicilio[]
-    }));
+    domicilioService.getDomicilios.mockReturnValue(
+      of({
+        code: 200,
+        message: 'ok',
+        data: [
+          {
+            domicilioId: 1,
+            fechaDomicilio: '2024-01-01',
+            direccion: 'A',
+            telefono: '1',
+            estadoDomicilio: estadoDomicilio.PENDIENTE,
+            entregado: false,
+            observaciones: '',
+            createdBy: '',
+            trabajadorAsignado: undefined,
+          },
+          {
+            domicilioId: 2,
+            fechaDomicilio: '2024-01-01',
+            direccion: 'B',
+            telefono: '2',
+            estadoDomicilio: estadoDomicilio.PENDIENTE,
+            entregado: true,
+            observaciones: '',
+            createdBy: '',
+          },
+          {
+            domicilioId: 3,
+            fechaDomicilio: '2024-01-01',
+            direccion: 'C',
+            telefono: '3',
+            estadoDomicilio: estadoDomicilio.PENDIENTE,
+            entregado: false,
+            observaciones: '',
+            createdBy: '',
+            trabajadorAsignado: 99,
+          },
+          {
+            domicilioId: 4,
+            fechaDomicilio: '2024-01-01',
+            direccion: 'D',
+            telefono: '4',
+            estadoDomicilio: estadoDomicilio.PENDIENTE,
+            entregado: false,
+            observaciones: '',
+            createdBy: '',
+            trabajadorAsignado: 1,
+          },
+        ] as Domicilio[],
+      }),
+    );
 
     createComponent();
     fixture.detectChanges();
@@ -100,7 +101,7 @@ describe('TomarDomicilioComponent', () => {
     expect(component).toBeTruthy();
     expect(component.trabajadorId).toBe(1);
     expect(domicilioService.getDomicilios).toHaveBeenCalled();
-    expect(component.domicilios.map(d => d.domicilioId)).toEqual([1, 4]);
+    expect(component.domicilios.map((d) => d.domicilioId)).toEqual([1, 4]);
     expect(component.mostrarMensaje).toBe(false);
   });
 
@@ -130,13 +131,15 @@ describe('TomarDomicilioComponent', () => {
       fechaDomicilio: '2024-01-01',
       direccion: 'A',
       telefono: '1',
-      estadoPago: estadoPago.PAGADO,
+      estadoDomicilio: estadoDomicilio.PENDIENTE,
       entregado: false,
       observaciones: '',
-      createdBy: ''
+      createdBy: '',
     };
 
-    domicilioService.asignarDomiciliario.mockReturnValue(of({ code: 200, message: 'ok', data: domicilio }));
+    domicilioService.asignarDomiciliario.mockReturnValue(
+      of({ code: 200, message: 'ok', data: domicilio }),
+    );
 
     createComponent();
     component.trabajadorId = 1;
@@ -152,10 +155,10 @@ describe('TomarDomicilioComponent', () => {
       fechaDomicilio: '2024-01-01',
       direccion: 'A',
       telefono: '1',
-      estadoPago: estadoPago.PAGADO,
+      estadoDomicilio: estadoDomicilio.PENDIENTE,
       entregado: false,
       observaciones: '',
-      createdBy: ''
+      createdBy: '',
     };
 
     createComponent();
@@ -171,27 +174,24 @@ describe('TomarDomicilioComponent', () => {
       fechaDomicilio: '2024-01-01',
       direccion: 'Street',
       telefono: '123',
-      estadoPago: estadoPago.PAGADO,
+      estadoDomicilio: estadoDomicilio.PENDIENTE,
       entregado: false,
       observaciones: 'note',
-      createdBy: ''
+      createdBy: '',
     };
 
     createComponent();
     const navigateSpy = jest.spyOn(router, 'navigate');
 
     component.irARuta(domicilio);
-    expect(navigateSpy).toHaveBeenCalledWith(
-      ['trabajador/domicilios/ruta-domicilio'],
-      {
-        queryParams: {
-          direccion: 'Street',
-          telefono: '123',
-          observaciones: 'note',
-          id: 5
-        }
-      }
-    );
+    expect(navigateSpy).toHaveBeenCalledWith(['/trabajador', 'domicilios', 'ruta-domicilio'], {
+      queryParams: {
+        direccion: 'Street',
+        telefono: '123',
+        observaciones: 'note',
+        id: 5,
+      },
+    });
 
     navigateSpy.mockClear();
 
@@ -200,24 +200,20 @@ describe('TomarDomicilioComponent', () => {
       fechaDomicilio: '2024-01-01',
       direccion: 'A',
       telefono: '000',
-      estadoPago: estadoPago.PAGADO,
+      estadoDomicilio: estadoDomicilio.PENDIENTE,
       entregado: false,
       observaciones: '',
-      createdBy: ''
+      createdBy: '',
     };
 
     component.irARuta(sinObs);
-    expect(navigateSpy).toHaveBeenCalledWith(
-      ['trabajador/domicilios/ruta-domicilio'],
-      {
-        queryParams: {
-          direccion: 'A',
-          telefono: '000',
-          observaciones: null,
-          id: 6
-        }
-      }
-    );
+    expect(navigateSpy).toHaveBeenCalledWith(['/trabajador', 'domicilios', 'ruta-domicilio'], {
+      queryParams: {
+        direccion: 'A',
+        telefono: '000',
+        observaciones: null,
+        id: 6,
+      },
+    });
   });
 });
-

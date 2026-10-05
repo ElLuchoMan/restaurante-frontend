@@ -1,6 +1,1005 @@
-@use "../../../../assets/styles.scss" as *;
+@use '../../../../assets/_components.scss' as *;
+@use 'sass:color';
 
-.img-responsive {
-  height: auto;
-  max-width: 100%;
+// ====== HERO SIMPLIFICADO ======
+.home-hero {
+  // FORZAR pegado al header - INCREMENTADO
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-top: -35px !important; // MÁS AGRESIVO
+
+  // POSITION para forzar ubicación - INCREMENTADO
+  position: relative !important;
+  top: -20px !important; // MÁS FUERZA
+  z-index: 1;
+
+  // TRANSFORM adicional - INCREMENTADO
+  transform: translateY(-15px) !important;
+}
+
+// FORZAR container-fluid sin espacios - INCREMENTADO
+.home-hero.container-fluid {
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-top: -40px !important; // MÁS AGRESIVO AÚN
+  position: relative !important;
+  top: -25px !important; // MÁS FUERZA
+}
+
+.hero-single {
+  // FORZAR hero-single pegado - INCREMENTADO
+  position: relative !important;
+  width: 100% !important;
+  height: 96dvh !important; // Altura completa del viewport
+  margin: 0 !important;
+  margin-top: -25px !important; // MÁS FUERZA
+  padding: 0 !important;
+  top: -20px !important; // MÁS FUERZA
+  overflow: hidden !important;
+
+  img {
+    // Con fill, la imagen se posiciona absolutamente
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+
+  // NgOptimizedImage con fill
+  img[src] {
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+}
+
+.hero-caption {
+  background: transparent !important;
+  inset: 0;
+}
+
+// Overlay para WebView nativo
+.is-native .home-hero::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 96px;
+  background: transparent;
+  pointer-events: none;
+}
+
+// Los estilos .img-responsive ahora están globales en _base.scss
+
+// ====== CAPTION STYLES ======
+// Los estilos .caption-eyebrow y .caption-title ahora están globales en _base.scss
+
+// ====== SECCIONES PRINCIPALES ======
+// ✅ WebView top margin movido a _base.scss como .mt-webview-topbar
+
+// ✅ Carousel Horizontal System movido a _base.scss como .carousel-horizontal
+
+.offer-card-mobile {
+  min-width: 240px !important;
+  max-width: 240px !important;
+  width: 240px !important;
+  flex: 0 0 240px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  display: inline-block !important;
+  vertical-align: top !important;
+  background: $white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px $header-shadow-medium;
+  overflow: hidden;
+  scroll-snap-align: start;
+  position: relative;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+
+  .offer-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: $white;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    z-index: 2;
+
+    // Reutilizar estilos de badges existentes
+    background: transparent;
+
+    &.hot {
+      background: transparent;
+    }
+
+    &.weekend {
+      background: transparent;
+    }
+  }
+
+  .offer-image-mobile {
+    height: 140px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+
+      // Estilo especial para logo de fallback en WebView
+      &.fallback-logo {
+        object-fit: contain !important;
+        padding: 1.5rem;
+        background: transparent;
+      }
+    }
+  }
+
+  .offer-content-mobile {
+    padding: 1rem;
+
+    h4 {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    p {
+      margin-bottom: 0.75rem;
+      color: $text-muted;
+      font-size: 0.85rem;
+    }
+
+    .price-mobile {
+      margin-bottom: 0.75rem;
+
+      .old-price {
+        text-decoration: line-through;
+        color: $gray-light;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+      }
+
+      .new-price {
+        color: $primary;
+        font-weight: 700;
+        font-size: 1rem;
+      }
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// ✅ Offer Card Mobile System movido a _base.scss como .carousel-card-offer
+
+// ✅ Product Card Mobile System movido a _base.scss como .carousel-card-product
+// ====== (SECCIÓN ELIMINADA) ======
+.product-card-mobile {
+  min-width: 180px !important;
+  max-width: 180px !important;
+  width: 180px !important;
+  flex: 0 0 180px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  display: inline-block !important;
+  vertical-align: top !important;
+  background: $white;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px $shadow-soft;
+  overflow: hidden;
+  scroll-snap-align: start;
+  position: relative;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+
+  .product-image-mobile {
+    height: 120px;
+    overflow: hidden;
+    position: relative;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-overlay-mobile {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+
+      .product-price {
+        background: $header-primary-80;
+        color: $white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .product-content-mobile {
+    padding: 0.75rem;
+
+    h5 {
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    p {
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+      color: $text-muted;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.4rem;
+      font-size: 0.75rem;
+    }
+  }
+}
+
+.home-about {
+  .about-image {
+    min-height: 400px;
+    height: 100%;
+  }
+  .lead-sm {
+    font-size: 1.05rem;
+  }
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    i {
+      margin-right: 0.25rem;
+    }
+  }
+}
+
+// Secciones con solo @extend
+.home-stats {
+  // Sin fondo - cards flotantes como en login
+}
+
+.home-offers {
+  // Sin fondo - cards flotantes como en login
+  // Los estilos .price-display (con .old-price y .new-price) ahora están globales en _base.scss
+}
+
+.home-gallery {
+  // Sin fondo - cards flotantes como las demás secciones
+}
+
+// ====== CARRUSEL PARA WEB MOBILE ======
+.horizontal-carousel.mobile-web {
+  // Usar padding del container en lugar de escapar completamente del contenedor
+  width: 100% !important;
+  margin-left: 0 !important;
+  padding: 0 1rem !important;
+  overflow: hidden !important;
+
+  .carousel-container {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 0 1rem 0 !important;
+    width: 100% !important;
+    height: auto !important;
+
+    // Forzar horizontal
+    > div {
+      display: inline-block !important;
+      vertical-align: top !important;
+      flex: 0 0 auto !important;
+      float: none !important;
+    }
+
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $header-shadow-medium;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $primary;
+      border-radius: 3px;
+
+      &:hover {
+        background: color.adjust($primary, $lightness: -10%);
+      }
+    }
+  }
+}
+
+// ====== CARDS PARA OFERTAS WEB MOBILE ======
+.offer-card-web-mobile {
+  min-width: 280px !important;
+  max-width: 280px !important;
+  width: 280px !important;
+  flex: 0 0 280px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  display: inline-block !important;
+  vertical-align: top !important;
+  background: $white;
+  border-radius: 20px; // Usar el estilo oficial de la marca
+  box-shadow: 0 20px 50px $shadow-soft;
+  border: 1px solid $border-subtle;
+  overflow: hidden;
+  scroll-snap-align: start;
+  position: relative;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  padding: 0; // Sin padding interno
+
+  .offer-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: $white;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    z-index: 2;
+
+    // Reutilizar estilos de badges existentes
+    background: transparent;
+
+    &.hot {
+      background: transparent;
+    }
+
+    &.weekend {
+      background: transparent;
+    }
+  }
+
+  .offer-image-web-mobile {
+    height: 160px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+
+      // Estilo especial para logo de fallback en Web Mobile
+      &.fallback-logo {
+        object-fit: contain !important;
+        padding: 1.75rem;
+        background: transparent;
+      }
+    }
+  }
+
+  .offer-content-web-mobile {
+    padding: 2rem; // Padding generoso oficial
+
+    h4 {
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $text-heading-strong;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: $text-body;
+      font-size: 0.9rem;
+    }
+
+    .price-web-mobile {
+      margin-bottom: 1rem;
+
+      .old-price {
+        text-decoration: line-through;
+        color: $gray-light;
+        font-size: 0.85rem;
+        margin-right: 0.5rem;
+      }
+
+      .new-price {
+        color: $primary;
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+  }
+}
+
+// ====== CARDS PARA PRODUCTOS WEB MOBILE ======
+.product-card-web-mobile {
+  min-width: 220px !important;
+  max-width: 220px !important;
+  width: 220px !important;
+  flex: 0 0 220px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  display: inline-block !important;
+  vertical-align: top !important;
+  background: $white;
+  border-radius: 20px; // Usar el estilo oficial de la marca
+  box-shadow: 0 20px 50px $shadow-soft;
+  border: 1px solid $border-subtle;
+  overflow: hidden;
+  scroll-snap-align: start;
+  position: relative;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 60px $shadow-hover;
+  }
+
+  .product-image-web-mobile {
+    height: 140px;
+    overflow: hidden;
+    position: relative;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-overlay-web-mobile {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+
+      .product-price {
+        background: $header-primary-80;
+        color: $white;
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .product-content-web-mobile {
+    padding: 1.5rem; // Padding oficial
+
+    h5 {
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.3;
+      color: $text-heading-strong;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+  }
+}
+
+.home-testimonials {
+  @extend .section-bg-dark;
+}
+
+.home-cta {
+  @extend .section-bg-dark;
+
+  .cta-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $white;
+  }
+
+  .cta-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+  }
+}
+
+// ====== QUICK ACTIONS (MOBILE) ======
+.quick-actions {
+  margin-top: 0.75rem;
+  margin-bottom: 1.25rem;
+  // Los estilos .qa-item ahora están globales en _base.scss
+}
+
+// Los estilos .quick-actions-bar ahora están globales en _base.scss
+
+// ====== FALLBACK LOGO ======
+// Los estilos .fallback-logo ahora están globales en _base.scss
+
+// ====== RESPONSIVE DESIGN ======
+// Web Mobile: Altura adecuada para dispositivos móviles web (< 992px)
+@media (max-width: 991px) {
+  .hero-single {
+    height: 75vh !important; // Altura más generosa para Web Mobile
+    min-height: 400px !important; // Altura mínima para pantallas muy pequeñas
+    max-height: 85vh !important; // Evitar que sea demasiado alto
+    overflow: hidden;
+
+    img {
+      width: 100% !important;
+      height: 100% !important; // Ocuapra toda la altura del contenedor
+      object-fit: cover !important;
+      object-position: center !important;
+    }
+
+    img[src] {
+      width: 100% !important;
+      height: 100% !important; // Ocupar toda la altura disponible
+      object-fit: cover !important;
+      object-position: center !important;
+    }
+
+    .hero-caption {
+      bottom: 1.5rem;
+      padding-bottom: 2rem;
+    }
+  }
+}
+
+// Pantallas muy pequeñas: ajustes adicionales
+@media (max-width: 576px) {
+  .hero-single {
+    height: 70vh !important; // Ligeramente menor para pantallas muy pequeñas
+    min-height: 350px !important;
+
+    .hero-caption {
+      bottom: 1rem;
+      padding-bottom: 1.5rem;
+    }
+  }
+
+  .home-about {
+    padding-top: 1rem !important;
+
+    .container {
+      padding-top: 0.5rem !important;
+      padding-bottom: 0.5rem !important;
+    }
+
+    .section-title {
+      font-size: clamp(1.4rem, 4.8vw, 2.2rem);
+      margin-bottom: 1.1rem !important;
+
+      .subtitle {
+        display: inline-block;
+        font-weight: 600;
+        font-size: clamp(1rem, 3.8vw, 1.25rem);
+      }
+    }
+
+    .about-image {
+      min-height: 260px;
+    }
+
+    [class*='py-4'] {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
+    }
+
+    .g-4 {
+      gap: 1rem !important;
+    }
+
+    .btn.btn-primary.mx-auto,
+    .btn.btn-primary.d-block.mx-auto,
+    .btn.btn-primary.btn-sm.d-block.mx-auto {
+      display: block;
+      width: max-content;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  // Los estilos responsive de .caption-title y .caption-eyebrow ahora están globales en _base.scss
+}
+
+@media (max-width: 768px) {
+  .home-offers .offer-card {
+    margin-bottom: 1.5rem;
+  }
+
+  .home-gallery .gallery-item {
+    margin-bottom: 1rem;
+  }
+
+  .home-cta .cta-title {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .hero-single {
+    height: 100vh;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100vh;
+      object-fit: cover;
+    }
+
+    img[src] {
+      width: 100% !important;
+      height: 100vh !important;
+      object-fit: cover !important;
+      object-position: center !important;
+    }
+
+    .hero-caption {
+      bottom: 2rem;
+    }
+  }
+
+  .bg-text.caption-card {
+    backdrop-filter: none;
+  }
+}
+
+// ✅ WebView cards container movido a _base.scss como .grid-webview-aligned
+
+// Cards unificadas para todas las acciones rápidas - WebView
+.webview-unified-card {
+  transition: all 0.3s ease;
+  border: 1px solid $ring-primary-15;
+  background: $header-white-95;
+  backdrop-filter: blur(8px);
+
+  // ✨ ALTURA FIJA FORZADA - SÚPER AGRESIVA
+  height: 140px !important;
+  max-height: 140px !important;
+  min-height: 140px !important;
+
+  // ✨ ALINEACIÓN VERTICAL PERFECTA
+  align-self: flex-start !important; // Alinear desde arriba
+  margin: 0 !important; // Sin márgenes que desalineen
+
+  // ✨ POSICIONAMIENTO EXACTO
+  position: relative !important;
+  top: 0 !important;
+  transform: translateY(0) !important; // Resetear cualquier transform
+
+  // ✨ FORZAR QUE TODAS TENGAN EL MISMO PUNTO DE INICIO
+  vertical-align: top !important;
+  baseline-shift: baseline !important;
+
+  &:hover {
+    transform: translateY(-3px); // Solo en hover
+    border-color: $shadow-primary-30;
+    box-shadow: 0 8px 25px $ring-primary-15;
+
+    .card-body i {
+      transform: scale(1.1);
+    }
+  }
+
+  .card-body {
+    padding: 1rem !important;
+    height: 100% !important; // Ocupar toda la altura disponible
+    max-height: 140px !important; // Limitar altura máxima
+    overflow: hidden !important; // Forzar que nada se salga
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important; // Incluir padding en altura
+
+    i {
+      transition: transform 0.3s ease;
+      display: block !important;
+      margin: 0 auto 0.5rem auto !important;
+      font-size: 1.8rem !important;
+      line-height: 1 !important;
+      flex-shrink: 0 !important; // Nunca se encoja
+      width: auto !important;
+      height: auto !important;
+    }
+
+    h6 {
+      font-weight: 600 !important;
+      color: $text-heading-strong !important;
+      font-size: 0.9rem !important;
+      margin: 0 0 0.25rem 0 !important;
+      flex-shrink: 0 !important; // Nunca se encoja
+      white-space: nowrap !important; // No permitir quiebre de línea
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      max-width: 100% !important;
+    }
+
+    p {
+      font-size: 0.8rem !important;
+      line-height: 1.2 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important; // Máximo 2 líneas
+      -webkit-box-orient: vertical !important;
+      flex-grow: 1 !important; // Ocupar espacio restante
+      max-height: 2.4rem !important; // Limitar altura del párrafo (2 líneas)
+    }
+  }
+}
+
+// Control de alineación específico por número de columnas - VERTICAL
+.webview-cards-container .row .col-6,
+.webview-cards-container .row .col-4,
+.webview-cards-container .row .col-8 {
+  // ✨ ALINEACIÓN VERTICAL FORZADA PARA CADA COLUMNA
+  display: flex !important;
+  align-items: flex-start !important; // DESDE ARRIBA
+  justify-content: center !important;
+  vertical-align: top !important;
+
+  // ✨ ELIMINAR CUALQUIER ESPACIO QUE DESALINEE
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 15px !important; // Solo padding inferior para separación
+
+  // ✨ POSICIONAMIENTO VERTICAL EXACTO
+  position: relative !important;
+  top: 0 !important;
+
+  // Los enlaces NO deben cambiar la posición vertical
+  > a {
+    display: block !important; // Block en lugar de flex
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+  }
+}
+
+// ✨ RESET COMPLETO DE BOOTSTRAP Y ESTILOS QUE INTERFIEREN
+.webview-cards-container .row.g-3 > [class*='col-'] {
+  // Eliminar TODOS los estilos de Bootstrap que afecten posición vertical
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+
+  // Forzar posición vertical exacta
+  position: relative !important;
+  top: 0 !important;
+  vertical-align: top !important;
+
+  // Flexbox para centrar horizontalmente SIN afectar vertical
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important; // Desde arriba
+
+  // El enlace debe mantener la posición
+  > a {
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important; // Static para no afectar posición
+
+    // La card debe estar en posición exacta
+    .webview-unified-card {
+      // ✨ POSICIÓN VERTICAL FORZADA
+      margin: 0 !important;
+      top: 0 !important;
+      transform: translateY(0) !important; // Estado inicial sin transform
+    }
+  }
+}
+
+// Responsive para cards unificadas en móvil
+@media (max-width: 575px) {
+  .webview-unified-card {
+    // ✨ ALTURA FIJA FORZADA - MÓVIL
+    height: 120px !important;
+    max-height: 120px !important;
+    min-height: 120px !important;
+
+    .card-body {
+      padding: 0.75rem 0.5rem !important;
+      max-height: 120px !important;
+
+      i {
+        font-size: 1.5rem !important;
+        margin: 0 auto 0.4rem auto !important;
+      }
+
+      h6 {
+        font-size: 0.85rem !important;
+        margin: 0 0 0.2rem 0 !important;
+      }
+
+      p {
+        font-size: 0.75rem !important;
+        line-height: 1.1 !important;
+        -webkit-line-clamp: 2 !important;
+        max-height: 2.2rem !important; // Ajuste para móvil
+      }
+    }
+  }
+}
+
+// Ajustes específicos para layout dinámico de 3 cards
+@media (max-width: 767px) {
+  // En móvil, si son 3 cards, que se vean 2 arriba y 1 abajo centrada
+  .row .col-4:nth-child(3) {
+    margin: 0 auto;
+    max-width: 50%;
+  }
+}
+
+// Ajustes para layout de 4 cards en tablets pequeños
+@media (min-width: 576px) and (max-width: 767px) {
+  // En tablets pequeños, mantener 2 columnas máximo
+  .row .col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  // Altura intermedia para tablets
+  .webview-unified-card {
+    // ✨ ALTURA FIJA FORZADA - TABLET
+    height: 130px !important;
+    max-height: 130px !important;
+    min-height: 130px !important;
+
+    .card-body {
+      padding: 0.875rem 0.75rem !important;
+      max-height: 130px !important;
+
+      i {
+        font-size: 1.6rem !important;
+        margin: 0 auto 0.45rem auto !important;
+      }
+
+      h6 {
+        font-size: 0.875rem !important;
+        margin: 0 0 0.225rem 0 !important;
+      }
+
+      p {
+        font-size: 0.775rem !important;
+        line-height: 1.15 !important;
+        max-height: 2.3rem !important; // Ajuste para tablet
+      }
+    }
+  }
+}
+
+// 🔥🔥🔥 SOLUCIÓN FLEXBOX ULTRA AGRESIVA - NIVEL COMPONENTE 🔥🔥🔥
+.grid-webview-aligned {
+  .container {
+    max-width: 100% !important;
+    padding: 0.5rem !important;
+  }
+
+  .row.g-3 {
+    // 💥 FLEXBOX INTELIGENTE - RESPONSIVE AUTOMÁTICO
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important; // ✨ PERMITE MÚLTIPLES FILAS
+    justify-content: center !important;
+    align-items: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 0.5rem !important; // ✨ GAP UNIFORME ENTRE TODAS LAS CARDS
+
+    > div {
+      flex: 0 0 auto !important;
+      display: flex !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    // 🎯 LÓGICA ULTRA ESPECÍFICA - SIN CONFLICTOS
+
+    // ✨ EXACTAMENTE 2 CARDS = 1 LÍNEA (50% cada una)
+    &.cards-2 > div {
+      max-width: calc(50% - 0.25rem) !important;
+      min-width: 120px !important;
+    }
+
+    // ✨ EXACTAMENTE 3 CARDS = 1 LÍNEA (33.33% cada una)
+    &.cards-3 > div {
+      max-width: calc(33.333% - 0.33rem) !important;
+      min-width: 90px !important;
+    }
+
+    // ✨ 4+ CARDS = 2 LÍNEAS (50% cada una = 2x2)
+    &.cards-multi > div {
+      max-width: calc(50% - 0.25rem) !important;
+      min-width: 120px !important;
+    }
+
+    > div > a {
+      width: 100% !important;
+      display: flex !important;
+      text-decoration: none !important;
+
+      .card-webview-unified {
+        width: 100% !important;
+        margin: 0 !important;
+        box-shadow: 0 4px 12px $header-shadow-medium !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+
+        .card-content {
+          padding: 0.75rem 0.5rem !important;
+          text-align: center !important;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: center !important;
+          align-items: center !important;
+
+          h6 {
+            font-size: 0.75rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 0.25rem !important;
+            margin-top: 0.25rem !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            color: $text-heading-strong !important;
+          }
+
+          p {
+            font-size: 0.65rem !important;
+            color: $text-body !important;
+            margin: 0 !important;
+            line-height: 1.2 !important;
+            overflow: hidden !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+          }
+
+          i {
+            font-size: 1.5rem !important;
+            margin-bottom: 0.25rem !important;
+            color: $primary !important;
+          }
+        }
+      }
+    }
+  }
 }

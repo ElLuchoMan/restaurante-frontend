@@ -21,10 +21,44 @@
       "installMode": "lazy",
       "updateMode": "prefetch",
       "resources": {
-        "files": [
-          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
-        ]
+        "files": ["/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "api",
+      "urls": [
+        "/restaurante/v1/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "10m",
+        "timeout": "3s"
+      }
+    },
+    {
+      "name": "images-runtime",
+      "urls": [
+        "/assets/img/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 80,
+        "maxAge": "7d",
+        "timeout": "2s"
+      }
+    }
+  ],
+  "navigationUrls": [
+    "/",
+    "/home",
+    "/menu",
+    "/ubicacion",
+    "/login",
+    "/registro-cliente",
+    "/not-found",
+    "/offline"
   ]
 }

@@ -1,140 +1,2040 @@
-@use "../../../../assets/styles.scss" as *;
+@use '../../../../assets/_variables.scss' as *;
 
-.producto-card {
+/*
+  🍽️ MENÚ DE PRODUCTOS - EL FOGÓN DE MARÍA (ULTRA MÍNIMO)
+  Versión ultra-optimizada para resolver problemas de memoria
+*/
+
+// ===== CONTENEDOR PRINCIPAL =====
+.page-shell {
+  position: relative;
+  overflow-x: hidden;
+}
+
+// ===== HERO DEL MENÚ =====
+.menu-hero {
+  min-height: 160px;
+  padding: 2rem 0 1rem;
+
+  .section-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 0;
+    color: $text-muted;
+    font-weight: 400;
+  }
+}
+
+// ===== BÚSQUEDA =====
+.search-container-enhanced {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+
+  .search-input-wrapper {
     position: relative;
-    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    background: $white;
+    border-radius: 28px;
+    box-shadow: 0 8px 25px $shadow-soft;
     overflow: hidden;
-    transition: transform 0.3s ease-in-out;
+
+    .search-icon {
+      position: absolute;
+      left: 20px;
+      color: $primary;
+      font-size: 1.3rem;
+      z-index: 2;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 56px;
+      border: none;
+      outline: none;
+      padding: 0 120px 0 60px;
+      font-size: 1.1rem;
+      background: transparent;
+      border-radius: 28px;
+
+      &::placeholder {
+        color: $text-muted;
+      }
+    }
+  }
+
+  .voice-search-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: $primary;
+    color: $text-heading-strong;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
 
     &:hover {
-        transform: translateY(-5px);
-
-        .producto-img img {
-            transform: scale(1.05);
-        }
+      transform: translateY(-50%) scale(1.1);
     }
+  }
 
-    .producto-img {
-        width: 100%;
-        height: 200px;
-        overflow: hidden;
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-    }
-
-    // Información del producto
-    .producto-info {
-        padding: 10px;
-        text-align: center;
-        background: white;
-
-        .producto-nombre {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .producto-precio {
-            font-size: 1rem;
-            color: #28a745;
-            font-weight: bold;
-        }
-    }
-
-    // Información oculta en desktop, visible en hover
-    .producto-hover {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 10px;
-        opacity: 0;
-        transition: opacity 0.3s ease-in-out;
-
-        p {
-            margin: 5px 0;
-        }
-    }
-
-    &:hover .producto-hover {
-        opacity: 1;
-    }
-}
-
-// Adaptación para dispositivos móviles
-@media (max-width: 768px) {
-    .producto-card {
-        .producto-hover {
-            position: relative;
-            opacity: 1;
-            background: white;
-            color: black;
-            padding: 15px;
-        }
-    }
-}
-
-.categoria-badge {
+  .search-suggestions,
+  .search-history {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 0.75rem;
-}
-
-.form-group {
-    label {
-        margin-bottom: 4px;
-        color: #333;
-    }
-
-    input,
-    select {
-        padding: 0.5rem;
-    }
-}
-
-.filtros-card {
-    border: 1px solid #dee2e6;
-    background-color: #ffffff;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: $white;
     border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 20px 50px $shadow-soft;
+    border: 1px solid $border-subtle;
+    z-index: 1000;
+    max-height: 350px;
+    overflow-y: auto;
+
+    .suggestion-item,
+    .history-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border-bottom: 1px solid $border-subtle;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background: rgba($primary, 0.05);
+      }
+
+      i {
+        margin-right: 12px;
+        color: $primary;
+        width: 20px;
+        text-align: center;
+      }
+
+      .suggestion-text {
+        flex: 1;
+        font-weight: 500;
+        color: $text-heading-strong;
+      }
+    }
+  }
 }
 
-.btn-icon {
-    background: none;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    font-size: 1.25rem;
-    cursor: pointer;
+// ===== FLOAT LABELS COMPACTOS PARA FILTROS =====
+.input-float-compact {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 130px;
+  max-width: none;
 
-    &:disabled {
-        cursor: not-allowed;
-    }
+  input {
+    width: 100%;
+  }
+
+  .float-label-compact {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: $white;
+    padding: 0 0.35rem;
+    color: $text-muted;
+    font-size: 0.8rem;
+    font-weight: 500;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    z-index: 1;
 
     i {
-        transition: color 0.3s ease;
+      font-size: 0.7rem;
     }
+  }
+
+  input:focus + .float-label-compact,
+  input:not(:placeholder-shown) + .float-label-compact {
+    top: 0;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: $primary;
+    font-weight: 600;
+  }
+
+  input:focus + .float-label-compact i,
+  input:not(:placeholder-shown) + .float-label-compact i {
+    color: $primary;
+  }
+
+  // Para selects con float label
+  &.select-wrapper {
+    flex: 2 1 auto; // El doble de ancho que los otros campos
+    min-width: 180px;
+
+    .float-label-select {
+      // Para selects, el label siempre está arriba
+      top: 0;
+      transform: translateY(-50%);
+      font-size: 0.7rem;
+      color: $primary;
+      font-weight: 600;
+      z-index: 2; // Asegurar que esté encima del select
+
+      i {
+        color: $primary;
+      }
+    }
+
+    select {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+
+    select:focus + .float-label-select {
+      color: $primary;
+      z-index: 2;
+    }
+  }
 }
 
-.text-primary {
-    color: $primary !important;
+// ===== FILTROS HORIZONTALES (SOLO WEB) =====
+.filters-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: $white;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px $shadow-soft;
+  border: 1px solid $border-subtle;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+
+  .filter-select-horizontal,
+  .filter-input-horizontal {
+    flex: 1 1 auto;
+    min-width: 130px;
+    max-width: none;
+    // Estilos de .form-control y .form-select oficiales
+    font-size: 0.875rem;
+    appearance: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: $white;
+    color: $text-body;
+    padding: 0.55rem 0.75rem;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow:
+        0 0 0 3px rgba($primary, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.08);
+      transform: translateY(-1px);
+    }
+
+    &:hover:not(:focus) {
+      border-color: rgba($primary, 0.3);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    &::placeholder {
+      color: $text-muted;
+      font-size: 0.85rem;
+    }
+  }
+
+  .filter-select-horizontal {
+    // Icono de flecha para select (igual que .form-select)
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 14px 10px;
+    padding-right: 2.25rem;
+  }
+
+  .sort-direction-btn-horizontal {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    background: $white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+
+    &:hover {
+      background: $primary;
+      border-color: $primary;
+      color: $text-heading-strong;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary, 0.25);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .clear-filters-btn-horizontal {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    background: $white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+
+    &:hover {
+      background: rgba($danger, 0.1);
+      border-color: $danger;
+      color: $danger;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($danger, 0.25);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
 }
 
-.text-secondary {
-    color: $quaternary !important;
+// Ocultar botón de filtros en Web Desktop (los filtros están siempre visibles en línea)
+@media (min-width: $breakpoint-lg) {
+  .filters-toggle {
+    display: none !important;
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .filters-horizontal {
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    flex-wrap: wrap;
+
+    .filter-select-horizontal,
+    .filter-input-horizontal {
+      flex: 1 1 auto;
+      min-width: 100px;
+      max-width: none;
+      font-size: 0.8rem;
+      padding: 0.45rem 0.6rem;
+    }
+
+    .input-float-compact {
+      flex: 1 1 auto;
+      min-width: 100px;
+      max-width: none;
+
+      .float-label-compact {
+        font-size: 0.75rem;
+        gap: 0.2rem;
+
+        i {
+          font-size: 0.65rem;
+        }
+      }
+
+      input:focus + .float-label-compact,
+      input:not(:placeholder-shown) + .float-label-compact {
+        font-size: 0.65rem;
+      }
+    }
+
+    .sort-direction-btn-horizontal,
+    .clear-filters-btn-horizontal {
+      width: 36px;
+      height: 36px;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// ===== CONTROLES =====
+.filters-controls-enhanced {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 2rem;
+  background: rgba($primary, 0.03);
+  border-radius: 20px;
+  margin-bottom: 2rem;
+
+  .results-info-enhanced {
+    flex: 1;
+
+    .results-count {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: $text-heading-strong;
+    }
+
+    .quick-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+
+      .quick-filter-chip {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: $white;
+        border: 2px solid $border-subtle;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: $text-body;
+
+        &:hover {
+          border-color: $primary;
+          background: rgba($primary, 0.05);
+        }
+
+        &.active {
+          background: $primary;
+          border-color: $primary;
+          color: $text-heading-strong;
+        }
+      }
+    }
+  }
+
+  .view-controls-enhanced {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .btn-floating {
+      width: 44px;
+      height: 44px;
+      background: $white;
+      color: $text-muted;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px $shadow-soft;
+
+      &:hover {
+        background: $primary;
+        color: $text-heading-strong;
+        transform: translateY(-2px);
+      }
+
+      &.active {
+        background: $primary;
+        color: $text-heading-strong;
+      }
+    }
+  }
+}
+
+// ===== BANNER DE FAVORITOS =====
+.favorites-info-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  margin: 0 1.5rem 1rem;
+  background: rgba(255, 237, 78, 0.15);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 16px;
+  color: $text-heading-strong;
+  font-size: 0.95rem;
+  font-weight: 600;
+  animation: slide-down 0.5s ease-out;
+
+  i {
+    color: #ffd700;
+    font-size: 1.2rem;
+    animation: pulse-favorite 2s ease-in-out infinite;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    margin: 0 1rem 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+// ===== PRODUCTOS =====
+.products-container-enhanced {
+  padding: 2rem 1.5rem;
+
+  .products-grid {
+    display: grid;
+    gap: 1.5rem;
+
+    &.grid-view {
+      // Por defecto (móviles pequeños < 768px): 2 columnas FIJAS
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 1fr; // Todas las filas con la misma altura
+      gap: 1.5rem;
+
+      // Tablets (768px - 991px): MÍNIMO 4, MÁXIMO 8
+      @media (min-width: $breakpoint-md) and (max-width: calc($breakpoint-lg - 1px)) {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-auto-rows: 1fr; // Todas las filas con la misma altura
+        gap: 1.5rem;
+      }
+
+      // WEB DESKTOP (>= 992px): MÍNIMO 4, MÁXIMO 8
+      @media (min-width: $breakpoint-lg) {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-auto-rows: 1fr; // Todas las filas con la misma altura
+        gap: 1.75rem;
+      }
+    }
+
+    &.list-view {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+}
+
+.product-card-enhanced {
+  background: $white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid $border-subtle;
+  height: 100%; // Altura completa del contenedor grid
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+
+    .product-image {
+      transform: scale(1.05);
+    }
+
+    .product-overlay {
+      opacity: 1;
+      backdrop-filter: blur(8px);
+    }
+
+    .favorite-btn-enhanced {
+      transform: scale(1.1);
+    }
+  }
+
+  .product-image-container {
+    position: relative;
+    height: 280px; // Altura fija para todas las imágenes
+    overflow: hidden;
+    flex-shrink: 0;
+
+    .product-image-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+
+      .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        transition: transform 0.3s ease;
+        display: block;
+        background: transparent;
+
+        &:not([src]),
+        &[src=''],
+        &[src*='placeholder'] {
+          background: rgba($secondary, 0.1);
+          position: relative;
+
+          &::before {
+            content: '\f2e7';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: rgba($primary, 0.3);
+          }
+        }
+
+        // Estilo especial cuando es el logo (fallback)
+        &.fallback-logo {
+          object-fit: contain !important;
+          padding: 1.5rem;
+          background: transparent !important;
+        }
+      }
+    }
+
+    .product-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 3;
+
+      .overlay-content {
+        display: flex;
+        gap: 1rem;
+
+        .overlay-btn {
+          width: 48px;
+          height: 48px;
+          background: rgba($white, 0.9);
+          color: $text-heading-strong;
+          font-size: 1.2rem;
+          backdrop-filter: blur(10px);
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: $primary;
+            transform: scale(1.15);
+            box-shadow: 0 8px 20px rgba($primary, 0.4);
+          }
+        }
+      }
+    }
+
+    .product-badges {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 60px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      z-index: 4;
+
+      .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+
+        &.price-badge {
+          background: $success;
+          color: $white;
+          font-size: 0.9rem;
+          font-weight: 800;
+        }
+
+        &.category-badge {
+          background: rgba($white, 0.9);
+          color: $text-heading-strong;
+        }
+
+        &.discount-badge {
+          background: $danger;
+          color: $white;
+        }
+
+        &.dietary-badge {
+          background: $info;
+          color: $white;
+        }
+      }
+    }
+
+    .favorite-btn-enhanced {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 44px;
+      height: 44px;
+      background: rgba($white, 0.9);
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 4;
+      color: $text-muted;
+
+      &:hover {
+        background: $white;
+        color: $danger;
+        transform: scale(1.1);
+      }
+
+      &.active {
+        background: $danger;
+        color: $white;
+      }
+    }
+  }
+
+  .product-content-enhanced {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 1rem;
+    flex: 1;
+    min-height: 0;
+
+    .product-header {
+      // Altura fija para SIEMPRE ocupar 3 líneas - alinea calorías
+      min-height: 4.875rem; // 1.25rem * 1.3 * 3 = 4.875rem para 3 líneas
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+
+      .product-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: $text-heading-strong;
+        margin: 0;
+        line-height: 1.3;
+        // Forzar exactamente 3 líneas
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        // Altura mínima de 3 líneas para reservar espacio
+        min-height: 4.875rem; // 1.25rem * 1.3 * 3
+      }
+
+      .product-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .stars {
+          display: flex;
+          gap: 2px;
+
+          i {
+            font-size: 0.9rem;
+            color: $text-muted;
+
+            &.filled {
+              color: #ffc107;
+            }
+          }
+        }
+
+        .rating-count {
+          font-size: 0.8rem;
+          color: $text-muted;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .product-meta-enhanced {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+        color: $text-body;
+        font-weight: 500;
+      }
+    }
+
+    .product-description {
+      color: $text-body;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin: 0;
+      flex: 1;
+    }
+
+    .product-actions-enhanced {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: auto;
+
+      .quantity-controls-enhanced {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba($primary, 0.1);
+        border-radius: 20px;
+        padding: 4px;
+
+        .quantity-btn {
+          width: 32px;
+          height: 32px;
+          font-size: 0.9rem;
+          background: $white;
+          color: $primary;
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: $primary;
+            color: $white;
+          }
+        }
+
+        .quantity-display {
+          min-width: 30px;
+          text-align: center;
+          font-weight: 700;
+          color: $text-heading-strong;
+          font-size: 1rem;
+        }
+      }
+
+      .add-to-cart-btn-enhanced {
+        background: $primary;
+        color: $text-heading-strong;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba($primary, 0.3);
+        }
+      }
+    }
+
+    .product-price-display {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+
+      .price-current {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: $success;
+      }
+
+      .price-original {
+        font-size: 1.1rem;
+        color: $text-muted;
+        text-decoration: line-through;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// ===== PAGINACIÓN =====
+.pagination-container-enhanced {
+  margin: 3rem 0 2rem 0;
+  display: flex;
+  justify-content: center;
+
+  .pagination-nav-enhanced {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+
+    .pagination-info-enhanced {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+
+      .items-per-page-selector {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+
+        .items-label {
+          color: $text-muted;
+          font-size: 0.9rem;
+          font-weight: 500;
+        }
+
+        .items-select {
+          appearance: none;
+          padding: 0.4rem 2rem 0.4rem 0.75rem;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          background: $white
+            url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")
+            no-repeat right 0.5rem center/12px 9px;
+          color: $text-body;
+          font-size: 0.875rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            border-color: rgba($primary, 0.3);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+          }
+
+          &:focus {
+            outline: none;
+            border-color: $primary;
+            box-shadow:
+              0 0 0 3px rgba($primary, 0.12),
+              0 2px 8px rgba(0, 0, 0, 0.08);
+          }
+        }
+      }
+    }
+
+    .pagination-controls-enhanced {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: $white;
+      padding: 8px;
+      border-radius: 25px;
+      box-shadow: 0 10px 30px $shadow-soft;
+
+      .pagination-btn {
+        width: 44px;
+        height: 44px;
+        background: transparent;
+        color: $text-muted;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover:not(:disabled) {
+          background: $primary;
+          color: $text-heading-strong;
+        }
+
+        &:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+      }
+
+      .pagination-numbers-enhanced {
+        display: flex;
+        gap: 4px;
+        margin: 0 0.5rem;
+
+        .pagination-number {
+          width: 40px;
+          height: 40px;
+          background: transparent;
+          color: $text-body;
+          font-weight: 500;
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover:not(:disabled):not(.ellipsis) {
+            background: rgba($primary, 0.1);
+            color: $primary;
+          }
+
+          &.active {
+            background: $primary;
+            color: $text-heading-strong;
+            font-weight: 700;
+          }
+
+          &.ellipsis {
+            cursor: default;
+            color: $text-muted;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ===== ESTADOS =====
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+
+  .loading-spinner {
+    text-align: center;
+    color: $text-muted;
+
+    i {
+      font-size: 3.5rem;
+      color: $primary;
+      margin-bottom: 1.5rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin: 0;
+      font-weight: 500;
+    }
+  }
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 500px;
+  padding: 3rem 1rem;
+
+  .empty-state-content {
+    text-align: center;
+    max-width: 500px;
+
+    .empty-icon {
+      font-size: 5rem;
+      color: $text-muted;
+      margin-bottom: 2rem;
+      opacity: 0.6;
+    }
+
+    .empty-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: $text-heading-strong;
+      margin-bottom: 1rem;
+    }
+
+    .empty-description {
+      font-size: 1.1rem;
+      color: $text-body;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .suggestions {
+      margin: 2rem 0;
+
+      .suggestions-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: $text-heading-strong;
+        margin-bottom: 1rem;
+      }
+
+      .suggestions-chips {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+
+        .suggestion-chip {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1.25rem;
+          background: $white;
+          border: 2px solid $border-subtle;
+          border-radius: 25px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-weight: 500;
+          color: $text-body;
+
+          &:hover {
+            border-color: $primary;
+            background: rgba($primary, 0.05);
+            transform: translateY(-2px);
+          }
+
+          i {
+            color: $primary;
+          }
+        }
+      }
+    }
+  }
+}
+
+.scroll-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  background: $primary;
+  color: $text-heading-strong;
+  font-size: 1.3rem;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 8px 25px $shadow-soft;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  &:hover {
+    background: $quaternary;
+    transform: translateY(-4px) scale(1.1);
+  }
+}
+
+// ===== RESPONSIVE BÁSICO =====
+@media (max-width: $breakpoint-lg) {
+  .menu-hero {
+    min-height: 140px;
+    padding: 1.5rem 0 1rem;
+  }
+
+  .filters-controls-enhanced {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  .products-grid {
+    &.grid-view {
+      grid-template-columns: repeat(auto-fill, minmax(min(180px, calc(50% - 0.625rem)), 1fr));
+      gap: 1.25rem;
+    }
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .menu-hero {
+    min-height: 120px;
+    padding: 1.25rem 0 0.75rem;
+  }
+
+  .products-grid {
+    &.grid-view {
+      grid-template-columns: repeat(auto-fill, minmax(min(180px, calc(50% - 0.625rem)), 1fr));
+    }
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .menu-hero {
+    min-height: 100px;
+    padding: 1rem 0 0.5rem;
+  }
+
+  .products-grid {
+    &.grid-view {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+
+  .product-card-enhanced {
+    .product-image-container {
+      height: 200px;
+    }
+
+    .product-content-enhanced {
+      padding: 1rem;
+    }
+  }
+
+  .scroll-to-top {
+    bottom: 1rem;
+    right: 1rem;
+    width: 48px;
+    height: 48px;
+    font-size: 1.1rem;
+  }
+}
+
+// ===== PANTALLAS MUY PEQUEÑAS =====
+@media (max-width: 480px) {
+  .products-grid {
+    &.grid-view {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+  }
+
+  .product-card-enhanced {
+    min-height: 320px;
+
+    .product-image-container {
+      height: 160px;
+    }
+
+    .product-content-enhanced {
+      padding: 1rem;
+      gap: 0.75rem;
+
+      .product-header .product-title {
+        font-size: 1.1rem;
+      }
+
+      .product-actions-enhanced {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch;
+
+        .add-to-cart-btn-enhanced {
+          justify-content: center;
+        }
+
+        .quantity-controls-enhanced {
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+// ===== ESTILOS ESPECÍFICOS PARA WEBVIEW =====
+.webview-mode {
+  // ===== OPTIMIZACIÓN DEL BUSCADOR PARA WEBVIEW =====
+  .search-container-enhanced {
+    margin-top: 0.75rem !important; // Margen superior reducido
+    margin-bottom: 0.75rem !important;
+    padding: 0 1rem !important; // Margen lateral respecto a los bordes
+
+    .search-input-wrapper {
+      border-radius: 12px !important; // Más cuadrado como formularios
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+      border: 1px solid $border-subtle !important;
+      transition: all 0.3s ease !important;
+
+      // Desactivar efectos de focus/glow
+      &.glow-on-focus {
+        &:focus-within {
+          border-color: $primary !important;
+          box-shadow: 0 2px 8px rgba($primary, 0.15) !important;
+        }
+      }
+
+      .search-icon {
+        left: 14px;
+        font-size: 1rem;
+        color: $text-muted;
+      }
+
+      .search-input {
+        height: 46px !important;
+        padding: 0 10px 0 46px !important; // Sin botón de voz
+        font-size: 0.9rem !important;
+        border: none !important; // Eliminar borde del input
+        box-shadow: none !important; // Sin sombra en el input
+        outline: none !important; // Sin outline
+
+        &:focus {
+          border: none !important;
+          box-shadow: none !important;
+          outline: none !important;
+        }
+
+        &::placeholder {
+          color: $text-muted !important;
+          font-size: 0.85rem !important;
+        }
+      }
+    }
+
+    // Ocultar botón de búsqueda por voz en WebView
+    .voice-search-btn {
+      display: none !important;
+    }
+
+    // Ajustar botón de limpiar - solo icono transparente
+    .search-clear {
+      right: 5px !important; // Margen derecho adecuado
+      width: auto !important;
+      height: auto !important;
+      background: transparent !important;
+      border: none !important;
+      padding: 8px !important; // Área táctil más grande
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: $text-muted !important;
+      transition: color 0.2s ease !important;
+
+      i {
+        font-size: 1rem !important;
+      }
+
+      &:hover {
+        background: transparent !important;
+        color: $text-heading-strong !important;
+        transform: none !important;
+      }
+    }
+
+    // Estilos para sugerencias de búsqueda
+    .search-suggestions,
+    .search-history {
+      left: 1rem !important; // Margen izquierdo
+      right: 1rem !important; // Margen derecho
+      width: auto !important;
+      border-radius: 12px !important;
+      margin-top: 0.5rem !important;
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DE CONTROLES Y FILTROS =====
+  .filters-controls-enhanced {
+    padding: 0 !important;
+    background-color: transparent !important;
+    align-items: center !important;
+    margin-top: -30px;
+    margin-bottom: -55px !important;
+
+    .results-info-enhanced {
+      display: none !important; // Ocultar toda la sección de información de resultados y chips de categorías
+    }
+
+    .view-controls-enhanced {
+      border-radius: 12px !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+
+      .btn-floating {
+        width: 36px !important; // Reducido de 40px
+        height: 36px !important; // Reducido de 40px
+        border-radius: 10px !important;
+        box-shadow: none !important;
+        font-size: 0.85rem !important; // Reducido de 0.9rem
+        min-width: 36px !important; // Reducido de 40px
+        flex-shrink: 0 !important;
+        background: transparent !important;
+        border: 1px solid transparent !important;
+
+        &.active {
+          background: $primary !important;
+          color: $white !important;
+        }
+
+        // Desactivar hover en WebView
+        &:hover {
+          transform: none !important;
+          background: transparent !important;
+
+          &.active {
+            background: $primary !important;
+          }
+        }
+      }
+
+      .view-toggle-group {
+        display: flex;
+        gap: 0.3rem;
+        background: rgba($primary, 0.05);
+        padding: 0.25rem;
+        border-radius: 10px;
+
+        // Ocultar botones de vista en WEB DESKTOP (solo navegador >= 992px)
+        @media (min-width: $breakpoint-lg) {
+          display: none !important;
+        }
+      }
+
+      // Ocultar botón de tema (no funciona en WebView)
+      .theme-toggle {
+        display: none !important;
+      }
+
+      // Ocultar botón de ordenamiento rápido (usar filtros avanzados)
+      .sort-dropdown {
+        display: none !important;
+      }
+
+      .filter-badge {
+        width: 16px !important;
+        height: 16px !important;
+        font-size: 0.65rem !important;
+        line-height: 16px !important;
+        top: -5px !important;
+        right: -5px !important;
+        background: $primary !important;
+        color: $white !important;
+        border-radius: 50% !important;
+        font-weight: 600 !important;
+      }
+    }
+  }
+
+  // ===== ESTILOS PARA FILTROS AVANZADOS =====
+  .advanced-filters {
+    background: $white !important;
+    border-radius: 20px !important;
+    padding: 1rem !important; // Reducido de 1.5rem
+    box-shadow: 0 20px 50px $shadow-soft !important;
+    border: 1px solid $border-subtle !important;
+    margin: 0 1rem 0.75rem 1rem !important; // Márgenes laterales y bottom reducido
+
+    .filters-grid {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 0.75rem !important; // Reducido de 1rem
+    }
+
+    .filter-group {
+      .filter-label {
+        display: block !important;
+        font-size: 0.85rem !important; // Reducido de 0.9rem
+        font-weight: 600 !important;
+        color: $text-heading-strong !important;
+        margin-bottom: 0.4rem !important; // Reducido de 0.5rem
+      }
+
+      .filter-select {
+        width: 100% !important;
+        // Estilos oficiales de .form-control y .form-select
+        font-size: 0.9rem !important;
+        appearance: none !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        background-color: $white !important;
+        color: $text-body !important;
+        padding: 0.65rem 0.875rem !important;
+        transition: all 0.3s ease !important;
+        height: auto !important;
+        min-height: 44px !important;
+        // Icono de flecha para select
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 16px 12px !important;
+        padding-right: 2.5rem !important;
+
+        &:focus {
+          outline: none !important;
+          border-color: $primary !important;
+          box-shadow:
+            0 0 0 3px rgba($primary, 0.12),
+            0 2px 8px rgba(0, 0, 0, 0.08) !important;
+          transform: translateY(-1px) !important;
+        }
+
+        &:hover:not(:focus) {
+          border-color: rgba($primary, 0.3) !important;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+        }
+      }
+
+      .sort-control-group {
+        display: flex !important;
+        gap: 0.5rem !important;
+        align-items: stretch !important;
+        width: 100% !important;
+
+        .filter-select {
+          flex: 1 !important;
+          min-width: 0 !important; // Permite que el select se encoja en móviles
+        }
+
+        .sort-direction-btn {
+          width: 44px !important;
+          height: 44px !important;
+          min-height: 44px !important;
+          flex-shrink: 0 !important;
+          background-color: $white !important;
+          border: 1px solid #e5e7eb !important;
+          border-radius: 12px !important;
+          color: $text-muted !important;
+          cursor: pointer !important;
+          transition: all 0.3s ease !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          font-size: 1rem !important;
+
+          &:hover {
+            background: $primary !important;
+            border-color: $primary !important;
+            color: $text-heading-strong !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba($primary, 0.25) !important;
+          }
+
+          &:active {
+            transform: translateY(0) !important;
+          }
+
+          i {
+            pointer-events: none !important;
+          }
+        }
+      }
+
+      .range-inputs-float {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+
+        .input-float-compact {
+          flex: 1 !important;
+          min-width: 0 !important;
+          max-width: none !important;
+
+          input {
+            font-size: 0.9rem !important;
+            appearance: none !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 12px !important;
+            background-color: $white !important;
+            color: $text-body !important;
+            padding: 0.65rem 0.875rem !important;
+            transition: all 0.3s ease !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 44px !important;
+
+            &:focus {
+              outline: none !important;
+              border-color: $primary !important;
+              box-shadow:
+                0 0 0 3px rgba($primary, 0.12),
+                0 2px 8px rgba(0, 0, 0, 0.08) !important;
+              transform: translateY(-1px) !important;
+            }
+
+            &:hover:not(:focus) {
+              border-color: rgba($primary, 0.3) !important;
+              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+            }
+          }
+        }
+
+        .range-separator {
+          color: $text-muted !important;
+          font-size: 0.9rem !important;
+          font-weight: 600 !important;
+          flex-shrink: 0 !important;
+        }
+      }
+
+      .range-inputs {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+
+        .range-input {
+          flex: 1 !important;
+          min-width: 0 !important; // Permite que los inputs se encojan
+          // Estilos oficiales de .form-control
+          font-size: 0.9rem !important;
+          appearance: none !important;
+          border: 1px solid #e5e7eb !important;
+          border-radius: 12px !important;
+          background-color: $white !important;
+          color: $text-body !important;
+          padding: 0.65rem 0.875rem !important;
+          transition: all 0.3s ease !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: 44px !important;
+
+          &:focus {
+            outline: none !important;
+            border-color: $primary !important;
+            box-shadow:
+              0 0 0 3px rgba($primary, 0.12),
+              0 2px 8px rgba(0, 0, 0, 0.08) !important;
+            transform: translateY(-1px) !important;
+          }
+
+          &:hover:not(:focus) {
+            border-color: rgba($primary, 0.3) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+          }
+
+          &::placeholder {
+            color: $text-muted !important;
+            font-size: 0.85rem !important;
+          }
+        }
+
+        .range-separator {
+          color: $text-muted !important;
+          font-size: 0.9rem !important;
+          font-weight: 600 !important;
+          flex-shrink: 0 !important;
+        }
+      }
+
+      .checkbox-group {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.6rem !important;
+
+        .checkbox-item {
+          display: flex !important;
+          align-items: center !important;
+          font-size: 0.85rem !important;
+          color: $text-body !important;
+          cursor: pointer !important;
+          position: relative !important;
+          padding: 0.4rem 0.5rem 0.4rem 2rem !important;
+          border-radius: 8px !important;
+          transition: background 0.2s ease !important;
+
+          &:hover {
+            background: rgba($primary, 0.05) !important;
+          }
+
+          input[type='checkbox'] {
+            position: absolute !important;
+            left: 0.5rem !important;
+            width: 18px !important;
+            height: 18px !important;
+            cursor: pointer !important;
+            margin: 0 !important;
+          }
+
+          .checkmark {
+            display: none !important;
+          }
+        }
+      }
+    }
+
+    .filters-actions {
+      margin-top: 1rem !important; // Reducido de 1.5rem
+      display: flex !important;
+      justify-content: center !important;
+      padding-top: 0.75rem !important; // Reducido de 1rem
+      border-top: 1px solid $border-subtle !important;
+
+      .clear-filters-btn {
+        padding: 0.65rem 1.5rem !important; // Reducido de 0.75rem 1.75rem
+        border-radius: 12px !important;
+        background: $white !important;
+        border: 1px solid #e5e7eb !important;
+        color: $text-body !important;
+        font-size: 0.85rem !important; // Reducido de 0.9rem
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.4rem !important; // Reducido de 0.5rem
+        transition: all 0.3s ease !important;
+
+        i {
+          font-size: 0.85rem !important; // Reducido de 0.9rem
+        }
+
+        &:hover {
+          background: rgba($danger, 0.1) !important;
+          border-color: $danger !important;
+          color: $danger !important;
+          transform: translateY(-2px) !important;
+          box-shadow: 0 4px 12px rgba($danger, 0.25) !important;
+        }
+
+        &:active {
+          transform: translateY(0) !important;
+        }
+      }
+    }
+  }
+
+  // ===== RESPONSIVE PARA FILTROS AVANZADOS EN MOBILE Y WEBVIEW =====
+  @media (max-width: $breakpoint-md) {
+    .advanced-filters {
+      padding: 1rem 0.75rem !important;
+      margin: 0 0.5rem !important;
+
+      .filter-group {
+        .filter-label {
+          font-size: 0.8rem !important;
+        }
+
+        .filter-select,
+        .range-input {
+          font-size: 0.8rem !important;
+          padding: 0.45rem 0.6rem !important;
+        }
+      }
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DE RESULTADOS =====
+  .results-info-enhanced .results-count-wrapper {
+    .results-count {
+      font-size: 1.05rem;
+    }
+
+    .results-subtitle {
+      font-size: 0.85rem;
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DEL DROPDOWN DE ORDENAMIENTO =====
+  .sort-dropdown {
+    .dropdown-menu {
+      border-radius: 12px;
+      box-shadow: 0 8px 20px $shadow-soft;
+      border: 1px solid $border-subtle;
+
+      .dropdown-item {
+        padding: 0.65rem 1rem;
+        font-size: 0.9rem;
+
+        i {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DEL HERO/HEADER =====
+  .menu-hero {
+    min-height: 140px;
+    padding: 1.5rem 0 1rem;
+
+    .section-title {
+      font-size: clamp(1.75rem, 4.5vw, 2.5rem);
+      margin-bottom: 0.4rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      margin-bottom: 0;
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DE LA PAGINACIÓN =====
+  .pagination-container-enhanced {
+    margin: 2rem 0 1.5rem 0;
+
+    .pagination-nav-enhanced {
+      gap: 1rem;
+
+      .pagination-info-enhanced {
+        .page-indicator {
+          font-size: 0.95rem;
+
+          .current-page,
+          .total-pages {
+            font-size: 1.1rem;
+          }
+        }
+
+        .results-summary {
+          font-size: 0.8rem;
+        }
+      }
+
+      .pagination-controls-enhanced {
+        padding: 6px;
+        border-radius: 20px;
+        box-shadow: 0 6px 20px $shadow-soft;
+
+        .pagination-btn {
+          width: 40px;
+          height: 40px;
+
+          // Desactivar hover
+          &:hover:not(:disabled) {
+            background: transparent;
+            color: $text-muted;
+          }
+        }
+
+        .pagination-numbers-enhanced {
+          gap: 3px;
+          margin: 0 0.4rem;
+
+          .pagination-number {
+            width: 36px;
+            height: 36px;
+            font-size: 0.9rem;
+
+            // Desactivar hover
+            &:hover:not(:disabled):not(.ellipsis) {
+              background: transparent;
+              color: $text-body;
+            }
+
+            &.active {
+              background: $primary;
+              color: $text-heading-strong;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ===== OPTIMIZACIÓN DEL BOTÓN SCROLL TO TOP =====
+  .scroll-to-top {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+
+    &:hover {
+      transform: none;
+      background: $primary;
+    }
+  }
+
+  // ===== REDUCIR PADDING DEL CONTENEDOR DE PRODUCTOS =====
+  .products-container-enhanced {
+    padding: 0.5rem 1rem !important; // Reducido de 2rem 1.5rem
+  }
+
+  .product-card-enhanced {
+    // Reducir altura mínima de la card al mínimo necesario
+    min-height: 280px;
+
+    // Desactivar todos los efectos hover en WebView
+    &:hover {
+      transform: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+      .product-image {
+        transform: none;
+      }
+
+      .product-overlay {
+        opacity: 0 !important;
+        pointer-events: none;
+      }
+
+      .favorite-btn-enhanced {
+        transform: none;
+      }
+    }
+
+    // Desactivar completamente el overlay en WebView
+    .product-overlay {
+      display: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    // Desactivar pointer events en elementos que no deben ser seleccionables
+    .product-image-wrapper {
+      pointer-events: none;
+    }
+
+    .product-image {
+      pointer-events: none;
+    }
+
+    .product-content-enhanced {
+      // Eliminar casi todo el gap entre elementos para WebView
+      gap: 0;
+      padding: 0.75rem 1rem 0.75rem 1rem;
+      justify-content: flex-start;
+      flex: 0 0 auto; // No expandir para llenar espacio
+
+      .product-header {
+        margin-bottom: 0;
+        // Altura fija para SIEMPRE ocupar 3 líneas - alinea calorías
+        min-height: 4.32rem; // 1.2rem * 1.2 * 3 = 4.32rem para 3 líneas
+        display: flex;
+        align-items: flex-start;
+
+        .product-title {
+          margin-bottom: 0;
+          line-height: 1.2;
+          font-size: 1.2rem;
+          display: -webkit-box;
+          -webkit-line-clamp: 3; // Cambiado de 2 a 3 líneas
+          line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          // Altura mínima de 3 líneas para reservar espacio
+          min-height: 4.32rem; // 1.2rem * 1.2 * 3
+        }
+      }
+
+      .product-meta-enhanced {
+        margin-top: 0.3rem;
+        gap: 0.3rem;
+
+        .meta-item {
+          font-size: 0.8rem;
+          gap: 0.3rem;
+        }
+      }
+    }
+
+    // Desactivar hover del botón de favoritos y hacerlo más pequeño - solo icono sin círculo
+    .favorite-btn-enhanced {
+      width: 32px;
+      height: 32px;
+      top: 8px;
+      right: 8px;
+      background: transparent !important;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        transform: none;
+        background: transparent !important;
+      }
+
+      &.active {
+        background: transparent !important;
+      }
+
+      i {
+        font-size: 1.5rem;
+        color: transparent;
+        -webkit-text-stroke: 2px $white;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+        transition: all 0.3s ease;
+        line-height: 1;
+        display: block;
+      }
+
+      &.active i {
+        color: $danger;
+        -webkit-text-stroke: 0;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+      }
+    }
+  }
+
+  // Ajustes adicionales para pantallas pequeñas en WebView
+  @media (max-width: 480px) {
+    .product-card-enhanced {
+      min-height: 260px;
+
+      .product-content-enhanced {
+        gap: 0;
+        padding: 0.6rem 0.9rem;
+
+        .product-header {
+          // Altura fija para SIEMPRE ocupar 3 líneas en móviles - alinea calorías
+          min-height: 3.3rem; // 1rem * 1.1 * 3 = 3.3rem para 3 líneas
+
+          .product-title {
+            font-size: 1rem;
+            margin-bottom: 0;
+            line-height: 1.1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3; // Forzar 3 líneas
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 3.3rem; // 1rem * 1.1 * 3
+          }
+        }
+
+        .product-meta-enhanced {
+          margin-top: 0.25rem;
+
+          .meta-item {
+            font-size: 0.75rem;
+            gap: 0.25rem;
+          }
+        }
+      }
+
+      // Botón de favoritos en móviles - solo icono sin círculo
+      .favorite-btn-enhanced {
+        width: 28px;
+        height: 28px;
+        top: 6px;
+        right: 6px;
+        padding: 0;
+
+        i {
+          font-size: 1.3rem;
+        }
+      }
+    }
+  }
+}
+
+// ===== ANIMACIONES =====
+@keyframes pulse-favorite {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

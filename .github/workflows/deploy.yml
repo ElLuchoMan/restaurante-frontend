@@ -1,0 +1,32 @@
+name: Deploy Netlify
+on:
+  push:
+    branches: [master]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - name: Generate runtime app-config.json from secrets
+        run: |
+          API="${{ secrets.APP_API_BASE }}"
+          GMAPS="${{ secrets.GMAPS_API_KEY }}"
+          if [ -z "$GMAPS" ]; then GMAPS="${{ secrets.GOOGLE_MAPS_API_KEY }}"; fi
+          if [ -z "$API" ]; then API="https://restaurante-back-wlxp.onrender.com/restaurante/v1"; fi
+          echo '{' > public/app-config.json
+          echo "  \"apiBase\": \"${API}\"" >> public/app-config.json
+          if [ -n "$GMAPS" ]; then
+            echo "  ,\"googleMapsApiKey\": \"${GMAPS}\"" >> public/app-config.json
+          fi
+          echo '}' >> public/app-config.json
+      - run: npm install --legacy-peer-deps
+      - run: npm run build
+      - name: Deploy to Netlify
+        run: npx --yes netlify-cli deploy --dir=dist/restaurante-frontend/browser --prod --site $NETLIFY_SITE_ID
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

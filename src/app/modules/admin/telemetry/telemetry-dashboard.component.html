@@ -1,0 +1,1881 @@
+<div class="container-fluid page-shell">
+  <div class="text-center mb-3">
+    <h2 class="section-title">Dashboard de Telemetría</h2>
+  </div>
+  <div class="d-flex justify-content-end align-items-center mb-4">
+    <div class="d-flex gap-2">
+      <select
+        class="form-select form-select-enhanced"
+        style="width: auto; min-width: 150px"
+        [(ngModel)]="selectedPeriod"
+        (change)="onPeriodChange()"
+      >
+        <option value="hoy">Hoy</option>
+        <option value="ultima_semana">Última semana</option>
+        <option value="ultimo_mes">Último mes</option>
+        <option value="ultimos_3_meses">Últimos 3 meses</option>
+        <option value="ultimos_6_meses">Últimos 6 meses</option>
+        <option value="ultimo_año">Último año</option>
+        <option value="historico">Histórico</option>
+      </select>
+      <button class="btn btn-sm btn-warning px-3" (click)="refreshAll()" [disabled]="isLoading()">
+        <i class="fa-solid fa-refresh" [class.fa-spin]="isLoading()"></i>
+        Refrescar
+      </button>
+      <button
+        *ngIf="activeTab() === 'local'"
+        class="btn btn-sm btn-outline-danger ms-2 px-3"
+        (click)="clearLocal()"
+      >
+        <i class="fa-solid fa-trash me-1"></i>Limpiar eventos
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <ul class="nav nav-tabs nav-tabs-brand mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'dashboard'"
+        (click)="setActiveTab('dashboard')"
+      >
+        <i class="fa-solid fa-chart-line me-1"></i>Dashboard
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'sales'"
+        (click)="setActiveTab('sales')"
+      >
+        <i class="fa-solid fa-dollar-sign me-1"></i>Ventas
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'products'"
+        (click)="setActiveTab('products')"
+      >
+        <i class="fa-solid fa-box me-1"></i>Productos
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'users'"
+        (click)="setActiveTab('users')"
+      >
+        <i class="fa-solid fa-users me-1"></i>Usuarios
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'time'"
+        (click)="setActiveTab('time')"
+      >
+        <i class="fa-solid fa-clock me-1"></i>Temporal
+      </button>
+    </li>
+    <!-- 🆕 Nuevas pestañas -->
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'rentabilidad'"
+        (click)="setActiveTab('rentabilidad')"
+      >
+        <i class="fa-solid fa-chart-pie me-1"></i>Rentabilidad
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'segmentacion'"
+        (click)="setActiveTab('segmentacion')"
+      >
+        <i class="fa-solid fa-layer-group me-1"></i>Segmentación
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'eficiencia'"
+        (click)="setActiveTab('eficiencia')"
+      >
+        <i class="fa-solid fa-gauge-high me-1"></i>Eficiencia
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'reservas'"
+        (click)="setActiveTab('reservas')"
+      >
+        <i class="fa-solid fa-calendar-check me-1"></i>Reservas
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'pedidos'"
+        (click)="setActiveTab('pedidos')"
+      >
+        <i class="fa-solid fa-clipboard-check me-1"></i>Pedidos
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'local'"
+        (click)="setActiveTab('local')"
+      >
+        <i class="fa-solid fa-database me-1"></i>Local
+      </button>
+    </li>
+  </ul>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-2 text-muted">Cargando datos de telemetría...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="alert alert-danger" role="alert">
+    <i class="fa-solid fa-exclamation-triangle me-2"></i>
+    {{ error() }}
+    <button class="btn btn-sm btn-outline-danger ms-2" (click)="refreshAll()">Reintentar</button>
+  </div>
+
+  <!-- Dashboard Tab -->
+  <div *ngIf="activeTab() === 'dashboard' && !isLoading() && !error()" class="tab-content">
+    <!-- Primera fila: 3 tarjetas -->
+    <div class="row g-4" *ngIf="dashboardData()">
+      <div class="col-lg-4 col-md-6">
+        <div class="card card-vibrant-primary text-white">
+          <div class="card-body list-surface">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Total Pedidos</h6>
+                <h3 class="mb-0">
+                  {{ $safeNavigationMigration(dashboardData()?.totalPedidos) | number }}
+                </h3>
+              </div>
+              <i class="fa-solid fa-shopping-cart fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="card card-vibrant-success text-white">
+          <div class="card-body list-surface">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Ingresos Totales</h6>
+                <h3 class="mb-0">
+                  {{
+                    $safeNavigationMigration(dashboardData()?.totalIngresos)
+                      | currency: 'COP' : 'symbol' : '1.0-0'
+                  }}
+                </h3>
+              </div>
+              <i class="fa-solid fa-dollar-sign fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="card card-vibrant-info text-white">
+          <div class="card-body list-surface">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Usuarios Registrados</h6>
+                <h3 class="mb-0">
+                  {{ $safeNavigationMigration(dashboardData()?.totalUsuarios) | number }}
+                </h3>
+              </div>
+              <i class="fa-solid fa-users fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Segunda fila: 3 tarjetas -->
+    <div class="row g-4 mt-3" *ngIf="dashboardData()">
+      <div class="col-lg-4 col-md-6">
+        <div class="card card-vibrant-warning text-white">
+          <div class="card-body list-surface">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Valor Promedio</h6>
+                <h3 class="mb-0">
+                  {{
+                    $safeNavigationMigration(dashboardData()?.promedioVentaPedido)
+                      | currency: 'COP' : 'symbol' : '1.0-0'
+                  }}
+                </h3>
+              </div>
+              <i class="fa-solid fa-chart-line fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="card card-vibrant-secondary text-white">
+          <div class="card-body list-surface">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Pedidos de Hoy</h6>
+                <h3 class="mb-0">
+                  {{ $safeNavigationMigration(dashboardData()?.pedidosHoy) | number }}
+                </h3>
+              </div>
+              <i class="fa-solid fa-calendar-day fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="card card-vibrant-danger text-white">
+          <div class="card-body list-surface">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Ingresos de Hoy</h6>
+                <h3 class="mb-0">
+                  {{
+                    $safeNavigationMigration(dashboardData()?.ingresosHoy)
+                      | currency: 'COP' : 'symbol' : '1.0-0'
+                  }}
+                </h3>
+              </div>
+              <i class="fa-solid fa-coins fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sales Tab -->
+  <div *ngIf="activeTab() === 'sales' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="salesData()">
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Pedidos por Método de Pago</h5>
+          </div>
+          <div class="card-body list-surface">
+            <div *ngFor="let item of salesData()?.ventasPorMetodoPago" class="sales-item">
+              <span class="method-name">{{ item.metodoPago }}</span>
+              <div class="method-stats">
+                <span class="badge bg-primary">{{ item.cantidad }}</span>
+                <span class="amount">{{ item.total | currency: 'COP' : 'symbol' : '1.0-0' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas Generales</h5>
+          </div>
+          <div class="card-body list-surface">
+            <div class="stats-item">
+              <span class="stats-label">Pedido Promedio Diario:</span>
+              <div class="stats-value">
+                <span class="badge bg-info">{{
+                  salesData()?.estadisticasGenerales?.pedidoPromedioDiario
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Ticket Promedio:</span>
+              <div class="stats-value">
+                <span class="badge bg-success">{{
+                  $safeNavigationMigration(salesData()?.estadisticasGenerales?.ticketPromedio)
+                    | currency: 'COP' : 'symbol' : '1.0-0'
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Venta Promedio Diaria:</span>
+              <div class="stats-value">
+                <span class="badge bg-warning">{{
+                  $safeNavigationMigration(salesData()?.estadisticasGenerales?.ventaPromedioDiaria)
+                    | currency: 'COP' : 'symbol' : '1.0-0'
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Tendencia de Ventas</h5>
+          </div>
+          <div class="card-body list-surface">
+            <div *ngFor="let trend of salesData()?.tendenciaVentas" class="sales-item">
+              <span class="method-name">{{ trend.fecha | date: 'dd/MM/yyyy' }}</span>
+              <div class="method-stats">
+                <span class="badge bg-secondary">{{ trend.cantidad }}</span>
+                <span class="amount">{{ trend.total | currency: 'COP' : 'symbol' : '1.0-0' }}</span>
+              </div>
+            </div>
+            <div
+              *ngIf="!salesData()?.tendenciaVentas || salesData()?.tendenciaVentas?.length === 0"
+              class="text-muted text-center py-3"
+            >
+              No hay datos de tendencia disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Tab -->
+  <div *ngIf="activeTab() === 'products' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="productsData()">
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas de Productos</h5>
+          </div>
+          <div class="card-body list-surface">
+            <div class="stats-item">
+              <span class="stats-label">Producto Más Vendido:</span>
+              <div class="stats-value">
+                <span class="badge bg-success">{{
+                  productsData()?.estadisticasProductos?.productoConMasVentas
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Producto Menos Vendido:</span>
+              <div class="stats-value">
+                <span class="badge bg-warning">{{
+                  productsData()?.estadisticasProductos?.productoConMenosVentas
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Total Productos Activos:</span>
+              <div class="stats-value">
+                <span class="badge bg-info">{{
+                  productsData()?.estadisticasProductos?.totalProductosActivos
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Productos Más Vendidos</h5>
+          </div>
+          <div class="card-body list-surface">
+            <div
+              *ngFor="let product of productsData()?.productosMasVendidos; let i = index"
+              class="sales-item d-flex align-items-center"
+            >
+              <!-- 🆕 Imagen del producto -->
+              <div class="me-3" *ngIf="product.imagen">
+                <img
+                  [src]="'data:image/jpeg;base64,' + product.imagen"
+                  class="rounded"
+                  style="width: 50px; height: 50px; object-fit: cover"
+                  [alt]="product.nombreProducto"
+                  onerror="this.style.display = 'none'"
+                />
+              </div>
+              <div class="flex-grow-1">
+                <div class="method-name">
+                  <strong>{{ product.nombreProducto }}</strong>
+                  <span class="badge bg-primary">#{{ product.productoId }}</span>
+                  <br />
+                  <small class="text-muted"
+                    >Precio: {{ product.precio | currency: 'COP' : 'symbol' : '1.0-0' }}</small
+                  >
+                </div>
+                <div class="method-stats">
+                  <span class="badge bg-success">{{ product.cantidadVendida }}</span>
+                  <span class="amount">{{
+                    product.ingresoTotal | currency: 'COP' : 'symbol' : '1.0-0'
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Productos Menos Vendidos</h5>
+          </div>
+          <div class="card-body list-surface">
+            <div
+              *ngFor="let product of productsData()?.productosMenosVendidos; let i = index"
+              class="sales-item d-flex align-items-center"
+            >
+              <!-- 🆕 Imagen del producto -->
+              <div class="me-3" *ngIf="product.imagen">
+                <img
+                  [src]="'data:image/jpeg;base64,' + product.imagen"
+                  class="rounded"
+                  style="width: 50px; height: 50px; object-fit: cover"
+                  [alt]="product.nombreProducto"
+                  onerror="this.style.display = 'none'"
+                />
+              </div>
+              <div class="flex-grow-1">
+                <div class="method-name">
+                  <strong>{{ product.nombreProducto }}</strong>
+                  <span class="badge bg-secondary">#{{ product.productoId }}</span>
+                  <br />
+                  <small class="text-muted"
+                    >Precio: {{ product.precio | currency: 'COP' : 'symbol' : '1.0-0' }}</small
+                  >
+                </div>
+                <div class="method-stats">
+                  <span class="badge bg-warning">{{ product.cantidadVendida }}</span>
+                  <span class="amount">{{
+                    product.ingresoTotal | currency: 'COP' : 'symbol' : '1.0-0'
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Tab -->
+  <div *ngIf="activeTab() === 'users' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="usersData()">
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Usuarios Más Frecuentes</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let user of usersData()?.usuariosFrecuentes; let i = index"
+              class="sales-item"
+            >
+              <div class="method-name">
+                <strong>{{ user.nombreCompleto }}</strong>
+                <br />
+                <small class="text-muted">Doc: {{ user.documentoCliente }}</small>
+                <br />
+                <!-- TODO: Último pedido no disponible en UsuarioStats -->
+                <!-- <small class="text-info">Último pedido: {{ user.ultimoPedido }}</small> -->
+              </div>
+              <div class="method-stats">
+                <div class="d-flex flex-column align-items-end">
+                  <div class="mb-1">
+                    <span class="badge bg-primary">{{ user.totalPedidos }}</span>
+                    <small class="text-muted ms-1">pedidos</small>
+                  </div>
+                  <div>
+                    <span class="amount">{{
+                      user.totalGastado | currency: 'COP' : 'symbol' : '1.0-0'
+                    }}</span>
+                    <small class="text-muted">total gastado</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              *ngIf="
+                !usersData()?.usuariosFrecuentes || usersData()?.usuariosFrecuentes?.length === 0
+              "
+              class="text-muted text-center py-3"
+            >
+              No hay datos de usuarios frecuentes disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Usuarios Inactivos</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let user of usersData()?.usuariosInactivos; let i = index"
+              class="sales-item"
+            >
+              <div class="method-name">
+                <strong>{{ user.nombreCompleto }}</strong>
+                <br />
+                <small class="text-muted">Doc: {{ user.documentoCliente }}</small>
+              </div>
+              <div class="method-stats">
+                <div class="d-flex flex-column align-items-end">
+                  <div class="mb-1">
+                    <span class="badge bg-secondary">{{ user.totalPedidos }}</span>
+                    <small class="text-muted ms-1">pedidos</small>
+                  </div>
+                  <!-- TODO: Información de último pedido no disponible en UsuarioStats
+                  <div>
+                    <span class="text-warning" *ngIf="user.ultimoPedido === 'Nunca'">
+                      <i class="fa-solid fa-exclamation-triangle me-1"></i>Sin pedidos
+                    </span>
+                    <span class="text-info" *ngIf="user.ultimoPedido !== 'Nunca'">
+                      <i class="fa-solid fa-calendar me-1"></i
+                      >{{ user.ultimoPedido | date: 'dd/MM/yyyy' }}
+                    </span>
+                  </div>
+                  -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas de Usuarios</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div class="stats-item">
+              <span class="stats-label">Total Clientes:</span>
+              <div class="stats-value">
+                <span class="badge bg-info">{{
+                  usersData()?.estadisticasUsuarios?.totalClientes
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Clientes Activos:</span>
+              <div class="stats-value">
+                <span class="badge bg-success">{{
+                  usersData()?.estadisticasUsuarios?.clientesActivos
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Clientes Inactivos:</span>
+              <div class="stats-value">
+                <span class="badge bg-warning">{{
+                  usersData()?.estadisticasUsuarios?.clientesInactivos
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Promedio Gasto por Cliente:</span>
+              <div class="stats-value">
+                <span class="badge bg-primary">{{
+                  $safeNavigationMigration(
+                    usersData()?.estadisticasUsuarios?.promedioGastoPorCliente
+                  ) | currency: 'COP' : 'symbol' : '1.0-0'
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Time Analysis Tab -->
+  <div *ngIf="activeTab() === 'time' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="timeData()">
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Pedidos por Hora</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div *ngFor="let item of timeData()?.ventasPorHora" class="sales-item">
+              <div class="method-name">
+                <strong>{{ item.hora }}:00</strong>
+                <br />
+                <small class="text-muted">Hora del día</small>
+              </div>
+              <div class="method-stats">
+                <div class="d-flex flex-column align-items-end">
+                  <div class="mb-1">
+                    <span class="badge bg-info">{{ item.cantidad }}</span>
+                    <small class="text-muted ms-1">pedidos</small>
+                  </div>
+                  <!-- TODO: Total de ventas no disponible en PedidosPorHora
+                  <div>
+                    <span class="amount">{{
+                      item.total | currency: 'COP' : 'symbol' : '1.0-0'
+                    }}</span>
+                    <small class="text-muted">total ventas</small>
+                  </div>
+                  -->
+                  <div>
+                    <small class="text-muted">{{
+                      item.total | currency: 'COP' : 'symbol' : '1.0-0'
+                    }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              *ngIf="!timeData()?.ventasPorHora || timeData()?.ventasPorHora?.length === 0"
+              class="text-muted text-center py-3"
+            >
+              No hay datos por hora disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Pedidos por Día</h5>
+          </div>
+          <div class="card-body">
+            <div *ngFor="let item of timeData()?.ventasPorDiaSemana" class="sales-item">
+              <div class="method-name">
+                <strong>{{ item.diaSemana }}</strong>
+                <br />
+                <small class="text-muted">Día de la semana</small>
+              </div>
+              <div class="method-stats">
+                <div class="d-flex flex-column align-items-end">
+                  <div class="mb-1">
+                    <span class="badge bg-success">{{ item.cantidad }}</span>
+                    <small class="text-muted ms-1">pedidos</small>
+                  </div>
+                  <!-- TODO: Total de ventas no disponible en PedidosPorDia
+                  <div>
+                    <span class="amount">{{
+                      item.total | currency: 'COP' : 'symbol' : '1.0-0'
+                    }}</span>
+                    <small class="text-muted">total ventas</small>
+                  </div>
+                  -->
+                  <div>
+                    <small class="text-muted">{{
+                      item.total | currency: 'COP' : 'symbol' : '1.0-0'
+                    }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              *ngIf="
+                !timeData()?.ventasPorDiaSemana || timeData()?.ventasPorDiaSemana?.length === 0
+              "
+              class="text-muted text-center py-3"
+            >
+              No hay datos por día disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Ventas por Mes</h5>
+          </div>
+          <div class="card-body">
+            <div *ngFor="let item of timeData()?.ventasPorMes" class="sales-item">
+              <div class="method-name">
+                <strong>{{ item.mes | date: 'MMMM yyyy' }}</strong>
+                <br />
+                <small class="text-muted">Mes y año</small>
+              </div>
+              <div class="method-stats">
+                <div class="d-flex flex-column align-items-end">
+                  <div class="mb-1">
+                    <span class="badge bg-warning">{{ item.cantidad }}</span>
+                    <small class="text-muted ms-1">pedidos</small>
+                  </div>
+                  <div>
+                    <span class="amount">{{
+                      item.total | currency: 'COP' : 'symbol' : '1.0-0'
+                    }}</span>
+                    <small class="text-muted">total ventas</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              *ngIf="!timeData()?.ventasPorMes || timeData()?.ventasPorMes?.length === 0"
+              class="text-muted text-center py-3"
+            >
+              No hay datos por mes disponibles
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Local Telemetry Tab -->
+  <div *ngIf="activeTab() === 'local'" class="tab-content">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Inicios de Sesión</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div class="stats-item">
+              <span class="stats-label">Intentos:</span>
+              <div class="stats-value">
+                <span class="badge bg-info">{{ localMetrics().login.attempts }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Éxitos:</span>
+              <div class="stats-value">
+                <span class="badge bg-success">{{ localMetrics().login.successes }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Fallos:</span>
+              <div class="stats-value">
+                <span class="badge bg-danger">{{ localMetrics().login.failures }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Compras por Método de Pago</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let kv of localMetrics().purchasesByPaymentMethod | keyvalue"
+              class="sales-item"
+            >
+              <span class="method-name">{{ kv.key }}</span>
+              <div class="method-stats">
+                <span class="badge bg-primary">{{ kv.value }}</span>
+                <span class="amount">compras</span>
+              </div>
+            </div>
+            <div
+              *ngIf="
+                !localMetrics().purchasesByPaymentMethod ||
+                (localMetrics().purchasesByPaymentMethod | keyvalue)?.length === 0
+              "
+              class="text-muted text-center py-3"
+            >
+              No hay compras registradas
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Core Web Vitals</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div class="vital-item">
+              <span class="vital-label">LCP:</span>
+              <span class="vital-value" [class]="'vital-' + getCoreWebVitalsStatus().lcp">
+                {{
+                  getCoreWebVitals().lcp ? (getCoreWebVitals().lcp! / 1000).toFixed(2) + 's' : 'N/A'
+                }}
+              </span>
+            </div>
+            <div class="vital-item">
+              <span class="vital-label">FID:</span>
+              <span class="vital-value" [class]="'vital-' + getCoreWebVitalsStatus().fid">
+                {{ getCoreWebVitals().fid ? getCoreWebVitals().fid!.toFixed(0) + 'ms' : 'N/A' }}
+              </span>
+            </div>
+            <div class="vital-item">
+              <span class="vital-label">CLS:</span>
+              <span class="vital-value" [class]="'vital-' + getCoreWebVitalsStatus().cls">
+                {{ getCoreWebVitals().cls ? getCoreWebVitals().cls!.toFixed(3) : 'N/A' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros para eventos -->
+    <div class="row g-3 mt-1">
+      <div class="col-12">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h6 class="mb-0">Filtros de Eventos</h6>
+          </div>
+          <div class="filters-container">
+            <div class="row align-items-end gx-2 gy-2">
+              <div class="col-lg col-md-6 col-12">
+                <label class="filter-label">
+                  <i class="fa-solid fa-desktop me-1"></i>Pantalla
+                </label>
+                <input
+                  type="text"
+                  class="form-control-enhanced"
+                  placeholder="Buscar pantalla..."
+                  [value]="screenFilter()"
+                  (input)="onScreenFilterChange($any($event.target).value)"
+                />
+              </div>
+              <div class="col-lg col-md-6 col-12">
+                <label class="filter-label"> <i class="fa-solid fa-link me-1"></i>URL </label>
+                <input
+                  type="text"
+                  class="form-control-enhanced"
+                  placeholder="Buscar URL..."
+                  [value]="urlFilter()"
+                  (input)="onUrlFilterChange($any($event.target).value)"
+                />
+              </div>
+              <div class="col-lg col-md-6 col-12">
+                <label class="filter-label"> <i class="fa-solid fa-user me-1"></i>Usuario </label>
+                <input
+                  type="text"
+                  class="form-control-enhanced"
+                  placeholder="Buscar usuario..."
+                  [value]="userFilter()"
+                  (input)="onUserFilterChange($any($event.target).value)"
+                />
+              </div>
+              <div class="col-lg-auto col-md-6 col-6" style="min-width: 140px">
+                <label class="filter-label">
+                  <i class="fa-solid fa-calendar-days me-1"></i>Desde
+                </label>
+                <input
+                  type="date"
+                  class="form-control-enhanced"
+                  [value]="dateFromFilter()"
+                  (input)="onDateFromFilterChange($any($event.target).value)"
+                />
+              </div>
+              <div class="col-lg-auto col-md-6 col-6" style="min-width: 140px">
+                <label class="filter-label">
+                  <i class="fa-solid fa-calendar-days me-1"></i>Hasta
+                </label>
+                <input
+                  type="date"
+                  class="form-control-enhanced"
+                  [value]="dateToFilter()"
+                  (input)="onDateToFilterChange($any($event.target).value)"
+                />
+              </div>
+              <div class="col-lg-auto col-md-6 col-12" style="min-width: 160px">
+                <label class="filter-label"> <i class="fa-solid fa-sort me-1"></i>Ordenar </label>
+                <select
+                  class="form-select-enhanced"
+                  [value]="sortOrder()"
+                  (change)="onSortOrderChange($any($event.target).value)"
+                >
+                  <option value="newest">Más recientes</option>
+                  <option value="oldest">Más antiguos</option>
+                </select>
+              </div>
+              <div
+                class="col-lg-auto col-md-6 col-12 d-flex align-items-end"
+                style="min-width: 120px"
+              >
+                <button class="btn btn-clear-filters w-100" (click)="clearFilters()">
+                  <i class="fa-solid fa-filter-circle-xmark me-1"></i>Limpiar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+      <div class="col-12">
+        <div class="card glow-border">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <h5 class="mb-0">Eventos Recientes</h5>
+              <small class="text-muted">
+                <i
+                  [class]="
+                    sortOrder() === 'newest' ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'
+                  "
+                ></i>
+                {{ sortOrder() === 'newest' ? 'Más recientes primero' : 'Más antiguos primero' }}
+              </small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-secondary">{{ localEvents().length }} eventos</span>
+              <small
+                class="text-muted"
+                *ngIf="
+                  screenFilter() ||
+                  urlFilter() ||
+                  userFilter() ||
+                  dateFromFilter() ||
+                  dateToFilter()
+                "
+              >
+                (filtrados)
+              </small>
+            </div>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div *ngIf="localEvents().length === 0" class="text-muted text-center py-3">
+              No hay eventos registrados
+            </div>
+            <div
+              *ngFor="let event of localEvents(); trackBy: trackByEventId"
+              class="event-item-compact"
+            >
+              <div class="event-line">
+                <span class="event-timestamp">{{ formatEventTimestamp(event.timestamp) }}</span>
+                <span class="event-type badge" [ngClass]="getEventTypeClass(event.type)">{{
+                  event.type
+                }}</span>
+                <span class="event-details-inline">
+                  <span *ngIf="event.userDocument" class="event-tag user-doc">
+                    <i class="fa-solid fa-id-card"></i>{{ event.userDocument }}
+                  </span>
+                  <span
+                    *ngIf="event.deviceType"
+                    class="event-tag device-type"
+                    [ngClass]="getDeviceTypeClass(event.deviceType)"
+                  >
+                    <i [class]="getDeviceTypeIcon(event.deviceType)"></i>{{ event.deviceType }}
+                  </span>
+                  <span *ngIf="event.currentScreen" class="event-tag screen-info">
+                    <i class="fa-solid fa-window-maximize"></i>{{ event.currentScreen }}
+                  </span>
+                  <span *ngIf="event.userId" class="event-tag">
+                    <i class="fa-solid fa-user"></i>{{ event.userId }}
+                  </span>
+                  <span *ngIf="event.message" class="event-tag error-msg">
+                    <i class="fa-solid fa-exclamation-circle"></i>{{ event.message }}
+                  </span>
+                  <span *ngIf="event.method" class="event-tag">
+                    <i class="fa-solid fa-globe"></i>{{ event.method }}
+                  </span>
+                  <span *ngIf="event.url" class="event-tag url-tag">
+                    <i class="fa-solid fa-link"></i>{{ event.url }}
+                  </span>
+                  <span
+                    *ngIf="event.status"
+                    class="event-tag"
+                    [ngClass]="getStatusClass(event.status)"
+                  >
+                    <i class="fa-solid fa-info-circle"></i>{{ event.status }}
+                  </span>
+                  <span *ngIf="event.requestId" class="event-tag req-id">
+                    <i class="fa-solid fa-hashtag"></i>{{ event.requestId }}
+                  </span>
+                  <span
+                    *ngIf="event.durationMs"
+                    class="event-tag duration"
+                    [ngClass]="getDurationClass(event.durationMs)"
+                  >
+                    <i class="fa-solid fa-clock"></i>{{ event.durationMs }}ms
+                  </span>
+                  <span *ngIf="event.paymentMethodLabel" class="event-tag">
+                    <i class="fa-solid fa-credit-card"></i>{{ event.paymentMethodLabel }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🆕 PESTAÑA RENTABILIDAD -->
+  <div *ngIf="activeTab() === 'rentabilidad' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="rentabilidadData()">
+      <!-- Productos Más Rentables -->
+      <div class="col-md-6">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-trophy me-2 text-success"></i>
+              Productos Más Rentables
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="
+                let producto of rentabilidadData()?.productosRentables;
+                trackBy: trackByProductId
+              "
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">
+                  {{ producto.nombreProducto }}
+                  <span class="badge bg-secondary">#{{ producto.productoId }}</span>
+                </h6>
+                <small class="text-muted d-block">
+                  Precio: {{ producto.precioVenta | currency: 'COP' : 'symbol' : '1.0-0' }} •
+                  Vendidos: {{ producto.cantidadVendida }}
+                </small>
+                <small class="text-muted">
+                  Margen: <span class="text-success fw-bold">{{ producto.margenGanancia }}%</span>
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-success">
+                  {{ producto.gananciaTotal | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </div>
+                <small class="text-muted">ganancia</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Productos Menos Rentables -->
+      <div class="col-md-6">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-chart-line-down me-2 text-warning"></i>
+              Productos Menos Rentables
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="
+                let producto of rentabilidadData()?.productosMenosRentables;
+                trackBy: trackByProductId
+              "
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">
+                  {{ producto.nombreProducto }}
+                  <span class="badge bg-secondary">#{{ producto.productoId }}</span>
+                </h6>
+                <small class="text-muted d-block">
+                  Precio: {{ producto.precioVenta | currency: 'COP' : 'symbol' : '1.0-0' }} •
+                  Vendidos: {{ producto.cantidadVendida }}
+                </small>
+                <small class="text-muted">
+                  Margen: <span class="text-warning fw-bold">{{ producto.margenGanancia }}%</span>
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-warning">
+                  {{ producto.gananciaTotal | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </div>
+                <small class="text-muted">ganancia</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas de Rentabilidad -->
+      <div class="col-md-12">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas de Rentabilidad</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div class="row g-4">
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Margen Promedio:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-info"
+                      >{{
+                        rentabilidadData()?.estadisticasRentabilidad?.margenPromedioGeneral
+                      }}%</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Más Rentable:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-success">{{
+                      rentabilidadData()?.estadisticasRentabilidad?.productoMasRentable
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Total Ganancias:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-primary">
+                      {{
+                        $safeNavigationMigration(
+                          rentabilidadData()?.estadisticasRentabilidad?.totalGanancias
+                        ) | currency: 'COP' : 'symbol' : '1.0-0'
+                      }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Total Ingresos:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-secondary">
+                      {{
+                        $safeNavigationMigration(
+                          rentabilidadData()?.estadisticasRentabilidad?.totalIngresos
+                        ) | currency: 'COP' : 'symbol' : '1.0-0'
+                      }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🆕 PESTAÑA SEGMENTACIÓN -->
+  <div *ngIf="activeTab() === 'segmentacion' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="segmentacionData()">
+      <!-- Clientes VIP -->
+      <div class="col-md-6">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-crown me-2 text-warning"></i>
+              Clientes VIP
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="
+                let cliente of segmentacionData()?.clientesVIP;
+                trackBy: trackByClientDocument
+              "
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ cliente.nombreCompleto }}</h6>
+                <small class="text-muted d-block">
+                  Doc: {{ cliente.documentoCliente }} • {{ cliente.totalPedidos }} pedidos
+                </small>
+                <small class="text-muted d-block">
+                  Último pedido: {{ cliente.ultimoPedido | date: 'dd/MM/yyyy' }} ({{
+                    cliente.diasSinPedir
+                  }}
+                  días sin pedir)
+                </small>
+                <small class="text-muted">
+                  Promedio:
+                  {{ cliente.promedioGasto | currency: 'COP' : 'symbol' : '1.0-0' }}/pedido • LTV:
+                  {{ cliente.valorVida | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-warning">
+                  {{ cliente.totalGastado | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </div>
+                <small class="text-muted">total gastado</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clientes Regulares -->
+      <div class="col-md-6">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-user-check me-2 text-primary"></i>
+              Clientes Regulares
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="
+                let cliente of segmentacionData()?.clientesRegulares;
+                trackBy: trackByClientDocument
+              "
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ cliente.nombreCompleto }}</h6>
+                <small class="text-muted d-block">
+                  Doc: {{ cliente.documentoCliente }} • {{ cliente.totalPedidos }} pedidos
+                </small>
+                <small class="text-muted d-block">
+                  Último pedido: {{ cliente.ultimoPedido | date: 'dd/MM/yyyy' }} ({{
+                    cliente.diasSinPedir
+                  }}
+                  días sin pedir)
+                </small>
+                <small class="text-muted">
+                  Promedio:
+                  {{ cliente.promedioGasto | currency: 'COP' : 'symbol' : '1.0-0' }}/pedido • LTV:
+                  {{ cliente.valorVida | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-primary">
+                  {{ cliente.totalGastado | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </div>
+                <small class="text-muted">total gastado</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clientes Ocasionales -->
+      <div class="col-md-6">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-user-clock me-2 text-info"></i>
+              Clientes Ocasionales
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="
+                let cliente of segmentacionData()?.clientesOcasionales;
+                trackBy: trackByClientDocument
+              "
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ cliente.nombreCompleto }}</h6>
+                <small class="text-muted d-block">
+                  Doc: {{ cliente.documentoCliente }} • {{ cliente.totalPedidos }} pedidos
+                </small>
+                <small class="text-muted d-block">
+                  Último pedido: {{ cliente.ultimoPedido | date: 'dd/MM/yyyy' }} ({{
+                    cliente.diasSinPedir
+                  }}
+                  días sin pedir)
+                </small>
+                <small class="text-muted">
+                  Promedio:
+                  {{ cliente.promedioGasto | currency: 'COP' : 'symbol' : '1.0-0' }}/pedido • LTV:
+                  {{ cliente.valorVida | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-info">
+                  {{ cliente.totalGastado | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </div>
+                <small class="text-muted">total gastado</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clientes Nuevos -->
+      <div class="col-md-6">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-user-plus me-2 text-success"></i>
+              Clientes Nuevos
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="
+                let cliente of segmentacionData()?.clientesNuevos;
+                trackBy: trackByClientDocument
+              "
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ cliente.nombreCompleto }}</h6>
+                <small class="text-muted d-block">
+                  Doc: {{ cliente.documentoCliente }} • {{ cliente.totalPedidos }} pedidos
+                </small>
+                <small class="text-muted d-block">
+                  Último pedido: {{ cliente.ultimoPedido | date: 'dd/MM/yyyy' }} ({{
+                    cliente.diasSinPedir
+                  }}
+                  días sin pedir)
+                </small>
+                <small class="text-muted">
+                  Promedio:
+                  {{ cliente.promedioGasto | currency: 'COP' : 'symbol' : '1.0-0' }}/pedido • LTV:
+                  {{ cliente.valorVida | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-success">
+                  {{ cliente.totalGastado | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </div>
+                <small class="text-muted">total gastado</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas de Segmentación -->
+      <div class="col-md-12">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas de Segmentación</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div class="row g-4">
+              <div class="col-md-2">
+                <div class="stats-item">
+                  <span class="stats-label">VIP:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-warning">{{
+                      segmentacionData()?.estadisticasSegmentacion?.totalClientesVIP
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="stats-item">
+                  <span class="stats-label">Regulares:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-primary">{{
+                      segmentacionData()?.estadisticasSegmentacion?.totalClientesRegulares
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="stats-item">
+                  <span class="stats-label">Ocasionales:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-info">{{
+                      segmentacionData()?.estadisticasSegmentacion?.totalClientesOcasionales
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="stats-item">
+                  <span class="stats-label">Nuevos:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-success">{{
+                      segmentacionData()?.estadisticasSegmentacion?.totalClientesNuevos
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="stats-item">
+                  <span class="stats-label">% VIP:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-secondary"
+                      >{{ segmentacionData()?.estadisticasSegmentacion?.porcentajeVIP }}%</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="stats-item">
+                  <span class="stats-label">Gasto VIP:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-dark">
+                      {{
+                        $safeNavigationMigration(
+                          segmentacionData()?.estadisticasSegmentacion?.promedioGastoVIP
+                        ) | currency: 'COP' : 'symbol' : '1.0-0'
+                      }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🆕 PESTAÑA EFICIENCIA -->
+  <div *ngIf="activeTab() === 'eficiencia' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="eficienciaData()">
+      <!-- Tiempos de Entrega -->
+      <div class="col-md-6">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-clock me-2 text-info"></i>
+              Tiempos de Entrega Recientes
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let entrega of eficienciaData()?.tiemposEntrega; trackBy: trackByPedidoId"
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark"># {{ entrega.pedidoId }} - {{ entrega.cliente }}</h6>
+                <small class="text-muted d-block">
+                  {{ entrega.fechaPedido }} a las {{ entrega.horaPedido }}
+                </small>
+                <small class="text-muted"> Atendido por: {{ entrega.trabajadorAsignado }} </small>
+              </div>
+              <div class="text-end">
+                <div
+                  class="fw-bold"
+                  [class.text-success]="entrega.tiempoPreparacion <= 30"
+                  [class.text-warning]="
+                    entrega.tiempoPreparacion > 30 && entrega.tiempoPreparacion <= 45
+                  "
+                  [class.text-danger]="entrega.tiempoPreparacion > 45"
+                >
+                  {{ entrega.tiempoPreparacion }} min
+                </div>
+                <small class="text-muted">{{ entrega.estadoPedido }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rendimiento Trabajadores -->
+      <div class="col-md-6">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-users-gear me-2 text-primary"></i>
+              Rendimiento de Trabajadores
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="
+                let trabajador of eficienciaData()?.rendimientoTrabajadores;
+                trackBy: trackByTrabajadorDocument
+              "
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ trabajador.nombreTrabajador }}</h6>
+                <small class="text-muted d-block">
+                  {{ trabajador.pedidosAtendidos }} pedidos • {{ trabajador.horasTrabajadas }}h
+                  trabajadas
+                </small>
+                <small class="text-muted">
+                  Promedio: {{ trabajador.tiempoPromedioAtencion }} min/pedido
+                </small>
+              </div>
+              <div class="text-end">
+                <div
+                  class="fw-bold"
+                  [class.text-success]="trabajador.eficienciaScore >= 9"
+                  [class.text-warning]="
+                    trabajador.eficienciaScore >= 7 && trabajador.eficienciaScore < 9
+                  "
+                  [class.text-danger]="trabajador.eficienciaScore < 7"
+                >
+                  {{ trabajador.eficienciaScore }}/10
+                </div>
+                <small class="text-muted">eficiencia</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Análisis por Hora -->
+      <div class="col-md-8">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Análisis de Eficiencia por Hora</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let hora of eficienciaData()?.analisisPorHora; trackBy: trackByHour"
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ hora.hora }}</h6>
+                <small class="text-muted d-block">
+                  {{ hora.pedidosRecibidos }} pedidos • {{ hora.tiempoPromedioPrep }} min promedio
+                </small>
+              </div>
+              <div class="text-end">
+                <div
+                  class="fw-bold"
+                  [class.text-success]="hora.nivelEficiencia === 'Alto'"
+                  [class.text-warning]="hora.nivelEficiencia === 'Medio'"
+                  [class.text-danger]="hora.nivelEficiencia === 'Bajo'"
+                >
+                  {{ hora.capacidadUtilizada }}%
+                </div>
+                <small class="text-muted">{{ hora.nivelEficiencia }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas de Eficiencia -->
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas de Eficiencia</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div class="stats-item">
+              <span class="stats-label">Tiempo Promedio:</span>
+              <div class="stats-value">
+                <span class="badge bg-info"
+                  >{{ eficienciaData()?.estadisticasEficiencia?.tiempoPromedioGeneral }} min</span
+                >
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Hora Más Eficiente:</span>
+              <div class="stats-value">
+                <span class="badge bg-success">{{
+                  eficienciaData()?.estadisticasEficiencia?.horaMasEficiente
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Mejor Trabajador:</span>
+              <div class="stats-value">
+                <span class="badge bg-primary">{{
+                  eficienciaData()?.estadisticasEficiencia?.trabajadorMasEficiente
+                }}</span>
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Uso Promedio:</span>
+              <div class="stats-value">
+                <span class="badge bg-secondary"
+                  >{{ eficienciaData()?.estadisticasEficiencia?.capacidadPromedioUso }}%</span
+                >
+              </div>
+            </div>
+            <div class="stats-item">
+              <span class="stats-label">Pedidos Pendientes:</span>
+              <div class="stats-value">
+                <span class="badge bg-warning">{{
+                  eficienciaData()?.estadisticasEficiencia?.pedidosPendientes
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🆕 PESTAÑA RESERVAS -->
+  <div *ngIf="activeTab() === 'reservas' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="reservasData()">
+      <!-- Reservas por Día -->
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-calendar-day me-2 text-success"></i>
+              Por Día
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let dia of reservasData()?.reservasPorDia; trackBy: trackByDate"
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ dia.fecha | date: 'dd/MM/yyyy' }}</h6>
+                <small class="text-muted">
+                  {{ dia.reservasCompletadas }}/{{ dia.totalReservas }} completadas
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-success">{{ dia.porcentajeCompletado }}%</div>
+                <small class="text-muted">{{ dia.totalPersonas }} personas</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reservas por Hora -->
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-clock me-2 text-info"></i>
+              Por Hora
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let hora of reservasData()?.reservasPorHora; trackBy: trackByHour"
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ hora.hora }}</h6>
+                <small class="text-muted">
+                  {{ hora.reservasCompletadas }}/{{ hora.totalReservas }} completadas
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-info">{{ hora.porcentajeCompletado }}%</div>
+                <small class="text-muted">{{ hora.totalPersonas }} personas</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reservas por Día Semana -->
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-calendar-week me-2 text-primary"></i>
+              Por Día de Semana
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let dia of reservasData()?.reservasPorDiaSemana; trackBy: trackByDayName"
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ dia.diaSemana }}</h6>
+                <small class="text-muted">
+                  {{ dia.reservasCompletadas }}/{{ dia.totalReservas }} completadas
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-primary">{{ dia.porcentajeCompletado }}%</div>
+                <small class="text-muted">{{ dia.totalPersonas }} personas</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas de Reservas -->
+      <div class="col-md-12">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas de Reservas</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div class="row g-4">
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Total Completadas:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-success">{{
+                      reservasData()?.estadisticasReservas?.totalReservasCompletadas
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Día Pico:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-primary">{{
+                      reservasData()?.estadisticasReservas?.diaMasReservas
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Hora Pico:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-info">{{
+                      reservasData()?.estadisticasReservas?.horaMasReservas
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Tasa Completamiento:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-warning"
+                      >{{ reservasData()?.estadisticasReservas?.tasaCompletamiento }}%</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🆕 PESTAÑA PEDIDOS -->
+  <div *ngIf="activeTab() === 'pedidos' && !isLoading() && !error()" class="tab-content">
+    <div class="row g-4" *ngIf="pedidosData()">
+      <!-- Pedidos por Día -->
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-calendar-day me-2 text-success"></i>
+              Por Día
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let dia of pedidosData()?.pedidosPorDia; trackBy: trackByDate"
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ dia.fecha | date: 'dd/MM/yyyy' }}</h6>
+                <small class="text-muted d-block">
+                  {{ dia.pedidosTerminados }}/{{ dia.totalPedidos }} completados
+                </small>
+                <small class="text-muted">
+                  {{ dia.ingresoTotal | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-success">{{ dia.tasaCompletamiento }}%</div>
+                <small class="text-muted">completados</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pedidos por Hora -->
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-clock me-2 text-info"></i>
+              Por Hora
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let hora of pedidosData()?.pedidosPorHora; trackBy: trackByHour"
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ hora.hora }}</h6>
+                <small class="text-muted d-block">
+                  {{ hora.pedidosTerminados }}/{{ hora.totalPedidos }} completados
+                </small>
+                <small class="text-muted">
+                  {{ hora.ingresoTotal | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-info">{{ hora.tasaCompletamiento }}%</div>
+                <small class="text-muted">completados</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pedidos por Día Semana -->
+      <div class="col-md-4">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fa-solid fa-calendar-week me-2 text-primary"></i>
+              Por Día de Semana
+            </h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div
+              *ngFor="let dia of pedidosData()?.pedidosPorDiaSemana; trackBy: trackByDayName"
+              class="list-item d-flex justify-content-between align-items-center"
+            >
+              <div class="flex-grow-1">
+                <h6 class="mb-1 text-dark">{{ dia.diaSemana }}</h6>
+                <small class="text-muted d-block">
+                  {{ dia.pedidosTerminados }}/{{ dia.totalPedidos }} completados
+                </small>
+                <small class="text-muted">
+                  {{ dia.ingresoTotal | currency: 'COP' : 'symbol' : '1.0-0' }}
+                </small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-primary">{{ dia.tasaCompletamiento }}%</div>
+                <small class="text-muted">completados</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas de Pedidos -->
+      <div class="col-md-12">
+        <div class="card glow-border">
+          <div class="card-header">
+            <h5 class="mb-0">Estadísticas de Pedidos</h5>
+          </div>
+          <div class="card-body list-surface list-surface-tight">
+            <div class="row g-4">
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Total Terminados:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-success">{{
+                      pedidosData()?.estadisticasPedidos?.totalPedidosTerminados
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Día Pico:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-primary">{{
+                      pedidosData()?.estadisticasPedidos?.diaMasPedidos
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Hora Pico:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-info">{{
+                      pedidosData()?.estadisticasPedidos?.horaMasPedidos
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stats-item">
+                  <span class="stats-label">Tasa General:</span>
+                  <div class="stats-value">
+                    <span class="badge bg-warning"
+                      >{{ pedidosData()?.estadisticasPedidos?.tasaCompletamientoGeneral }}%</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

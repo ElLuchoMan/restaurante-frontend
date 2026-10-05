@@ -1,1 +1,213 @@
-@use "../../../../assets/styles.scss" as *;
+@use '../../../../assets/_variables.scss' as *;
+@use '../../../../assets/_base.scss' as *;
+@use 'sass:color';
+
+// ✅ Progress Button System movido a _base.scss como .btn-progress
+
+// Sistema de horarios simplificado y progresivo
+.schedule-header {
+  .schedule-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $white;
+    font-size: 1.1rem;
+    box-shadow: 0 3px 10px $header-primary-20;
+  }
+}
+
+// Horario General
+.schedule-general {
+  background: $header-white-60;
+  backdrop-filter: blur(8px);
+  border: 1px solid $ring-primary-15;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 15px $header-primary-10;
+
+  .duration-display {
+    text-align: center;
+    padding: 0.75rem;
+    background: $header-primary-10;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+}
+
+// ✅ Switch System movido a _base.scss como .switch, .switch-card
+
+// Selector de días para personalizar - compacto
+.days-selector {
+  background: $shadow-light;
+  border: 1px solid $border-light;
+  border-radius: 10px;
+  padding: 1rem;
+
+  .row {
+    margin: 0;
+    row-gap: 0.5rem;
+  }
+
+  .day-checkbox {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+
+    .form-check-input {
+      margin: 0 50px 0 0;
+      flex-shrink: 0;
+
+      &:checked {
+        background-color: $success;
+        border-color: $success;
+      }
+    }
+
+    .form-check-label {
+      font-weight: 500;
+      color: $text-heading-strong;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+      margin-left: 19px;
+
+      &:hover {
+        background: $shadow-medium;
+      }
+    }
+  }
+
+  // Distribución original compacta con mejor margen interno
+  .col-6 {
+    padding: 0.375rem 0.25rem;
+  }
+
+  .col-md-4 {
+    padding: 0.375rem 0.25rem;
+  }
+
+  .col-lg-3 {
+    padding: 0.375rem 0.25rem;
+  }
+
+  // Móvil: 2 columnas (50% cada una)
+  @media (max-width: 767px) {
+    .col-6 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+  }
+
+  // Tablet: 3 columnas (33.33% cada una)
+  @media (min-width: 768px) and (max-width: 991px) {
+    .col-md-4 {
+      flex: 0 0 33.333333%;
+      max-width: 33.333333%;
+    }
+  }
+
+  // Desktop: 4 columnas (25% cada una) - máxima eficiencia
+  @media (min-width: 992px) {
+    .col-lg-3 {
+      flex: 0 0 25%;
+      max-width: 25%;
+    }
+  }
+}
+
+// Cards para días personalizados
+.day-custom-card {
+  background: $header-white-95;
+  backdrop-filter: blur(8px);
+  border: 1px solid $border-light;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 12px $shadow-medium;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: $shadow-primary-30;
+    box-shadow: 0 4px 20px $header-shadow-medium;
+  }
+}
+
+.day-custom-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid $border-light;
+
+  h6 {
+    margin: 0;
+    color: $text-heading-strong;
+  }
+}
+
+// ✅ Switch Small System movido a _base.scss como .switch-sm
+
+// Inputs de tiempo para días específicos
+.day-time-inputs {
+  .form-control-sm {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    border-color: $border-light;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 2px $header-primary-10;
+    }
+  }
+
+  .custom-duration {
+    text-align: center;
+    padding: 0.5rem;
+    background: $shadow-medium;
+    border-radius: 6px;
+  }
+}
+
+// Mensaje de día libre
+.day-free-message {
+  text-align: center;
+  padding: 1rem;
+  background: $shadow-light;
+  border-radius: 8px;
+  color: $text-muted;
+  font-style: italic;
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+// Estilos específicos para validación de contraseñas
+.form-control[aria-invalid='true'] {
+  border-color: $danger;
+
+  &:focus {
+    border-color: $danger;
+    box-shadow: 0 0 0 0.2rem $header-danger-30;
+  }
+}
+
+// Ícono de validación para contraseñas que coinciden
+.validation-icon {
+  i.fa-check {
+    color: $success;
+  }
+}
+
+// Estilos para mostrar error de contraseñas no coinciden
+#confirmPassword[aria-invalid='true'] {
+  border-color: $danger;
+  background-color: $shadow-light;
+}

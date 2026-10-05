@@ -1,0 +1,239 @@
+<div class="page-shell">
+  <div class="container">
+    <!-- Título -->
+    <div class="mb-4">
+      <h1 class="section-title">Gestión de Categorías y Subcategorías</h1>
+      <p class="subtitle text-center mb-4">
+        Administra las categorías y subcategorías del menú del restaurante
+      </p>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ error }}
+      <button type="button" class="btn-close" (click)="error = ''" aria-label="Cerrar"></button>
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="cargando" class="text-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="!cargando">
+      <!-- Columna de Categorías -->
+      <div class="col-lg-6 mb-4">
+        <div class="card glow-border">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Categorías</h5>
+            <button class="btn btn-warning btn-sm" (click)="abrirFormCategoria()">
+              <i class="fas fa-plus me-1"></i> Nueva Categoría
+            </button>
+          </div>
+
+          <!-- Campo de búsqueda -->
+          <div class="card-body pb-0" *ngIf="categorias.length > 0">
+            <div class="search-box">
+              <i class="fas fa-search search-icon"></i>
+              <input
+                type="text"
+                class="form-control search-input"
+                placeholder="Buscar categoría..."
+                [(ngModel)]="busquedaCategoria"
+                [class.webview-input]="isWebView"
+              />
+              <button
+                *ngIf="busquedaCategoria"
+                class="btn-clear-search"
+                (click)="limpiarBusquedaCategoria()"
+                title="Limpiar búsqueda"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body list-surface list-surface-tight">
+            <!-- Mensaje si no hay categorías -->
+            <div *ngIf="categorias.length === 0" class="text-center text-muted py-4">
+              No hay categorías registradas
+            </div>
+
+            <!-- Mensaje si no hay resultados de búsqueda -->
+            <div
+              *ngIf="categorias.length > 0 && categoriasFiltradas.length === 0"
+              class="text-center text-muted py-4"
+            >
+              <i class="fas fa-search mb-2" style="font-size: 2rem; opacity: 0.3"></i>
+              <p class="mb-0">No se encontraron categorías con "{{ busquedaCategoria }}"</p>
+            </div>
+
+            <!-- Lista de Categorías -->
+            <div *ngFor="let categoria of categoriasVisibles" class="sales-item">
+              <div class="method-name">
+                <strong>{{ categoria.nombre }}</strong>
+              </div>
+              <div class="method-stats">
+                <button
+                  class="btn btn-sm btn-outline-primary me-1"
+                  (click)="abrirFormCategoria(categoria)"
+                  title="Editar"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="eliminarCategoria(categoria)"
+                  title="Eliminar"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Botón Ver más -->
+            <div *ngIf="hayMasCategorias" class="text-center pt-3 pb-2">
+              <button class="btn btn-outline-primary btn-sm" (click)="verTodasCategorias()">
+                <i class="fas fa-chevron-down me-1"></i>
+                Ver más ({{ categoriasFiltradas.length - limiteCategorias }} restantes)
+              </button>
+            </div>
+
+            <!-- Contador de resultados -->
+            <div
+              *ngIf="busquedaCategoria && categoriasFiltradas.length > 0"
+              class="text-center text-muted pt-2"
+              style="font-size: 0.85rem"
+            >
+              Mostrando {{ categoriasVisibles.length }} de {{ categoriasFiltradas.length }}
+              {{ categoriasFiltradas.length === 1 ? 'categoría' : 'categorías' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna de Subcategorías -->
+      <div class="col-lg-6 mb-4">
+        <div class="card glow-border">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Subcategorías</h5>
+            <button class="btn btn-warning btn-sm" (click)="abrirFormSubcategoria()">
+              <i class="fas fa-plus me-1"></i> Nueva Subcategoría
+            </button>
+          </div>
+
+          <!-- Filtro por categoría -->
+          <div class="card-body pb-0">
+            <label for="filtroCategoria" class="form-label">Filtrar por categoría</label>
+            <div class="filter-group">
+              <select
+                class="form-select"
+                id="filtroCategoria"
+                [(ngModel)]="categoriaSeleccionadaFiltro"
+                (change)="filtrarSubcategorias()"
+              >
+                <option [ngValue]="null">Todas las categorías</option>
+                <option *ngFor="let cat of categorias" [ngValue]="cat.categoriaId">
+                  {{ cat.nombre }}
+                </option>
+              </select>
+              <button
+                class="btn-clear-filter"
+                type="button"
+                (click)="limpiarFiltro()"
+                title="Limpiar filtro"
+                *ngIf="categoriaSeleccionadaFiltro !== null"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Campo de búsqueda -->
+          <div class="card-body pb-0 pt-2" *ngIf="subcategorias.length > 0">
+            <div class="search-box">
+              <i class="fas fa-search search-icon"></i>
+              <input
+                type="text"
+                class="form-control search-input"
+                placeholder="Buscar subcategoría..."
+                [(ngModel)]="busquedaSubcategoria"
+                [class.webview-input]="isWebView"
+              />
+              <button
+                *ngIf="busquedaSubcategoria"
+                class="btn-clear-search"
+                (click)="limpiarBusquedaSubcategoria()"
+                title="Limpiar búsqueda"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body list-surface list-surface-tight">
+            <!-- Mensaje si no hay subcategorías -->
+            <div *ngIf="subcategorias.length === 0" class="text-center text-muted py-4">
+              No hay subcategorías registradas
+            </div>
+
+            <!-- Mensaje si no hay resultados de búsqueda -->
+            <div
+              *ngIf="subcategorias.length > 0 && subcategoriasFiltradas.length === 0"
+              class="text-center text-muted py-4"
+            >
+              <i class="fas fa-search mb-2" style="font-size: 2rem; opacity: 0.3"></i>
+              <p class="mb-0">No se encontraron subcategorías con "{{ busquedaSubcategoria }}"</p>
+            </div>
+
+            <!-- Lista de Subcategorías -->
+            <div *ngFor="let subcategoria of subcategoriasVisibles" class="sales-item">
+              <div class="method-name">
+                <strong>{{ subcategoria.nombre }}</strong>
+                <br />
+                <span class="category-badge">
+                  {{ obtenerNombreCategoria(subcategoria.categoriaId) }}
+                </span>
+              </div>
+              <div class="method-stats">
+                <button
+                  class="btn btn-sm btn-outline-primary me-1"
+                  (click)="abrirFormSubcategoria(subcategoria)"
+                  title="Editar"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="eliminarSubcategoria(subcategoria)"
+                  title="Eliminar"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Botón Ver más -->
+            <div *ngIf="hayMasSubcategorias" class="text-center pt-3 pb-2">
+              <button class="btn btn-outline-primary btn-sm" (click)="verTodasSubcategorias()">
+                <i class="fas fa-chevron-down me-1"></i>
+                Ver más ({{ subcategoriasFiltradas.length - limiteSubcategorias }} restantes)
+              </button>
+            </div>
+
+            <!-- Contador de resultados -->
+            <div
+              *ngIf="busquedaSubcategoria && subcategoriasFiltradas.length > 0"
+              class="text-center text-muted pt-2"
+              style="font-size: 0.85rem"
+            >
+              Mostrando {{ subcategoriasVisibles.length }} de {{ subcategoriasFiltradas.length }}
+              {{ subcategoriasFiltradas.length === 1 ? 'subcategoría' : 'subcategorías' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

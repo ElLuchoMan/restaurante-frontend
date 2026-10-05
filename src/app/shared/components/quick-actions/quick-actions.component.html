@@ -1,0 +1,54 @@
+<div class="quick-actions-bar d-md-none" aria-label="Acciones rápidas">
+  <nav class="container quick-actions" aria-roledescription="Dock de accesos">
+    <div class="qa-dock">
+      <div class="row">
+        <div
+          *ngFor="let action of quickActions"
+          class="col"
+          [ngClass]="'col-' + 12 / quickActions.length"
+        >
+          <!-- Enlaces normales -->
+          <a
+            *ngIf="!action.isButton"
+            [routerLink]="action.route"
+            class="qa-item"
+            [attr.aria-label]="'Ir a ' + action.label"
+          >
+            <div class="qa-icon-wrapper">
+              <i [class]="action.icon" aria-hidden="true"></i>
+              <span
+                *ngIf="action.badge && action.badge > 0"
+                class="qa-badge"
+                [attr.aria-label]="action.badge + ' notificaciones'"
+              >
+                {{ action.badge }}
+              </span>
+            </div>
+            <span>{{ action.label }}</span>
+          </a>
+
+          <!-- Botones para acciones especiales -->
+          <button
+            *ngIf="action.isButton"
+            type="button"
+            class="qa-item w-100"
+            [attr.aria-label]="action.label"
+            (click)="onActionClick(action)"
+          >
+            <div class="qa-icon-wrapper">
+              <i [class]="action.icon" aria-hidden="true"></i>
+              <span
+                *ngIf="action.badge && action.badge > 0"
+                class="qa-badge"
+                [attr.aria-label]="action.badge + ' notificaciones'"
+              >
+                {{ action.badge }}
+              </span>
+            </div>
+            <span>{{ action.label }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+</div>

@@ -1,0 +1,32 @@
+<div class="page-shell">
+  <div class="pedido-detalle-container">
+    <!-- Header -->
+    <header class="pedido-detalle-header">
+      <h1 class="section-title">Detalle del Pedido</h1>
+    </header>
+
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Cargando detalle del pedido...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error && !loading) {
+      <div class="error-state">
+        <i class="fas fa-exclamation-circle error-icon"></i>
+        <h3 class="error-title">¡Ups! Algo salió mal</h3>
+        <p class="error-message">{{ error }}</p>
+      </div>
+    }
+
+    <!-- Pedido Content - Diseño Ticket Digital -->
+    @if (!loading && pedido) {
+      <div class="pedido-content">
+        <app-pedido-ticket [pedido]="pedido"></app-pedido-ticket>
+      </div>
+    }
+  </div>
+</div>

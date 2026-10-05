@@ -1,9 +1,17 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FooterComponent } from './footer.component';
 import { HttpClient, HttpHandler } from '@angular/common/http';
-import { RestauranteService } from '../../../core/services/restaurante.service';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { mockCambioHorarioResponse, mockCambioHorarioAbiertoResponse, mockRestauranteResponse } from '../../mocks/restaurante.mock';
+
+import { LoggingService, LogLevel } from '../../../core/services/logging.service';
+import { RestauranteService } from '../../../core/services/restaurante.service';
+import {
+  mockCambioHorarioAbiertoResponse,
+  mockCambioHorarioResponse,
+} from '../../mocks/cambios-horario.mock';
+import { mockRestauranteResponse } from '../../mocks/restaurante.mock';
+import { createLoggingServiceMock, createRestauranteServiceMock } from '../../mocks/test-doubles';
+import { FooterComponent } from './footer.component';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -17,27 +25,39 @@ describe('FooterComponent', () => {
   let component: FooterComponent;
   let fixture: ComponentFixture<FooterComponent>;
   let restauranteService: jest.Mocked<RestauranteService>;
+  let loggingService: jest.Mocked<LoggingService>;
 
   const mockError = new Error('Test error');
 
   beforeEach(async () => {
-    const restauranteServiceMock = {
-      getRestauranteInfo: jest.fn(),
-      getCambiosHorario: jest.fn()
-    };
+    const restauranteServiceMock =
+      createRestauranteServiceMock() as jest.Mocked<RestauranteService>;
+    const loggingServiceMock = createLoggingServiceMock() as unknown as jest.Mocked<LoggingService>;
 
     await TestBed.configureTestingModule({
       imports: [FooterComponent],
       providers: [
         { provide: RestauranteService, useValue: restauranteServiceMock },
+        { provide: LoggingService, useValue: loggingServiceMock },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {},
+              queryParams: {},
+              data: {},
+            },
+          },
+        },
         HttpClient,
-        HttpHandler
-      ]
+        HttpHandler,
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FooterComponent);
     component = fixture.componentInstance;
     restauranteService = TestBed.inject(RestauranteService) as jest.Mocked<RestauranteService>;
+    loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
 
     restauranteService.getRestauranteInfo.mockReturnValue(of(mockRestauranteResponse));
   });
@@ -54,7 +74,6 @@ describe('FooterComponent', () => {
 
     expect(component.restaurante).toEqual(mockRestauranteResponse);
   });
-
 
   it('should set horario and estado correctly when changes are received', () => {
     restauranteService.getCambiosHorario.mockReturnValue(of(mockCambioHorarioResponse));
@@ -77,13 +96,10 @@ describe('FooterComponent', () => {
   });
 
   it('should log an error when getCambiosHorario fails', () => {
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
     restauranteService.getCambiosHorario.mockReturnValue(throwError(() => mockError));
     fixture.detectChanges();
 
-    expect(consoleSpy).toHaveBeenCalledWith(mockError);
-    consoleSpy.mockRestore();
+    expect(loggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, mockError);
   });
   it('should set estadoActual to "Cerrado" when current time is outside of opening hours', () => {
     restauranteService.getRestauranteInfo.mockReturnValue(of(mockRestauranteResponse));
@@ -91,10 +107,12 @@ describe('FooterComponent', () => {
     component.horaApertura = '08:00';
     component.horaCierre = '20:00';
 
-    jest.spyOn(globalThis, 'Date').mockImplementation(() =>
-    ({
-      toLocaleTimeString: () => '21:00'
-    } as unknown as Date)
+    jest.spyOn(globalThis, 'Date').mockImplementation(
+      () =>
+        ({
+          toLocaleTimeString: () => '21:00',
+          getFullYear: () => 2025,
+        }) as unknown as Date,
     );
 
     fixture.detectChanges();
@@ -107,10 +125,12 @@ describe('FooterComponent', () => {
 
     component.horaApertura = '08:00';
     component.horaCierre = '20:00';
-    const dateSpy = jest.spyOn(globalThis, 'Date').mockImplementation(() =>
-    ({
-      toLocaleTimeString: () => '12:00'
-    } as unknown as Date)
+    const dateSpy = jest.spyOn(globalThis, 'Date').mockImplementation(
+      () =>
+        ({
+          toLocaleTimeString: () => '12:00',
+          getFullYear: () => 2025,
+        }) as unknown as Date,
     );
 
     fixture.detectChanges();
@@ -119,5 +139,4 @@ describe('FooterComponent', () => {
 
     dateSpy.mockRestore();
   });
-
 });

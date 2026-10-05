@@ -1,4 +1,4 @@
-@use "../../../../../assets/styles.scss" as *;
+@use '../../../../../assets/_variables.scss' as *;
 
 .map-container {
   border-radius: 15px;
@@ -19,22 +19,23 @@
   border-radius: 15px;
   box-shadow: 0 4px 10px rgb(0 0 0 / 10%);
   margin-top: 20px;
-  padding: 20px;
-  text-align: center;
+  padding: 20px 30px;
+  text-align: left;
 }
 
 .info-card h2 {
   font-size: 1.5rem;
   margin-bottom: 10px;
+  text-align: center;
 }
 
 .info-card p {
-  color: #555;
+  color: var(--gray);
   font-size: 1rem;
 }
 
 .info-card i {
-  color: $primary;
+  color: var(--primary);
   font-size: 1.8rem;
   margin-bottom: 10px;
 }

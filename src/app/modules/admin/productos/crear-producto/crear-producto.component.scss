@@ -1,1 +1,329 @@
-@use '../../../../../assets/styles.scss' as *;
+@use '../../../../../assets/_variables.scss' as *;
+@use '../../../../../assets/_base.scss' as *;
+
+// ===== PREVIEW DE IMAGEN =====
+.imagen-preview-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+
+  .imagen-preview {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 2px solid $border-subtle;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .btn-eliminar-imagen {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba($danger, 0.3);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+// ===== OPTIMIZATION OVERLAY =====
+.optimization-overlay {
+  position: relative;
+  background: rgba($quaternary, 0.05);
+  border: 2px solid $primary;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  animation: fadeIn 0.3s ease;
+
+  .optimization-content {
+    h6 {
+      font-weight: 600;
+      color: $text-heading-strong;
+    }
+
+    .progress {
+      max-width: 300px;
+      margin: 0 auto;
+      border-radius: 10px;
+      background-color: rgba($primary, 0.1);
+
+      .progress-bar {
+        background: transparent;
+        border-radius: 10px;
+      }
+    }
+
+    .badge {
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ===== FILE UPLOAD CON DRAG & DROP =====
+.file-upload-area {
+  border: 2px dashed $border-subtle;
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: rgba($quaternary, 0.02);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba($quaternary, 0.08);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    border-color: $primary;
+    background: rgba($primary, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba($primary, 0.12);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .file-upload-icon {
+      transform: translateY(-8px) scale(1.1);
+      color: $primary;
+    }
+  }
+
+  &.dragging {
+    border-color: $primary;
+    background: rgba($primary, 0.1);
+    border-style: solid;
+    box-shadow: 0 0 0 4px rgba($primary, 0.1);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .file-upload-icon {
+      transform: scale(1.2);
+      color: $primary;
+      animation: bounce 0.6s ease infinite;
+    }
+
+    .file-upload-title {
+      color: $primary;
+    }
+  }
+
+  .file-input-hidden {
+    display: none;
+  }
+
+  .file-upload-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .file-upload-icon {
+    font-size: 2.5rem;
+    color: $text-muted;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+  }
+
+  .file-upload-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: $text-heading-strong;
+    margin-bottom: 0.375rem;
+    transition: color 0.3s ease;
+  }
+
+  .file-upload-text {
+    font-size: 0.875rem;
+    color: $text-muted;
+    margin-bottom: 0.5rem;
+  }
+
+  .file-upload-hint {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: $text-muted;
+    background: rgba($primary, 0.08);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.2);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.2);
+  }
+}
+
+// ===== CARDS =====
+.card {
+  transition: all 0.3s ease;
+
+  .card-header {
+    h5 {
+      font-weight: 600;
+      color: $text-heading-strong;
+      display: flex;
+      align-items: center;
+
+      i {
+        color: $primary;
+      }
+    }
+  }
+}
+
+// ===== BOTONES =====
+.btn {
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+
+  i {
+    font-size: 1rem;
+  }
+
+  &:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// ===== FORM TEXT =====
+.form-text {
+  font-size: 0.85rem;
+  color: $text-muted;
+  margin-top: 0.25rem;
+
+  i {
+    margin-right: 0.25rem;
+  }
+}
+
+// ===== SUBTITLE =====
+.subtitle {
+  color: $text-muted;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+// ===== OPTIMIZACIONES WEBVIEW =====
+// Los estilos de input-float se manejan globalmente en _base.scss
+:host-context(.webview-mode) {
+  .btn {
+    min-height: 48px;
+    padding: 0.85rem 1.75rem;
+    font-size: 1rem;
+  }
+
+  .imagen-preview {
+    max-width: 100%;
+  }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+  .card-body {
+    .row {
+      > div {
+        margin-bottom: 1rem;
+      }
+    }
+  }
+
+  .btn {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .card-body {
+    &.d-flex {
+      flex-direction: column;
+    }
+  }
+
+  .imagen-preview {
+    max-width: 100%;
+  }
+}
+
+// ===== SPINNER =====
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.3em;
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
+}

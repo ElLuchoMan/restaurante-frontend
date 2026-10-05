@@ -1,10 +1,11 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+
 import { Producto } from '../../shared/models/producto.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CartService {
   private readonly storageKey = 'carrito';
@@ -55,35 +56,63 @@ export class CartService {
     return this.items$.value;
   }
 
-  /** Agrega un producto (aumenta cantidad si ya existe) */
-  addToCart(product: Producto): void {
+  /**
+   * Agrega un producto al carrito
+   * Si el producto YA existe con las MISMAS observaciones, aumenta la cantidad
+   * Si el producto existe pero con DIFERENTES observaciones, se agrega como item separado
+   */
+  addToCart(product: Producto, observaciones?: string): void {
     const items = [...this.items$.value];
-    const idx = items.findIndex(p => p.productoId === product.productoId);
+
+    // Buscar producto con mismo ID y mismas observaciones
+    const idx = items.findIndex(
+      (p) =>
+        p.productoId === product.productoId && (p.observaciones || '') === (observaciones || ''),
+    );
+
     if (idx > -1) {
+      // Producto existente con mismas observaciones: aumentar cantidad
       items[idx].cantidad = (items[idx].cantidad || 1) + 1;
     } else {
-      const nueva: Producto = { ...product, cantidad: 1 };
+      // Producto nuevo o con diferentes observaciones
+      const nueva: Producto = {
+        ...product,
+        cantidad: 1,
+        observaciones: observaciones || undefined,
+      };
       items.push(nueva);
     }
     this.saveCart(items);
   }
 
-  /** Cambia la cantidad de un producto; si llega a 0 lo elimina */
-  changeQty(productId: number, delta: number): void {
+  /**
+   * Cambia la cantidad de un producto específico; si llega a 0 lo elimina
+   * @param productId ID del producto
+   * @param delta Cambio en la cantidad (+1 o -1)
+   * @param observaciones Observaciones específicas del producto (para identificar la instancia exacta)
+   */
+  changeQty(productId: number, delta: number, observaciones?: string): void {
     const items = this.items$.value
-      .map(p => {
-        if (p.productoId === productId) {
+      .map((p) => {
+        // Coincide si tiene el mismo ID y las mismas observaciones
+        if (p.productoId === productId && (p.observaciones || '') === (observaciones || '')) {
           return { ...p, cantidad: (p.cantidad || 1) + delta };
         }
         return p;
       })
-      .filter(p => (p.cantidad || 0) > 0);
+      .filter((p) => (p.cantidad || 0) > 0);
     this.saveCart(items);
   }
 
-  /** Elimina por completo un producto del carrito */
-  remove(productId: number): void {
-    const items = this.items$.value.filter(p => p.productoId !== productId);
+  /**
+   * Elimina por completo una instancia específica de un producto del carrito
+   * @param productId ID del producto
+   * @param observaciones Observaciones específicas del producto (para identificar la instancia exacta)
+   */
+  remove(productId: number, observaciones?: string): void {
+    const items = this.items$.value.filter(
+      (p) => !(p.productoId === productId && (p.observaciones || '') === (observaciones || '')),
+    );
     this.saveCart(items);
   }
 

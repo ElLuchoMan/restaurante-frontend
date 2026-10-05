@@ -1,0 +1,210 @@
+@forward '_variables';
+@use '_variables' as *;
+
+/* ====== RE-EXPORT DE VARIABLES PARA COMPATIBILIDAD ====== */
+/* Asegurar que todas las variables estén disponibles para archivos que importen este módulo */
+
+/* ====== COMPONENTES ESPECÍFICOS PARA @EXTEND ====== */
+/* Solo las clases que realmente se usan en @extend para reducir bundle size */
+
+/* Glass navbar principal */
+.navbar-glass {
+  background: $white !important;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-radius: 25px;
+  box-shadow:
+    0 20px 60px $shadow-soft,
+    0 8px 16px rgba($primary, 0.1);
+  border: 1px solid rgba($white, 0.2);
+  transition: $transition-smooth;
+}
+
+/* Gradiente de barra superior premium */
+.premium-bar-gradient {
+  background: rgba($secondary, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 8px 32px rgba($primary, 0.15);
+}
+
+/* Efecto shimmer para barras */
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba($white, 0.2);
+    transform: translateX(-100%);
+    animation: shimmer 3s infinite;
+    pointer-events: none;
+  }
+}
+
+/* Fondos de sección para diferentes áreas */
+.section-bg-gradient-light {
+  background: transparent;
+}
+
+.section-bg-dark {
+  background: transparent;
+  color: $white;
+
+  .section-title,
+  .subtitle {
+    color: $white;
+  }
+}
+
+.section-bg-neutral {
+  background: $gray-lighter;
+}
+
+/* Caption card para carrusel con glassmorphism */
+.caption-card {
+  max-width: 900px;
+  border-radius: 16px;
+  backdrop-filter: blur(8px) saturate(120%);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba($white, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  padding: 2rem;
+  transition: $transition-smooth;
+}
+
+/* ====== CLASES PARA @EXTEND ESPECÍFICAS DE HEADER ====== */
+
+/* Navigation Link Premium - para @extend */
+.nav-link-premium {
+  position: relative;
+  color: $header-text-primary !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  padding: $nav-item-padding;
+  border-radius: 15px;
+  transition: $transition-smooth;
+  white-space: nowrap;
+  text-decoration: none !important;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 15px;
+    background: $header-gradient-primary-light;
+    opacity: 0;
+    transition: $transition-smooth;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: $header-gradient-golden-line;
+    border-radius: 1px;
+    transition: $transition-smooth;
+  }
+
+  &:hover {
+    color: $header-text-hover !important;
+    transform: translateY(-2px);
+
+    &::before {
+      opacity: 1;
+    }
+
+    &::after {
+      width: calc(100% - 2rem);
+    }
+  }
+
+  &.active {
+    color: $header-golden !important;
+    background: $header-primary-10;
+
+    &::after {
+      width: calc(100% - 2rem);
+      background: $header-gradient-golden-active;
+    }
+  }
+}
+
+/* Alert Connection - para @extend */
+.alert-connection {
+  background: $header-gradient-warning;
+  border: 1px solid $header-primary-20;
+  border-radius: 15px;
+  color: $header-alert-text;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Animation States - para @extend */
+.logging-out {
+  opacity: 0.7;
+  transform: translateY(-5px);
+  transition: all 0.15s ease-out;
+}
+
+.transitioning {
+  .logo-text,
+  .logo-img {
+    animation: fadeInScale 0.3s ease-out;
+  }
+}
+
+/* Focus Premium - para @extend */
+.focus-premium {
+  &:focus-visible {
+    outline: 2px solid $header-primary-80;
+    outline-offset: 2px;
+    border-radius: 12px;
+    box-shadow: 0 0 0 4px $header-primary-20;
+  }
+}
+
+/* ====== ANIMACIONES NECESARIAS ====== */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

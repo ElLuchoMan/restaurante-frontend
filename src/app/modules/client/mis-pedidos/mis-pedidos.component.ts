@@ -1,22 +1,24 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { forkJoin, of, Subject } from 'rxjs';
+import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 
+import { LayoutService } from '../../../core/services/layout.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
 import { Pedido } from '../../../shared/models/pedido.model';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
-import { forkJoin, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { PedidoTicketComponent } from '../pedido-ticket/pedido-ticket.component';
 
 type DetallesAPI = {
-  PK_ID_PEDIDO?: number;
-  FECHA?: string;
-  HORA?: string;
-  DELIVERY?: boolean;
-  ESTADO_PEDIDO?: string;
-  METODO_PAGO?: string;
-  PRODUCTOS?: string; // viene como string JSON
+  pedidoId?: number;
+  fechaPedido?: string;
+  horaPedido?: string;
+  delivery?: boolean;
+  estadoPedido?: string;
+  metodoPago?: string;
+  productos?: string; // viene como string JSON
 };
 
 type PedidoCard = Pedido & {
@@ -34,53 +36,78 @@ type PedidoCard = Pedido & {
   standalone: true,
   templateUrl: './mis-pedidos.component.html',
   styleUrls: ['./mis-pedidos.component.scss'],
-  imports: [CommonModule, RouterModule, FormatDatePipe]
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [CommonModule, RouterModule, FormatDatePipe, PedidoTicketComponent],
 })
-export class MisPedidosComponent implements OnInit {
+export class MisPedidosComponent implements OnInit, OnDestroy {
   pedidos: PedidoCard[] = [];
   loading = true;
   error = '';
+  expandedPedidoId: number | null = null;
+  selectedPedido: PedidoCard | null = null;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private pedidoService: PedidoService,
-    private userService: UserService
-  ) { }
+    private userService: UserService,
+    private layoutService: LayoutService,
+  ) {}
 
   ngOnInit(): void {
     const userId = this.userService.getUserId();
 
-    this.pedidoService.getMisPedidos(userId).pipe(
-      // 1) ordena por fecha (DD-MM-YYYY) + hora (0000-01-01 HH:mm:ss …)
-      map(res => {
-        const base: Pedido[] = res?.data || [];
-        return [...base].sort((a, b) => {
-          const da = this.toComparableDate(a.fechaPedido, a.horaPedido);
-          const db = this.toComparableDate(b.fechaPedido, b.horaPedido);
-          return db.getTime() - da.getTime();
-        });
-      }),
-      // 2) enriquece cada pedido con /pedidos/detalles (si falla, simplemente deja los campos como undefined)
-      switchMap(sorted =>
-        forkJoin(
-          sorted.map(p =>
-            p.pedidoId !== undefined
-              ? this.pedidoService.getPedidoDetalles(p.pedidoId).pipe(
-                map(resp => this.mergeDetalles(p, resp?.data as DetallesAPI)),
-                catchError(() => of(p as PedidoCard))
-              )
-              : of(p as PedidoCard)
-          )
-        )
-      ),
-      catchError(() => {
-        this.error = 'No se pudieron cargar tus pedidos';
-        return of([] as PedidoCard[]);
-      })
-    )
-      .subscribe(peds => {
+    this.pedidoService
+      .getMisPedidos(userId)
+      .pipe(
+        // 1) ordena por fecha (DD-MM-YYYY) + hora (0000-01-01 HH:mm:ss …)
+        map((res) => {
+          const base: Pedido[] = res?.data || [];
+          return [...base].sort((a, b) => {
+            const da = this.toComparableDate(a.fechaPedido, a.horaPedido);
+            const db = this.toComparableDate(b.fechaPedido, b.horaPedido);
+            return db.getTime() - da.getTime();
+          });
+        }),
+        // 2) enriquece cada pedido con /pedidos/detalles (si falla, simplemente deja los campos como undefined)
+        switchMap((sorted) =>
+          forkJoin(
+            sorted.map((p) =>
+              p.pedidoId !== undefined
+                ? this.pedidoService.getPedidoDetalles(p.pedidoId).pipe(
+                    map((resp) => this.mergeDetalles(p, resp?.data as DetallesAPI)),
+                    catchError(() => of(p as PedidoCard)),
+                  )
+                : of(p as PedidoCard),
+            ),
+          ),
+        ),
+        catchError(() => {
+          this.error = 'No se pudieron cargar tus pedidos';
+          return of([] as PedidoCard[]);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((peds) => {
         this.pedidos = peds;
         this.loading = false;
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  openModal(pedido: PedidoCard): void {
+    this.selectedPedido = pedido;
+    this.layoutService.hideHeader();
+    document.body.style.overflow = 'hidden'; // Prevent scrolling
+  }
+
+  closeModal(): void {
+    this.selectedPedido = null;
+    this.layoutService.showHeader();
+    document.body.style.overflow = ''; // Restore scrolling
   }
 
   private mergeDetalles(p: Pedido, det?: DetallesAPI): PedidoCard {
@@ -89,7 +116,7 @@ export class MisPedidosComponent implements OnInit {
     // Parse de PRODUCTOS (viene como string JSON)
     let productos: any[] | undefined;
     try {
-      const parsed = det.PRODUCTOS ? JSON.parse(det.PRODUCTOS) : [];
+      const parsed = det.productos ? JSON.parse(det.productos) : [];
       productos = Array.isArray(parsed) ? parsed : [];
     } catch {
       productos = undefined;
@@ -106,13 +133,16 @@ export class MisPedidosComponent implements OnInit {
 
     // items = cantidad de renglones
     const items = productos?.length ?? undefined;
-
     return {
       ...p,
-      metodoPago: det.METODO_PAGO || undefined,
+      // Priorizar fecha/hora provenientes del detalle (coinciden con el detalle de pedido)
+      fechaPedido: det.fechaPedido || p.fechaPedido,
+      horaPedido: det.horaPedido || p.horaPedido,
+      delivery: det.delivery ?? p.delivery,
+      metodoPago: det.metodoPago || undefined,
       productos,
       total: total !== undefined ? total : undefined,
-      items
+      items,
     };
   }
 
@@ -136,5 +166,88 @@ export class MisPedidosComponent implements OnInit {
     const m = h.match(/(\d{2}):(\d{2}):(\d{2})/);
     if (m) return { hh: +m[1], mm: +m[2], ss: +m[3] };
     return { hh: 0, mm: 0, ss: 0 };
+  }
+
+  /**
+   * Retorna la clase CSS para el estado del pedido
+   */
+  getEstadoClass(estado: string): string {
+    const estadoUpper = estado.toUpperCase();
+    switch (estadoUpper) {
+      case 'TERMINADO':
+      case 'ENTREGADO':
+        return 'success';
+      case 'INICIADO':
+      case 'EN_PREPARACION':
+      case 'PREPARACION':
+        return 'warning';
+      case 'CANCELADO':
+        return 'danger';
+      case 'EN_CAMINO':
+        return 'info';
+      default:
+        return 'default';
+    }
+  }
+
+  /**
+   * Retorna el icono FontAwesome para el estado del pedido
+   */
+  getEstadoIcon(estado: string): string {
+    const estadoUpper = estado.toUpperCase();
+    switch (estadoUpper) {
+      case 'TERMINADO':
+      case 'ENTREGADO':
+        return 'fa-check-circle';
+      case 'INICIADO':
+      case 'EN_PREPARACION':
+      case 'PREPARACION':
+        return 'fa-fire';
+      case 'CANCELADO':
+        return 'fa-times-circle';
+      case 'EN_CAMINO':
+        return 'fa-truck';
+      default:
+        return 'fa-info-circle';
+    }
+  }
+
+  /**
+   * Retorna la etiqueta legible para el estado del pedido
+   */
+  getEstadoLabel(estado: string): string {
+    const estadoUpper = estado.toUpperCase();
+    switch (estadoUpper) {
+      case 'TERMINADO':
+        return 'Terminado';
+      case 'ENTREGADO':
+        return 'Entregado';
+      case 'INICIADO':
+        return 'Iniciado';
+      case 'EN_PREPARACION':
+      case 'PREPARACION':
+        return 'En Preparación';
+      case 'CANCELADO':
+        return 'Cancelado';
+      case 'EN_CAMINO':
+        return 'En Camino';
+      default:
+        return estado;
+    }
+  }
+
+  /**
+   * Toggle para expandir/colapsar un pedido en mobile
+   */
+  togglePedido(pedidoId: number | undefined): void {
+    if (!pedidoId) return;
+    this.expandedPedidoId = this.expandedPedidoId === pedidoId ? null : pedidoId;
+  }
+
+  /**
+   * Verifica si un pedido está expandido
+   */
+  isPedidoExpanded(pedidoId: number | undefined): boolean {
+    return this.expandedPedidoId === pedidoId;
   }
 }

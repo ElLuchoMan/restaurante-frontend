@@ -1,0 +1,120 @@
+<div class="page-shell">
+  <div class="container">
+    <h1 class="section-title">Histórico de Precios</h1>
+    <p class="subtitle text-center mb-4">
+      Consulta el historial de cambios de precios de todos los productos
+    </p>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Filtros de Búsqueda</h2>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label for="filtroProductoId" class="form-label">ID Producto</label>
+            <input
+              type="text"
+              class="form-control"
+              id="filtroProductoId"
+              [(ngModel)]="filtroProductoId"
+              (ngModelChange)="aplicarFiltros()"
+              placeholder="Ej: 123"
+            />
+          </div>
+          <div class="col-md-4">
+            <label for="filtroNombre" class="form-label">Nombre Producto</label>
+            <input
+              type="text"
+              class="form-control"
+              id="filtroNombre"
+              [(ngModel)]="filtroNombre"
+              (ngModelChange)="aplicarFiltros()"
+              placeholder="Buscar por nombre..."
+            />
+          </div>
+          <div class="col-md-3">
+            <label for="filtroFecha" class="form-label">Fecha</label>
+            <input
+              type="date"
+              class="form-control"
+              id="filtroFecha"
+              [(ngModel)]="filtroFecha"
+              (ngModelChange)="aplicarFiltros()"
+            />
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button
+              class="btn btn-outline-secondary w-100"
+              (click)="limpiarFiltros()"
+              type="button"
+            >
+              <i class="fa fa-times me-2" aria-hidden="true"></i>
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado de carga -->
+    <div *ngIf="cargando" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-3">Cargando histórico de precios...</p>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="alert alert-danger" role="alert">
+      <i class="fa fa-exclamation-circle me-2" aria-hidden="true"></i>
+      {{ error }}
+    </div>
+
+    <!-- Tabla de histórico -->
+    <div *ngIf="!cargando && !error" class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Producto</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Fecha Vigencia</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of historicoFiltrado">
+            <td>{{ item.productoId }}</td>
+            <td>{{ item.nombre || 'Sin nombre' }}</td>
+            <td class="fw-bold text-success">{{ formatearPrecio(item.precio) }}</td>
+            <td>{{ formatearFecha(item.fechaVigencia) }}</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-success': item.estadoProducto === 'DISPONIBLE',
+                  'bg-secondary': item.estadoProducto === 'NO_DISPONIBLE',
+                }"
+              >
+                {{ item.estadoProducto || 'N/A' }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="historicoFiltrado.length === 0">
+            <td colspan="5" class="text-center py-4">
+              <i class="fa fa-inbox fa-3x mb-3 text-muted" aria-hidden="true"></i>
+              <p class="mb-0">No se encontraron registros</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Resumen -->
+      <div *ngIf="historicoFiltrado.length > 0" class="mt-3">
+        <p class="text-muted mb-0">
+          Mostrando {{ historicoFiltrado.length }} de {{ historico.length }} registro(s)
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

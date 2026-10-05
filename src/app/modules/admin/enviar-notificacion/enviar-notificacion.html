@@ -1,0 +1,224 @@
+<div class="page-shell">
+  <div class="container">
+    <h1 class="section-title">Enviar Notificación Push</h1>
+
+    <div class="ejemplos-rapidos-row">
+      <button
+        type="button"
+        class="btn-ejemplo-sm"
+        (click)="cargarEjemplo('promo')"
+        [disabled]="enviando"
+      >
+        <i class="fa fa-tag"></i> Promo
+      </button>
+      <button
+        type="button"
+        class="btn-ejemplo-sm"
+        (click)="cargarEjemplo('promo-clientes')"
+        [disabled]="enviando"
+      >
+        <i class="fa fa-users"></i> Clientes
+      </button>
+      <button
+        type="button"
+        class="btn-ejemplo-sm"
+        (click)="cargarEjemplo('aviso-trabajadores')"
+        [disabled]="enviando"
+      >
+        <i class="fa fa-briefcase"></i> Equipo
+      </button>
+    </div>
+
+    <div class="card formulario-notificacion">
+      <form (ngSubmit)="enviarNotificacion()">
+        <div class="form-layout">
+          <!-- Columna Izquierda: Formulario -->
+          <div class="form-column">
+            <!-- Remitente y Destinatarios en una fila -->
+            <div class="form-row-compact">
+              <div class="form-group">
+                <label for="tipoRemitente">Remitente</label>
+                <select
+                  id="tipoRemitente"
+                  name="tipoRemitente"
+                  [(ngModel)]="tipoRemitente"
+                  class="form-control"
+                  [disabled]="enviando"
+                >
+                  <option value="SISTEMA">Sistema</option>
+                  <option value="TRABAJADOR">Trabajador</option>
+                </select>
+              </div>
+
+              <div class="form-group" *ngIf="tipoRemitente === 'TRABAJADOR'">
+                <label for="documentoTrabajador">Doc. Trabajador</label>
+                <input
+                  type="number"
+                  id="documentoTrabajador"
+                  name="documentoTrabajador"
+                  [(ngModel)]="documentoTrabajador"
+                  class="form-control"
+                  placeholder="1015466494"
+                  [disabled]="enviando"
+                />
+              </div>
+            </div>
+
+            <!-- Destinatarios -->
+            <div class="form-row-compact">
+              <div class="form-group">
+                <label for="tipoDestinatario">Destinatario</label>
+                <select
+                  id="tipoDestinatario"
+                  name="tipoDestinatario"
+                  [(ngModel)]="tipoDestinatario"
+                  class="form-control"
+                  [disabled]="enviando"
+                >
+                  <option value="TODOS">Todos</option>
+                  <option value="CLIENTES">Todos los clientes</option>
+                  <option value="TRABAJADORES">Todos los trabajadores</option>
+                  <option value="CLIENTE">Cliente específico</option>
+                  <option value="TRABAJADOR">Trabajador específico</option>
+                  <option value="TOPIC">Topic</option>
+                </select>
+              </div>
+
+              <div class="form-group" *ngIf="tipoDestinatario === 'CLIENTE'">
+                <label for="documentoCliente">Doc. Cliente</label>
+                <input
+                  type="number"
+                  id="documentoCliente"
+                  name="documentoCliente"
+                  [(ngModel)]="documentoCliente"
+                  class="form-control"
+                  placeholder="1015466495"
+                  [disabled]="enviando"
+                />
+              </div>
+
+              <div class="form-group" *ngIf="tipoDestinatario === 'TRABAJADOR'">
+                <label for="documentoTrabajadorDestinatario">Doc. Trabajador</label>
+                <input
+                  type="number"
+                  id="documentoTrabajadorDestinatario"
+                  name="documentoTrabajadorDestinatario"
+                  [(ngModel)]="documentoTrabajadorDestinatario"
+                  class="form-control"
+                  placeholder="1015466494"
+                  [disabled]="enviando"
+                />
+              </div>
+
+              <div class="form-group" *ngIf="tipoDestinatario === 'TOPIC'">
+                <label for="topic">Topic</label>
+                <input
+                  type="text"
+                  id="topic"
+                  name="topic"
+                  [(ngModel)]="topic"
+                  class="form-control"
+                  placeholder="promos, novedades"
+                  [disabled]="enviando"
+                />
+              </div>
+            </div>
+
+            <!-- Alerta compacta -->
+            <div
+              class="alert-info-compact"
+              *ngIf="tipoDestinatario === 'CLIENTES' || tipoDestinatario === 'TRABAJADORES' || tipoDestinatario === 'TODOS'"
+            >
+              <i class="fa fa-info-circle"></i>
+              <span *ngIf="tipoDestinatario === 'CLIENTES'">Envío masivo a todos los clientes</span>
+              <span *ngIf="tipoDestinatario === 'TRABAJADORES'"
+                >Envío masivo a todos los trabajadores</span
+              >
+              <span *ngIf="tipoDestinatario === 'TODOS'"
+                >Envío masivo global (clientes + trabajadores)</span
+              >
+            </div>
+
+            <!-- Contenido de la Notificación -->
+            <div class="form-group">
+              <label for="titulo">Título</label>
+              <input
+                type="text"
+                id="titulo"
+                name="titulo"
+                [(ngModel)]="titulo"
+                class="form-control"
+                placeholder="¡Nueva promoción! 🎉"
+                maxlength="100"
+                [disabled]="enviando"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="mensaje">Mensaje</label>
+              <textarea
+                id="mensaje"
+                name="mensaje"
+                [(ngModel)]="mensaje"
+                class="form-control"
+                rows="3"
+                placeholder="Disfruta de un 20% de descuento en todos nuestros platos hoy."
+                maxlength="500"
+                [disabled]="enviando"
+                required
+              ></textarea>
+              <small class="form-text-compact">{{ mensaje.length }}/500</small>
+            </div>
+
+            <div class="form-group">
+              <label for="url">URL (opcional)</label>
+              <input
+                type="text"
+                id="url"
+                name="url"
+                [(ngModel)]="url"
+                class="form-control"
+                placeholder="/menu"
+                [disabled]="enviando"
+              />
+            </div>
+
+            <!-- Botón de acción -->
+            <div class="form-actions-inline">
+              <button type="submit" class="btn btn-primary" [disabled]="enviando">
+                <i
+                  class="fa"
+                  [class.fa-paper-plane]="!enviando"
+                  [class.fa-spinner]="enviando"
+                  [class.fa-spin]="enviando"
+                ></i>
+                {{ enviando ? 'Enviando...' : 'Enviar' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Vista Previa -->
+          <div class="preview-column">
+            <div class="preview-sticky">
+              <h3 class="preview-title">Vista Previa</h3>
+              <div class="notification-preview-compact">
+                <div class="notification-preview__icon">
+                  <i class="fa fa-utensils"></i>
+                </div>
+                <div class="notification-preview__content">
+                  <p class="notification-preview__titulo">
+                    {{ titulo || 'Título de la notificación' }}
+                  </p>
+                  <p class="notification-preview__mensaje">
+                    {{ mensaje || 'Mensaje de la notificación' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

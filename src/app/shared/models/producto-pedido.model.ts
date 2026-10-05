@@ -1,6 +1,6 @@
-import { DetallesProducto } from "./producto.model";
+import { DetallesProducto } from './producto.model';
 
 export interface ProductoPedido {
-    detallesProductos: DetallesProducto[];
-    pedidoId: number;
+  detalles: DetallesProducto[];
+  pedidoId: number;
 }

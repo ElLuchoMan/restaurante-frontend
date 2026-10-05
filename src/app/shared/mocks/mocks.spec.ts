@@ -1,18 +1,45 @@
-import { mockResponseCliente, mockClienteBody, mockClienteRegisterResponse } from './cliente.mock';
-import { mockDomicilioRespone, mockDomiciliosRespone, mockDomicilioBody } from './domicilio.mock';
-import { mockHttpError500, mockHttpError400 } from './error.mock';
+import {
+  mockCambioHorarioAbiertoResponse,
+  mockCambioHorarioBody,
+  mockCambioHorarioResponse,
+} from './cambios-horario.mock';
+import { mockClienteBody, mockClienteRegisterResponse, mockResponseCliente } from './cliente.mock';
+import { mockDomicilioBody, mockDomicilioRespone, mockDomiciliosRespone } from './domicilio.mock';
+import { mockHttpError400, mockHttpError500 } from './error.mock';
 import { mockLogin, mockLoginResponse } from './login.mock';
-import { mockMetodoPagoRespone, mockMetodosPagoRespone, mockMetodoPagoBody } from './metodo-pago.mock';
-import { mockNominaTrabajadorResponse, mockNominaTrabajadorMes } from './nomina-trabajador.mock';
-import { mockNominaResponse, mockNominaFecha, mockNominaBody, mockNominaPagaResponse } from './nomina.mock';
-import { mockPagosResponse, mockPagoResponse, mockPagoBody } from './pago.mock';
-import { mockPedidoClienteResponse } from './pedido-cliente.mocks';
-import { mockPedidosResponse, mockPedidoBody, mockPedidoDetalle } from './pedido.mock';
-import { mockProductoResponse, mockProductosResponse, mockProductosSinImagenResponse } from './producto.mock';
+import {
+  mockMetodoPagoBody,
+  mockMetodoPagoRespone,
+  mockMetodosPagoRespone,
+} from './metodo-pago.mock';
+import {
+  mockNominaBody,
+  mockNominaFecha,
+  mockNominaPagaResponse,
+  mockNominaResponse,
+} from './nomina.mock';
+import { mockNominaTrabajadorMes, mockNominaTrabajadorResponse } from './nomina-trabajador.mock';
+import { mockPedidoBody, mockPedidoDetalle, mockPedidosResponse } from './pedido.mock';
+import {
+  mockProductoResponse,
+  mockProductosResponse,
+  mockProductosSinImagenResponse,
+} from './producto.mock';
 import { mockProductoPedidoResponse } from './producto-pedido.mock';
-import { mockReserva, mockReservaResponse, mockReservasDelDiaResponse, mockReservaUpdateResponse, mockReservasUnordered, mockReservaBody } from './reserva.mocks';
-import { mockRestaurantesResponse, mockRestauranteResponse, mockCambioHorarioResponse, mockCambioHorarioAbiertoResponse, mockCambioHorarioBody } from './restaurante.mock';
-import { mockTrabajadorResponse, mockTrabajadorBody, mockTrabajadorRegisterResponse } from './trabajador.mock';
+import {
+  mockReserva,
+  mockReservaBody,
+  mockReservaResponse,
+  mockReservasDelDiaResponse,
+  mockReservasUnordered,
+  mockReservaUpdateResponse,
+} from './reserva.mocks';
+import { mockRestauranteResponse, mockRestaurantesResponse } from './restaurante.mock';
+import {
+  mockTrabajadorBody,
+  mockTrabajadorRegisterResponse,
+  mockTrabajadorResponse,
+} from './trabajador.mock';
 
 // simple tests to ensure mocks are loaded correctly
 
@@ -26,7 +53,7 @@ describe('shared mocks', () => {
   it('domicilio mocks', () => {
     expect(mockDomicilioRespone.data.telefono).toBe('3042449339');
     expect(mockDomiciliosRespone.data).toHaveLength(2);
-    expect(mockDomicilioBody.entregado).toBe(false);
+    expect(mockDomicilioBody.direccion).toBe('Carrera 45 #10-20');
   });
 
   it('error mocks', () => {
@@ -35,7 +62,7 @@ describe('shared mocks', () => {
   });
 
   it('login mocks', () => {
-    expect(mockLogin.documento).toBe('12345');
+    expect(mockLogin.documento).toBe(12345);
     expect(mockLoginResponse.data.token).toBe('testToken');
   });
 
@@ -57,20 +84,12 @@ describe('shared mocks', () => {
     expect(mockNominaPagaResponse.data.estadoNomina).toBeDefined();
   });
 
-  it('pago mocks', () => {
-    expect(mockPagosResponse.data).toHaveLength(2);
-    expect(mockPagoResponse.data.monto).toBe(2000);
-    expect(mockPagoBody.estadoPago).toBeDefined();
-  });
-
-  it('pedido cliente mocks', () => {
-    expect(mockPedidoClienteResponse.data).toHaveLength(3);
-  });
+  // pedido-cliente eliminado: ya no se requiere mock
 
   it('pedido mocks', () => {
     expect(mockPedidosResponse.data).toHaveLength(3);
     expect(mockPedidoBody.delivery).toBe(true);
-    expect(mockPedidoDetalle.data.METODO_PAGO).toBe('Nequi');
+    expect(mockPedidoDetalle.data.metodoPago).toBe('Nequi');
   });
 
   it('producto mocks', () => {
@@ -80,7 +99,7 @@ describe('shared mocks', () => {
   });
 
   it('producto pedido mocks', () => {
-    expect(mockProductoPedidoResponse.data.detallesProductos[0].nombre).toContain('Coca Cola');
+    expect(mockProductoPedidoResponse.data.detalles[0].nombre).toContain('Coca Cola');
   });
 
   it('reserva mocks', () => {
@@ -89,11 +108,11 @@ describe('shared mocks', () => {
     expect(mockReservasDelDiaResponse.data).toHaveLength(2);
     expect(mockReservaUpdateResponse.data).toEqual(mockReserva);
     expect(mockReservasUnordered).toHaveLength(3);
-    expect(mockReservaBody.documentoCliente).toBe(1015466494);
+    expect(mockReservaBody.contactoId).toBe(1);
   });
 
   it('restaurante mocks', () => {
-    expect(mockRestaurantesResponse.data[0].nombreRestaurante).toBe('La cocina de María');
+    expect(mockRestaurantesResponse.data[0].nombreRestaurante).toBe('El fogón de María');
     expect(mockRestauranteResponse.data.restauranteId).toBe(1);
     expect(mockCambioHorarioResponse.data.cambioHorarioId).toBe(1);
     expect(mockCambioHorarioAbiertoResponse.data.abierto).toBe(false);

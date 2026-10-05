@@ -1,23 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, NavigationEnd } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Subject } from 'rxjs';
 
-import { ProductosComponent } from './productos.component';
 import { UserService } from '../../../../core/services/user.service';
+import { createUserServiceMock } from '../../../../shared/mocks/test-doubles';
+import { ProductosComponent } from './productos.component';
 
 describe('ProductosComponent', () => {
   let component: ProductosComponent;
   let fixture: ComponentFixture<ProductosComponent>;
   let router: Router;
-  let userService: { getUserRole: jest.Mock };
+  let userService: any;
 
   beforeEach(async () => {
-    userService = { getUserRole: jest.fn() };
+    userService = createUserServiceMock();
 
     await TestBed.configureTestingModule({
       imports: [ProductosComponent, RouterTestingModule],
-      providers: [{ provide: UserService, useValue: userService }]
+      providers: [{ provide: UserService, useValue: userService }],
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -48,21 +49,39 @@ describe('ProductosComponent', () => {
   it('should redirect to crear when not admin and no menu', () => {
     userService.getUserRole.mockReturnValue('Cliente');
     component.mostrarMenu = false;
-    const irASpy = jest.spyOn(component, 'irA');
+    const navegarASpy = jest.spyOn(component, 'navegarA');
     fixture.detectChanges();
-    expect(irASpy).toHaveBeenCalledWith('crear');
+    expect(navegarASpy).toHaveBeenCalledWith('/admin/productos/crear');
   });
 
-  it('irA ver should navigate to /menu', () => {
-    const navigateSpy = jest.spyOn(router, 'navigate');
-    component.irA('ver');
-    expect(navigateSpy).toHaveBeenCalledWith(['/menu']);
+  it('should have 4 options in the menu', () => {
+    expect(component.opciones).toHaveLength(4);
   });
 
-  it('irA crear should navigate to admin/productos/crear', () => {
+  it('should include categorias option in menu', () => {
+    const categoriasOption = component.opciones.find(
+      (op) => op.ruta === '/admin/productos/categorias',
+    );
+    expect(categoriasOption).toBeDefined();
+    expect(categoriasOption?.titulo).toBe('Gestionar Categorías');
+    expect(categoriasOption?.icono).toBe('fa-tags');
+    expect(categoriasOption?.color).toBe('orange');
+  });
+
+  it('should include historico precios option in menu', () => {
+    const historicoPreciosOption = component.opciones.find(
+      (op) => op.ruta === '/admin/productos/historico-precios',
+    );
+    expect(historicoPreciosOption).toBeDefined();
+    expect(historicoPreciosOption?.titulo).toBe('Histórico de Precios');
+    expect(historicoPreciosOption?.icono).toBe('fa-chart-line');
+    expect(historicoPreciosOption?.color).toBe('purple');
+  });
+
+  it('navegarA should navigate to the specified route', () => {
     const navigateSpy = jest.spyOn(router, 'navigate');
-    component.irA('crear');
-    expect(navigateSpy).toHaveBeenCalledWith(['admin/productos/crear']);
+    component.navegarA('/admin/productos/categorias');
+    expect(navigateSpy).toHaveBeenCalledWith(['/admin/productos/categorias']);
   });
 
   it('volver should navigate to /admin/productos', () => {

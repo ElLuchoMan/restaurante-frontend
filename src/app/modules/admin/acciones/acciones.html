@@ -1,0 +1,30 @@
+<div class="page-shell">
+  <div class="container">
+    <h1 class="section-title">Acciones Administrativas</h1>
+    <p class="subtitle text-center mb-4">{{ subtitulo }}</p>
+
+    <div class="menu-grid">
+      <div
+        *ngFor="let accion of acciones"
+        [ngClass]="['menu-card', 'menu-card--' + accion.color]"
+        (click)="navegarA(accion.ruta)"
+        role="button"
+        tabindex="0"
+        [attr.aria-label]="'Ir a ' + accion.titulo"
+        (keydown.enter)="navegarA(accion.ruta)"
+        (keydown.space)="navegarA(accion.ruta)"
+      >
+        <div class="menu-card__icon">
+          <i class="fa" [class]="accion.icono" aria-hidden="true"></i>
+        </div>
+        <div class="menu-card__content">
+          <h2 class="menu-card__titulo">{{ accion.titulo }}</h2>
+          <p class="menu-card__descripcion">{{ accion.descripcion }}</p>
+        </div>
+        <div class="menu-card__arrow">
+          <i class="fa fa-chevron-right" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

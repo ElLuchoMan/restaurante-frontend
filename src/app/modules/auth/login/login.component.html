@@ -1,34 +1,158 @@
-<div class="container-fluid py-5">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <h1 class="section-title text-center mt-5 mb-5">Iniciar Sesión</h1>
-                <div class="form-card-bg p-5">
-                    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-                        <div class="form-group">
-                            <label for="documento">Documento</label>
-                            <input type="number" id="documento" name="documento" class="form-control"
-                                [(ngModel)]="documento" required #campoDocumento="ngModel" placeholder="1000000000"
-                                autocomplete="document" />
-                            <div *ngIf="campoDocumento.invalid && campoDocumento.touched" class="text-danger">
-                                El documento es obligatorio.
-                            </div>
-                        </div>
-                        <div class="form-group mb-4">
-                            <label for="password">Contraseña</label>
-                            <input type="password" id="password" name="password" class="form-control"
-                                autocomplete="current-password" [(ngModel)]="password" required #passwordField="ngModel"
-                                placeholder="******" />
-                            <div *ngIf="passwordField.invalid && passwordField.touched" class="text-danger">
-                                La contraseña es obligatoria y debe tener al menos 6 caracteres.
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block" [disabled]="loginForm.invalid">Iniciar
-                            Sesión</button>
-                        <a class="link mt-4" href="/registro-cliente">¿No tienes una cuenta? <br>Regístrate aquí </a>
-                    </form>
+<section class="auth-hero page-shell">
+  <div class="container h-100">
+    <div class="row justify-content-center h-100">
+      <div class="col-lg-5 col-md-7 d-flex flex-column align-items-center justify-content-center">
+        <header class="text-center mb-4">
+          <h1 class="section-title">Iniciar Sesión</h1>
+          <p class="subtitle">Bienvenido de nuevo. Nos alegra verte.</p>
+        </header>
+
+        <div
+          class="card-glass glow-border rise-on-mount p-4 p-md-5"
+          role="region"
+          aria-labelledby="login-title"
+        >
+          <div class="particles-bg" aria-hidden="true"></div>
+          <h2 id="login-title" class="visually-hidden">Formulario de inicio de sesión</h2>
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="form-group mb-3">
+              <div class="input-float">
+                <span
+                  class="icon"
+                  aria-hidden="true"
+                  [class.icon-active]="documentoFocused || loginForm.get('documento')?.value"
+                  ><i class="fa-solid fa-id-card"></i
+                ></span>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  id="documento"
+                  class="form-control"
+                  formControlName="documento"
+                  placeholder=" "
+                  autocomplete="username"
+                  autofocus
+                  (focus)="documentoFocused = true"
+                  (blur)="documentoFocused = false"
+                  [attr.aria-invalid]="
+                    loginForm.get('documento')?.invalid && loginForm.get('documento')?.touched
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="documento-error"
+                />
+                <label for="documento" class="float-label">Documento</label>
+                <div
+                  class="validation-icon"
+                  *ngIf="loginForm.get('documento')?.valid && loginForm.get('documento')?.value"
+                >
+                  <i class="fa-solid fa-check"></i>
                 </div>
+              </div>
+              <div
+                *ngIf="loginForm.get('documento')?.invalid && loginForm.get('documento')?.touched"
+                id="documento-error"
+                class="text-danger"
+                role="alert"
+              >
+                El documento es obligatorio.
+              </div>
             </div>
+
+            <div class="form-group mb-4">
+              <div class="input-float">
+                <span
+                  class="icon"
+                  aria-hidden="true"
+                  [class.icon-active]="passwordFocused || loginForm.get('password')?.value"
+                  ><i class="fa-solid fa-lock"></i
+                ></span>
+                <input
+                  [type]="isPasswordVisible ? 'text' : 'password'"
+                  id="password"
+                  class="form-control"
+                  autocomplete="current-password"
+                  formControlName="password"
+                  placeholder=" "
+                  (focus)="passwordFocused = true"
+                  (blur)="passwordFocused = false"
+                  [attr.aria-invalid]="
+                    loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+                      ? 'true'
+                      : null
+                  "
+                  aria-describedby="password-error"
+                />
+                <label for="password" class="float-label">Contraseña</label>
+                <button
+                  type="button"
+                  class="toggle-btn"
+                  (click)="togglePasswordVisibility()"
+                  [attr.aria-pressed]="isPasswordVisible"
+                  [attr.aria-label]="
+                    isPasswordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                  "
+                >
+                  <i class="fa-solid" [ngClass]="isPasswordVisible ? 'fa-eye-slash' : 'fa-eye'"></i>
+                </button>
+                <div
+                  class="validation-icon"
+                  *ngIf="loginForm.get('password')?.valid && loginForm.get('password')?.value"
+                >
+                  <i class="fa-solid fa-check"></i>
+                </div>
+              </div>
+              <div
+                *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                id="password-error"
+                class="text-danger"
+                role="alert"
+              >
+                La contraseña es obligatoria y debe tener al menos 5 caracteres.
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mb-4 gap-3 flex-wrap">
+              <div class="remember switch-inline m-0">
+                <div class="custom-control switch">
+                  <input
+                    type="checkbox"
+                    class="switch-input"
+                    id="remember"
+                    [checked]="rememberMe"
+                    (change)="onRememberChange($event)"
+                    aria-describedby="remember-help"
+                  />
+                  <label class="switch-label" for="remember">Recordarme</label>
+                </div>
+                <small id="remember-help" class="text-muted d-block"
+                  >Mantener sesión activa por 30 días</small
+                >
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-progress btn-block d-flex align-items-center justify-content-center gap-2"
+              [disabled]="!isButtonEnabled || isSubmitting"
+            >
+              <span class="progress-bg" [style.--progress]="progress"></span>
+              <span *ngIf="!isSubmitting">Iniciar Sesión</span>
+              <span
+                *ngIf="isSubmitting"
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-live="polite"
+                aria-label="Iniciando sesión"
+              ></span>
+            </button>
+
+            <a class="link mt-4" routerLink="/registro-cliente"
+              >¿No tienes una cuenta? <br />Regístrate aquí</a
+            >
+          </form>
         </div>
+      </div>
     </div>
-</div>
+  </div>
+</section>

@@ -1,17 +1,34 @@
-import { estadoReserva } from "../constants";
+import { estadoReserva } from '../constants';
 
-export interface Reserva {
-  createdAt: string;
-  createdBy: string;
-  documentoCliente?: number | null;
-  estadoReserva: estadoReserva;
-  fechaReserva: string;
-  horaReserva: string;
-  indicaciones: string;
-  nombreCompleto: string;
-  personas: number;
+// ReservaBase (contrato Swagger models.Reserva)
+export interface ReservaBase {
   reservaId?: number;
-  telefono: string;
-  updatedAt: string;
-  updatedBy: string;
+  contactoId: number;
+  restauranteId: number;
+  estadoReserva: estadoReserva;
+  fechaReserva: string; // YYYY-MM-DD
+  horaReserva: string; // HH:MM:SS
+  personas: number;
+  indicaciones?: string;
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
+
+// ReservaPopulada (enriquecida para UI)
+export interface ReservaPopulada extends ReservaBase {
+  nombreCompleto?: string;
+  telefono?: string;
+  documentoCliente?: number | null;
+}
+
+// Requests deben referenciar ReservaBase según Swagger
+// Para creación, el backend puede resolver contacto automáticamente (cliente/invitado),
+// por lo que `contactoId` es opcional en el payload de create.
+export type ReservaCreate = Omit<
+  ReservaBase,
+  'reservaId' | 'createdAt' | 'updatedAt' | 'updatedBy' | 'contactoId'
+> & { contactoId?: number };
+
+export type ReservaUpdate = Partial<ReservaBase> & { updatedBy?: string };

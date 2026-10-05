@@ -1,4 +1,25 @@
-<app-header></app-header>
+<a class="skip-link" href="#main">Saltar al contenido principal</a>
+<!-- Overlay de blur para isla dinámica iOS (solo iOS WebView) - VERSIÓN FINAL -->
+<div class="blur-overlay-ios-final" *ngIf="isWebView"></div>
+<!-- Topbar nativa transversal (solo webview) -->
+<app-native-topbar *ngIf="isWebView"></app-native-topbar>
+<!-- Header solo en web; en webview la barra inferior reemplaza el header -->
+<app-header *ngIf="!isWebView"></app-header>
+<app-update-banner *ngIf="!isWebView"></app-update-banner>
+<app-notification-prompt *ngIf="!isWebView"></app-notification-prompt>
 <app-modal></app-modal>
-<router-outlet></router-outlet>
-<app-footer></app-footer>
+<main id="main" tabindex="-1" role="main" [class.is-webview]="isWebView">
+  <div class="container" *ngIf="showGlobalBack$ | async">
+    <div class="volver-container mt-3" (click)="goBack()">
+      <i class="fas fa-arrow-left volver-icon" aria-hidden="true"></i>
+      <span class="volver-text">Volver</span>
+    </div>
+  </div>
+  <router-outlet></router-outlet>
+  <div aria-live="polite" aria-atomic="true" class="sr-only" id="aria-live-region"></div>
+</main>
+<!-- Barra inferior transversal (solo webview, ahora para todos) -->
+<app-quick-actions *ngIf="isWebView"></app-quick-actions>
+
+<!-- Footer visible solo en Home (toda la app, todos los dispositivos) -->
+<app-footer *ngIf="isHome$ | async"></app-footer>

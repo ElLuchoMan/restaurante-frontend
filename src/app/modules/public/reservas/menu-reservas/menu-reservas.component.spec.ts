@@ -1,9 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MenuReservasComponent } from './menu-reservas.component';
-import { Router, NavigationEnd } from '@angular/router';
-import { UserService } from '../../../../core/services/user.service';
-import { Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+
+import { UserService } from '../../../../core/services/user.service';
+import {
+  createRouterWithEventsMock,
+  createUserServiceMock,
+} from '../../../../shared/mocks/test-doubles';
+import { MenuReservasComponent } from './menu-reservas.component';
 
 describe('MenuReservasComponent', () => {
   let component: MenuReservasComponent;
@@ -15,21 +20,20 @@ describe('MenuReservasComponent', () => {
   beforeEach(async () => {
     eventsSubject = new Subject<any>();
 
-    const routerMock = {
-      navigate: jest.fn(),
-      events: eventsSubject.asObservable(),
-      url: '/reservas',
-    } as unknown as jest.Mocked<Router>;
-
-    const userServiceMock = {
-      getUserRole: jest.fn(),
-    } as unknown as jest.Mocked<UserService>;
+    const routerMock = createRouterWithEventsMock(eventsSubject.asObservable(), '/reservas');
+    const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
+    const activatedRouteMock = {
+      snapshot: { data: {} },
+      params: new Subject(),
+      queryParams: new Subject(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [MenuReservasComponent, CommonModule],
       providers: [
         { provide: Router, useValue: routerMock },
         { provide: UserService, useValue: userServiceMock },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
 
@@ -92,9 +96,10 @@ describe('MenuReservasComponent', () => {
       expect(component.mostrarMenu).toBe(true);
     });
 
-    it('should set mostrarMenu to false when NavigationEnd event urlAfterRedirects is not "/reservas"', () => {
+    it('should set mostrarMenu to true when NavigationEnd event urlAfterRedirects is not a subroute', () => {
       eventsSubject.next(new NavigationEnd(1, '/otraRuta', '/otraRuta'));
-      expect(component.mostrarMenu).toBe(false);
+      // mostrarMenu es true porque '/otraRuta' no contiene /consultar, /hoy, o /crear
+      expect(component.mostrarMenu).toBe(true);
     });
   });
 
@@ -117,4 +122,3 @@ describe('MenuReservasComponent', () => {
     });
   });
 });
-

@@ -1,33 +1,59 @@
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
-import { MisPedidosComponent } from './mis-pedidos.component';
+import { LayoutService } from '../../../core/services/layout.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { UserService } from '../../../core/services/user.service';
+import { EstadoPedido } from '../../../shared/constants';
+import {
+  createPedidoServiceMock,
+  createSpy,
+  createUserServiceMock,
+} from '../../../shared/mocks/test-doubles';
 import { Pedido } from '../../../shared/models/pedido.model';
+import { PedidoTicketComponent } from '../pedido-ticket/pedido-ticket.component';
+import { MisPedidosComponent } from './mis-pedidos.component';
+
+@Component({
+  selector: 'app-pedido-ticket',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: '',
+})
+class MockPedidoTicketComponent {
+  @Input() pedido: any;
+}
 
 describe('MisPedidosComponent', () => {
   let component: MisPedidosComponent;
   let fixture: ComponentFixture<MisPedidosComponent>;
-  let pedidoService: { getMisPedidos: jest.Mock; getPedidoDetalles: jest.Mock };
-  let userService: { getUserId: jest.Mock };
+  let pedidoService: any;
+  let userService: any;
+  let layoutService: any;
 
   beforeEach(async () => {
-    pedidoService = {
-      getMisPedidos: jest.fn(),
-      getPedidoDetalles: jest.fn()
-    };
-    userService = {
-      getUserId: jest.fn()
+    pedidoService = createPedidoServiceMock();
+    userService = createUserServiceMock();
+    layoutService = {
+      hideHeader: createSpy(),
+      showHeader: createSpy(),
+      headerVisible$: of(true),
     };
 
     await TestBed.configureTestingModule({
       imports: [MisPedidosComponent],
       providers: [
         { provide: PedidoService, useValue: pedidoService },
-        { provide: UserService, useValue: userService }
-      ]
-    }).compileComponents();
+        { provide: UserService, useValue: userService },
+        { provide: LayoutService, useValue: layoutService },
+      ],
+    })
+      .overrideComponent(MisPedidosComponent, {
+        remove: { imports: [PedidoTicketComponent] },
+        add: { imports: [MockPedidoTicketComponent] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MisPedidosComponent);
     component = fixture.componentInstance;
@@ -35,6 +61,18 @@ describe('MisPedidosComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should unsubscribe on destroy', () => {
+    userService.getUserId.mockReturnValue(1);
+    const unsub = createSpy();
+    const observable = new Observable(() => {
+      return unsub;
+    });
+    pedidoService.getMisPedidos.mockReturnValue(observable);
+    component.ngOnInit();
+    component.ngOnDestroy();
+    expect(unsub).toHaveBeenCalled();
   });
 
   it('ngOnInit should sort and enrich pedidos', () => {
@@ -45,21 +83,21 @@ describe('MisPedidosComponent', () => {
       horaPedido: hora,
       createdAt: '',
       delivery: false,
-      estadoPedido: '',
+      estadoPedido: EstadoPedido.EstadoPedidoIniciado,
       pagoId: 0,
-      restauranteId: 0
+      restauranteId: 0,
     });
 
     const pedidos = [
       createPedido(1, '01-01-2024', '0000-01-01 10:00:00 +0000 UTC'),
       createPedido(2, '02-01-2024', '0000-01-01 09:00:00 +0000 UTC'),
-      createPedido(undefined, '03-01-2024', '0000-01-01 08:00:00 +0000 UTC')
+      createPedido(undefined, '03-01-2024', '0000-01-01 08:00:00 +0000 UTC'),
     ];
     pedidoService.getMisPedidos.mockReturnValue(of({ data: pedidos }));
 
     pedidoService.getPedidoDetalles.mockImplementation((id: number) => {
       if (id === 1) {
-        return of({ data: { METODO_PAGO: 'CARD', PRODUCTOS: '[]' } });
+        return of({ data: { metodoPago: 'CARD', productos: '[]' } });
       }
       return throwError(() => new Error('fail'));
     });
@@ -104,9 +142,9 @@ describe('MisPedidosComponent', () => {
       horaPedido: '0000-01-01 00:00:00 +0000 UTC',
       createdAt: '',
       delivery: false,
-      estadoPedido: '',
+      estadoPedido: EstadoPedido.EstadoPedidoIniciado,
       pagoId: 0,
-      restauranteId: 0
+      restauranteId: 0,
     };
 
     it('should return base when det undefined', () => {
@@ -116,15 +154,15 @@ describe('MisPedidosComponent', () => {
 
     it('should merge products and calculate totals', () => {
       const det = {
-        METODO_PAGO: 'EFECTIVO',
-        PRODUCTOS: JSON.stringify([
+        metodoPago: 'EFECTIVO',
+        productos: JSON.stringify([
           { SUBTOTAL: 10 },
           { PRECIO_UNITARIO: 2, CANTIDAD: 3 },
           { PRECIO_UNITARIO: 5, CANTIDAD: 'bad' },
           { PRECIO_UNITARIO: 'bad', CANTIDAD: 4 },
           { precio: 7, cantidad: 2 },
-          {}
-        ])
+          {},
+        ]),
       };
       const res = (component as any).mergeDetalles(basePedido, det);
       expect(res.metodoPago).toBe('EFECTIVO');
@@ -134,7 +172,7 @@ describe('MisPedidosComponent', () => {
     });
 
     it('should handle missing product string', () => {
-      const det = { METODO_PAGO: 'CARD' } as any;
+      const det = { metodoPago: 'CARD' } as any;
       const res = (component as any).mergeDetalles(basePedido, det);
       expect(res.productos).toEqual([]);
       expect(res.total).toBe(0);
@@ -142,7 +180,7 @@ describe('MisPedidosComponent', () => {
     });
 
     it('should handle non array product string', () => {
-      const det = { METODO_PAGO: 'CARD', PRODUCTOS: JSON.stringify({ foo: 1 }) };
+      const det = { metodoPago: 'CARD', productos: JSON.stringify({ foo: 1 }) };
       const res = (component as any).mergeDetalles(basePedido, det);
       expect(res.productos).toEqual([]);
       expect(res.total).toBe(0);
@@ -150,12 +188,21 @@ describe('MisPedidosComponent', () => {
     });
 
     it('should handle invalid JSON', () => {
-      const det = { PRODUCTOS: 'invalid' } as any;
+      const det = { productos: 'invalid' } as any;
       const res = (component as any).mergeDetalles(basePedido, det);
       expect(res.metodoPago).toBeUndefined();
       expect(res.productos).toBeUndefined();
       expect(res.total).toBeUndefined();
       expect(res.items).toBeUndefined();
+    });
+
+    it('should merge delivery flag with fallback to pedido', () => {
+      const base = { ...basePedido, delivery: false };
+      const res1 = (component as any).mergeDetalles(base, { delivery: true });
+      expect(res1.delivery).toBe(true);
+
+      const res2 = (component as any).mergeDetalles(base, {} as any);
+      expect(res2.delivery).toBe(false);
     });
   });
 
@@ -195,6 +242,104 @@ describe('MisPedidosComponent', () => {
     it('should return zeros for undefined', () => {
       const res = (component as any).parseHora(undefined);
       expect(res).toEqual({ hh: 0, mm: 0, ss: 0 });
+    });
+  });
+
+  describe('togglePedido', () => {
+    it('should expand a pedido when clicked', () => {
+      component.expandedPedidoId = null;
+      component.togglePedido(1);
+      expect(component.expandedPedidoId).toBe(1);
+    });
+
+    it('should collapse a pedido when clicked again', () => {
+      component.expandedPedidoId = 1;
+      component.togglePedido(1);
+      expect(component.expandedPedidoId).toBeNull();
+    });
+
+    it('should switch between pedidos', () => {
+      component.expandedPedidoId = 1;
+      component.togglePedido(2);
+      expect(component.expandedPedidoId).toBe(2);
+    });
+
+    it('should do nothing if pedidoId is undefined', () => {
+      component.expandedPedidoId = 1;
+      component.togglePedido(undefined);
+      expect(component.expandedPedidoId).toBe(1);
+    });
+  });
+
+  describe('isPedidoExpanded', () => {
+    it('should return true if pedido is expanded', () => {
+      component.expandedPedidoId = 1;
+      expect(component.isPedidoExpanded(1)).toBe(true);
+    });
+
+    it('should return false if pedido is not expanded', () => {
+      component.expandedPedidoId = 1;
+      expect(component.isPedidoExpanded(2)).toBe(false);
+    });
+
+    it('should return false if no pedido is expanded', () => {
+      component.expandedPedidoId = null;
+      expect(component.isPedidoExpanded(1)).toBe(false);
+    });
+
+    it('should return false if pedidoId is undefined', () => {
+      component.expandedPedidoId = 1;
+      expect(component.isPedidoExpanded(undefined)).toBe(false);
+    });
+  });
+
+  describe('getEstado helpers coverage', () => {
+    it('getEstadoClass covers all branches', () => {
+      expect(component['getEstadoClass']('TERMINADO')).toBe('success');
+      expect(component['getEstadoClass']('ENTREGADO')).toBe('success');
+      expect(component['getEstadoClass']('INICIADO')).toBe('warning');
+      expect(component['getEstadoClass']('EN_PREPARACION')).toBe('warning');
+      expect(component['getEstadoClass']('PREPARACION')).toBe('warning');
+      expect(component['getEstadoClass']('CANCELADO')).toBe('danger');
+      expect(component['getEstadoClass']('EN_CAMINO')).toBe('info');
+      expect(component['getEstadoClass']('OTRO')).toBe('default');
+    });
+
+    it('getEstadoIcon covers all branches', () => {
+      expect(component['getEstadoIcon']('TERMINADO')).toBe('fa-check-circle');
+      expect(component['getEstadoIcon']('ENTREGADO')).toBe('fa-check-circle');
+      expect(component['getEstadoIcon']('INICIADO')).toBe('fa-fire');
+      expect(component['getEstadoIcon']('EN_PREPARACION')).toBe('fa-fire');
+      expect(component['getEstadoIcon']('PREPARACION')).toBe('fa-fire');
+      expect(component['getEstadoIcon']('CANCELADO')).toBe('fa-times-circle');
+      expect(component['getEstadoIcon']('EN_CAMINO')).toBe('fa-truck');
+      expect(component['getEstadoIcon']('OTRO')).toBe('fa-info-circle');
+    });
+
+    it('getEstadoLabel covers all branches', () => {
+      expect(component['getEstadoLabel']('TERMINADO')).toBe('Terminado');
+      expect(component['getEstadoLabel']('ENTREGADO')).toBe('Entregado');
+      expect(component['getEstadoLabel']('INICIADO')).toBe('Iniciado');
+      expect(component['getEstadoLabel']('EN_PREPARACION')).toBe('En Preparación');
+      expect(component['getEstadoLabel']('PREPARACION')).toBe('En Preparación');
+      expect(component['getEstadoLabel']('CANCELADO')).toBe('Cancelado');
+      expect(component['getEstadoLabel']('EN_CAMINO')).toBe('En Camino');
+      expect(component['getEstadoLabel']('OTRO')).toBe('OTRO');
+    });
+  });
+  describe('Modal Logic', () => {
+    it('openModal should set selectedPedido and disable scroll', () => {
+      const pedido: any = { pedidoId: 1 };
+      component.openModal(pedido);
+      expect(component.selectedPedido).toBe(pedido);
+      expect(document.body.style.overflow).toBe('hidden');
+    });
+
+    it('closeModal should clear selectedPedido and restore scroll', () => {
+      component.selectedPedido = { pedidoId: 1 } as any;
+      component.closeModal();
+      expect(component.selectedPedido).toBeNull();
+      expect(document.body.style.overflow).toBe('');
     });
   });
 });

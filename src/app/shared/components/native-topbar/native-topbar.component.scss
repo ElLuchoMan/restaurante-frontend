@@ -1,0 +1,48 @@
+@use '../../../../assets/_variables.scss' as *;
+
+// Solo aplicar estilos en webview (el componente ya tiene *ngIf="isWebView")
+.home-topbar {
+  position: fixed;
+  top: env(safe-area-inset-top, 0); // iOS: respeta isla dinámica, Android: 0
+  left: 0;
+  right: 0;
+  z-index: 1040;
+  height: var(--native-topbar-h); // altura visual fija; el main compensa con padding-top dinámico
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(12px) saturate(180%);
+  border-bottom: 1px solid $shadow-soft;
+  box-shadow: 0 1px 20px $shadow-light;
+  .container {
+    height: var(--native-topbar-h);
+    display: flex;
+    align-items: center;
+  }
+  img {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+  }
+  /* Los estilos .btn-link.btn-link-neutral están disponibles globalmente en _base.scss */
+  .btn-link i {
+    font-size: 18px;
+  }
+  .badge.cart-badge.topbar {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: $primary;
+    color: $white;
+  }
+}
+
+.home-topbar-shadow {
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: transparent;
+  pointer-events: none;
+}
+
+/* Espaciador eliminado: se maneja con padding-top en #main */

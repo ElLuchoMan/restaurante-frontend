@@ -1,12 +1,69 @@
 [build]
-  command = "npm install --legacy-peer-deps && npm run build"
+  command = "npm install --legacy-peer-deps && npm run build:webview"
   publish = "dist/restaurante-frontend/browser"
 
 [build.environment]
-  NODE_VERSION = "22.16.0"
+  NODE_VERSION = "24"
   NPM_FLAGS = "--legacy-peer-deps"
+  # Deshabilitar Angular SSR Runtime de Netlify
+  NETLIFY_SKIP_EDGE_FUNCTIONS = "true"
+  DISABLE_NETLIFY_ANGULAR_RUNTIME = "true"
+
+# Deshabilitar auto-detección de framework para evitar conflictos con Angular Runtime plugin
+[dev]
+  framework = "#static"
+
+# Deshabilitar Edge Functions que causan conflicto con el build
+[functions]
+  node_bundler = "none"
+
+# Sobrescribir plugins de la UI - solo mantener lighthouse y emails, excluir angular-runtime
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+
+[[plugins]]
+  package = "@netlify/plugin-emails"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Proxy al backend (Render) para `netlify dev` y deploy previews
+[[redirects]]
+  from = "/restaurante/v1/*"
+  to = "https://restaurante-back-wlxp.onrender.com/restaurante/v1/:splat"
+  status = 200
+  force = true
+
+# Headers de seguridad globales
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(self), camera=(self), microphone=()"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: http://localhost:8080; frame-src 'self' https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';"
+
+# Cache de assets estáticos
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"

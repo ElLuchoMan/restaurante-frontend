@@ -1,30 +1,113 @@
 <!doctype html>
 <html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>El fogón de María</title>
+    <meta
+      name="description"
+      content="Restaurante colombiano: tradición e innovación en cada plato. Menú, reservas y domicilios en Bogotá."
+    />
+    <meta
+      name="keywords"
+      content="restaurante colombiano, comida tradicional, Bogotá, reservas, domicilios, menú"
+    />
+    <meta name="author" content="El fogón de María" />
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
 
-<head>
-  <meta charset="utf-8">
-  <title>La cocina de María</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#d4a017" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Fogón María" />
 
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#d4a017">
-</head>
+    <!-- Preload critical resources -->
+    <link rel="preload" href="assets/img/logo2.webp" as="image" type="image/webp" />
+    <link
+      rel="prefetch"
+      href="assets/img/carousel-1-768.webp"
+      type="image/webp"
+      media="(max-width: 768px)"
+    />
+    <link
+      rel="prefetch"
+      href="assets/img/carousel-1-1200.webp"
+      type="image/webp"
+      media="(min-width: 769px)"
+    />
 
-<body>
-  <app-root></app-root>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/js/main.js"></script>
-  <script src="assets/lib/easing/easing.min.js"></script>
-  <script src="assets/lib/waypoints/waypoints.min.js"></script>
-  <script src="assets/lib/owlcarousel/owl.carousel.min.js"></script>
-  <script src="assets/lib/isotope/isotope.pkgd.min.js"></script>
-  <script src="assets/lib/lightbox/js/lightbox.min.js"></script>
+    <!-- Google Fonts - Montserrat y Alegreya Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Alegreya+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
 
-  <noscript>Please enable JavaScript to continue using this application.</noscript>
-</body>
+    <!-- Preconnects (activa cuando tengas dominio/backend definitivo) -->
+    <!-- <link rel="preconnect" href="https://tu-backend.example.com" crossorigin /> -->
+    <link rel="canonical" href="/" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        "name": "El fogón de María",
+        "url": "/",
+        "logo": "/assets/img/logo2.webp",
+        "image": "/assets/img/carousel-1-1200.webp",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Calle 78a # 62 - 48",
+          "addressLocality": "Bogotá",
+          "addressCountry": "CO"
+        },
+        "telephone": "+57 304 244 9339",
+        "servesCuisine": ["Colombiana", "Fusión"],
+        "priceRange": "$$",
+        "sameAs": ["https://www.facebook.com/", "https://www.instagram.com/"]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "El fogón de María",
+        "url": "/ubicacion",
+        "logo": "/assets/img/logo2.webp",
+        "image": "/assets/img/carousel-2-1200.webp",
+        "telephone": "+57 304 244 9339",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Calle 78a # 62 - 48",
+          "addressLocality": "Bogotá",
+          "addressCountry": "CO"
+        },
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+              "Sunday"
+            ],
+            "opens": "09:00",
+            "closes": "22:00"
+          }
+        ]
+      }
+    </script>
+  </head>
 
+  <body>
+    <app-root></app-root>
+
+    <noscript>Please enable JavaScript to continue using this application.</noscript>
+  </body>
 </html>

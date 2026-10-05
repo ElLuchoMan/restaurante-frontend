@@ -1,68 +1,151 @@
-<div class="container-fluid bg-primary py-3 d-none d-md-block">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 text-center text-lg-left mb-2 mb-lg-0">
-                <div class="d-inline-flex align-items-center">
-                    <a class="text-white pr-3" routerLink="">Contacto &nbsp;</a>
-                    <span class="text-white"> &nbsp;|</span>
-                    <a class="text-white px-2" routerLink="">Quiénes somos</a>
-                </div>
-            </div>
-            <div class="col-md-6 text-center text-lg-right">
-                <div class="d-inline-flex align-items-center">
-                    <a class="text-white px-3" href="https://www.facebook.com/">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-
-                    <a class="text-white px-3" href="https://www.instagram.com/">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                </div>
-            </div>
+<div
+  class="container-fluid py-3 d-none d-md-block top-bar"
+  *ngIf="showHeader"
+  role="banner"
+  aria-label="Información de contacto y redes sociales"
+>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-lg-start mb-2 mb-lg-0">
+        <div class="d-inline-flex align-items-center">
+          <a class="text-white pe-3" routerLink="" aria-label="Ir a página de contacto">
+            <i class="fas fa-phone-alt me-2" aria-hidden="true"></i>Contacto
+          </a>
+          <span class="text-white mx-2" aria-hidden="true">•</span>
+          <a class="text-white ps-2" routerLink="" aria-label="Conoce más sobre nosotros">
+            <i class="fas fa-heart me-2" aria-hidden="true"></i>Quiénes somos
+          </a>
         </div>
+      </div>
+      <div class="col-md-6 text-center text-lg-end">
+        <div class="d-inline-flex align-items-center">
+          <span class="text-white me-3 fw-semibold">Síguenos:</span>
+          <a
+            class="text-white px-2"
+            href="https://www.facebook.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visitar nuestra página de Facebook"
+          >
+            <i class="fab fa-facebook-f" aria-hidden="true"></i>
+          </a>
+          <a
+            class="text-white px-2"
+            href="https://www.instagram.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visitar nuestro perfil de Instagram"
+          >
+            <i class="fab fa-instagram" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
-<div class="container-fluid position-relative nav-bar p-0">
-    <div class="container-lg position-relative p-0 px-lg-3" style="z-index: 9;">
-        <nav class="navbar navbar-expand-lg bg-white navbar-light shadow p-lg-0">
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                <div class="navbar-nav ml-auto py-0 menu-left">
-                    <a *ngFor="let item of menuLeft" [routerLink]="item.route" class="nav-item nav-link"
-                        (click)="cerrarMenu()">
-                        {{ item.label }}
-                    </a>
-                </div>
-
-                <div class="logo-container">
-                    <h1 class="m-0 display-5 text-primary logo-text" [ngClass]="{ 'd-none': imagenVisible }">
-                        <span class="text-secondary">La cocina </span>DE MARÍA
-                    </h1>
-                    <img src="assets/img/logo2.png" alt="Logo" class="logo-img" [ngClass]="{ 'd-none': !imagenVisible }"
-                        loading="lazy">
-                </div>
-                <!-- header.component.html -->
-                <div class="navbar-nav mr-auto py-0 menu-right">
-                    <a *ngFor="let item of menuRight" [routerLink]="item.route"
-                        class="nav-item nav-link position-relative"
-                        (click)="item.label==='Logout'? logout() : cerrarMenu()">
-
-                        <!-- Carrito: icono + badge -->
-                        <ng-container *ngIf="item.label==='🛒'; else normalLink">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span class="badge cart-badge">{{ cartCount }}</span>
-                        </ng-container>
-
-                        <!-- Los demás enlaces -->
-                        <ng-template #normalLink>
-                            {{ item.label }}
-                        </ng-template>
-                    </a>
-                </div>
-
-            </div>
-        </nav>
+<div
+  class="container-fluid position-relative nav-bar p-0"
+  style="margin-top: -10px"
+  *ngIf="showHeader"
+>
+  <div class="container-lg position-relative p-0 px-lg-3" style="z-index: 9">
+    <!-- Aviso de conexión elegante -->
+    <div
+      *ngIf="!online"
+      class="alert alert-warning py-2 px-3 mb-3 d-flex align-items-center"
+      role="status"
+      aria-live="polite"
+    >
+      <i class="fas fa-wifi me-2" aria-hidden="true"></i>
+      <span>Conexión perdida. Algunas acciones pueden no funcionar correctamente.</span>
     </div>
+
+    <!-- Navbar principal con glassmorphism -->
+    <nav
+      class="navbar navbar-expand-lg navbar-light p-0"
+      role="navigation"
+      aria-label="Navegación principal"
+    >
+      <button
+        type="button"
+        class="navbar-toggler mobile-hamburger-btn"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarCollapse"
+        aria-controls="navbarCollapse"
+        aria-expanded="false"
+        aria-label="Abrir menú"
+      >
+        <i class="fas fa-hamburger hamburger-icon"></i>
+      </button>
+      <div
+        class="collapse navbar-collapse justify-content-between mobile-menu-collapse"
+        id="navbarCollapse"
+      >
+        <div class="navbar-nav ml-auto py-0 menu-left">
+          <a
+            *ngFor="let item of menuLeft"
+            [routerLink]="item.route"
+            class="nav-item nav-link"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            #rlaLeft="routerLinkActive"
+            [attr.aria-current]="rlaLeft.isActive ? 'page' : null"
+            (click)="cerrarMenu()"
+          >
+            {{ item.label }}
+          </a>
+        </div>
+
+        <div class="logo-container">
+          <h1 class="m-0 logo-text" [ngClass]="{ 'd-none': imagenVisible }">
+            <span class="text-secondary">El fogón </span>
+            <span class="fw-bold text-primary">DE MARÍA</span>
+          </h1>
+          <img
+            src="assets/img/logo2.webp"
+            alt="Logo de El fogón DE MARÍA - Restaurante"
+            class="logo-img"
+            [ngClass]="{ 'd-none': !imagenVisible }"
+            loading="eager"
+            decoding="async"
+            width="120"
+            height="220"
+          />
+        </div>
+
+        <div class="navbar-nav mr-auto py-0 menu-right">
+          <a
+            *ngFor="let item of menuRight"
+            [routerLink]="item.route"
+            class="nav-item nav-link position-relative"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            #rlaRight="routerLinkActive"
+            [attr.aria-current]="rlaRight.isActive ? 'page' : null"
+            (click)="item.label === 'Logout' ? logout() : cerrarMenu()"
+          >
+            <!-- Carrito: icono + badge elegante -->
+            <ng-container *ngIf="item.label === '🛒'; else normalLink">
+              <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+              <span
+                class="badge cart-badge"
+                [attr.aria-label]="'Carrito con ' + cartCount + ' productos'"
+                *ngIf="cartCount > 0"
+                >{{ cartCount }}</span
+              >
+              <span class="visually-hidden">Carrito de compras</span>
+            </ng-container>
+
+            <!-- Los demás enlaces -->
+            <ng-template #normalLink>
+              <span>{{ item.label }}</span>
+            </ng-template>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </div>
 </div>
+
+<!-- Barra inferior transversal: solo en webview (nativo) -->
+<app-quick-actions *ngIf="isNative"></app-quick-actions>

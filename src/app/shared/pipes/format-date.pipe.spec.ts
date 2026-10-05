@@ -11,31 +11,33 @@ describe('FormatDatePipe', () => {
     expect(pipe).toBeTruthy();
   });
 
-  it('should format a valid Date object correctly', () => {
-    const date = new Date(Date.UTC(2025, 0, 15));
-    expect(pipe.transform(date)).toBe('2025-01-14');
+  it('should format a valid Date object correctly in DD-MM-YYYY', () => {
+    const date = new Date(Date.UTC(2025, 0, 15)); // 15 enero 2025 UTC
+    // En America/Bogota será 14 enero 2025 (UTC-5)
+    expect(pipe.transform(date)).toBe('14-01-2025');
   });
 
-  it('should format a valid string date correctly', () => {
-    expect(pipe.transform('2025-01-15T00:00:00.000Z')).toBe('2025-01-14');
+  it('should format a valid string date correctly in DD-MM-YYYY', () => {
+    const result = pipe.transform('2025-01-15T00:00:00.000Z');
+    expect(result).toBe('14-01-2025'); // UTC-5
   });
 
-  it('should format an ISO date string without time correctly', () => {
-    const expected = new Date(2025, 11, 24).toLocaleDateString('sv', {
-      timeZone: 'America/Bogota',
-    });
-    expect(pipe.transform('2025-12-24')).toBe(expected);
+  it('should format an ISO date string without time correctly in DD-MM-YYYY', () => {
+    // ISO date 2025-12-24 se interpreta como fecha local
+    expect(pipe.transform('2025-12-24')).toBe('24-12-2025');
   });
 
-  it('should parse a Spanish date string correctly', () => {
-    const expected = new Date(2025, 11, 24).toLocaleDateString('sv', {
-      timeZone: 'America/Bogota',
-    });
-    expect(pipe.transform('24-12-2025')).toBe(expected);
+  it('should parse a Spanish date string correctly and format as DD-MM-YYYY', () => {
+    // Entrada DD-MM-YYYY, salida DD-MM-YYYY
+    expect(pipe.transform('24-12-2025')).toBe('24-12-2025');
   });
 
   it('should return the same string for a valid time in time mode', () => {
     expect(pipe.transform('12:34:56', 'time')).toBe('12:34:56');
+  });
+
+  it('should extract time from backend format "0000-01-01 HH:mm:ss +0000 UTC"', () => {
+    expect(pipe.transform('0000-01-01 20:30:05 +0000 UTC', 'time')).toBe('20:30:05');
   });
 
   it('should format a datetime string correctly in time mode', () => {
@@ -50,11 +52,15 @@ describe('FormatDatePipe', () => {
     expect(pipe.transform(input, 'time')).toBe(expected);
   });
 
-  it('should format a datetime string correctly in datetime mode', () => {
+  it('should format a datetime string correctly in datetime mode with DD-MM-YYYY', () => {
     const input = '2025-01-15T12:34:56Z';
     const dateObj = new Date(input);
     const TZ = 'America/Bogota';
-    const date = dateObj.toLocaleDateString('sv', { timeZone: TZ });
+    // Formato DD-MM-YYYY
+    const year = dateObj.toLocaleDateString('en-US', { timeZone: TZ, year: 'numeric' });
+    const month = dateObj.toLocaleDateString('en-US', { timeZone: TZ, month: '2-digit' });
+    const day = dateObj.toLocaleDateString('en-US', { timeZone: TZ, day: '2-digit' });
+    const date = `${day}-${month}-${year}`;
     const time = dateObj.toLocaleTimeString('es-CO', {
       timeZone: TZ,
       hour12: false,

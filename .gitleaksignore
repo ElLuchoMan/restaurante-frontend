@@ -1,0 +1,16 @@
+# Claves VAPID públicas (no son secretas, se usan en el frontend)
+src/environments/environment.ts:generic-api-key:5
+src/environments/environment.prod.ts:generic-api-key:5
+
+# Documentación con ejemplos de claves (no son claves reales en producción)
+docs/GITHUB-SECRETS-SETUP.md:generic-api-key:72
+docs/GITHUB-SECRETS-SETUP.md:generic-api-key:73
+docs/GITHUB-SECRETS-SETUP.md:generic-api-key:90
+docs/GITHUB-SECRETS-SETUP.md:generic-api-key:153
+docs/GITHUB-SECRETS-SETUP.md:generic-api-key:160
+docs/TESTING-WEB-PUSH.md:generic-api-key:220
+docs/TESTING-WEB-PUSH.md:generic-api-key:226
+docs/TESTING-WEB-PUSH.md:generic-api-key:227
+
+# Google Services (Firebase configuración pública para Android)
+android/app/google-services.json:generic-api-key:18

@@ -278,5 +278,5 @@ Agradecemos a los investigadores de seguridad que reportan vulnerabilidades de m
 
 ---
 
-**Última actualización**: Octubre 2025  
+**Última actualización**: Octubre 2025
 **Versión del documento**: 2.0

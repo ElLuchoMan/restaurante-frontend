@@ -1,11 +1,15 @@
 import { TestBed } from '@angular/core/testing';
+
+import { LoggingService } from './logging.service';
 import { ModalService } from './modal.service';
 
 describe('ModalService', () => {
   let service: ModalService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [LoggingService],
+    });
     service = TestBed.inject(ModalService);
   });
 
@@ -17,20 +21,20 @@ describe('ModalService', () => {
     expect(service.getModalData()).toBeNull();
 
     let isOpenValue: boolean | undefined;
-    service.isOpen$.subscribe(value => {
+    service.isOpen$.subscribe((value) => {
       isOpenValue = value;
     });
     expect(isOpenValue).toBe(false);
   });
 
   it('should update modalData and set isOpen to true when openModal is called', () => {
-    const data = { title: 'Test Modal', content: 'Contenido de prueba' };
+    const data = { title: 'Test Modal', message: 'Contenido de prueba' };
     service.openModal(data);
 
     expect(service.getModalData()).toEqual(data);
 
     let isOpenValue: boolean | undefined;
-    service.isOpen$.subscribe(value => {
+    service.isOpen$.subscribe((value) => {
       isOpenValue = value;
     });
     expect(isOpenValue).toBe(true);
@@ -41,9 +45,29 @@ describe('ModalService', () => {
     service.closeModal();
 
     let isOpenValue: boolean | undefined;
-    service.isOpen$.subscribe(value => {
+    service.isOpen$.subscribe((value) => {
       isOpenValue = value;
     });
     expect(isOpenValue).toBe(false);
+  });
+
+  it('should set and get observaciones', () => {
+    const testObservaciones = 'Observaciones de prueba';
+    service.setObservaciones(testObservaciones);
+
+    expect(service.getObservaciones()).toBe(testObservaciones);
+
+    let observacionesValue: string | undefined;
+    service.observaciones$.subscribe((value) => {
+      observacionesValue = value;
+    });
+    expect(observacionesValue).toBe(testObservaciones);
+  });
+
+  it('should clear observaciones when closeModal is called', () => {
+    service.setObservaciones('Algo');
+    service.closeModal();
+
+    expect(service.getObservaciones()).toBe('');
   });
 });

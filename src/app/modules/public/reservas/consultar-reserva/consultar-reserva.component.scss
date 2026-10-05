@@ -1,1 +1,119 @@
-@use "../../../../../assets/styles.scss" as *;
+@use '../../../../../assets/_variables.scss' as *;
+
+// Lista elegante y compacta de reservas (mejor en WebView)
+.reservas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reserva-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.9rem 1rem;
+  background: $white;
+  border: 1px solid $border-light;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.reserva-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.reserva-left {
+  min-width: 120px;
+  color: $text-muted;
+  font-size: 0.85rem;
+  line-height: 1.1;
+}
+.reserva-fecha {
+  font-weight: 600;
+  color: $text-heading-strong;
+}
+.reserva-hora {
+  font-variant-numeric: tabular-nums;
+}
+
+.reserva-center {
+  display: flex;
+  flex-direction: column;
+}
+.reserva-cliente {
+  font-weight: 600;
+  color: $text-heading-strong;
+}
+.reserva-telefono {
+  color: $text-body;
+  font-size: 0.9rem;
+}
+
+.reserva-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.reserva-right .estado {
+  font-weight: 600;
+  line-height: 1;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+}
+.reserva-right .pax {
+  background-color: $shadow-light;
+  color: $text-heading-strong;
+  line-height: 1;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  transition: transform 0.15s ease;
+}
+.btn-icon.ok {
+  color: #22c55e;
+}
+.btn-icon.cancel {
+  color: #ef4444;
+}
+.btn-icon:active {
+  transform: scale(0.95);
+}
+
+// Responsive para WebView / móvil
+@media (max-width: 576px) {
+  .reserva-item {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'center right'
+      'left right';
+    padding: 0.75rem 0.9rem;
+  }
+  .reserva-left {
+    grid-area: left;
+    min-width: 0;
+    font-size: 0.8rem;
+  }
+  .reserva-center {
+    grid-area: center;
+  }
+  .reserva-right {
+    grid-area: right;
+    gap: 0.4rem;
+  }
+}

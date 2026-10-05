@@ -1,11 +1,50 @@
-@use "../../../../assets/styles.scss" as *;
+@use '../../../../assets/_variables.scss' as *;
+@use '../../../../assets/_base.scss' as *;
 
-a.link {
-  color: $primary;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  text-decoration: underline;
-  white-space: normal;
-  word-wrap: break-word;
+.btn.btn-primary.btn-cta {
+  position: relative;
+  overflow: hidden;
+  background-color: $primary;
+  border-color: $primary;
+  color: $white;
+  transition: all 0.3s ease;
+
+  .progress-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--progress, 0%);
+    background: transparent;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.3; /* Sutil para no ocultar el texto */
+  }
+
+  &:hover {
+    background-color: $quaternary;
+    border-color: $quaternary;
+    color: $white;
+
+    &:focus,
+    &.focus {
+      background-color: $quaternary;
+      border-color: $quaternary;
+      color: $white;
+      box-shadow: 0 0 0 0.2rem $shadow-primary-50;
+    }
+
+    &:disabled {
+      background-color: $primary;
+      border-color: $primary;
+      color: $white;
+      opacity: 0.65;
+    }
+
+    span:not(.progress-bg) {
+      position: relative;
+      z-index: 2;
+    }
+  }
 }
