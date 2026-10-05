@@ -563,9 +563,7 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // Siempre mostrar última página
-    if (total > 1) {
-      pages.push(total);
-    }
+    pages.push(total);
 
     return pages;
   }
@@ -926,18 +924,14 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
       const end = Math.min(total - 1, current + 1);
 
       for (let i = start; i <= end; i++) {
-        if (i !== 1 && i !== total) {
-          pages.push(i);
-        }
+        pages.push(i);
       }
 
       if (current < total - 3) {
         pages.push('...');
       }
 
-      if (total > 1) {
-        pages.push(total);
-      }
+      pages.push(total);
     }
 
     return pages;

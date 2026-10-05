@@ -495,7 +495,7 @@ export class TelemetryService {
           break;
         case 'purchase':
           if (event.paymentMethodLabel) {
-            const method = event.paymentMethodLabel || String(event.paymentMethodId);
+            const method = event.paymentMethodLabel;
             metrics.purchasesByPaymentMethod[method] =
               (metrics.purchasesByPaymentMethod[method] || 0) + 1;
           }

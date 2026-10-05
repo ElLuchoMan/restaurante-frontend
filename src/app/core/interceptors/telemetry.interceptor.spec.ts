@@ -1,7 +1,8 @@
-import { HttpClient, withXhr } from '@angular/common/http';
+import { HttpClient, HttpRequest, withXhr } from '@angular/common/http';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { throwError } from 'rxjs';
 
 import { createTelemetryServiceMock } from '../../shared/mocks/test-doubles';
 import { TelemetryService } from '../services/telemetry.service';
@@ -49,6 +50,19 @@ describe('telemetryInterceptor', () => {
 
     expect(telemetry.logHttp).toHaveBeenCalledWith(
       expect.objectContaining({ method: 'POST', url: '/api/fail', ok: false, status: 500 }),
+    );
+  });
+
+  it('should log status 0 when the error has no status', () => {
+    const req = new HttpRequest('GET', '/api/boom');
+    TestBed.runInInjectionContext(() =>
+      telemetryInterceptor(req, () => throwError(() => new Error('boom'))).subscribe({
+        error: () => {},
+      }),
+    );
+
+    expect(telemetry.logHttp).toHaveBeenCalledWith(
+      expect.objectContaining({ method: 'GET', url: '/api/boom', ok: false, status: 0 }),
     );
   });
 });

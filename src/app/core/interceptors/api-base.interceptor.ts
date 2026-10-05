@@ -41,7 +41,7 @@ export const apiBaseInterceptor: HttpInterceptorFn = (
 
   // Caso 1: URL absoluta con host (http/https) que contiene el segmento base
   if (/^https?:\/\//i.test(rawUrl) && rawUrl.indexOf(API_BASE_SEGMENT) !== -1) {
-    const [, tail = ''] = rawUrl.split(API_BASE_SEGMENT);
+    const [, tail] = rawUrl.split(API_BASE_SEGMENT);
     newUrl = `${configuredBase}${tail}`;
   }
 
