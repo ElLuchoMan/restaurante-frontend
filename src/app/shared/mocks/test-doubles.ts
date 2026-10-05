@@ -862,3 +862,8 @@ export function createFileReaderMockError() {
 export function createFileReaderConstructorMock(mockReader: any) {
   return jest.fn(() => mockReader) as any;
 }
+
+/** Mock de función genérico (evita usar jest.fn directamente en los specs). */
+export function createFnMock<T extends (...args: any[]) => any>(implementation?: T) {
+  return jest.fn(implementation);
+}

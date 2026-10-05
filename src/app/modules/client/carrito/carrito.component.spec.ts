@@ -7,11 +7,12 @@ import { BehaviorSubject, of, throwError } from 'rxjs';
 import { CartService } from '../../../core/services/cart.service';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { DomicilioService } from '../../../core/services/domicilio.service';
+import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { PagoService } from '../../../core/services/pago.service';
-import { PedidoNotificationsService } from '../../../core/services/pedido-notifications.service';
 import { PedidoService } from '../../../core/services/pedido.service';
+import { PedidoNotificationsService } from '../../../core/services/pedido-notifications.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
@@ -548,5 +549,53 @@ describe('CarritoComponent', () => {
     expect(pedidoNotificationsMock.notifyCreacion).not.toHaveBeenCalled();
     expect(pedidoNotificationsMock.notifyAdminDomicilio).not.toHaveBeenCalled();
     expect(cartServiceMock.clearCart).toHaveBeenCalled();
+  });
+
+  it('should announce removal without observations text when product has none', async () => {
+    await setup();
+    const live = TestBed.inject(LiveAnnouncerService);
+    const announceSpy = jest.spyOn(live, 'announce');
+    component.eliminar({ productoId: 2, nombre: 'Jugo' } as Producto);
+    expect(cartServiceMock.remove).toHaveBeenCalledWith(2, undefined);
+    expect(announceSpy).toHaveBeenCalledWith('Jugo eliminado del carrito');
+  });
+
+  it('should announce removal including observations text when present', async () => {
+    await setup();
+    const live = TestBed.inject(LiveAnnouncerService);
+    const announceSpy = jest.spyOn(live, 'announce');
+    component.eliminar({ productoId: 2, nombre: 'Jugo', observaciones: 'sin hielo' } as Producto);
+    expect(announceSpy).toHaveBeenCalledWith('Jugo (sin hielo) eliminado del carrito');
+  });
+
+  it('should include product observations in the modal message and ignore blank ones', async () => {
+    await setup({
+      items: [
+        {
+          productoId: 1,
+          nombre: 'Hamburguesa',
+          precio: 10,
+          cantidad: 2,
+          observaciones: 'sin cebolla',
+        },
+        { productoId: 2, nombre: 'Jugo', precio: 5, cantidad: 1, observaciones: '   ' },
+        { productoId: 3, nombre: 'Papas', precio: 4, cantidad: 1 },
+      ],
+      paymentResp: { data: [{ metodoPagoId: 1, tipo: 'Efectivo' }] },
+    });
+
+    component.crearOrden();
+
+    const config = modalServiceMock.openModal.mock.calls[0][0];
+    expect(config.message).toBe('Observaciones de productos:\n\n• Hamburguesa (x2): sin cebolla\n');
+  });
+
+  it('should leave the modal message undefined when no product has observations', async () => {
+    await setup({ items: [{ productoId: 3, nombre: 'Papas', precio: 4, cantidad: 1 }] });
+
+    component.crearOrden();
+
+    const config = modalServiceMock.openModal.mock.calls[0][0];
+    expect(config.message).toBeUndefined();
   });
 });

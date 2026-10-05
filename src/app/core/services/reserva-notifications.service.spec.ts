@@ -474,4 +474,62 @@ describe('ReservaNotificationsService', () => {
       expect(pushService.enviarNotificacion).toHaveBeenCalled();
     });
   });
+
+  describe('ramas adicionales', () => {
+    it('formatDateTime devuelve strings vacíos si Intl falla y no hay parámetros', () => {
+      const spy = jest.spyOn(Intl, 'DateTimeFormat').mockImplementation(() => {
+        throw new Error('boom');
+      });
+      const result = service['formatDateTime'](undefined, undefined);
+      spy.mockRestore();
+      expect(result).toEqual({ fecha: '', hora: '' });
+    });
+
+    it('formatDateTime devuelve fecha original y hora vacía si falla y falta hora', () => {
+      const result = service['formatDateTime']('invalid-date', undefined);
+      expect(result).toEqual({ fecha: 'invalid-date', hora: '' });
+    });
+
+    it('notifyEstadoCambio usa url con reservaId vacío si reservaId es undefined', async () => {
+      pushService.enviarNotificacion.mockReturnValue(of({ success: true }));
+      await service.notifyEstadoCambio(
+        { fechaReserva: '2024-03-15', horaReserva: '18:30:00', documentoCliente: 5 } as any,
+        estadoReserva.CONFIRMADA,
+      );
+      const payload = pushService.enviarNotificacion.mock.calls[0][0];
+      expect(payload.notificacion.datos.url).toBe('/reservas/consultar?reservaId=');
+    });
+
+    it('notifyCreacion usa url con reservaId vacío si reservaId es undefined', async () => {
+      pushService.enviarNotificacion.mockReturnValue(of({ success: true }));
+      await service.notifyCreacion({
+        fechaReserva: '2024-03-15',
+        horaReserva: '18:30:00',
+        documentoCliente: 5,
+      } as any);
+      const payload = pushService.enviarNotificacion.mock.calls[0][0];
+      expect(payload.notificacion.datos.url).toBe('/reservas/consultar?reservaId=');
+    });
+
+    it('notifyEstadoCambio/notifyCreacion con reserva undefined usan getUserId', async () => {
+      pushService.enviarNotificacion.mockReturnValue(of({ success: true }));
+      userService.getUserId.mockReturnValue(42);
+      await service.notifyEstadoCambio(undefined as any, estadoReserva.PENDIENTE);
+      await service.notifyCreacion(undefined as any);
+      expect(pushService.enviarNotificacion).toHaveBeenCalledTimes(2);
+      for (const call of pushService.enviarNotificacion.mock.calls) {
+        expect(call[0].destinatarios.documentoCliente).toBe(42);
+        expect(call[0].notificacion.datos.url).toBe('/reservas/consultar?reservaId=');
+      }
+    });
+
+    it('sin getUserId en UserService y sin documentoCliente retorna null', async () => {
+      (userService as any).getUserId = undefined;
+      const r1 = await service.notifyEstadoCambio({} as any, estadoReserva.PENDIENTE);
+      const r2 = await service.notifyCreacion({} as any);
+      expect(r1).toBeNull();
+      expect(r2).toBeNull();
+      expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
+    });
+  });
 });

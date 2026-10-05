@@ -15,6 +15,7 @@ import { of, throwError } from 'rxjs';
 
 import { HorarioTrabajadorService } from '../../../core/services/horario-trabajador.service';
 import { UserService } from '../../../core/services/user.service';
+import { RolTrabajador } from '../../../shared/constants';
 import { mockClienteBody, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
 import {
   createClienteServiceMock,
@@ -743,6 +744,118 @@ describe('RegisterComponent', () => {
 
       await expect(component['crearHorariosTrabajador'](12345)).rejects.toThrow();
       consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('onSubmit trabajador: resultado de la creación de horarios', () => {
+    const fillWorkerForm = () => {
+      component.registerForm.patchValue({
+        esTrabajador: true,
+        documento: mockTrabajadorBody.documentoTrabajador.toString(),
+        nombre: mockTrabajadorBody.nombre,
+        apellido: mockTrabajadorBody.apellido,
+        password: mockTrabajadorBody.password,
+        confirmPassword: mockTrabajadorBody.password,
+        sueldo: mockTrabajadorBody.sueldo,
+        telefono: mockTrabajadorBody.telefono,
+        rol: mockTrabajadorBody.rol,
+        correo: 'trabajador@test.com',
+        direccion: 'Calle Test 123',
+        fechaNacimiento: '1990-01-01',
+        nuevo: true,
+      });
+    };
+    const settle = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    it('muestra éxito y navega cuando los horarios se crean', async () => {
+      trabajadorService.registroTrabajador.mockReturnValue(
+        of({ ...mockTrabajadorRegisterResponse, code: 201 }),
+      );
+      const horariosSpy = jest
+        .spyOn(component as any, 'crearHorariosTrabajador')
+        .mockResolvedValue(undefined);
+      fillWorkerForm();
+
+      component.onSubmit();
+      await settle();
+
+      expect(horariosSpy).toHaveBeenCalledWith(Number(mockTrabajadorBody.documentoTrabajador));
+      expect(component.progress).toBe(100);
+      expect(component.isSubmitting).toBe(false);
+      expect(toastr.success).toHaveBeenCalledWith('Trabajador y horarios registrados con éxito');
+      expect(router.navigate).toHaveBeenCalledWith(['/']);
+    });
+
+    it('muestra error y resetea progreso cuando falla la creación de horarios', async () => {
+      trabajadorService.registroTrabajador.mockReturnValue(
+        of({ ...mockTrabajadorRegisterResponse, code: 201 }),
+      );
+      jest
+        .spyOn(component as any, 'crearHorariosTrabajador')
+        .mockRejectedValue(new Error('fallo horarios'));
+      fillWorkerForm();
+
+      component.onSubmit();
+      await settle();
+
+      expect(component.progress).toBe(0);
+      expect(component.isSubmitting).toBe(false);
+      expect(toastr.error).toHaveBeenCalledWith(
+        'Trabajador creado, pero error al crear horarios',
+        'Error',
+      );
+      expect(toastr.success).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('ramas adicionales de onSubmit y updateFormProgress', () => {
+    it('usa rol Mesero por defecto al registrar un trabajador con rol vacío', async () => {
+      trabajadorService.registroTrabajador.mockReturnValue(
+        of({ ...mockTrabajadorRegisterResponse, code: 400, message: 'x' }),
+      );
+      component.registerForm.patchValue({
+        esTrabajador: true,
+        documento: '1234567',
+        nombre: 'Ana',
+        apellido: 'Perez',
+        password: 'pass123',
+        confirmPassword: 'pass123',
+        sueldo: 1000000,
+        telefono: '3001234567',
+        correo: 'a@b.com',
+        direccion: 'Calle 1',
+        fechaNacimiento: '1990-01-01',
+      });
+      const rol = component.registerForm.get('rol');
+      rol?.clearValidators();
+      rol?.setValue('');
+      rol?.updateValueAndValidity();
+      expect(component.registerForm.valid).toBe(true);
+
+      component.onSubmit();
+
+      expect(trabajadorService.registroTrabajador).toHaveBeenCalledWith(
+        expect.objectContaining({ rol: RolTrabajador.RolMesero }),
+      );
+    });
+
+    it('updateFormProgress de trabajador sin horario general ni días personalizados', () => {
+      component.registerForm.patchValue({ esTrabajador: true });
+      component.horarioGeneral = { horaInicio: '', horaFin: '' };
+      component.horariosDiferentes = true;
+      Object.keys(component.diasPersonalizados).forEach(
+        (d) =>
+          (component.diasPersonalizados[d as keyof typeof component.diasPersonalizados] = false),
+      );
+
+      const before = component.formProgress;
+      component.updateFormProgress();
+
+      expect(typeof component.formProgress).toBe('number');
+      expect(component.formProgress).toBeGreaterThanOrEqual(0);
+      expect(component.formProgress).toBeLessThan(100);
+      expect(before).toBeDefined();
     });
   });
 });

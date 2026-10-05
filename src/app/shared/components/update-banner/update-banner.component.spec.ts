@@ -9,6 +9,19 @@ import { UpdateBannerComponent } from './update-banner.component';
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+/**
+ * JSDOM no permite espiar ni reemplazar `document.location.reload` (propiedad no
+ * configurable), pero al invocarla reporta "Not implemented: navigation" al
+ * virtual console (console.error). Contamos esos reportes como llamadas a reload().
+ */
+const countJsdomReloads = (errorSpy: jest.SpyInstance): number =>
+  errorSpy.mock.calls.filter((args) =>
+    args.some((a: unknown) =>
+      String((a as Error)?.message ?? a).includes('Not implemented: navigation'),
+    ),
+  ).length;
+let reloadSpy: jest.SpyInstance;
+
 describe('UpdateBannerComponent', () => {
   let component: UpdateBannerComponent;
   let fixture: ComponentFixture<UpdateBannerComponent>;
@@ -210,9 +223,11 @@ describe('UpdateBannerComponent', () => {
   });
 
   describe('User Interactions', () => {
-    it.skip('should reload page when update button is clicked', async () => {
-      /* JSDOM limitation */
+    beforeEach(() => {
+      reloadSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    });
 
+    it('should reload page when update button is clicked', async () => {
       component.updateAvailable = true;
       fixture.detectChanges();
 
@@ -226,12 +241,10 @@ describe('UpdateBannerComponent', () => {
       await flushPromises();
 
       expect(mockSwUpdate.activateUpdate).toHaveBeenCalled();
-      expect(reloadSpy).toHaveBeenCalledTimes(1);
+      expect(countJsdomReloads(reloadSpy)).toBe(1);
     });
 
-    it.skip('should reload page when activateUpdate fails', async () => {
-      /* JSDOM limitation */
-
+    it('should reload page when activateUpdate fails', async () => {
       mockSwUpdate.activateUpdate.mockRejectedValueOnce(new Error('activation failed'));
 
       component.reload();
@@ -239,7 +252,7 @@ describe('UpdateBannerComponent', () => {
       await flushPromises();
 
       expect(mockSwUpdate.activateUpdate).toHaveBeenCalledTimes(1);
-      expect(reloadSpy).toHaveBeenCalledTimes(1);
+      expect(countJsdomReloads(reloadSpy)).toBe(1);
     });
 
     it('should dismiss update banner when dismiss button is clicked', () => {
@@ -254,8 +267,8 @@ describe('UpdateBannerComponent', () => {
       expect(component.updateAvailable).toBe(false);
     });
 
-    it.skip('should reload page when error banner reload button is clicked', async () => {
-      /* JSDOM limitation */
+    it('should reload page when error banner reload button is clicked', async () => {
+      mockSwUpdate.activateUpdate.mockResolvedValueOnce(undefined);
 
       component.unrecoverable = true;
       fixture.detectChanges();
@@ -266,7 +279,7 @@ describe('UpdateBannerComponent', () => {
       await flushPromises();
 
       expect(mockSwUpdate.activateUpdate).toHaveBeenCalledTimes(1);
-      expect(reloadSpy).toHaveBeenCalledTimes(1);
+      expect(countJsdomReloads(reloadSpy)).toBe(1);
     });
 
     it('should not call activateUpdate on server platform', async () => {
@@ -289,6 +302,11 @@ describe('UpdateBannerComponent', () => {
   });
 
   describe('Component Methods', () => {
+    beforeEach(() => {
+      // reload() real en JSDOM reporta "Not implemented: navigation"
+      jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    });
+
     it('should call reload method correctly', async () => {
       const reloadSpy = jest.spyOn(component, 'reload');
       component.updateAvailable = true;

@@ -596,4 +596,107 @@ describe('HomeComponent', () => {
     expect(footerMock.disconnect).toHaveBeenCalled();
     expect(authSub.closed).toBe(true);
   });
+
+  it('usa 0 como contador del carrito cuando CartService emite un valor nulo', () => {
+    fixture.detectChanges();
+    mockCartService.count$.next(null as unknown as number);
+    expect(component.cartCount).toBe(0);
+  });
+
+  it('initFooterObserver: no reintenta tras agotar los 10 intentos sin footer', fakeAsync(() => {
+    document.querySelectorAll('.footer').forEach((el) => el.remove());
+    (component as any).footerObserverInitAttempts = 10;
+    const timeoutSpy = jest.spyOn(globalThis, 'setTimeout');
+
+    (component as any).initFooterObserver();
+
+    expect(timeoutSpy).not.toHaveBeenCalled();
+    expect((component as any).footerObserverInitAttempts).toBe(11);
+    timeoutSpy.mockRestore();
+  }));
+
+  it('initFooterObserver: reintenta en 300ms e incrementa el contador mientras no haya footer', fakeAsync(() => {
+    document.querySelectorAll('.footer').forEach((el) => el.remove());
+    (component as any).footerObserverInitAttempts = 0;
+
+    (component as any).initFooterObserver();
+    expect((component as any).footerObserverInitAttempts).toBe(1);
+    tick(300);
+    expect((component as any).footerObserverInitAttempts).toBe(2);
+    // Detener los reintentos pendientes
+    (component as any).footerObserverInitAttempts = 10;
+    tick(300);
+  }));
+
+  it('initFooterObserver: el callback oculta/muestra una barra existente según la visibilidad del footer', () => {
+    const footer = document.createElement('div');
+    footer.className = 'footer';
+    footer.getBoundingClientRect = () => ({ top: 5000, bottom: 5010 }) as DOMRect;
+    document.body.appendChild(footer);
+    const bar = document.createElement('div');
+    bar.className = 'quick-actions-bar';
+    document.body.appendChild(bar);
+
+    let callback: ((entries: Array<Partial<IntersectionObserverEntry>>) => void) | undefined;
+    (window as any).IntersectionObserver = class {
+      constructor(cb: any) {
+        callback = cb;
+      }
+      observe() {}
+      disconnect() {}
+    } as any;
+
+    (component as any).initFooterObserver();
+    expect(bar.classList.contains('qa-hidden')).toBe(false);
+
+    callback!([{ isIntersecting: true }]);
+    expect(bar.classList.contains('qa-hidden')).toBe(true);
+
+    callback!([{ isIntersecting: false }]);
+    expect(bar.classList.contains('qa-hidden')).toBe(false);
+
+    callback!([]);
+    expect(bar.classList.contains('qa-hidden')).toBe(false);
+
+    footer.remove();
+    bar.remove();
+  });
+
+  it('initFooterObserver: usa clientHeight o 0 cuando window.innerHeight es 0', () => {
+    const originalInner = window.innerHeight;
+    const footer = document.createElement('div');
+    footer.className = 'footer';
+    footer.getBoundingClientRect = () => ({ top: 50, bottom: 80 }) as DOMRect;
+    document.body.appendChild(footer);
+    const bar = document.createElement('div');
+    bar.className = 'quick-actions-bar';
+    document.body.appendChild(bar);
+    (window as any).IntersectionObserver = class {
+      observe() {}
+      disconnect() {}
+    } as any;
+
+    Object.defineProperty(window, 'innerHeight', { value: 0, configurable: true, writable: true });
+    const clientSpy = jest
+      .spyOn(document.documentElement, 'clientHeight', 'get')
+      .mockReturnValue(100);
+
+    // clientHeight = 100 -> footer (top 50 < 100, bottom 80 > 0) visible
+    (component as any).initFooterObserver();
+    expect(bar.classList.contains('qa-hidden')).toBe(true);
+
+    // clientHeight = 0 -> viewport 0, top 50 < 0 es falso -> no visible
+    clientSpy.mockReturnValue(0);
+    (component as any).initFooterObserver();
+    expect(bar.classList.contains('qa-hidden')).toBe(false);
+
+    clientSpy.mockRestore();
+    Object.defineProperty(window, 'innerHeight', {
+      value: originalInner,
+      configurable: true,
+      writable: true,
+    });
+    footer.remove();
+    bar.remove();
+  });
 });

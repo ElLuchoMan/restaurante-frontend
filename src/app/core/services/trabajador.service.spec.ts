@@ -154,4 +154,30 @@ describe('TrabajadorService', () => {
       req.flush(mockResponse);
     });
   });
+
+  describe('getTrabajadores branches', () => {
+    it('con objeto vacío no agrega params', () => {
+      service.getTrabajadores({}).subscribe((r) => expect(r).toEqual([]));
+      const req = httpMock.expectOne(`${baseUrl}/trabajadores`);
+      expect(req.request.params.keys().length).toBe(0);
+      req.flush({ code: 200, message: 'ok', data: [] });
+    });
+
+    it('envía booleanos false y omite fecha/rol vacíos', () => {
+      service
+        .getTrabajadores({
+          fecha_ingreso: '',
+          rol: '',
+          incluir_retirados: false,
+          solo_retirados: false,
+        })
+        .subscribe();
+      const req = httpMock.expectOne((r) => r.url === `${baseUrl}/trabajadores`);
+      expect(req.request.params.has('fecha_ingreso')).toBe(false);
+      expect(req.request.params.has('rol')).toBe(false);
+      expect(req.request.params.get('incluir_retirados')).toBe('false');
+      expect(req.request.params.get('solo_retirados')).toBe('false');
+      req.flush({ code: 200, message: 'ok', data: [] });
+    });
+  });
 });

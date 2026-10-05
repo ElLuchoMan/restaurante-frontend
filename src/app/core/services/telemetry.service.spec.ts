@@ -530,6 +530,37 @@ describe('TelemetryService', () => {
         expect(Object.values(metrics.salesByHour)[0]).toBe(42000);
         expect(Object.values(metrics.salesByWeekday)[0]).toBe(42000);
       });
+
+      it('should aggregate purchases without items, userId or subtotal and accumulate repeated keys', () => {
+        const ts = Date.UTC(2024, 0, 5, 10, 0, 0);
+
+        service.logEvent({ type: 'purchase', paymentMethodLabel: 'NEQUI', timestamp: ts });
+        service.logEvent({
+          type: 'purchase',
+          paymentMethodLabel: 'NEQUI',
+          timestamp: ts,
+          subtotal: 1000,
+          userId: 5,
+          items: [{ productId: 1, name: 'Jugo', quantity: 1 }],
+        });
+        service.logEvent({
+          type: 'purchase',
+          paymentMethodLabel: 'NEQUI',
+          timestamp: ts,
+          subtotal: 500,
+          userId: 5,
+          items: [{ productId: 1, name: 'Jugo', quantity: 2 }],
+        });
+
+        const metrics = service.getAggregatedMetrics();
+
+        expect(metrics.purchasesByPaymentMethod['NEQUI']).toBe(3);
+        expect(metrics.productsCount['Jugo']).toBe(3);
+        expect(metrics.usersByPurchases['5']).toBe(2);
+        // el primer evento no suma subtotal; los otros dos acumulan en la misma hora/día
+        expect(Object.values(metrics.salesByHour)).toEqual([1500]);
+        expect(Object.values(metrics.salesByWeekday)).toEqual([1500]);
+      });
     });
 
     describe('clear', () => {
@@ -722,6 +753,12 @@ describe('TelemetryService', () => {
         jest.restoreAllMocks();
       });
 
+      it('should fall through to web detection when Capacitor UA is neither android nor ios', () => {
+        expect(detect('Mozilla/5.0 (X11; Linux x86_64) Chrome/120', { Capacitor: {} })).toBe(
+          'desktop',
+        );
+      });
+
       it('should detect android with Capacitor', () => {
         expect(
           detect('Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36', { Capacitor: {} }),
@@ -860,15 +897,13 @@ describe('TelemetryService', () => {
   });
 
   describe('LocalStorage fallback behavior', () => {
-    let originalLocalStorage: Storage | undefined;
-
     beforeEach(() => {
-      originalLocalStorage = (globalThis as any).localStorage;
-      (globalThis as any).localStorage = undefined;
+      // `localStorage` es un getter configurable en jsdom: asignarlo no tiene efecto
+      jest.spyOn(globalThis, 'localStorage', 'get').mockReturnValue(undefined as any);
     });
 
     afterEach(() => {
-      (globalThis as any).localStorage = originalLocalStorage;
+      jest.restoreAllMocks();
     });
 
     it('should safely handle methods when localStorage is unavailable', () => {
@@ -880,6 +915,9 @@ describe('TelemetryService', () => {
       expect(() => service.setDeviceType('android')).not.toThrow();
       expect(() => service.clearUserInfo()).not.toThrow();
       expect(() => service.clear()).not.toThrow();
+      expect((service as any).readAll()).toEqual([]);
+      expect(() => (service as any).writeAll([])).not.toThrow();
+      expect(() => service.logLoginAttempt()).not.toThrow();
     });
   });
 });

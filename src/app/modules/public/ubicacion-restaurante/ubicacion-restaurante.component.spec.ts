@@ -11,8 +11,8 @@ import {
   createRouterMock,
   createToastrMock,
 } from '../../../shared/mocks/test-doubles';
-import { UbicacionRestauranteComponent } from './ubicacion-restaurante.component';
 import { browserLocation } from '../../../shared/utils/browser-location';
+import { UbicacionRestauranteComponent } from './ubicacion-restaurante.component';
 
 describe('UbicacionRestauranteComponent', () => {
   let component: UbicacionRestauranteComponent;
@@ -174,6 +174,42 @@ describe('UbicacionRestauranteComponent', () => {
 
       // Clean up
       delete (window as any).Capacitor;
+    }));
+  });
+
+  describe('ramas adicionales', () => {
+    it('usa la URL de embed con API key cuando hay una clave global configurada', () => {
+      (globalThis as any).__GMAPS_API_KEY__ = 'KEY123';
+      try {
+        const f = TestBed.createComponent(UbicacionRestauranteComponent);
+        const val = (f.componentInstance.ubicacionUrl as any)
+          .changingThisBreaksApplicationSecurity as string;
+        expect(val).toBe(
+          `https://www.google.com/maps/embed/v1/place?key=KEY123&q=${encodeURIComponent('Calle 78a # 62 - 48, Bogotá, Colombia')}`,
+        );
+      } finally {
+        delete (globalThis as any).__GMAPS_API_KEY__;
+      }
+    });
+
+    it('usa la URL de embed sin API key cuando no hay clave', () => {
+      delete (globalThis as any).__GMAPS_API_KEY__;
+      const val = (component.ubicacionUrl as any).changingThisBreaksApplicationSecurity as string;
+      expect(val).toContain('https://www.google.com/maps?q=');
+      expect(val).toContain('&output=embed');
+      expect(val).not.toContain('key=');
+    });
+
+    it('usa "web" si Capacitor.getPlatform devuelve null', fakeAsync(() => {
+      (window as any).Capacitor = { getPlatform: () => null };
+      try {
+        component.ngAfterViewInit();
+        tick(500);
+        expect(component.platform).toBe('web');
+        expect(component.isWebView).toBe(false);
+      } finally {
+        delete (window as any).Capacitor;
+      }
     }));
   });
 });

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { SwPush } from '@angular/service-worker';
-import { Subject, of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 
 import {
   configureUserServiceMock,
@@ -16,10 +16,10 @@ import {
   createSwPushMock,
   createUserServiceMock,
 } from '../../shared/mocks/test-doubles';
+import { browserLocation } from '../../shared/utils/browser-location';
 import { PushService } from './push.service';
 import { UserService } from './user.service';
 import { WebPushService } from './web-push.service';
-import { browserLocation } from '../../shared/utils/browser-location';
 
 describe('WebPushService', () => {
   let service: WebPushService;
@@ -267,6 +267,22 @@ describe('WebPushService', () => {
       consoleSpy.mockRestore();
     });
 
+    it('debería usar "Error desconocido" si se lanza un valor que no es Error', async () => {
+      jest.spyOn(service, 'isSupported').mockReturnValue(true);
+      swPush.isEnabled = true;
+      (window.Notification as any).permission = 'granted';
+      jest.spyOn(service as any, 'subscribe').mockRejectedValue('boom');
+      const consoleSpy = createConsoleSpyMock('error');
+
+      const result = await service.requestPermissionAndSubscribe();
+
+      expect(result).toBe(false);
+      expect(alertSpy).toHaveBeenCalledWith(
+        '❌ Error al activar notificaciones:\nError desconocido',
+      );
+      consoleSpy.mockRestore();
+    });
+
     it('debería manejar error cuando la suscripción es inválida', async () => {
       jest.spyOn(service, 'isSupported').mockReturnValue(true);
       swPush.isEnabled = true;
@@ -415,6 +431,40 @@ describe('WebPushService', () => {
 
       consoleSpy.mockRestore();
     });
+    it('debería usar "Error desconocido" cuando se rechaza con un valor que no es Error', async () => {
+      swPush.isEnabled = true;
+      swPush.requestSubscription.mockRejectedValue('fallo-string');
+
+      const consoleSpy = createConsoleSpyMock('error');
+
+      const result = await (service as any).subscribe();
+
+      expect(result).toBe(false);
+      expect(alertSpy).toHaveBeenCalledWith(
+        '❌ Error al activar notificaciones:\nError desconocido',
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('debería usar valores por defecto de locale y userAgent cuando navigator no los provee', async () => {
+      swPush.isEnabled = true;
+      jest.spyOn(navigator, 'language', 'get').mockReturnValue('');
+      jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue('');
+      swPush.requestSubscription.mockResolvedValue({
+        toJSON: () => ({ endpoint: 'https://push.example/x', keys: { p256dh: 'p', auth: 'a' } }),
+      } as any);
+      pushService.registrarDispositivo.mockReturnValue(of({ code: 200 } as any));
+      (swPush as any).messages = new Subject<any>();
+      (swPush as any).notificationClicks = new Subject<any>();
+
+      const result = await (service as any).subscribe();
+
+      expect(result).toBe(true);
+      expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
+        expect.objectContaining({ locale: 'es-CO', userAgent: '' }),
+      );
+    });
   });
 
   describe('listenToPushMessages', () => {
@@ -445,6 +495,40 @@ describe('WebPushService', () => {
 
       expect(assignSpy).toHaveBeenCalledWith('https://ejemplo.com');
       assignSpy.mockRestore();
+    });
+
+    it('debería aplicar valores por defecto y ignorar mensajes sin notification', () => {
+      const messages$ = new Subject<any>();
+      const clicks$ = new Subject<any>();
+      (swPush as any).messages = messages$;
+      (swPush as any).notificationClicks = clicks$;
+      const showNotificationSpy = jest
+        .spyOn(service, 'showNotification')
+        .mockImplementation(() => {});
+
+      (service as any).listenToPushMessages();
+
+      messages$.next({ notification: {} });
+      expect(showNotificationSpy).toHaveBeenCalledWith('Notificación', '', {});
+
+      showNotificationSpy.mockClear();
+      messages$.next({ data: { tipo: 'x' } });
+      expect(showNotificationSpy).not.toHaveBeenCalled();
+    });
+
+    it('no debería navegar cuando la notificación clickeada no tiene url', () => {
+      const messages$ = new Subject<any>();
+      const clicks$ = new Subject<any>();
+      (swPush as any).messages = messages$;
+      (swPush as any).notificationClicks = clicks$;
+      const assignSpy = jest.spyOn(browserLocation, 'assign').mockImplementation(() => {});
+
+      (service as any).listenToPushMessages();
+
+      clicks$.next({ action: 'open', notification: { data: {} } });
+      clicks$.next({ action: 'open', notification: {} });
+
+      expect(assignSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -490,6 +574,38 @@ describe('WebPushService', () => {
           body: 'Test Body',
           tag: 'TEST',
         }),
+      );
+    });
+
+    it('debería usar data vacía y tag general cuando no se envía data', async () => {
+      jest.spyOn(service, 'isSupported').mockReturnValue(true);
+      (window.Notification as any).permission = 'granted';
+
+      const registration = await navigator.serviceWorker.ready;
+      const showSpy = registration.showNotification as jest.Mock;
+
+      service.showNotification('Sin data', 'Body');
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(showSpy).toHaveBeenCalledWith(
+        'Sin data',
+        expect.objectContaining({ data: {}, tag: 'general', requireInteraction: false }),
+      );
+    });
+
+    it('debería usar tag general cuando data no trae tipo', async () => {
+      jest.spyOn(service, 'isSupported').mockReturnValue(true);
+      (window.Notification as any).permission = 'granted';
+
+      const registration = await navigator.serviceWorker.ready;
+      const showSpy = registration.showNotification as jest.Mock;
+
+      service.showNotification('Con data', 'Body', { otro: 1 });
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(showSpy).toHaveBeenCalledWith(
+        'Con data',
+        expect.objectContaining({ data: { otro: 1 }, tag: 'general' }),
       );
     });
 

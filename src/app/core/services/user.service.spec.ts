@@ -418,6 +418,64 @@ describe('UserService', () => {
 
       expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 25 * 60 * 1000);
     });
+
+    describe('refresh automático programado', () => {
+      beforeEach(() => jest.useFakeTimers());
+      afterEach(() => jest.useRealTimers());
+
+      it('refresca y guarda los tokens a los 25 minutos', () => {
+        const newResponse = {
+          ...mockLoginResponse,
+          data: { ...mockLoginResponse.data, access_token: 'nuevo-a', refresh_token: 'nuevo-r' },
+        };
+        service.saveTokens('a', 'r');
+
+        jest.advanceTimersByTime(25 * 60 * 1000 - 1);
+        httpTestingController.expectNone(`${environment.apiUrl}/auth/refresh`);
+        jest.advanceTimersByTime(1);
+
+        const req = httpTestingController.expectOne(`${environment.apiUrl}/auth/refresh`);
+        expect(req.request.headers.get('Authorization')).toBe('Bearer r');
+        req.flush(newResponse);
+
+        expect(localStorage.getItem('auth_token')).toBe('nuevo-a');
+        expect(localStorage.getItem('refresh_token')).toBe('nuevo-r');
+        expect(mockLoggingService.log).toHaveBeenCalledWith(
+          LogLevel.INFO,
+          'Tokens refrescados automáticamente',
+        );
+      });
+
+      it('registra el error y hace logout si el refresh automático falla', () => {
+        service.saveTokens('a', 'r');
+        jest.advanceTimersByTime(25 * 60 * 1000);
+
+        const req = httpTestingController.expectOne(`${environment.apiUrl}/auth/refresh`);
+        req.flush({ message: 'x' }, { status: 401, statusText: 'Unauthorized' });
+
+        expect(mockLoggingService.log).toHaveBeenCalledWith(
+          LogLevel.ERROR,
+          'Error en refresh automático',
+          expect.anything(),
+        );
+        expect(localStorage.getItem('auth_token')).toBeNull();
+        expect(localStorage.getItem('refresh_token')).toBeNull();
+      });
+
+      it('cancela el timer anterior al guardar tokens de nuevo', () => {
+        const clearSpy = jest.spyOn(global, 'clearTimeout');
+        service.saveTokens('a1', 'r1');
+        clearSpy.mockClear();
+        service.saveTokens('a2', 'r2');
+        expect(clearSpy).toHaveBeenCalledTimes(1);
+
+        jest.advanceTimersByTime(25 * 60 * 1000);
+        // Solo un refresh (el del segundo timer) con el último refresh token
+        const req = httpTestingController.expectOne(`${environment.apiUrl}/auth/refresh`);
+        expect(req.request.headers.get('Authorization')).toBe('Bearer r2');
+        req.flush(mockLoginResponse);
+      });
+    });
   });
 
   describe('Remember Me functionality', () => {

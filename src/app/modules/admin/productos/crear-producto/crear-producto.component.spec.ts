@@ -1,9 +1,9 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 
-import { ToastrService } from 'ngx-toastr';
 import { CategoriaService } from '../../../../core/services/categoria.service';
 import { ProductoService } from '../../../../core/services/producto.service';
 import { SubcategoriaService } from '../../../../core/services/subcategoria.service';
@@ -12,6 +12,7 @@ import { mockCategorias } from '../../../../shared/mocks/categoria.mock';
 import { mockSubcategorias } from '../../../../shared/mocks/subcategoria.mock';
 import {
   createCategoriaServiceMock,
+  createFnMock,
   createImageOptimizationServiceMock,
   createProductoServiceMock,
   createSubcategoriaServiceMock,
@@ -163,15 +164,20 @@ describe('CrearProductoComponent', () => {
   });
 
   describe('onCategoriaChange', () => {
-    it.skip('should filter subcategories when category is selected', () => {
+    it('should filter subcategories when category is selected', () => {
       // Asegurar que las propiedades están inicializadas antes del test
       component.categorias = mockCategorias;
       component.subcategorias = mockSubcategorias;
       component.subcategoriasFiltradas = mockSubcategorias;
 
-      component.producto.categoria = 'Comida';
+      // 'Bebidas' tiene categoriaId 1 en los mocks
+      component.producto.categoria = 'Bebidas';
+      component.producto.subcategoria = '';
       component.onCategoriaChange();
 
+      expect(component.subcategoriasFiltradas).toEqual(
+        mockSubcategorias.filter((sub) => sub.categoriaId === 1),
+      );
       expect(component.subcategoriasFiltradas.length).toBeGreaterThan(0);
       const allMatch = component.subcategoriasFiltradas.every(
         (sub) => sub.categoriaId === 1 || (sub.categoriaId as any).categoriaId === 1,
@@ -179,7 +185,7 @@ describe('CrearProductoComponent', () => {
       expect(allMatch).toBe(true);
     });
 
-    it.skip('should clear subcategory if not in filtered list', () => {
+    it('should clear subcategory if not in filtered list', () => {
       // Asegurar que las propiedades están inicializadas antes del test
       component.categorias = mockCategorias;
       component.subcategorias = mockSubcategorias;
@@ -602,6 +608,316 @@ describe('CrearProductoComponent', () => {
       const navigateSpy = jest.spyOn(router, 'navigate');
       component.cancelar();
       expect(navigateSpy).toHaveBeenCalledWith(['/admin/productos']);
+    });
+  });
+
+  describe('cobertura adicional', () => {
+    const productoValido = () => ({
+      nombre: 'Test',
+      calorias: 10,
+      descripcion: 'desc',
+      precio: 20,
+      estadoProducto: estadoProducto.DISPONIBLE,
+      cantidad: 5,
+      categoria: 'Comida',
+      subcategoria: 'Hamburguesas',
+    });
+
+    describe('onCategoriaChange', () => {
+      it('no hace nada si categorias o subcategorias no están inicializadas', () => {
+        component.categorias = undefined as any;
+        component.subcategorias = mockSubcategorias;
+        component.subcategoriasFiltradas = mockSubcategorias;
+        component.producto.categoria = 'Comida';
+        component.producto.subcategoria = 'X';
+        component.onCategoriaChange();
+        expect(component.subcategoriasFiltradas).toEqual(mockSubcategorias);
+        expect(component.producto.subcategoria).toBe('X');
+
+        component.categorias = mockCategorias;
+        component.subcategorias = undefined as any;
+        component.onCategoriaChange();
+        expect(component.producto.subcategoria).toBe('X');
+      });
+
+      it('conserva la subcategoría si pertenece a la categoría', () => {
+        component.categorias = mockCategorias;
+        component.subcategorias = mockSubcategorias;
+        component.producto.categoria = 'Comida';
+        component.producto.subcategoria = 'Hamburguesas';
+        component.onCategoriaChange();
+        expect(component.subcategoriasFiltradas.map((s) => s.nombre)).toEqual(['Hamburguesas']);
+        expect(component.producto.subcategoria).toBe('Hamburguesas');
+      });
+
+      it('soporta categoriaId como objeto en las subcategorías', () => {
+        component.categorias = mockCategorias;
+        component.subcategorias = [
+          { subcategoriaId: 1, nombre: 'Gaseosas', categoriaId: { categoriaId: 1 } as any },
+          { subcategoriaId: 9, nombre: 'Hamburguesas', categoriaId: { categoriaId: 2 } as any },
+        ];
+        component.producto.categoria = 'Bebidas';
+        component.producto.subcategoria = 'Gaseosas';
+        component.onCategoriaChange();
+        expect(component.subcategoriasFiltradas.map((s) => s.nombre)).toEqual(['Gaseosas']);
+        expect(component.producto.subcategoria).toBe('Gaseosas');
+      });
+
+      it('no filtra cuando la categoría no existe en la lista pero limpia la subcategoría', () => {
+        component.categorias = mockCategorias;
+        component.subcategorias = mockSubcategorias;
+        component.subcategoriasFiltradas = [];
+        component.producto.categoria = 'Inexistente';
+        component.producto.subcategoria = 'Gaseosas';
+        component.onCategoriaChange();
+        expect(component.subcategoriasFiltradas).toEqual([]);
+        expect(component.producto.subcategoria).toBe('');
+      });
+    });
+
+    describe('drag & drop', () => {
+      const dragEvent = (files?: any) =>
+        ({
+          preventDefault: createFnMock(),
+          stopPropagation: createFnMock(),
+          dataTransfer: files === undefined ? undefined : { files },
+        }) as any;
+
+      it('onDragOver marca isDragging', () => {
+        const event = dragEvent();
+        component.onDragOver(event);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(event.stopPropagation).toHaveBeenCalled();
+        expect(component.isDragging).toBe(true);
+      });
+
+      it('onDragLeave desmarca isDragging', () => {
+        component.isDragging = true;
+        const event = dragEvent();
+        component.onDragLeave(event);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(event.stopPropagation).toHaveBeenCalled();
+        expect(component.isDragging).toBe(false);
+      });
+
+      it('onDrop procesa el primer archivo soltado', async () => {
+        global.URL.createObjectURL = createURLCreateObjectURLMock();
+        const file = new File(['x'], 'a.png', { type: 'image/png' });
+        component.isDragging = true;
+        const event = dragEvent([file]);
+
+        component.onDrop(event);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(component.isDragging).toBe(false);
+        expect(mockImageOptimizationService.isValidImageFile).toHaveBeenCalledWith(file);
+        expect(mockImageOptimizationService.optimizeImage).toHaveBeenCalled();
+        expect(component.imagenOptimizada).toBeTruthy();
+      });
+
+      it('onDrop ignora eventos sin archivos o sin dataTransfer', () => {
+        component.onDrop(dragEvent([]));
+        component.onDrop(dragEvent());
+        expect(mockImageOptimizationService.isValidImageFile).not.toHaveBeenCalled();
+        expect(component.isDragging).toBe(false);
+      });
+    });
+
+    describe('seleccionarImagen / procesarArchivo', () => {
+      it('no hace nada si no hay archivo seleccionado', () => {
+        component.seleccionarImagen({ target: { files: [] } } as any);
+        component.seleccionarImagen({ target: { files: null } } as any);
+        expect(mockImageOptimizationService.isValidImageFile).not.toHaveBeenCalled();
+      });
+
+      it('usa mensaje genérico cuando el error de optimización no es una instancia de Error', async () => {
+        const file = new File(['test'], 'test.png', { type: 'image/png' });
+        mockImageOptimizationService.optimizeImage.mockRejectedValue('fallo');
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+        component.seleccionarImagen({ target: { files: [file] } } as any);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(mockToastr.error).toHaveBeenCalledWith('Error al procesar la imagen', 'Error');
+        expect(component.optimizandoImagen).toBe(false);
+        expect(component.progresoOptimizacion).toBe(0);
+        consoleErrorSpy.mockRestore();
+      });
+
+      it('reporta el progreso durante la optimización y resetea al finalizar', async () => {
+        const file = new File(['test'], 'test.png', { type: 'image/png' });
+        global.URL.createObjectURL = createURLCreateObjectURLMock();
+        let observed = -1;
+        mockImageOptimizationService.optimizeImage.mockImplementation((_f: File, cb: any) => {
+          cb(40);
+          observed = component.progresoOptimizacion;
+          return Promise.resolve({
+            file: new File(['o'], 'o.webp', { type: 'image/webp' }),
+            originalSize: 1000,
+            optimizedSize: 500,
+            compressionRatio: 50,
+            format: 'webp',
+            dimensions: { width: 1, height: 1 },
+          });
+        });
+
+        component.seleccionarImagen({ target: { files: [file] } } as any);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(observed).toBe(40);
+        expect(component.progresoOptimizacion).toBe(0);
+      });
+    });
+
+    describe('eliminarImagen', () => {
+      it('limpia la imagen y el input de archivo, y no falla sin input', () => {
+        document.body.innerHTML = '<input type="file" />';
+        component.imagenOptimizada = new File(['x'], 'x.webp');
+        component.eliminarImagen();
+        expect(component.imagenOptimizada).toBeNull();
+
+        document.body.innerHTML = '';
+        expect(() => component.eliminarImagen()).not.toThrow();
+      });
+    });
+
+    describe('cargarDatosEdicion - ramas', () => {
+      const cargar = (producto: any, subs: any[] = mockSubcategorias) => {
+        mockCategoriaService.list.mockReturnValue(of(mockCategorias));
+        mockSubcategoriaService.list.mockReturnValue(of(subs));
+        mockProductoService.getProductoById.mockReturnValue(of(producto));
+        component.productoId = '1';
+        component.cargarDatosEdicion();
+      };
+
+      it('no cambia el producto si la respuesta no trae data', () => {
+        const original = component.producto;
+        cargar({ data: undefined });
+        expect(component.producto).toBe(original);
+        expect(component.cargando).toBe(false);
+        expect(component.categorias).toEqual(mockCategorias);
+      });
+
+      it('no mapea nombres si el producto no tiene subcategoriaId ni imagen', () => {
+        cargar({ data: { nombre: 'P', precio: 5, cantidad: 1 } });
+        expect(component.producto.nombre).toBe('P');
+        expect(component.imagenPreview).toBeNull();
+        expect(component.producto.subcategoria).toBeUndefined();
+      });
+
+      it('no asigna nombres si no se encuentra la subcategoría', () => {
+        cargar({ data: { nombre: 'P', precio: 5, cantidad: 1, subcategoriaId: 999 } });
+        expect(component.producto.subcategoria).toBeUndefined();
+        expect(component.producto.categoria).toBeUndefined();
+      });
+
+      it('asigna la subcategoría pero no la categoría si esta no existe', () => {
+        cargar({ data: { nombre: 'P', precio: 5, cantidad: 1, subcategoriaId: 50 } }, [
+          { subcategoriaId: 50, nombre: 'Huérfana', categoriaId: 999 },
+        ]);
+        expect(component.producto.subcategoria).toBe('Huérfana');
+        expect(component.producto.categoria).toBeUndefined();
+      });
+
+      it('resuelve categoriaId cuando la subcategoría lo trae como objeto', () => {
+        cargar({ data: { nombre: 'P', precio: 5, cantidad: 1, subcategoriaId: 9 } }, [
+          { subcategoriaId: 9, nombre: 'Hamburguesas', categoriaId: { categoriaId: 2 } as any },
+        ]);
+        expect(component.producto.subcategoria).toBe('Hamburguesas');
+        expect(component.producto.categoria).toBe('Comida');
+        expect(component.subcategoriasFiltradas.map((s) => s.nombre)).toEqual(['Hamburguesas']);
+      });
+    });
+
+    describe('cargarProducto (legacy) - ramas', () => {
+      it('no modifica el producto cuando la respuesta no trae data', () => {
+        const original = component.producto;
+        mockProductoService.getProductoById.mockReturnValue(of(undefined));
+        component.cargarProducto('3');
+        expect(component.producto).toBe(original);
+        expect(component.cargando).toBe(false);
+      });
+
+      it('no configura preview si el producto no tiene imagen', () => {
+        mockProductoService.getProductoById.mockReturnValue(
+          of({ data: { nombre: 'P', precio: 1, cantidad: 1 } }),
+        );
+        component.cargarProducto('3');
+        expect(component.imagenPreview).toBeNull();
+        expect(component.producto.nombre).toBe('P');
+      });
+    });
+
+    describe('crearProducto - ramas', () => {
+      beforeEach(() => {
+        component.producto = productoValido();
+        jest.spyOn(console, 'log').mockImplementation();
+      });
+
+      it('asigna subcategoriaId y envía el archivo optimizado', () => {
+        const file = new File(['x'], 'x.webp', { type: 'image/webp' });
+        component.imagenOptimizada = file;
+        component.subcategoriasFiltradas = mockSubcategorias;
+        mockProductoService.createProducto.mockReturnValue(of({ code: 400 }));
+
+        component.crearProducto();
+
+        expect(component.producto.subcategoriaId).toBe(9);
+        expect(mockProductoService.createProducto).toHaveBeenCalledWith(component.producto, file);
+        expect(mockToastr.success).not.toHaveBeenCalled();
+        expect(component.guardando).toBe(true);
+      });
+
+      it('no asigna subcategoriaId si la subcategoría no está en la lista filtrada', () => {
+        component.subcategoriasFiltradas = [];
+        mockProductoService.createProducto.mockReturnValue(of({ code: 400 }));
+
+        component.crearProducto();
+
+        expect(component.producto.subcategoriaId).toBeUndefined();
+      });
+    });
+
+    describe('actualizarProducto - ramas', () => {
+      beforeEach(() => {
+        component.productoId = '2';
+        component.producto = {
+          ...productoValido(),
+          imagen: 'img.png' as any,
+          imagenBase64: 'b64',
+        };
+        jest.spyOn(console, 'log').mockImplementation();
+      });
+
+      it('elimina imagen e imagenBase64 cuando no hay imagen nueva y asigna subcategoriaId', () => {
+        component.subcategoriasFiltradas = mockSubcategorias;
+        mockProductoService.updateProducto.mockReturnValue(of({ code: 500 }));
+
+        component.actualizarProducto();
+
+        const [id, enviado, archivo] = mockProductoService.updateProducto.mock.calls[0];
+        expect(id).toBe(2);
+        expect(enviado.imagen).toBeUndefined();
+        expect(enviado.imagenBase64).toBeUndefined();
+        expect(enviado.subcategoriaId).toBe(9);
+        expect(archivo).toBeUndefined();
+        expect(mockToastr.success).not.toHaveBeenCalled();
+      });
+
+      it('conserva los campos de imagen y envía el archivo cuando hay imagen nueva', () => {
+        const file = new File(['x'], 'x.webp', { type: 'image/webp' });
+        component.imagenOptimizada = file;
+        component.subcategoriasFiltradas = [];
+        mockProductoService.updateProducto.mockReturnValue(of({ code: 500 }));
+
+        component.actualizarProducto();
+
+        const [, enviado, archivo] = mockProductoService.updateProducto.mock.calls[0];
+        expect(enviado.imagen).toBe('img.png');
+        expect(enviado.imagenBase64).toBe('b64');
+        expect(enviado.subcategoriaId).toBeUndefined();
+        expect(archivo).toBe(file);
+      });
     });
   });
 });

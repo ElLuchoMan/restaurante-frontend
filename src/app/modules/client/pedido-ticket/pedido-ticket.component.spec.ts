@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { createFnMock } from '../../../shared/mocks/test-doubles';
 import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
 import { PedidoTicketComponent } from './pedido-ticket.component';
 
@@ -68,5 +70,30 @@ describe('PedidoTicketComponent', () => {
     expect(component.getEstadoLabel('TERMINADO')).toBe('Terminado');
     expect(component.getEstadoLabel('PREPARACION')).toBe('En Preparación');
     expect(component.getEstadoLabel('UNKNOWN')).toBe('UNKNOWN');
+  });
+
+  it('should emit close on onClose', () => {
+    const spy = createFnMock();
+    component.close.subscribe(spy);
+    component.onClose();
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should map every estado to class, icon and label', () => {
+    const cases: [string, string, string, string][] = [
+      ['TERMINADO', 'success', 'fa-check-circle', 'Terminado'],
+      ['entregado', 'success', 'fa-check-circle', 'Entregado'],
+      ['INICIADO', 'warning', 'fa-fire', 'Iniciado'],
+      ['EN_PREPARACION', 'warning', 'fa-fire', 'En Preparación'],
+      ['PREPARACION', 'warning', 'fa-fire', 'En Preparación'],
+      ['CANCELADO', 'danger', 'fa-times-circle', 'Cancelado'],
+      ['EN_CAMINO', 'info', 'fa-truck', 'En Camino'],
+      ['OTRO', 'default', 'fa-info-circle', 'OTRO'],
+    ];
+    for (const [estado, cls, icon, label] of cases) {
+      expect(component.getEstadoClass(estado)).toBe(cls);
+      expect(component.getEstadoIcon(estado)).toBe(icon);
+      expect(component.getEstadoLabel(estado)).toBe(label);
+    }
   });
 });

@@ -96,4 +96,35 @@ describe('CuponService', () => {
     expect(req.request.method).toBe('GET');
     req.flush({ code: 200, message: 'ok', data: [] });
   });
+
+  it('listar sin params no agrega query params', () => {
+    service.listar().subscribe();
+    const req = http.expectOne(baseUrl);
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('listar omite valores undefined y null', () => {
+    service.listar({ limit: undefined, offset: null as any, activo: false }).subscribe();
+    const req = http.expectOne((r) => r.url === baseUrl);
+    expect(req.request.params.has('limit')).toBe(false);
+    expect(req.request.params.has('offset')).toBe(false);
+    expect(req.request.params.get('activo')).toBe('false');
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('listarRedenciones sin params no agrega query params', () => {
+    service.listarRedenciones().subscribe();
+    const req = http.expectOne(`${baseUrl}/redenciones`);
+    expect(req.request.params.keys().length).toBe(0);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('listarRedenciones omite undefined/null y envía el resto', () => {
+    service.listarRedenciones({ limit: undefined, offset: 0 }).subscribe();
+    const req = http.expectOne((r) => r.url === `${baseUrl}/redenciones`);
+    expect(req.request.params.has('limit')).toBe(false);
+    expect(req.request.params.get('offset')).toBe('0');
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
 });

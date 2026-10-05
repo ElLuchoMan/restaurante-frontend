@@ -121,4 +121,64 @@ describe('MenuReservasComponent', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/reservas']);
     });
   });
+
+  describe('ramas adicionales', () => {
+    it('ignora eventos de router que no son NavigationEnd', () => {
+      userService.getUserRole.mockReturnValue('Administrador');
+      router.url = '/reservas';
+      createComponent();
+      const spy = jest.spyOn(component as any, 'updateState');
+      router.url = '/reservas/crear';
+
+      eventsSubject.next({ some: 'otro evento' });
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(component.mostrarMenu).toBe(true);
+    });
+
+    it('usa basePath admin y oculta el menú en una subruta de /admin/reservas', () => {
+      userService.getUserRole.mockReturnValue('Administrador');
+      router.url = '/admin/reservas/consultar?x=1';
+      createComponent();
+
+      expect(component.basePath).toBe('/admin/reservas');
+      expect(component.mostrarMenu).toBe(false);
+
+      component.irA('hoy');
+      expect(router.navigate).toHaveBeenCalledWith(['/admin/reservas/hoy']);
+      component.volver();
+      expect(router.navigate).toHaveBeenCalledWith(['/admin/reservas']);
+    });
+
+    it('un no administrador en una subruta no es redirigido', () => {
+      userService.getUserRole.mockReturnValue('Cliente');
+      router.url = '/reservas/crear';
+      createComponent();
+
+      expect(component.mostrarMenu).toBe(false);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('rol vacío se normaliza a null y se trata como no administrador', () => {
+      userService.getUserRole.mockReturnValue('');
+      router.url = '/reservas';
+      createComponent();
+
+      expect(component.rol).toBeNull();
+      expect(component.esAdmin).toBe(false);
+      expect(router.navigate).toHaveBeenCalledWith(['/reservas/crear']);
+    });
+
+    it('NavigationEnd actualiza basePath al entrar a la zona admin', () => {
+      userService.getUserRole.mockReturnValue('Administrador');
+      router.url = '/reservas';
+      createComponent();
+
+      router.url = '/admin/reservas';
+      eventsSubject.next(new NavigationEnd(2, '/admin/reservas', '/admin/reservas'));
+
+      expect(component.basePath).toBe('/admin/reservas');
+      expect(component.mostrarMenu).toBe(true);
+    });
+  });
 });

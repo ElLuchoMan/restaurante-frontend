@@ -273,6 +273,23 @@ describe('NativePushService', () => {
       expect(dispatchEventSpy).not.toHaveBeenCalled();
     });
 
+    it('should log an error when the action listener cannot be set up', async () => {
+      mockPushNotifications.addListener.mockImplementation((event: string) => {
+        if (event === 'pushNotificationActionPerformed') {
+          throw new Error('listener setup failed');
+        }
+      });
+
+      await service.init();
+
+      expect(console.error).toHaveBeenCalledWith(
+        '[Push] Error setting up action listener:',
+        expect.any(Error),
+      );
+      // El flujo continúa y registra el dispositivo con el token de Firebase
+      expect(pushService.registrarDispositivo).toHaveBeenCalled();
+    });
+
     it('should handle errors when dispatching event', async () => {
       let actionListener: any;
       mockPushNotifications.addListener.mockImplementation((event, callback) => {
@@ -586,6 +603,108 @@ describe('NativePushService', () => {
       // Debería completarse sin token
       expect(pushService.registrarDispositivo).not.toHaveBeenCalled();
     });
+
+    describe('iOS Firebase errors', () => {
+      const setPlatform = (platform: string) => {
+        (window as any).Capacitor = {
+          getPlatform: jest.fn().mockReturnValue(platform), // eslint-disable-line no-restricted-syntax
+        };
+      };
+
+      const bindRegistration = (token: any) => {
+        mockPushNotifications.addListener.mockImplementation((event: string, cb: any) => {
+          if (event === 'registration') setTimeout(() => cb(token), 0);
+        });
+      };
+
+      it.each([['APNS token not set'], ['Firebase not configured']])(
+        'should warn and continue without token on iOS when error is "%s"',
+        async (message) => {
+          setPlatform('ios');
+          mockFirebaseMessaging.getToken.mockRejectedValue(new Error(message));
+          bindRegistration({ value: 'ios-fallback' });
+
+          await service.init();
+
+          expect(console.warn).toHaveBeenCalledWith(
+            '[Push] Firebase no configurado en iOS, usando fallback',
+          );
+          // El error iOS se absorbe (no se relanza), por lo que no se usa el listener de registro
+          // y al no haber token se aborta el registro del dispositivo.
+          expect(console.warn).toHaveBeenCalledWith('[Push] No FCM token');
+          expect(pushService.registrarDispositivo).not.toHaveBeenCalled();
+        },
+      );
+
+      it('should not use the iOS warning path for unrelated errors on iOS', async () => {
+        setPlatform('ios');
+        mockFirebaseMessaging.getToken.mockRejectedValue(new Error('network down'));
+        bindRegistration({ value: 'generic-fallback' });
+
+        await service.init();
+
+        expect(console.warn).not.toHaveBeenCalledWith(
+          '[Push] Firebase no configurado en iOS, usando fallback',
+        );
+        // El error se relanza y se resuelve igualmente vía el listener de registro
+        expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
+          expect.objectContaining({ fcmToken: 'generic-fallback' }),
+        );
+      });
+
+      it('should not use the iOS warning path when platform is android even with APNS error', async () => {
+        setPlatform('android');
+        mockFirebaseMessaging.getToken.mockRejectedValue(new Error('APNS problem'));
+        bindRegistration({ value: 'android-fallback' });
+
+        await service.init();
+
+        expect(console.warn).not.toHaveBeenCalledWith(
+          '[Push] Firebase no configurado en iOS, usando fallback',
+        );
+        expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
+          expect.objectContaining({ fcmToken: 'android-fallback' }),
+        );
+      });
+
+      it('should not use the iOS warning path when the error has no message', async () => {
+        setPlatform('ios');
+        mockFirebaseMessaging.getToken.mockRejectedValue(undefined);
+        bindRegistration({ value: 'no-message-fallback' });
+
+        await service.init();
+
+        expect(console.warn).not.toHaveBeenCalledWith(
+          '[Push] Firebase no configurado en iOS, usando fallback',
+        );
+        expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
+          expect.objectContaining({ fcmToken: 'no-message-fallback' }),
+        );
+      });
+    });
+
+    it('should skip registration when the fallback registration event carries no token value', async () => {
+      mockFirebaseMessaging.getToken.mockRejectedValue(new Error('Firebase error'));
+      mockPushNotifications.addListener.mockImplementation((event: string, cb: any) => {
+        if (event === 'registration') setTimeout(() => cb({}), 0);
+      });
+
+      await service.init();
+
+      expect(console.warn).toHaveBeenCalledWith('[Push] No FCM token');
+      expect(pushService.registrarDispositivo).not.toHaveBeenCalled();
+    });
+
+    it('should skip registration when the fallback registration event has no payload', async () => {
+      mockFirebaseMessaging.getToken.mockRejectedValue(new Error('Firebase error'));
+      mockPushNotifications.addListener.mockImplementation((event: string, cb: any) => {
+        if (event === 'registration') setTimeout(() => cb(undefined), 0);
+      });
+
+      await service.init();
+
+      expect(pushService.registrarDispositivo).not.toHaveBeenCalled();
+    });
   });
 
   describe('init - device registration', () => {
@@ -667,6 +786,26 @@ describe('NativePushService', () => {
         }),
       );
     });
+
+    it('should fall back to es-CO when navigator.language is empty', async () => {
+      const previous = Object.getOwnPropertyDescriptor(navigator, 'language');
+      Object.defineProperty(navigator, 'language', {
+        writable: true,
+        configurable: true,
+        value: '',
+      });
+
+      try {
+        await service.init();
+
+        expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
+          expect.objectContaining({ locale: 'es-CO' }),
+        );
+      } finally {
+        if (previous) Object.defineProperty(navigator, 'language', previous);
+        else delete (navigator as any).language;
+      }
+    });
   });
 
   describe('init - error handling', () => {
@@ -691,6 +830,40 @@ describe('NativePushService', () => {
 
       // Debería completarse sin lanzar error (manejo silencioso)
       await expect(service.init()).resolves.not.toThrow();
+    });
+
+    it('should warn and not throw when device registration fails synchronously', async () => {
+      (window as any).Capacitor = {
+        getPlatform: jest.fn().mockReturnValue('android'), // eslint-disable-line no-restricted-syntax
+      };
+      mockPushNotifications.requestPermissions.mockResolvedValue({ receive: 'granted' });
+      mockPushNotifications.register.mockResolvedValue(undefined);
+      mockFirebaseMessaging.getToken.mockResolvedValue({ token: 'tok' });
+      const boom = new Error('register failed');
+      pushService.registrarDispositivo.mockImplementation(() => {
+        throw boom;
+      });
+
+      await expect(service.init()).resolves.toBeUndefined();
+
+      expect(console.warn).toHaveBeenCalledWith('[NativePushService] init error', boom);
+    });
+
+    it('should swallow errors thrown while logging the init error', async () => {
+      (window as any).Capacitor = {
+        getPlatform: jest.fn().mockReturnValue('android'), // eslint-disable-line no-restricted-syntax
+      };
+      mockPushNotifications.requestPermissions.mockResolvedValue({ receive: 'granted' });
+      mockPushNotifications.register.mockResolvedValue(undefined);
+      mockFirebaseMessaging.getToken.mockResolvedValue({ token: 'tok' });
+      pushService.registrarDispositivo.mockImplementation(() => {
+        throw new Error('register failed');
+      });
+      (console.warn as jest.Mock).mockImplementation(() => {
+        throw new Error('console broken');
+      });
+
+      await expect(service.init()).resolves.toBeUndefined();
     });
   });
 });

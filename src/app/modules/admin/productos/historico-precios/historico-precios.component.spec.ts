@@ -197,4 +197,45 @@ describe('HistoricoPreciosComponent', () => {
       expect(fecha).toBe('Fecha no disponible');
     });
   });
+
+  describe('ramas adicionales', () => {
+    it('usa el mensaje por defecto si la respuesta no exitosa no trae message', () => {
+      mockPrecioProductoHistService.list.mockReturnValue(
+        of({ code: 500, message: '', data: null } as any),
+      );
+
+      component.cargarHistorico();
+
+      expect(component.error).toBe('Error al cargar el histórico');
+      expect(component.cargando).toBe(false);
+    });
+
+    it('usa el mensaje por defecto si code es 200 pero no hay data', () => {
+      mockPrecioProductoHistService.list.mockReturnValue(
+        of({ code: 200, message: undefined, data: undefined } as any),
+      );
+
+      component.cargarHistorico();
+
+      expect(component.error).toBe('Error al cargar el histórico');
+    });
+
+    it('formatearFecha devuelve "Error en fecha" si Intl.DateTimeFormat falla', () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const intlSpy = jest.spyOn(Intl, 'DateTimeFormat').mockImplementation(() => {
+        throw new Error('boom');
+      });
+
+      const fecha = component.formatearFecha('2024-01-15');
+
+      intlSpy.mockRestore();
+      expect(fecha).toBe('Error en fecha');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error al formatear fecha:',
+        '2024-01-15',
+        expect.any(Error),
+      );
+      consoleSpy.mockRestore();
+    });
+  });
 });

@@ -204,4 +204,22 @@ describe('FavoritesService', () => {
       expect(setItemSpy).not.toHaveBeenCalled();
     });
   });
+
+  it('should do nothing when loadFavorites is invoked outside the browser', () => {
+    const serverService = new FavoritesService('server' as any);
+    localStorage.setItem('restaurant_favorites', JSON.stringify([1, 2]));
+
+    (serverService as any).loadFavorites();
+
+    expect((serverService as any).favorites$.value.size).toBe(0);
+  });
+
+  it('should do nothing when saveFavorites is invoked outside the browser', () => {
+    const serverService = new FavoritesService('server' as any);
+    const setSpy = jest.spyOn(Storage.prototype, 'setItem');
+
+    (serverService as any).saveFavorites(new Set([1]));
+
+    expect(setSpy).not.toHaveBeenCalled();
+  });
 });

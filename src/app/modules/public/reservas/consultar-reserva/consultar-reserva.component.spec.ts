@@ -6,9 +6,9 @@ import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 
 import { LoggingService } from '../../../../core/services/logging.service';
+import { ReservaService } from '../../../../core/services/reserva.service';
 import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
 import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
-import { ReservaService } from '../../../../core/services/reserva.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import {
@@ -1043,5 +1043,181 @@ describe('ConsultarReservaComponent', () => {
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(component.reservas[0].documentoCliente).toBeNull();
+  });
+
+  describe('ramas adicionales de enriquecimiento y criterios', () => {
+    const flushAsync = () => new Promise((resolve) => setTimeout(resolve, 20));
+    const infoResp = (data: any) => ({ code: 200, message: 'ok', data }) as any;
+
+    const buscarPorDocumentoCon = async (reserva: any, info: any) => {
+      reservaService.getReservasByDocumento.mockReturnValue(
+        of({ code: 200, message: 'ok', data: [reserva] }) as any,
+      );
+      reservaContactoService.getById.mockReturnValue(of(info));
+      component.buscarPorDocumento = true;
+      component.documentoCliente = '123456';
+      component.buscarReserva();
+      await flushAsync();
+      return component.reservas[0] as any;
+    };
+
+    const buscarPorFechaCon = async (reserva: any, info: any) => {
+      reservaService.getReservaByParameter.mockReturnValue(
+        of({ code: 200, message: 'ok', data: [reserva] }) as any,
+      );
+      reservaContactoService.getById.mockReturnValue(of(info));
+      component.buscarPorDocumento = false;
+      component.buscarPorFecha = true;
+      component.fechaReserva = '2025-09-15';
+      component.buscarReserva();
+      await flushAsync();
+      return component.reservas[0] as any;
+    };
+
+    it('actualizarTipoBusqueda conserva reservas si hay al menos un criterio', () => {
+      component.reservas = [mockReserva as any];
+      component.mostrarMensaje = true;
+      component.buscarPorDocumento = true;
+      component.buscarPorFecha = false;
+      component.actualizarTipoBusqueda();
+      expect(component.reservas).toHaveLength(1);
+      expect(component.mostrarMensaje).toBe(true);
+
+      component.buscarPorDocumento = false;
+      component.buscarPorFecha = true;
+      component.actualizarTipoBusqueda();
+      expect(component.reservas).toHaveLength(1);
+    });
+
+    it('documento: no modifica la reserva si getById devuelve vacío', async () => {
+      const r = await buscarPorDocumentoCon(
+        { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1 },
+        undefined,
+      );
+      expect(reservaContactoService.getById).toHaveBeenCalledWith(1);
+      expect(r.nombreCompleto).toBe('');
+      expect(r.telefono).toBe('');
+    });
+
+    it('fecha: no modifica la reserva si getById devuelve vacío', async () => {
+      const r = await buscarPorFechaCon(
+        { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1 },
+        undefined,
+      );
+      expect(reservaContactoService.getById).toHaveBeenCalledWith(1);
+      expect(r.nombreCompleto).toBe('');
+      expect(r.telefono).toBe('');
+    });
+
+    it('documento: conserva nombre existente y completa el teléfono', async () => {
+      const r = await buscarPorDocumentoCon(
+        { ...mockReserva, nombreCompleto: 'Existente', telefono: '', contactoId: 1 },
+        infoResp({ nombreCompleto: 'API', telefono: '300', documentoCliente: 9 }),
+      );
+      expect(r.nombreCompleto).toBe('Existente');
+      expect(r.telefono).toBe('300');
+    });
+
+    it('documento: conserva teléfono existente y completa el nombre', async () => {
+      const r = await buscarPorDocumentoCon(
+        { ...mockReserva, nombreCompleto: '', telefono: '311', contactoId: 1 },
+        infoResp({ nombreCompleto: 'API', telefono: '300', documentoCliente: 9 }),
+      );
+      expect(r.nombreCompleto).toBe('API');
+      expect(r.telefono).toBe('311');
+    });
+
+    it('documento: nombre/telefono nulos desde la API se convierten en vacío', async () => {
+      const r = await buscarPorDocumentoCon(
+        { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1 },
+        infoResp({ nombreCompleto: null, telefono: null, documentoCliente: 9 }),
+      );
+      expect(r.nombreCompleto).toBe('');
+      expect(r.telefono).toBe('');
+    });
+
+    it('documento: nombre/telefono con solo espacios se reemplazan por los de la API', async () => {
+      const r = await buscarPorDocumentoCon(
+        { ...mockReserva, nombreCompleto: '   ', telefono: '  ', contactoId: 1 },
+        infoResp({ nombreCompleto: 'API', telefono: '300', documentoCliente: 9 }),
+      );
+      expect(r.nombreCompleto).toBe('API');
+      expect(r.telefono).toBe('300');
+    });
+
+    it('documento: conserva documentoCliente existente', async () => {
+      const r = await buscarPorDocumentoCon(
+        { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1, documentoCliente: 55 },
+        infoResp({ nombreCompleto: 'A', telefono: '1', documentoCliente: 9 }),
+      );
+      expect(r.documentoCliente).toBe(55);
+    });
+
+    it('documento: usa documentoCliente de la API si el de la reserva es null', async () => {
+      const r = await buscarPorDocumentoCon(
+        {
+          ...mockReserva,
+          nombreCompleto: '',
+          telefono: '',
+          contactoId: 1,
+          documentoCliente: null,
+        },
+        infoResp({ nombreCompleto: 'A', telefono: '1', documentoCliente: 9 }),
+      );
+      expect(r.documentoCliente).toBe(9);
+    });
+
+    it('documento: documentoCliente queda null si ambos faltan', async () => {
+      const r = await buscarPorDocumentoCon(
+        {
+          ...mockReserva,
+          nombreCompleto: '',
+          telefono: '',
+          contactoId: 1,
+          documentoCliente: undefined,
+        },
+        infoResp({ nombreCompleto: 'A', telefono: '1' }),
+      );
+      expect(r.documentoCliente).toBeNull();
+    });
+
+    it('documento: reserva con nombreCompleto/telefono ausentes (undefined) se enriquece', async () => {
+      const base: any = { ...mockReserva, contactoId: 1 };
+      delete base.nombreCompleto;
+      delete base.telefono;
+      const r = await buscarPorDocumentoCon(
+        base,
+        infoResp({ nombreCompleto: 'N', telefono: 'T', documentoCliente: 1 }),
+      );
+      expect(r.nombreCompleto).toBe('N');
+      expect(r.telefono).toBe('T');
+    });
+
+    it('documento: needsEnrich sólo por teléfono ausente con nombre presente', async () => {
+      const base: any = { ...mockReserva, nombreCompleto: 'Nombre', contactoId: 1 };
+      delete base.telefono;
+      const r = await buscarPorDocumentoCon(
+        base,
+        infoResp({ nombreCompleto: 'N', telefono: 'T', documentoCliente: 1 }),
+      );
+      expect(r.nombreCompleto).toBe('Nombre');
+      expect(r.telefono).toBe('T');
+    });
+
+    it('documento: needsEnrich sólo por teléfono vacío con nombre presente', async () => {
+      const r = await buscarPorDocumentoCon(
+        { ...mockReserva, nombreCompleto: 'Nombre', telefono: '', contactoId: 1 },
+        infoResp({ nombreCompleto: 'N', telefono: 'T', documentoCliente: 1 }),
+      );
+      expect(r.telefono).toBe('T');
+    });
+
+    it('documento: needsEnrich por teléfono con espacios y nombre presente', async () => {
+      const r = await buscarPorDocumentoCon(
+        { ...mockReserva, nombreCompleto: 'Nombre', telefono: '   ', contactoId: 1 },
+        infoResp({ nombreCompleto: 'N', telefono: 'T', documentoCliente: 1 }),
+      );
+      expect(r.telefono).toBe('T');
+    });
   });
 });

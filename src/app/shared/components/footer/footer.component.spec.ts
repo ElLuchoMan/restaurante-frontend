@@ -139,4 +139,95 @@ describe('FooterComponent', () => {
 
     dateSpy.mockRestore();
   });
+
+  describe('WebView detection', () => {
+    beforeEach(() => {
+      restauranteService.getCambiosHorario.mockReturnValue(of({ data: undefined } as any));
+    });
+
+    afterEach(() => {
+      delete (window as any).Capacitor;
+    });
+
+    it('should be false when Capacitor is not defined', () => {
+      delete (window as any).Capacitor;
+      fixture.detectChanges();
+      expect(component.isWebView).toBe(false);
+    });
+
+    it('should be false when Capacitor has no getPlatform function', () => {
+      (window as any).Capacitor = {};
+      fixture.detectChanges();
+      expect(component.isWebView).toBe(false);
+    });
+
+    it('should be false when Capacitor platform is web', () => {
+      (window as any).Capacitor = { getPlatform: () => 'web' };
+      fixture.detectChanges();
+      expect(component.isWebView).toBe(false);
+    });
+
+    it('should be true when Capacitor platform is native', () => {
+      (window as any).Capacitor = { getPlatform: () => 'android' };
+      fixture.detectChanges();
+      expect(component.isWebView).toBe(true);
+    });
+
+    it('should skip detection when not running in the browser', () => {
+      (window as any).Capacitor = { getPlatform: () => 'android' };
+      (component as any).platformId = 'server';
+      fixture.detectChanges();
+      expect(component.isWebView).toBe(false);
+    });
+  });
+
+  describe('horario edge cases', () => {
+    it('should keep default hours when response.data is undefined', () => {
+      restauranteService.getCambiosHorario.mockReturnValue(of({ data: undefined } as any));
+      fixture.detectChanges();
+      expect(component.horaApertura).toBe('08:00');
+      expect(component.horaCierre).toBe('20:00');
+      expect(component.estado).toBe('Abierto');
+    });
+
+    it('should use provided hours and keep estado when abierto is true', () => {
+      restauranteService.getCambiosHorario.mockReturnValue(
+        of({ data: { horaApertura: '09:00', horaCierre: '22:00', abierto: true } } as any),
+      );
+      fixture.detectChanges();
+      expect(component.horaApertura).toBe('09:00');
+      expect(component.horaCierre).toBe('22:00');
+      expect(component.estado).toBe('Abierto');
+    });
+
+    it('should fall back to defaults when hours are null/undefined', () => {
+      restauranteService.getCambiosHorario.mockReturnValue(
+        of({ data: { horaApertura: null, horaCierre: undefined, abierto: true } } as any),
+      );
+      fixture.detectChanges();
+      expect(component.horaApertura).toBe('08:00');
+      expect(component.horaCierre).toBe('20:00');
+    });
+
+    it('should not compute estadoActual when hours are empty', () => {
+      restauranteService.getCambiosHorario.mockReturnValue(of({ data: undefined } as any));
+      component.horaApertura = '';
+      component.horaCierre = '';
+      component.estadoActual = 'Inicial';
+      fixture.detectChanges();
+      expect(component.estadoActual).toBe('Inicial');
+    });
+  });
+
+  describe('esPaginaUbicacion', () => {
+    it('should return true when the url contains /ubicacion', () => {
+      (component as any).router = { url: '/ubicacion' };
+      expect(component.esPaginaUbicacion()).toBe(true);
+    });
+
+    it('should return false otherwise', () => {
+      (component as any).router = { url: '/home' };
+      expect(component.esPaginaUbicacion()).toBe(false);
+    });
+  });
 });

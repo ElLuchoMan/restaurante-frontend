@@ -14,8 +14,8 @@ import { of, throwError } from 'rxjs';
 
 import { ClienteService } from '../../../../core/services/cliente.service';
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
-import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
+import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { UserService } from '../../../../core/services/user.service';
 import { mockResponseCliente } from '../../../../shared/mocks/cliente.mock';
 import {
@@ -512,6 +512,147 @@ describe('CrearReservaComponent', () => {
     it('should handle missing showPicker gracefully', () => {
       const mockInput = {} as any;
       expect(() => component.openTimePicker(mockInput)).not.toThrow();
+    });
+  });
+
+  describe('crearReserva ramas adicionales', () => {
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    it('no vuelve a agregar segundos si horaReserva ya los incluye', () => {
+      component.rol = 'Otro';
+      userService.getUserId.mockReturnValue(3);
+      component.fechaReserva = getValidReservaDate();
+      component.horaReserva = '09:30:00';
+      component.personas = '2';
+      component.documentoContacto = '123456';
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'ok', data: {} as Reserva }),
+      );
+
+      component.onSubmit();
+
+      expect(component.horaReserva).toBe('09:30:00');
+      expect(reservaService.crearReserva).toHaveBeenCalledWith(
+        expect.objectContaining({ horaReserva: '09:30:00' }),
+      );
+    });
+
+    it('envía documentoContacto null cuando el documento no es numérico', () => {
+      component.rol = 'Otro';
+      userService.getUserId.mockReturnValue(3);
+      component.fechaReserva = getValidReservaDate();
+      component.horaReserva = '09:30';
+      component.personas = '2';
+      component.documentoContacto = 'abc';
+      component.nombreCompleto = 'Invitado';
+      component.telefono = '';
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'ok', data: {} as Reserva }),
+      );
+
+      component.onSubmit();
+
+      const payload: any = reservaService.crearReserva.mock.calls[0][0];
+      expect(payload.documentoContacto).toBeNull();
+      expect(payload.telefono).toBeUndefined();
+      expect(payload.nombreCompleto).toBe('Invitado');
+    });
+
+    it('Cliente con userId inválido (0) no envía documentoCliente y notifica con userId', async () => {
+      component.rol = 'Cliente';
+      userService.getUserId.mockReturnValue(null as any);
+      userService.getUserRole.mockReturnValue('Cliente');
+      component.fechaReserva = getValidReservaDate();
+      component.horaReserva = '09:30';
+      component.personas = '2';
+      clienteService.getClienteId.mockReturnValue(of(mockResponseCliente));
+      reservaService.crearReserva.mockReturnValue(of({ code: 200, message: 'ok' } as any));
+      reservaNotifications.notifyCreacion.mockResolvedValue(undefined);
+
+      component.onSubmit();
+      await settle();
+
+      const payload: any = reservaService.crearReserva.mock.calls[0][0];
+      expect(payload.documentoCliente).toBeUndefined();
+      expect(reservaNotifications.notifyCreacion).toHaveBeenCalledWith(
+        expect.objectContaining({
+          documentoCliente: 0,
+          horaReserva: '09:30:00',
+          reservaId: undefined,
+        }),
+      );
+      expect(router.navigate).toHaveBeenCalledWith(['/reservas/consultar']);
+    });
+
+    it('Cliente usa los datos devueltos por el backend al notificar la creación', async () => {
+      component.rol = 'Cliente';
+      userService.getUserId.mockReturnValue(2);
+      userService.getUserRole.mockReturnValue('Cliente');
+      component.fechaReserva = getValidReservaDate();
+      component.horaReserva = '09:30';
+      component.personas = '2';
+      clienteService.getClienteId.mockReturnValue(of(mockResponseCliente));
+      reservaService.crearReserva.mockReturnValue(
+        of({
+          code: 200,
+          message: 'ok',
+          data: {
+            reservaId: 77,
+            fechaReserva: '2030-01-02',
+            horaReserva: '10:00:00',
+            documentoCliente: 999,
+          },
+        } as any),
+      );
+      reservaNotifications.notifyCreacion.mockResolvedValue(undefined);
+
+      component.onSubmit();
+      await settle();
+
+      expect(reservaNotifications.notifyCreacion).toHaveBeenCalledWith({
+        fechaReserva: '2030-01-02',
+        horaReserva: '10:00:00',
+        documentoCliente: 999,
+        reservaId: 77,
+      });
+    });
+
+    it('usa base.documentoCliente cuando la respuesta no trae documentoCliente', async () => {
+      component.rol = 'Cliente';
+      userService.getUserId.mockReturnValue(2);
+      userService.getUserRole.mockReturnValue('Cliente');
+      component.fechaReserva = getValidReservaDate();
+      component.horaReserva = '09:30';
+      component.personas = '2';
+      clienteService.getClienteId.mockReturnValue(of(mockResponseCliente));
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'ok', data: { reservaId: 1 } } as any),
+      );
+      reservaNotifications.notifyCreacion.mockResolvedValue(undefined);
+
+      component.onSubmit();
+      await settle();
+
+      expect(reservaNotifications.notifyCreacion).toHaveBeenCalledWith(
+        expect.objectContaining({ documentoCliente: 2, reservaId: 1 }),
+      );
+    });
+
+    it('tolera que notifyCreacion falle y aun así redirige', async () => {
+      component.rol = 'Cliente';
+      userService.getUserId.mockReturnValue(2);
+      userService.getUserRole.mockReturnValue('Cliente');
+      component.fechaReserva = getValidReservaDate();
+      component.horaReserva = '09:30';
+      component.personas = '2';
+      clienteService.getClienteId.mockReturnValue(of(mockResponseCliente));
+      reservaService.crearReserva.mockReturnValue(of({ code: 200, message: 'ok' } as any));
+      reservaNotifications.notifyCreacion.mockRejectedValue(new Error('push'));
+
+      component.onSubmit();
+      await settle();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/reservas/consultar']);
     });
   });
 });

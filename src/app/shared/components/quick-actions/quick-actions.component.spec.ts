@@ -1,7 +1,7 @@
 import { PLATFORM_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject, Subject } from 'rxjs';
 
@@ -449,5 +449,32 @@ describe('QuickActionsComponent', () => {
     (window as any).visualViewport = undefined;
     await createComponent();
     expect(component).toBeTruthy();
+  });
+
+  it('mantiene los accesos vacíos cuando el rol autenticado es desconocido', async () => {
+    userService.setRole('Desconocido');
+    userService.setAuth(true);
+    await createComponent();
+    expect(component.userRole).toBe('Desconocido');
+    expect(component.quickActions).toEqual([]);
+  });
+
+  it('ignora eventos de router distintos de NavigationEnd al re-vincular el footer', async () => {
+    await createComponent({ withFooter: true });
+    const before = MockIntersectionObserver.instances.length;
+
+    (router.events as unknown as Subject<unknown>).next(new NavigationStart(1, '/a'));
+    jest.runOnlyPendingTimers();
+
+    expect(MockIntersectionObserver.instances.length).toBe(before);
+  });
+
+  it('no aplica el efecto tap con teclas distintas de Enter o espacio', async () => {
+    await createComponent();
+    const firstItem = fixture.debugElement.query(By.css('.qa-item')).nativeElement as HTMLElement;
+
+    firstItem.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
+
+    expect(firstItem.classList.contains('qa-tap')).toBe(false);
   });
 });

@@ -3,9 +3,9 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 
 import { WebPushService } from '../../../core/services/web-push.service';
 import {
+  configureWebPushServiceMock,
   createCapacitorMock,
   createWebPushServiceMock,
-  configureWebPushServiceMock,
 } from '../../mocks/test-doubles';
 import { NotificationPromptComponent } from './notification-prompt.component';
 

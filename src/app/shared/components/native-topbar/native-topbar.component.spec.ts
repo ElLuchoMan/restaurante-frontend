@@ -1,14 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { NavigationStart, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 import { CartService } from '../../../core/services/cart.service';
 import { UserService } from '../../../core/services/user.service';
 import { NativeTopbarComponent, TopBarAction } from './native-topbar.component';
 
-// eslint-disable-next-line no-restricted-syntax
 jest.mock('../../utils/notification-center.store', () => ({
   getUnseenCount: jest.fn(), // eslint-disable-line no-restricted-syntax
 }));
@@ -256,23 +255,17 @@ describe('NativeTopbarComponent', () => {
     expect(mainElement.style.paddingTop).toBe('0px');
   });
 
-  it.skip('aplica padding dinámico fuera de la página principal', async () => {
-    // SKIP: La navegación del router en tests no actualiza router.url de manera sincrónica
-    // Este comportamiento está mejor cubierto por tests E2E
-    // Asegurarse de que topbarElement está en el DOM (puede haberse eliminado en tests anteriores)
-    if (!document.querySelector('.home-topbar')) {
-      topbarElement = document.createElement('div');
-      topbarElement.classList.add('home-topbar');
-      document.body.appendChild(topbarElement);
-    }
-
+  it('aplica padding dinámico fuera de la página principal', async () => {
+    // El beforeEach mockea router.navigate; se restaura para navegar de verdad
+    (router.navigate as jest.Mock).mockRestore();
     component['mainEl'] = mainElement;
+
     await router.navigate(['/reservas']);
     fixture.detectChanges();
 
-    component['applyTopPadding']();
-
-    expect(mainElement.style.paddingTop).toBe('calc(60px + max(env(safe-area-inset-top), 0px))');
+    expect(router.url).toBe('/reservas');
+    // NavigationEnd dispara applyTopPadding vía la suscripción de ngOnInit
+    expect(mainElement.style.paddingTop).toBe('60px');
   });
 
   it('quita padding cuando la ruta corresponde a Home', async () => {
@@ -294,15 +287,94 @@ describe('NativeTopbarComponent', () => {
     expect(component.topBarActions[0].badge).toBe(7);
   });
 
-  it.skip('recalcula el padding cuando el router emite NavigationEnd', async () => {
-    // SKIP: El NavigationEnd se emite antes de que el spy pueda ser configurado
-    // Este comportamiento está verificado indirectamente por otros tests
+  it('recalcula el padding cuando el router emite NavigationEnd', async () => {
+    (router.navigate as jest.Mock).mockRestore();
     const spy = jest.spyOn(component as any, 'applyTopPadding');
     component['mainEl'] = mainElement;
 
     await router.navigate(['/reservas']);
-    expect(spy).toHaveBeenCalled();
+
+    expect(spy).toHaveBeenCalledTimes(1);
     spy.mockRestore();
+  });
+
+  it('no recalcula el padding con eventos de router que no son NavigationEnd', () => {
+    const spy = jest.spyOn(component as any, 'applyTopPadding');
+
+    (router.events as unknown as Subject<unknown>).next(new NavigationStart(1, '/reservas'));
+
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it('isLoggedOut$ refleja el estado de autenticación invertido', () => {
+    const values: boolean[] = [];
+    const sub = component.isLoggedOut$.subscribe((v) => values.push(v));
+
+    userService.emitAuthState(true, 'Cliente');
+    userService.emitAuthState(false, null);
+    sub.unsubscribe();
+
+    expect(values).toEqual([true, false, true]);
+  });
+
+  it('usa 0 como contador del carrito cuando el valor emitido es nulo', () => {
+    cartService.count$.next(null as unknown as number);
+    expect(component.cartCount).toBe(0);
+  });
+
+  it('regenera las acciones al cambiar el carrito solo para el rol Cliente', () => {
+    userService.emitAuthState(true, 'Cliente');
+    cartService.count$.next(7);
+    expect(component.topBarActions[0].badge).toBe(7);
+
+    userService.emitAuthState(true, 'Administrador');
+    const before = component.topBarActions;
+    cartService.count$.next(9);
+    expect(component.cartCount).toBe(9);
+    expect(component.topBarActions).toBe(before);
+  });
+
+  it('aplica 0px en Home exacto ("/") y 60px en otras rutas', () => {
+    component['mainEl'] = mainElement;
+    const urlSpy = jest.spyOn(router, 'url', 'get');
+
+    urlSpy.mockReturnValue('/');
+    component['applyTopPadding']();
+    expect(mainElement.style.paddingTop).toBe('0px');
+
+    urlSpy.mockReturnValue('/menu');
+    component['applyTopPadding']();
+    expect(mainElement.style.paddingTop).toBe('60px');
+
+    urlSpy.mockReturnValue(undefined as unknown as string);
+    mainElement.style.paddingTop = '10px';
+    component['applyTopPadding']();
+    expect(mainElement.style.paddingTop).toBe('60px');
+
+    urlSpy.mockRestore();
+  });
+
+  it('no ajusta padding si falta el contenedor principal', () => {
+    component['mainEl'] = null;
+    const urlSpy = jest.spyOn(router, 'url', 'get').mockReturnValue('/menu');
+    mainElement.style.paddingTop = '10px';
+
+    component['applyTopPadding']();
+
+    expect(mainElement.style.paddingTop).toBe('10px');
+    urlSpy.mockRestore();
+  });
+
+  it('ngOnInit tolera que el store de notificaciones no esté disponible', () => {
+    const fx = TestBed.createComponent(NativeTopbarComponent);
+    getUnseenCount.mockImplementation(() => {
+      throw new Error('boom');
+    });
+
+    expect(() => fx.detectChanges()).not.toThrow();
+    expect(fx.componentInstance.notifCount).toBe(0);
+    fx.destroy();
   });
 
   it('gestiona correctamente los cambios del centro de notificaciones', () => {

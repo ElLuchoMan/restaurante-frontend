@@ -6,6 +6,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 
+import { environment } from '../../../../environments/environment';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { LoggingService, LogLevel } from '../../../core/services/logging.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
@@ -283,6 +284,81 @@ describe('LoginComponent', () => {
 
       component.passwordFocused = false;
       expect(component.passwordFocused).toBe(false);
+    });
+  });
+
+  describe('ramas adicionales', () => {
+    it('logLoginSuccess recibe null cuando getUserId no está disponible', () => {
+      userService.login.mockReturnValue(of(mockLoginResponse));
+      (userService as any).getUserId = undefined;
+
+      component.loginForm.setValue(mockLogin);
+      component.onSubmit();
+
+      expect(telemetry.logLoginSuccess).toHaveBeenCalledWith(null);
+    });
+
+    it('logLoginSuccess recibe null cuando getUserId devuelve null/undefined', () => {
+      userService.login.mockReturnValue(of(mockLoginResponse));
+      userService.getUserId.mockReturnValue(undefined as any);
+
+      component.loginForm.setValue(mockLogin);
+      component.onSubmit();
+
+      expect(telemetry.logLoginSuccess).toHaveBeenCalledWith(null);
+    });
+
+    it('en producción no registra logs de error pero sí muestra toastr (con mensaje)', () => {
+      const original = environment.production;
+      (environment as any).production = true;
+      try {
+        userService.login.mockReturnValue(throwError(() => ({ message: 'fallo' })));
+        component.loginForm.setValue(mockLogin);
+        component.onSubmit();
+
+        expect(loggingService.log).not.toHaveBeenCalled();
+        expect(telemetry.logLoginFailure).toHaveBeenCalled();
+        expect(toastr.error).toHaveBeenCalledWith('fallo', 'Error de autenticación');
+      } finally {
+        (environment as any).production = original;
+      }
+    });
+
+    it('en producción con error nulo muestra mensaje genérico sin logs', () => {
+      const original = environment.production;
+      (environment as any).production = true;
+      try {
+        userService.login.mockReturnValue(throwError(() => null));
+        component.loginForm.setValue(mockLogin);
+        component.onSubmit();
+
+        expect(loggingService.log).not.toHaveBeenCalled();
+        expect(toastr.error).toHaveBeenCalledWith(
+          'Credenciales incorrectas',
+          'Error de autenticación',
+        );
+      } finally {
+        (environment as any).production = original;
+      }
+    });
+
+    it('en desarrollo con error nulo registra el log sin propiedad message', () => {
+      userService.login.mockReturnValue(throwError(() => null));
+      component.loginForm.setValue(mockLogin);
+      component.onSubmit();
+
+      expect(loggingService.log).toHaveBeenCalledWith(
+        LogLevel.ERROR,
+        'No hay propiedad "message" en el error.',
+      );
+    });
+
+    it('updateProgress tolera que el control password no exista', () => {
+      component.loginForm.get('documento')?.setValue('123');
+      component.loginForm.removeControl('password');
+
+      expect(component.isButtonEnabled).toBe(false);
+      expect(component.progress).toBe('50%');
     });
   });
 });

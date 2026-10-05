@@ -307,4 +307,42 @@ describe('ProductoService', () => {
     expect(req.request.method).toBe('DELETE');
     req.flush(mock);
   });
+
+  it('getProductos omite params con valor undefined', () => {
+    service
+      .getProductos({ categoria: '1', otro: undefined as any })
+      .subscribe((res) => expect(res.data).toEqual([]));
+    const req = http.expectOne((r) => r.url === baseUrl);
+    expect(req.request.params.get('categoria')).toBe('1');
+    expect(req.request.params.has('otro')).toBe(false);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('createProducto con File omite campos opcionales ausentes (cantidad)', () => {
+    const producto = { nombre: 'min', precio: 1 } as any;
+    const file = new Blob(['x'], { type: 'image/jpeg' }) as any as File;
+    (file as any).name = 'm.jpg';
+    jest.spyOn(console, 'log').mockImplementation(() => undefined);
+    service.createProducto(producto, file).subscribe();
+    const req = http.expectOne(baseUrl);
+    const fd: FormData = req.request.body as any;
+    expect(fd.has('cantidad')).toBe(false);
+    expect(fd.has('calorias')).toBe(false);
+    expect(fd.has('subcategoriaId')).toBe(false);
+    expect(fd.get('nombre')).toBe('min');
+    req.flush({ code: 200, message: 'ok', data: {} });
+  });
+
+  it('updateProducto con File omite campos opcionales ausentes (cantidad)', () => {
+    const producto = { nombre: 'min', precio: 1 } as any;
+    const file = new Blob(['x'], { type: 'image/jpeg' }) as any as File;
+    (file as any).name = 'm.jpg';
+    service.updateProducto(5, producto, file).subscribe();
+    const req = http.expectOne(`${baseUrl}?id=5`);
+    const fd: FormData = req.request.body as any;
+    expect(fd.has('cantidad')).toBe(false);
+    expect(fd.has('estadoProducto')).toBe(false);
+    expect(fd.get('nombre')).toBe('min');
+    req.flush({ code: 200, message: 'ok', data: {} });
+  });
 });
