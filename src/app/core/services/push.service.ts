@@ -5,6 +5,7 @@ import { catchError, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import {
+  ActualizarDispositivoRequest,
   EnviarNotificacionRequest,
   EnviarNotificacionResponse,
   PushDispositivo,
@@ -78,15 +79,24 @@ export class PushService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** PUT /push/dispositivos?id=<id> con body { enabled }. */
-  actualizarEstado(id: number, enabled: boolean): Observable<ApiResponse<null>> {
+  /**
+   * PUT /push/dispositivos?id=<id>: merge parcial (los campos ausentes se conservan). Devuelve el
+   * dispositivo actualizado. 400: id/JSON inválido o `null` en `enabled`/`subscribedTopics`; 404: no existe.
+   */
+  actualizarDispositivo(
+    id: number,
+    body: ActualizarDispositivoRequest,
+  ): Observable<ApiResponse<PushDispositivo>> {
     return this.http
-      .put<ApiResponse<null>>(
-        `${this.baseUrl}/dispositivos`,
-        { enabled },
-        { params: new HttpParams().set('id', String(id)) },
-      )
+      .put<ApiResponse<PushDispositivo>>(`${this.baseUrl}/dispositivos`, body, {
+        params: new HttpParams().set('id', String(id)),
+      })
       .pipe(catchError(this.handleError.handleError));
+  }
+
+  /** Activa/desactiva un dispositivo (PUT parcial con solo `enabled`). */
+  actualizarEstado(id: number, enabled: boolean): Observable<ApiResponse<PushDispositivo>> {
+    return this.actualizarDispositivo(id, { enabled });
   }
 
   actualizarTopics(id: number, subscribedTopics: string[]): Observable<ApiResponse<null>> {
@@ -116,7 +126,6 @@ export class PushService {
   enviarNotificacion(
     body: EnviarNotificacionRequest,
   ): Observable<ApiResponse<EnviarNotificacionResponse>> {
-    console.log('[Push] Enviando notificación:', body);
     return this.http
       .post<ApiResponse<EnviarNotificacionResponse>>(`${this.baseUrl}/enviar`, body)
       .pipe(catchError(this.handleError.handleError));

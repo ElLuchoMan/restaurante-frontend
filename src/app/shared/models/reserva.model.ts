@@ -1,16 +1,18 @@
 import { estadoReserva } from '../constants';
 import { ReservaContacto } from './reserva-contacto.model';
 
-/** Restaurante embebido en la reserva (models.Restaurante del backend). */
+/** Restaurante embebido en la reserva (models.RestauranteReservaResponse). */
 export interface RestauranteRef {
   restauranteId: number;
-  nombreRestaurante?: string;
-  horaApertura?: string; // HH:MM:SS
+  nombreRestaurante: string;
+  horaApertura: string; // HH:MM:SS
 }
 
 /**
- * Reserva tal como la devuelve el backend (models.Reserva.MarshalJSON).
- * - `contactoId` y `restauranteId` llegan como objetos embebidos, no como números.
+ * Reserva tal como la devuelve el backend (models.ReservaResponse).
+ * - Todas las consultas (incluidas /parameter, /search, /documento y /cliente) y las
+ *   respuestas de POST/PUT/DELETE traen `contactoId` y `restauranteId` ya poblados como objetos:
+ *   el nombre, el teléfono y los documentos del contacto se leen de `contactoId`.
  * - Las fechas de la respuesta usan formato DD-MM-YYYY (`createdAt`/`updatedAt`: DD-MM-YYYY HH:mm:ss);
  *   en los requests `fechaReserva` se envía como YYYY-MM-DD.
  */
@@ -29,18 +31,11 @@ export interface ReservaBase {
   updatedBy?: string;
 }
 
-// ReservaPopulada (enriquecida en el cliente para la UI; el backend NO envía estos campos
-// en la raíz de la reserva, se completan desde `contactoId`/`/reserva_contacto`)
-export interface ReservaPopulada extends ReservaBase {
-  nombreCompleto?: string;
-  telefono?: string;
-  documentoCliente?: number | null;
-}
-
 /**
  * Body de POST /reservas. El backend resuelve (o crea) el contacto a partir de
  * `documentoContacto` (invitado; exige `nombreCompleto`) o `documentoCliente`
- * (cliente registrado). `contactoId` NO es aceptado en la creación.
+ * (cliente registrado); si llegan ambos prevalece `documentoContacto`.
+ * `contactoId` NO es aceptado.
  */
 export interface ReservaCreate {
   restauranteId: number;
@@ -56,17 +51,22 @@ export interface ReservaCreate {
   telefono?: string;
 }
 
-/** Body de PUT /reservas?id=: solo los campos a modificar (`contactoId` se ignora en el backend). */
+/**
+ * Body de PUT /reservas?id= (merge): solo se envían los campos a modificar. Únicamente
+ * `indicaciones` y `updatedBy` admiten `null` (limpian el campo); `null` en cualquier otro
+ * campo es 400. `contactoId` NO es aceptado: para cambiar el contacto se envía
+ * `documentoContacto` o `documentoCliente`.
+ */
 export interface ReservaUpdate {
   restauranteId?: number;
   fechaReserva?: string; // YYYY-MM-DD
   horaReserva?: string; // HH:MM:SS
   personas?: number;
   estadoReserva?: estadoReserva;
-  indicaciones?: string;
-  updatedBy?: string;
-  documentoCliente?: number | null;
-  documentoContacto?: number | null;
+  indicaciones?: string | null;
+  updatedBy?: string | null;
+  documentoCliente?: number;
+  documentoContacto?: number;
   nombreCompleto?: string;
   telefono?: string;
 }

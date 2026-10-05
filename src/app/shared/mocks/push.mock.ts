@@ -21,10 +21,10 @@ export const mockPushDispositivoWeb: ApiResponse<PushDispositivo> = {
     appVersion: '1.0.0',
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     subscribedTopics: ['promos', 'novedades'],
-    documentoCliente: { documentoCliente: 1015466495 },
+    documentoCliente: 1015466495,
     documentoTrabajador: null,
-    createdAt: '2025-01-01T10:00:00Z',
-    lastSeenAt: '2025-01-15T14:30:00Z',
+    createdAt: '01-01-2025 05:00:00',
+    lastSeenAt: '15-01-2025 09:30:00',
   },
 };
 
@@ -45,9 +45,9 @@ export const mockPushDispositivoAndroid: ApiResponse<PushDispositivo> = {
     userAgent: null,
     subscribedTopics: ['domicilios'],
     documentoCliente: null,
-    documentoTrabajador: { documentoTrabajador: 1000000000 },
-    createdAt: '2025-01-01T08:00:00Z',
-    lastSeenAt: '2025-01-15T16:45:00Z',
+    documentoTrabajador: 1000000000,
+    createdAt: '01-01-2025 03:00:00',
+    lastSeenAt: '15-01-2025 11:45:00',
   },
 };
 

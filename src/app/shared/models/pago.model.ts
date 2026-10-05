@@ -33,16 +33,24 @@ export interface PagoCreate {
 }
 
 /**
- * Cuerpo de PUT /pagos?id=. A diferencia del POST, el back lee `fecha` y `hora` (no `fechaPago`
- * / `horaPago`) y exige `hora` y `metodoPagoId`; el resto es opcional.
+ * Cuerpo de PUT /pagos?id=: actualización parcial (merge), ningún campo es obligatorio y `{}`
+ * es válido. `fecha`/`hora` son alias de `fechaPago`/`horaPago`. Solo `updatedBy` es anulable
+ * (`null` lo limpia); `null` en cualquier otro campo responde 400.
  */
 export interface PagoUpdate {
-  hora: string;
-  metodoPagoId: number;
+  /** YYYY-MM-DD */
+  fechaPago?: string;
+  /** HH:MM[:SS] */
+  horaPago?: string;
+  /** Alias de `fechaPago`. */
   fecha?: string;
+  /** Alias de `horaPago`. */
+  hora?: string;
   monto?: number;
   estadoPago?: estadoPago;
-  updatedBy?: string;
+  /** Debe existir (404 si no). */
+  metodoPagoId?: number;
+  updatedBy?: string | null;
 }
 
 /** Filtros de GET /pagos (todos opcionales; se filtran en memoria en el back). */

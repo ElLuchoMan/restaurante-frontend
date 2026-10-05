@@ -1,40 +1,20 @@
-/** Trabajador embebido (la relación se serializa como objeto; solo el documento está garantizado). */
-export interface TrabajadorRef {
-  documentoTrabajador: number;
-  nombre?: string;
-  apellido?: string;
-}
-
-/** Nómina embebida (la relación se serializa como objeto; solo el id está garantizado). */
-export interface NominaRef {
-  nominaId: number;
-}
-
-/** Relación nómina-trabajador (models.NominaTrabajador) en GET /nomina_trabajador y /search. */
-export interface NominaTrabajador {
+/**
+ * Relación nómina-trabajador (models.NominaTrabajadorItem). Es la forma única de
+ * GET /nomina_trabajador, GET /nomina_trabajador/search y POST /nomina_trabajador.
+ * Las FK llegan como ids numéricos (no como objetos embebidos); `montoIncidencias`
+ * y `detalles` nulos en base de datos llegan como 0 y "".
+ */
+export interface NominaTrabajadorItem {
   nominaTrabajadorId: number;
-  sueldoBase: number;
-  montoIncidencias?: number;
-  detalles?: string;
-  documentoTrabajador: TrabajadorRef;
-  nominaId: NominaRef;
-}
-
-/** Respuesta de POST /nomina_trabajador al crear (models.NominaTrabajadorResponse). */
-export interface NominaTrabajadorCreada {
-  sueldoBase: number;
-  montoIncidencias: number;
-  detalles?: string;
-  documentoTrabajador: number;
-}
-
-/** Fila de GET /nomina_trabajador/mes (models.NominaTrabajadorDetalle). */
-export interface NominaTrabajadorDetalle {
   sueldoBase: number;
   montoIncidencias: number;
   detalles: string;
   documentoTrabajador: number;
   nominaId: number;
+}
+
+/** Fila de GET /nomina_trabajador/mes (models.NominaTrabajadorDetalle): el item más nombre y apellido. */
+export interface NominaTrabajadorDetalle extends NominaTrabajadorItem {
   nombre: string;
   apellido: string;
 }

@@ -38,20 +38,21 @@ export class HorarioTrabajadorService {
   }
 
   /**
-   * PUT /horario_trabajador?documento=&dia=. Si no existe: HTTP 200, code 404.
-   * Responde el horario actualizado (con `documentoTrabajador: null`).
+   * PUT /horario_trabajador?documento=&dia= con merge. Errores: 400 (horaFin <= horaInicio,
+   * formato), 404 (no existe). Responde el horario actualizado con su documentoTrabajador real.
    */
   update(
     documento: number,
     dia: DiaSemana,
     body: HorarioTrabajadorUpdate,
-  ): Observable<ApiResponse<HorarioTrabajador | undefined>> {
+  ): Observable<ApiResponse<HorarioTrabajador>> {
     const params = new HttpParams().set('documento', String(documento)).set('dia', dia);
     return this.http
-      .put<ApiResponse<HorarioTrabajador | undefined>>(this.baseUrl, body, { params })
+      .put<ApiResponse<HorarioTrabajador>>(this.baseUrl, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /** POST /horario_trabajador. Errores: 400 (día/horas inválidas), 409 (ya hay horario ese día). */
   create(body: HorarioTrabajadorCreate): Observable<ApiResponse<HorarioTrabajador>> {
     return this.http
       .post<ApiResponse<HorarioTrabajador>>(this.baseUrl, body)
@@ -59,7 +60,7 @@ export class HorarioTrabajadorService {
   }
 
   /**
-   * Elimina un horario por documento y día.
+   * Elimina un horario por documento y día (404 si no existe).
    * DELETE /horario_trabajador?documento=...&dia=...
    */
   deleteByDocumentoDia(documento: number, dia: DiaSemana): Observable<ApiResponse<unknown>> {

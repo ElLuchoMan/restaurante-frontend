@@ -228,9 +228,9 @@ export class TelemetryService {
   /**
    * Productos disponibles con total vendido (endpoint público - sin autenticación)
    */
-  getProductosDisponibles(): Observable<ApiResponse<ProductoDisponible[] | null>> {
+  getProductosDisponibles(): Observable<ApiResponse<ProductoDisponible[]>> {
     return this.http
-      .get<ApiResponse<ProductoDisponible[] | null>>(`${environment.apiUrl}/productos-disponibles`)
+      .get<ApiResponse<ProductoDisponible[]>>(`${environment.apiUrl}/productos-disponibles`)
       .pipe(catchError(this.handleError.handleError));
   }
 

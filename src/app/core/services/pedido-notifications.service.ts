@@ -41,7 +41,6 @@ export class PedidoNotificationsService {
     };
 
     try {
-      console.log('[Pedidos] Enviando notificación creación al cliente:', payload);
       return await firstValueFrom(this.pushService.enviarNotificacion(payload));
     } catch (error) {
       console.error('[Pedidos] Error al enviar notificación al cliente:', error);
@@ -75,7 +74,6 @@ export class PedidoNotificationsService {
     };
 
     try {
-      console.log('[Pedidos] Enviando notificación domicilio al admin:', payload);
       return await firstValueFrom(this.pushService.enviarNotificacion(payload));
     } catch (error) {
       console.error('[Pedidos] Error al enviar notificación al admin:', error);

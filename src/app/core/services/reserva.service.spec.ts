@@ -153,14 +153,14 @@ describe('ReservaService', () => {
   });
 
   it('should get reserva by id successfully', () => {
-    const mockResponse: ApiResponse<ReservaBase | undefined> = {
+    const mockResponse: ApiResponse<ReservaBase> = {
       code: 200,
       message: 'Reserva encontrada',
       data: mockReserva,
     };
 
     service.getReservaById(3).subscribe((response) => {
-      expect(response).toEqual(mockResponse);
+      expect(response).toEqual(mockReserva);
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas/search?id=3`);
@@ -168,8 +168,49 @@ describe('ReservaService', () => {
     req.flush(mockResponse);
   });
 
+  it('getReservaById devuelve null cuando el backend responde 404', () => {
+    let resultado: ReservaBase | null | undefined;
+    service.getReservaById(99).subscribe((response) => (resultado = response));
+
+    httpMock
+      .expectOne(`${environment.apiUrl}/reservas/search?id=99`)
+      .flush(
+        { code: 404, message: 'Reserva no encontrada' },
+        { status: 404, statusText: 'Not Found' },
+      );
+    expect(resultado).toBeNull();
+    expect(handleErrorService.handleError).not.toHaveBeenCalled();
+  });
+
+  it('getReservaById propaga un 400 (id inválido) por HandleErrorService', () => {
+    service.getReservaById(0).subscribe({ error: () => undefined });
+    httpMock
+      .expectOne(`${environment.apiUrl}/reservas/search?id=0`)
+      .flush({ code: 400, message: 'id inválido' }, { status: 400, statusText: 'Bad Request' });
+    expect(handleErrorService.handleError).toHaveBeenCalled();
+  });
+
+  it('deleteReserva propaga 404 y 409 por HandleErrorService', () => {
+    const errores: number[] = [];
+    service.deleteReserva(8).subscribe({ error: (e) => errores.push(e.status) });
+    service.deleteReserva(9).subscribe({ error: (e) => errores.push(e.status) });
+    httpMock
+      .expectOne(`${environment.apiUrl}/reservas?id=8`)
+      .flush({ code: 404, message: 'no existe' }, { status: 404, statusText: 'Not Found' });
+    httpMock
+      .expectOne(`${environment.apiUrl}/reservas?id=9`)
+      .flush({ code: 409, message: 'ya cancelada' }, { status: 409, statusText: 'Conflict' });
+    expect(errores).toEqual([404, 409]);
+  });
+
+  it('listados vacíos llegan como data []', () => {
+    const vacio = { code: 200, message: 'Sin reservas', data: [] };
+    service.obtenerReservas().subscribe((r) => expect(r.data).toEqual([]));
+    httpMock.expectOne(`${environment.apiUrl}/reservas`).flush(vacio);
+  });
+
   it('should delete reserva successfully', () => {
-    const mockResponse: ApiResponse<ReservaBase | undefined> = {
+    const mockResponse: ApiResponse<ReservaBase> = {
       code: 200,
       message: 'Reserva cancelada correctamente',
       data: { ...mockReserva, estadoReserva: estadoReserva.CANCELADA },

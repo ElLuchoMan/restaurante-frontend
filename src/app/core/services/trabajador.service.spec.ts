@@ -8,6 +8,7 @@ import {
   mockTrabajadorRegisterResponse,
   mockTrabajadorResponse,
   mockTrabajadorUpdateBody,
+  mockTrabajadorUpdateNullBody,
 } from '../../shared/mocks/trabajador.mock';
 import { HandleErrorService } from './handle-error.service';
 import { TrabajadorService } from './trabajador.service';
@@ -157,14 +158,45 @@ describe('TrabajadorService', () => {
   });
 
   describe('respuestas sin data', () => {
-    it('searchTrabajador expone el 404 de cuerpo (HTTP 200, sin data)', () => {
+    it('searchTrabajador expone el 404 HTTP como respuesta sin data', () => {
       let result: { code: number; data?: unknown } | undefined;
       service.searchTrabajador(1).subscribe((res) => (result = res));
       httpMock
         .expectOne(`${baseUrl}/trabajadores/search?id=1`)
-        .flush({ code: 404, message: 'Trabajador no encontrado' });
+        .flush(
+          { code: 404, message: 'Trabajador no encontrado' },
+          { status: 404, statusText: 'Not Found' },
+        );
       expect(result?.code).toBe(404);
       expect(result?.data).toBeUndefined();
+    });
+
+    it.each([401, 403])('searchTrabajador propaga el %i (solo Administrador)', (status) => {
+      let failure: { status: number } | undefined;
+      service.searchTrabajador(1).subscribe({ error: (e) => (failure = e) });
+      httpMock
+        .expectOne(`${baseUrl}/trabajadores/search?id=1`)
+        .flush({ code: status, message: 'no autorizado' }, { status, statusText: 'Error' });
+      expect(failure?.status).toBe(status);
+    });
+
+    it('registroTrabajador propaga el 409 con su mensaje', () => {
+      let failure: { error: { message: string } } | undefined;
+      service.registroTrabajador(mockTrabajadorBody).subscribe({ error: (e) => (failure = e) });
+      httpMock
+        .expectOne(`${baseUrl}/trabajadores`)
+        .flush(
+          { code: 409, message: 'El teléfono ya está registrado por otro trabajador' },
+          { status: 409, statusText: 'Conflict' },
+        );
+      expect(failure?.error.message).toBe('El teléfono ya está registrado por otro trabajador');
+    });
+
+    it('updateTrabajador envía null para limpiar campos anulables', () => {
+      service.updateTrabajador(1, mockTrabajadorUpdateNullBody).subscribe();
+      const req = httpMock.expectOne(`${baseUrl}/trabajadores?id=1`);
+      expect(req.request.body).toEqual({ telefono: null, fechaRetiro: null, restauranteId: null });
+      req.flush(mockTrabajadorResponse);
     });
 
     it('getTrabajadores devuelve [] cuando data llega null', () => {

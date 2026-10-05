@@ -14,7 +14,7 @@ export const mockLoginResponse: ApiResponse<LoginResponse> = {
     access_token: 'testAccessToken',
     refresh_token: 'testRefreshToken',
     token_type: 'Bearer',
-    expires_in: '1800',
+    expires_in: '7200',
     nombre: 'Test User',
   },
 };

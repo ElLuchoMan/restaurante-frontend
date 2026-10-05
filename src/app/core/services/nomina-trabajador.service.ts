@@ -5,25 +5,25 @@ import { catchError, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import {
-  NominaTrabajador,
-  NominaTrabajadorCreada,
   NominaTrabajadorDetalle,
+  NominaTrabajadorItem,
 } from '../../shared/models/nomina-trabajador.model';
 import { HandleErrorService } from './handle-error.service';
 
+/** Body de POST /nomina_trabajador: sueldo, incidencias y detalle los calcula el backend. */
 export interface NominaTrabajadorRequest {
   documentoTrabajador: number;
-  /** El backend lo acepta pero lo ignora: genera el detalle a partir del mes de la última nómina. */
-  detalles?: string;
 }
 
 export interface NominaTrabajadorSearchParams {
   /** Obligatorio en el backend. */
   documento: number;
   actual?: boolean;
+  /** No puede combinarse con `no_pagas` (400). */
   pagas?: boolean;
+  /** No puede combinarse con `pagas` (400). */
   no_pagas?: boolean;
-  /** `mes` y `anio` solo filtran si se envían ambos. */
+  /** `mes` (1-12) y `anio` filtran por la fecha de la nómina, juntos o por separado. */
   mes?: number;
   anio?: number;
 }
@@ -36,34 +36,31 @@ export class NominaTrabajadorService {
     private handleError: HandleErrorService,
   ) {}
 
-  /** GET /nomina_trabajador (requiere token). */
-  list(): Observable<ApiResponse<NominaTrabajador[] | null>> {
+  /** GET /nomina_trabajador (requiere token). Sin relaciones responde 200 con `data: []`. */
+  list(): Observable<ApiResponse<NominaTrabajadorItem[]>> {
     return this.http
-      .get<ApiResponse<NominaTrabajador[] | null>>(this.baseUrl)
+      .get<ApiResponse<NominaTrabajadorItem[]>>(this.baseUrl)
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * GET /nomina_trabajador/mes: `mes` (1-12) y `anio` son obligatorios.
-   * Sin resultados responde 200 con `code: 404` y sin `data`.
+   * GET /nomina_trabajador/mes. `mes` (1-12) y `anio` son opcionales e independientes (cada uno por defecto el actual);
+   * valores inválidos responden 400. Sin resultados responde 200 con `data: []`.
    */
-  listMes(
-    mes: number,
-    anio: number,
-  ): Observable<ApiResponse<NominaTrabajadorDetalle[] | undefined>> {
-    const params = new HttpParams().set('mes', String(mes)).set('anio', String(anio));
+  listMes(mes?: number, anio?: number): Observable<ApiResponse<NominaTrabajadorDetalle[]>> {
+    let params = new HttpParams();
+    if (mes !== undefined) params = params.set('mes', String(mes));
+    if (anio !== undefined) params = params.set('anio', String(anio));
     return this.http
-      .get<ApiResponse<NominaTrabajadorDetalle[] | undefined>>(`${this.baseUrl}/mes`, { params })
+      .get<ApiResponse<NominaTrabajadorDetalle[]>>(`${this.baseUrl}/mes`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * GET /nomina_trabajador/search: `documento` es obligatorio.
-   * Sin resultados responde 200 con `code: 404` y sin `data`.
+   * GET /nomina_trabajador/search: `documento` es obligatorio; los filtros inválidos o
+   * incompatibles (pagas y no_pagas a la vez) responden 400. Sin resultados: `data: []`.
    */
-  search(
-    params: NominaTrabajadorSearchParams,
-  ): Observable<ApiResponse<NominaTrabajador[] | undefined>> {
+  search(params: NominaTrabajadorSearchParams): Observable<ApiResponse<NominaTrabajadorItem[]>> {
     let hp = new HttpParams().set('documento', String(params.documento));
     if (params.actual !== undefined) hp = hp.set('actual', String(params.actual));
     if (params.pagas !== undefined) hp = hp.set('pagas', String(params.pagas));
@@ -71,19 +68,18 @@ export class NominaTrabajadorService {
     if (params.mes !== undefined) hp = hp.set('mes', String(params.mes));
     if (params.anio !== undefined) hp = hp.set('anio', String(params.anio));
     return this.http
-      .get<ApiResponse<NominaTrabajador[] | undefined>>(`${this.baseUrl}/search`, { params: hp })
+      .get<ApiResponse<NominaTrabajadorItem[]>>(`${this.baseUrl}/search`, { params: hp })
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
    * POST /nomina_trabajador. 201 con la relación creada; si ya existía para la última nómina
-   * responde 200 con la relación existente (forma de `NominaTrabajador`).
+   * responde 200 con la existente (misma forma, `NominaTrabajadorItem`). Errores: 404 trabajador
+   * inexistente, 422 sin ninguna nómina generada y 409 duplicado por concurrencia.
    */
-  create(
-    body: NominaTrabajadorRequest,
-  ): Observable<ApiResponse<NominaTrabajadorCreada | NominaTrabajador>> {
+  create(body: NominaTrabajadorRequest): Observable<ApiResponse<NominaTrabajadorItem>> {
     return this.http
-      .post<ApiResponse<NominaTrabajadorCreada | NominaTrabajador>>(this.baseUrl, body)
+      .post<ApiResponse<NominaTrabajadorItem>>(this.baseUrl, body)
       .pipe(catchError(this.handleError.handleError));
   }
 }

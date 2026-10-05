@@ -21,8 +21,9 @@ export class DescuentoService {
   ) {}
 
   /**
-   * Aplica un descuento (cupón u oferta, exactamente uno) a un pedido. El back responde HTTP 200
-   * con `code: 404` si el pedido/cupón/oferta no existe y 409 si el pedido ya tiene descuento.
+   * Aplica un descuento (cupón u oferta, exactamente uno) a un pedido. Errores HTTP: 400 entrada
+   * inválida, 404 pedido/cupón/oferta inexistente, 409 descuento ya aplicado, 422 descuento
+   * inválido.
    */
   aplicar(
     pedidoId: number,
@@ -34,11 +35,11 @@ export class DescuentoService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** `data` puede ser `null` cuando el pedido no tiene descuentos. */
-  listarPorPedido(pedidoId: number): Observable<ApiResponse<PedidoDescuentoAplicado[] | null>> {
+  /** 404 si el pedido no existe; `data` es `[]` cuando el pedido no tiene descuentos. */
+  listarPorPedido(pedidoId: number): Observable<ApiResponse<PedidoDescuentoAplicado[]>> {
     const params = new HttpParams().set('pedido_id', String(pedidoId));
     return this.http
-      .get<ApiResponse<PedidoDescuentoAplicado[] | null>>(this.baseUrl, { params })
+      .get<ApiResponse<PedidoDescuentoAplicado[]>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

@@ -7,12 +7,14 @@ export const mockRestauranteDiaList: ApiResponse<RestauranteDia[]> = {
   message: 'Días obtenidos',
   data: [
     {
+      restauranteDiaId: 1,
       restauranteId: 1,
       nombreRestaurante: 'El Fogon de Maria',
       dia: DiaSemana.DiaLunes,
       horaApertura: '08:00:00',
     },
     {
+      restauranteDiaId: 2,
       restauranteId: 1,
       nombreRestaurante: 'El Fogon de Maria',
       dia: DiaSemana.DiaMartes,
@@ -25,6 +27,7 @@ export const mockRestauranteDiaById: ApiResponse<RestauranteDia> = {
   code: 200,
   message: 'Registro encontrado',
   data: {
+    restauranteDiaId: 1,
     restauranteId: 1,
     nombreRestaurante: 'El Fogon de Maria',
     dia: DiaSemana.DiaLunes,

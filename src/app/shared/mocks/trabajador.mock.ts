@@ -20,7 +20,7 @@ export const mockTrabajadorResponse: ApiResponse<Trabajador> = {
     telefono: '3042449339',
     nuevo: true,
     rol: RolTrabajador.RolAdministrador,
-    password: '',
+    horarios: [],
     restauranteId: { restauranteId: 1 },
   },
 };
@@ -36,11 +36,19 @@ export const mockTrabajadorBody: TrabajadorCreate = {
   rol: RolTrabajador.RolAdministrador,
   password: '12345',
   restauranteId: 1,
+  nuevo: true,
 };
 
 export const mockTrabajadorUpdateBody: TrabajadorUpdate = {
   sueldo: 1200000,
   nuevo: false,
+};
+
+// Merge: null limpia solo los campos anulables (telefono, fechaNacimiento, fechaRetiro, restauranteId)
+export const mockTrabajadorUpdateNullBody: TrabajadorUpdate = {
+  telefono: null,
+  fechaRetiro: null,
+  restauranteId: null,
 };
 
 export const mockTrabajadorRegisterResponse: ApiResponse<Trabajador> = {
@@ -56,7 +64,7 @@ export const mockTrabajadorRegisterResponse: ApiResponse<Trabajador> = {
     telefono: '3042449339',
     nuevo: false,
     rol: RolTrabajador.RolAdministrador,
-    password: '',
+    horarios: [],
     restauranteId: { restauranteId: 1 },
   },
 };

@@ -445,12 +445,17 @@ describe('CrearProductoComponent', () => {
     }));
 
     it('should handle error when creating product', () => {
-      mockProductoService.createProducto.mockReturnValue(throwError(() => new Error('Error')));
+      mockProductoService.createProducto.mockReturnValue(
+        throwError(() => ({ code: 409, message: 'Ya existe un producto con ese nombre' })),
+      );
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       component.crearProducto();
 
-      expect(mockToastr.error).toHaveBeenCalledWith('Error al crear el producto', 'Error');
+      expect(mockToastr.error).toHaveBeenCalledWith(
+        'Ya existe un producto con ese nombre',
+        'Error',
+      );
       expect(component.guardando).toBe(false);
       consoleErrorSpy.mockRestore();
     });
@@ -592,7 +597,7 @@ describe('CrearProductoComponent', () => {
     }));
 
     it('should handle error when updating product', () => {
-      mockProductoService.updateProducto.mockReturnValue(throwError(() => new Error('Error')));
+      mockProductoService.updateProducto.mockReturnValue(throwError(() => ({ code: 500 })));
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       component.actualizarProducto();

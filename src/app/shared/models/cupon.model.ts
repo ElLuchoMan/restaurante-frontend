@@ -16,13 +16,16 @@ export interface Cupon {
   maxUsos?: number;
   limitePorCliente?: number;
   activo: boolean;
-  /** FK serializadas como objeto relacionado (ver `FkRef`). */
+  /**
+   * FK serializadas como objeto relacionado cargado (ver `FkRef`); el producto va sin imagen y
+   * el cliente sin contraseña.
+   */
   productoId?: number | FkRef<'productoId'>;
   categoriaId?: number | FkRef<'categoriaId'>;
   documentoCliente?: number | FkRef<'documentoCliente'>;
 }
 
-/** Body de POST/PUT /cupones (el PUT exige el cuerpo completo, no parcial). */
+/** Body de POST /cupones. */
 export interface CrearCuponRequest {
   /** 3 a 50 caracteres */
   codigo: string;
@@ -44,6 +47,31 @@ export interface CrearCuponRequest {
   documentoCliente?: number;
 }
 
+/**
+ * Body de PUT /cupones (merge): los campos ausentes se conservan. Admiten `null` (se limpian)
+ * sólo `maxUsos`, `limitePorCliente`, `montoMinimo`, `productoId`, `categoriaId` y
+ * `documentoCliente`; `null` en cualquier otro campo da 400. `activo` permite reactivar.
+ */
+export type ActualizarCuponRequest = Partial<
+  Omit<
+    CrearCuponRequest,
+    | 'montoMinimo'
+    | 'maxUsos'
+    | 'limitePorCliente'
+    | 'productoId'
+    | 'categoriaId'
+    | 'documentoCliente'
+  >
+> & {
+  montoMinimo?: number | null;
+  maxUsos?: number | null;
+  limitePorCliente?: number | null;
+  productoId?: number | null;
+  categoriaId?: number | null;
+  documentoCliente?: number | null;
+  activo?: boolean;
+};
+
 export interface ValidarCuponItemRequest {
   productoId: number;
   cantidad: number;
@@ -53,11 +81,14 @@ export interface ValidarCuponItemRequest {
 export interface ValidarCuponRequest {
   codigo: string;
   /** Documento del cliente */
+  /** Debe ser > 0 (400 si no). */
   clienteId: number;
   pedidoId?: number;
+  /** Al menos 1 ítem (400 si viene vacío). */
   items: ValidarCuponItemRequest[];
 }
 
+/** Responde 200 con `aplicable` true/false; los errores de servicio dan 500. */
 export interface ValidarCuponResponse {
   aplicable: boolean;
   montoDescuento: number;
@@ -66,7 +97,7 @@ export interface ValidarCuponResponse {
 }
 
 export interface RedimirCuponRequest {
-  /** Documento del cliente */
+  /** Documento del cliente (> 0) */
   clienteId: number;
   pedidoId?: number;
 }

@@ -135,7 +135,7 @@ export class MisPedidosComponent implements OnInit, OnDestroy {
     const items = productos?.length ?? undefined;
     return {
       ...p,
-      // Priorizar fecha/hora provenientes del detalle (coinciden con el detalle de pedido)
+      // Priorizar fecha/hora del detalle (ambas llegan como DD-MM-YYYY y HH:MM:SS)
       fechaPedido: det.fechaPedido || p.fechaPedido,
       horaPedido: det.horaPedido || p.horaPedido,
       delivery: det.delivery ?? p.delivery,

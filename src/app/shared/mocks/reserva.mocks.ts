@@ -1,10 +1,10 @@
 import { estadoReserva } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
-import { ReservaCreate, ReservaPopulada, RestauranteRef } from '../models/reserva.model';
+import { ReservaBase, ReservaCreate, RestauranteRef } from '../models/reserva.model';
 import { ReservaContacto } from '../models/reserva-contacto.model';
 
-// Los mocks reproducen la forma real del backend: `contactoId` y `restauranteId` llegan como
-// objetos embebidos y las fechas de la respuesta usan formato DD-MM-YYYY.
+// Los mocks reproducen la forma real del backend: `contactoId` (con nombre, teléfono y documento)
+// y `restauranteId` llegan siempre poblados como objetos y las fechas usan formato DD-MM-YYYY.
 const restaurante: RestauranteRef = {
   restauranteId: 1,
   nombreRestaurante: 'Restaurante',
@@ -25,7 +25,7 @@ const contactoInvitado: ReservaContacto = {
   documentoContacto: 1000000542,
 };
 
-export const mockReserva: ReservaPopulada = {
+export const mockReserva: ReservaBase = {
   reservaId: 1,
   contactoId: contactoCliente,
   restauranteId: restaurante,
@@ -36,20 +36,17 @@ export const mockReserva: ReservaPopulada = {
   createdAt: '01-01-2025 10:00:00',
   createdBy: 'testUser',
   indicaciones: 'Ninguna',
-  nombreCompleto: 'Carlos Perez',
-  telefono: '3216549870',
-  documentoCliente: 1015466495,
   updatedAt: '01-01-2025 11:00:00',
   updatedBy: 'testUser',
 };
 
-export const mockReservaResponse: ApiResponse<ReservaPopulada> = {
+export const mockReservaResponse: ApiResponse<ReservaBase> = {
   code: 200,
   message: 'Reserva creada exitosamente',
   data: mockReserva,
 };
 
-export const mockReservasDelDiaResponse: ApiResponse<ReservaPopulada[]> = {
+export const mockReservasDelDiaResponse: ApiResponse<ReservaBase[]> = {
   code: 200,
   message: 'Reservas obtenidas exitosamente',
   data: [
@@ -66,9 +63,6 @@ export const mockReservasDelDiaResponse: ApiResponse<ReservaPopulada[]> = {
       createdBy: 'Administrador - Bryan Luis',
       updatedBy: 'Administrador - Bryan Luis',
       indicaciones: 'Esto es una prueba para ver la visualización del componente',
-      nombreCompleto: 'Carlos Perez',
-      telefono: '3216549870',
-      documentoCliente: 1015466495,
     },
     {
       reservaId: 9,
@@ -83,19 +77,17 @@ export const mockReservasDelDiaResponse: ApiResponse<ReservaPopulada[]> = {
       createdBy: 'Administrador - Bryan Luis',
       updatedBy: 'Administrador - Bryan Luis',
       indicaciones: 'test',
-      nombreCompleto: 'Edwin Torres',
-      telefono: '3131234567',
     },
   ],
 };
 
-export const mockReservaUpdateResponse: ApiResponse<ReservaPopulada> = {
+export const mockReservaUpdateResponse: ApiResponse<ReservaBase> = {
   code: 200,
   message: 'Reserva actualizada con éxito',
   data: mockReserva,
 };
 
-export const mockReservasUnordered: ReservaPopulada[] = [
+export const mockReservasUnordered: ReservaBase[] = [
   {
     reservaId: 1,
     contactoId: contactoCliente,
@@ -107,9 +99,6 @@ export const mockReservasUnordered: ReservaPopulada[] = [
     createdAt: '01-01-2025 09:00:00',
     createdBy: 'testUser',
     indicaciones: 'Ninguna',
-    nombreCompleto: 'Carlos Perez',
-    telefono: '3216549870',
-    documentoCliente: 1015466495,
     updatedAt: '01-01-2025 10:00:00',
     updatedBy: 'testUser',
   },
@@ -124,8 +113,6 @@ export const mockReservasUnordered: ReservaPopulada[] = [
     createdAt: '02-01-2025 09:00:00',
     createdBy: 'testUser',
     indicaciones: 'Ninguna',
-    nombreCompleto: 'Edwin Torres',
-    telefono: '3131234567',
     updatedAt: '02-01-2025 10:00:00',
     updatedBy: 'testUser',
   },
@@ -140,8 +127,6 @@ export const mockReservasUnordered: ReservaPopulada[] = [
     createdAt: '01-01-2025 12:00:00',
     createdBy: 'testUser',
     indicaciones: 'Ninguna',
-    nombreCompleto: 'Carlos Perez',
-    telefono: '3216549870',
     updatedAt: '01-01-2025 13:00:00',
     updatedBy: 'testUser',
   },

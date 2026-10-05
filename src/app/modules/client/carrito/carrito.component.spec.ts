@@ -455,9 +455,10 @@ describe('CarritoComponent', () => {
     (component as any).carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
     pedidoServiceMock.createPedido.mockReturnValue(
       throwError(() => ({
-        code: 400,
+        code: 409,
         message: 'Inventario insuficiente para uno o más productos',
         cause: 'No especificado',
+        data: [{ productoId: 1, requerido: 1, disponible: 0 }],
       })),
     );
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -466,8 +467,27 @@ describe('CarritoComponent', () => {
       .catch(() => {})
       .finally(() => errorSpy.mockRestore());
     expect(toastrServiceMock.error).toHaveBeenCalledWith(
-      'No hay suficiente inventario para algunos productos. Por favor, reduce las cantidades.',
+      'No hay suficiente inventario: P1 (pediste 1, disponible 0). Por favor, reduce las cantidades.',
       'Inventario Insuficiente',
+    );
+    expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
+  });
+
+  it('should show the generic error for a 409 without inventory detail (producto ya presente)', async () => {
+    await setup();
+    (component as any).carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
+    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 77 } }));
+    productoPedidoServiceMock.create.mockReturnValue(
+      throwError(() => ({ code: 409, message: 'ya existe', cause: 'No especificado' })),
+    );
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+    await (component as any)
+      .finalizeOrder(1, null)
+      .catch(() => {})
+      .finally(() => errorSpy.mockRestore());
+    expect(toastrServiceMock.error).toHaveBeenCalledWith(
+      'Error al crear el pedido. Intenta nuevamente.',
+      'Error',
     );
     expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
   });
@@ -478,9 +498,13 @@ describe('CarritoComponent', () => {
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 77 } }));
     productoPedidoServiceMock.create.mockReturnValue(
       throwError(() => ({
-        code: 400,
+        code: 409,
         message: 'Inventario insuficiente para uno o más productos',
         cause: 'No especificado',
+        data: [
+          { productoId: 1, requerido: 5, disponible: 2 },
+          { productoId: 99, requerido: 1, disponible: 0 },
+        ],
       })),
     );
     const errorSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -490,7 +514,7 @@ describe('CarritoComponent', () => {
       .finally(() => errorSpy.mockRestore());
     expect(pagoServiceMock.createPago).not.toHaveBeenCalled();
     expect(toastrServiceMock.error).toHaveBeenCalledWith(
-      'No hay suficiente inventario para algunos productos. Por favor, reduce las cantidades.',
+      'No hay suficiente inventario: P1 (pediste 5, disponible 2), Producto 99 (pediste 1, disponible 0). Por favor, reduce las cantidades.',
       'Inventario Insuficiente',
     );
     expect(cartServiceMock.clearCart).not.toHaveBeenCalled();

@@ -19,6 +19,14 @@ export interface DecodedToken {
   [key: string]: unknown;
 }
 
+/**
+ * Cada cuánto se renueva el access token en segundo plano. El back emite access tokens de
+ * 120 min (`expires_in: "7200"`); se renueva a los 25 min, con un margen muy amplio frente a la
+ * expiración, de modo que una pestaña abierta nunca llega a usar un token vencido y el
+ * refresh token (más largo) se rota con frecuencia.
+ */
+export const TOKEN_REFRESH_INTERVAL_MS = 25 * 60 * 1000;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -76,7 +84,7 @@ export class UserService {
     storage.setItem(this.refreshTokenKey, refreshToken);
     this.authState.next(true);
 
-    // Programar refresh automático para 25 minutos (5 min antes de que expire)
+    // Programar el refresh automático (ver TOKEN_REFRESH_INTERVAL_MS)
     this.scheduleTokenRefresh();
   }
 
@@ -192,22 +200,18 @@ export class UserService {
       clearTimeout(this.refreshTimer);
     }
 
-    // Programar refresh para 25 minutos (1500000 ms)
-    this.refreshTimer = setTimeout(
-      () => {
-        this.refreshTokens().subscribe({
-          next: (response) => {
-            this.saveTokens(response.data.access_token, response.data.refresh_token);
-            this.logger.log(LogLevel.INFO, 'Tokens refrescados automáticamente');
-          },
-          error: (error) => {
-            this.logger.log(LogLevel.ERROR, 'Error en refresh automático', error);
-            // El logout ya se maneja en refreshTokens()
-          },
-        });
-      },
-      25 * 60 * 1000,
-    ); // 25 minutos
+    this.refreshTimer = setTimeout(() => {
+      this.refreshTokens().subscribe({
+        next: (response) => {
+          this.saveTokens(response.data.access_token, response.data.refresh_token);
+          this.logger.log(LogLevel.INFO, 'Tokens refrescados automáticamente');
+        },
+        error: (error) => {
+          this.logger.log(LogLevel.ERROR, 'Error en refresh automático', error);
+          // El logout ya se maneja en refreshTokens()
+        },
+      });
+    }, TOKEN_REFRESH_INTERVAL_MS);
   }
 
   // Método para intentar refresh manual cuando una API call falla con 401

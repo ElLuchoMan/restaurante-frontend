@@ -48,3 +48,15 @@ export const mockNominaPagaResponse: ApiResponse<Nomina> = {
     nominaId: 4,
   },
 };
+
+// DELETE /nominas devuelve la nómina marcada como NO_PAGO en `data`.
+export const mockNominaEliminadaResponse: ApiResponse<Nomina> = {
+  code: 200,
+  message: 'Nómina marcada como NO_PAGO',
+  data: {
+    fechaNomina: '22-01-2025',
+    monto: 3000000,
+    estadoNomina: estadoNomina.NO_PAGO,
+    nominaId: 4,
+  },
+};

@@ -31,13 +31,15 @@ export class IncidenciasService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  update(id: number, body: IncidenciaUpdate): Observable<ApiResponse<Incidencia | undefined>> {
+  /** PUT /incidencias?id= con merge. Errores: 400 (validación), 404 (no existe). */
+  update(id: number, body: IncidenciaUpdate): Observable<ApiResponse<Incidencia>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .put<ApiResponse<Incidencia | undefined>>(this.baseUrl, body, { params })
+      .put<ApiResponse<Incidencia>>(this.baseUrl, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /** DELETE /incidencias?id= (404 si no existe). */
   delete(id: number): Observable<ApiResponse<unknown>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
@@ -48,19 +50,19 @@ export class IncidenciasService {
   /**
    * Busca incidencias por documento y periodo (mes 1-12 y año <= año actual)
    * GET /incidencias/search?documento=...&mes=...&anio=...
-   * Sin resultados: HTTP 200, code 404 y sin `data`.
+   * Sin resultados: HTTP 200 con `data: []`.
    */
   search(params: {
     documento: number;
     mes: number;
     anio: number;
-  }): Observable<ApiResponse<Incidencia[] | undefined>> {
+  }): Observable<ApiResponse<Incidencia[]>> {
     let hp = new HttpParams();
     hp = hp.set('documento', String(params.documento));
     hp = hp.set('mes', String(params.mes));
     hp = hp.set('anio', String(params.anio));
     return this.http
-      .get<ApiResponse<Incidencia[] | undefined>>(`${this.baseUrl}/search`, { params: hp })
+      .get<ApiResponse<Incidencia[]>>(`${this.baseUrl}/search`, { params: hp })
       .pipe(catchError(this.handleError.handleError));
   }
 }

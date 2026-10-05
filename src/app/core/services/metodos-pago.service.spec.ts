@@ -64,6 +64,13 @@ describe('MetodosPagoService', () => {
     req.flush(mockMetodoPagoUpdateResponse);
   });
 
+  it('updates a method with a partial body (merge)', () => {
+    service.update(1, { detalle: '3007654321' }).subscribe();
+    const req = http.expectOne(`${baseUrl}?id=1`);
+    expect(req.request.body).toEqual({ detalle: '3007654321' });
+    req.flush(mockMetodoPagoUpdateResponse);
+  });
+
   it('deletes a method', () => {
     service.delete(1).subscribe((res) => expect(res).toEqual(mockMetodoPagoDeleteResponse));
     const req = http.expectOne(`${baseUrl}?id=1`);

@@ -12,6 +12,7 @@ import {
   ClienteUpdate,
 } from '../../shared/models/cliente.model';
 import { HandleErrorService } from './handle-error.service';
+import { notFoundAsEmpty } from './not-found.operator';
 
 @Injectable({
   providedIn: 'root',
@@ -25,21 +26,29 @@ export class ClienteService {
   ) {}
 
   /**
-   * GET /clientes/search?id=. Si no existe, el back responde HTTP 200 con code 404 y sin `data`.
+   * GET /clientes/search?id= (requiere token). Si no existe el back responde 404 HTTP; aquí se
+   * expone como `{ code: 404, data: undefined }` para que el llamador trate "no encontrado".
    */
   getClienteId(documento: number): Observable<ApiResponse<Cliente | undefined>> {
     return this.http
-      .get<ApiResponse<Cliente | undefined>>(`${this.baseUrl}/clientes/search?id=${documento}`)
-      .pipe(catchError(this.handleError.handleError));
+      .get<ApiResponse<Cliente>>(`${this.baseUrl}/clientes/search?id=${documento}`)
+      .pipe(
+        notFoundAsEmpty<Cliente>('Cliente no encontrado'),
+        catchError(this.handleError.handleError),
+      );
   }
 
+  /** POST /clientes (público). Errores: 400 validación, 409 documento/correo/teléfono repetido. */
   registroCliente(cliente: ClienteCreate): Observable<ApiResponse<Cliente>> {
     return this.http
       .post<ApiResponse<Cliente>>(`${this.baseUrl}/clientes`, cliente)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** GET /clientes con `fields=nombre_completo_telefono` devuelve la proyección reducida. */
+  /**
+   * GET /clientes (requiere token). `limit` debe estar entre 1 y 100 (400 si no); con
+   * `fields=nombre_completo_telefono` devuelve la proyección reducida.
+   */
   getClientes(
     options: ClienteListParams & { fields: 'nombre_completo_telefono' },
   ): Observable<ApiResponse<ClienteResumen[]>>;
@@ -58,16 +67,15 @@ export class ClienteService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  actualizarCliente(
-    documento: number,
-    cliente: ClienteUpdate,
-  ): Observable<ApiResponse<Cliente | undefined>> {
+  /** PUT /clientes?id= con merge. Errores: 400, 404 (no existe), 409 (correo/teléfono repetido). */
+  actualizarCliente(documento: number, cliente: ClienteUpdate): Observable<ApiResponse<Cliente>> {
     const url = `${this.baseUrl}/clientes?id=${documento}`;
     return this.http
-      .put<ApiResponse<Cliente | undefined>>(url, cliente)
+      .put<ApiResponse<Cliente>>(url, cliente)
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /** DELETE /clientes?id=. Errores: 404 (no existe), 409 (tiene registros asociados). */
   eliminarCliente(documento: number): Observable<ApiResponse<unknown>> {
     const url = `${this.baseUrl}/clientes?id=${documento}`;
     return this.http

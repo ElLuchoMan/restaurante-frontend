@@ -12,6 +12,6 @@ export interface LoginResponse {
   access_token: string;
   refresh_token: string;
   token_type: string; // siempre "Bearer"
-  expires_in: string; // segundos, como string (el back responde "1800")
+  expires_in: string; // vida del access token en segundos, como string ("7200" = 120 min)
   nombre: string; // "<nombre> <apellido>"
 }

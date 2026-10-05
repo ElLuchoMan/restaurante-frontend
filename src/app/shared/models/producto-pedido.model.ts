@@ -30,3 +30,21 @@ export interface ProductoPedido {
   pedidoId: number;
   detalles: DetallePedido[];
 }
+
+/** Elemento del `data` de la respuesta 409 de POST/PUT /producto_pedido por inventario insuficiente. */
+export interface InventarioInsuficiente {
+  productoId: number;
+  requerido: number;
+  disponible: number;
+}
+
+/**
+ * Error que lanza `ProductoPedidoService`: la forma de `HandleErrorService` más, en un 409 por
+ * inventario, el detalle por producto en `data`.
+ */
+export interface ProductoPedidoError {
+  code: number;
+  message: string;
+  cause: string;
+  data?: InventarioInsuficiente[];
+}

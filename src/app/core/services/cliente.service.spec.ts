@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { expect } from '@jest/globals';
@@ -61,14 +62,16 @@ describe('ClienteService', () => {
       req.flush(mockResponseCliente);
     });
 
-    it('should expose a not found response (HTTP 200, code 404, no data)', () => {
+    it('should expose an HTTP 404 as a not found response without data', () => {
       let result: ApiResponse<Cliente | undefined> | undefined;
       service.getClienteId(1).subscribe((response) => (result = response));
 
-      httpMock.expectOne(`${baseUrl}/clientes/search?id=1`).flush({
-        code: 404,
-        message: 'Cliente no encontrado',
-      });
+      httpMock
+        .expectOne(`${baseUrl}/clientes/search?id=1`)
+        .flush(
+          { code: 404, message: 'Cliente no encontrado' },
+          { status: 404, statusText: 'Not Found' },
+        );
 
       expect(result?.code).toBe(404);
       expect(result?.data).toBeUndefined();
@@ -84,6 +87,36 @@ describe('ClienteService', () => {
       });
       const req = httpMock.expectOne(`${baseUrl}/clientes/search?id=${documento}`);
       req.error(new ErrorEvent('API error'));
+    });
+  });
+
+  describe('errores HTTP de escritura', () => {
+    it('propaga el 409 del registro con su mensaje', () => {
+      let failure: HttpErrorResponse | undefined;
+      service.registroCliente(mockClienteBody).subscribe({ error: (e) => (failure = e) });
+      httpMock
+        .expectOne(`${baseUrl}/clientes`)
+        .flush(
+          { code: 409, message: 'Ya existe un cliente con ese correo' },
+          { status: 409, statusText: 'Conflict' },
+        );
+      expect(failure?.status).toBe(409);
+      expect(failure?.error.message).toBe('Ya existe un cliente con ese correo');
+    });
+
+    it('propaga el 404 de actualizar y eliminar (ya no llega como 200)', () => {
+      const codes: number[] = [];
+      service.actualizarCliente(1, mockClienteUpdateBody).subscribe({
+        error: (e) => codes.push(e.status),
+      });
+      httpMock
+        .expectOne(`${baseUrl}/clientes?id=1`)
+        .flush({ code: 404 }, { status: 404, statusText: 'Not Found' });
+      service.eliminarCliente(1).subscribe({ error: (e) => codes.push(e.status) });
+      httpMock
+        .expectOne(`${baseUrl}/clientes?id=1`)
+        .flush({ code: 404 }, { status: 404, statusText: 'Not Found' });
+      expect(codes).toEqual([404, 404]);
     });
   });
 

@@ -14,8 +14,8 @@ import {
 import { HandleErrorService } from './handle-error.service';
 
 /**
- * Cliente de `/pedidos`. Todos los endpoints requieren token.
- * En los listados vacíos el back responde HTTP 200 con `code: 404` y sin `data`.
+ * Cliente de `/pedidos`. Todos los endpoints requieren token. El back usa el status HTTP real
+ * (400 parámetros inválidos, 404 inexistente) y los listados vacíos responden 200 con `data: []`.
  */
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
@@ -26,7 +26,10 @@ export class PedidoService {
     private handleError: HandleErrorService,
   ) {}
 
-  /** POST /pedidos. Responde el pedido creado (estado INICIADO, fecha y hora del servidor). */
+  /**
+   * POST /pedidos. Responde 201 con el pedido creado (estado INICIADO, fecha y hora del
+   * servidor); 404 si `pk_id_domicilio`, `restauranteId` o `documentoCliente` no existen.
+   */
   createPedido(pedido: PedidoCreate): Observable<ApiResponse<Pedido>> {
     return this.http
       .post<ApiResponse<Pedido>>(this.baseUrl, pedido)
@@ -35,7 +38,8 @@ export class PedidoService {
 
   /**
    * POST /pedidos/asignar-pago. Con `cambiarEstado` el back marca el pedido TERMINADO y el pago
-   * PAGADO. `data` es un pedido parcial (solo ids y estado son fiables).
+   * PAGADO (se envía siempre explícito: el valor por defecto del back es `true`). `data` es el
+   * pedido completo actualizado.
    */
   assignPago(
     pedidoId: number,
@@ -51,7 +55,7 @@ export class PedidoService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** POST /pedidos/asignar-domicilio. Marca además `delivery`. `data` es un pedido parcial. */
+  /** POST /pedidos/asignar-domicilio. Marca además `delivery`. `data` es el pedido completo. */
   assignDomicilio(pedidoId: number, domicilioId: number): Observable<ApiResponse<Pedido>> {
     const params = new HttpParams()
       .set('pedido_id', pedidoId.toString())
@@ -61,27 +65,30 @@ export class PedidoService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** GET /pedidos?cliente=. */
-  getMisPedidos(clienteId: number): Observable<ApiResponse<Pedido[] | undefined>> {
+  /** GET /pedidos?cliente=. Sin pedidos responde 200 con `data: []`. */
+  getMisPedidos(clienteId: number): Observable<ApiResponse<Pedido[]>> {
     const params = new HttpParams().set('cliente', clienteId.toString());
     return this.http
-      .get<ApiResponse<Pedido[] | undefined>>(this.baseUrl, { params })
+      .get<ApiResponse<Pedido[]>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * GET /pedidos/detalles?pedido_id=. Si falla (pedido inexistente, id inválido) el back responde
-   * HTTP 200 con `code` 400/500 y sin `data`.
+   * GET /pedidos/detalles?pedido_id=. 400 si `pedido_id` no es válido y 404 si el pedido no
+   * existe (errores HTTP reales).
    */
-  getPedidoDetalles(pedidoId: number): Observable<ApiResponse<PedidoDetalle | undefined>> {
+  getPedidoDetalles(pedidoId: number): Observable<ApiResponse<PedidoDetalle>> {
     const params = new HttpParams().set('pedido_id', String(pedidoId));
     return this.http
-      .get<ApiResponse<PedidoDetalle | undefined>>(`${this.baseUrl}/detalles`, { params })
+      .get<ApiResponse<PedidoDetalle>>(`${this.baseUrl}/detalles`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** GET /pedidos con filtros opcionales (se omiten los `undefined`/`null`). */
-  getPedidos(params?: PedidoListParams): Observable<ApiResponse<Pedido[] | undefined>> {
+  /**
+   * GET /pedidos con filtros opcionales (se omiten los `undefined`/`null`). Un filtro inválido
+   * responde 400; sin resultados, 200 con `data: []`.
+   */
+  getPedidos(params?: PedidoListParams): Observable<ApiResponse<Pedido[]>> {
     let httpParams = new HttpParams();
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
@@ -89,11 +96,14 @@ export class PedidoService {
       });
     }
     return this.http
-      .get<ApiResponse<Pedido[] | undefined>>(`${this.baseUrl}`, { params: httpParams })
+      .get<ApiResponse<Pedido[]>>(`${this.baseUrl}`, { params: httpParams })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** PUT /pedidos/actualizar-estado. Responde 400 si el estado no es uno de `EstadoPedido`. */
+  /**
+   * PUT /pedidos/actualizar-estado. Responde el pedido completo; 400 si el estado no es uno de
+   * `EstadoPedido`.
+   */
   updateEstado(pedidoId: number, estado: EstadoPedido): Observable<ApiResponse<Pedido>> {
     const params = new HttpParams().set('pedido_id', String(pedidoId)).set('estado', estado);
     return this.http

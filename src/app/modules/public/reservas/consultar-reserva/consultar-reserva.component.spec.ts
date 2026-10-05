@@ -5,1224 +5,341 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 
-import { LoggingService } from '../../../../core/services/logging.service';
+import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
-import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
 import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import {
   mockReserva,
+  mockReservasDelDiaResponse,
   mockReservasUnordered,
-  mockReservaUpdateResponse,
 } from '../../../../shared/mocks/reserva.mocks';
 import {
   createLoggingServiceMock,
-  createReservaContactoServiceMock,
   createReservaNotificationsServiceMock,
   createReservaServiceMock,
   createToastrMock,
   createUserServiceMock,
 } from '../../../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
-import { Reserva } from '../../../../shared/models/reserva.model';
+import { ReservaBase } from '../../../../shared/models/reserva.model';
 import { ConsultarReservaComponent } from './consultar-reserva.component';
+
+const respuesta = (data: ReservaBase[]): ApiResponse<ReservaBase[]> => ({
+  code: 200,
+  message: 'Reservas obtenidas exitosamente',
+  data,
+});
 
 describe('ConsultarReservaComponent', () => {
   let component: ConsultarReservaComponent;
   let fixture: ComponentFixture<ConsultarReservaComponent>;
   let reservaService: jest.Mocked<ReservaService>;
-  let reservaContactoService: jest.Mocked<ReservaContactoService>;
-  let reservaNotificationsService: jest.Mocked<ReservaNotificationsService>;
+  let reservaNoti: jest.Mocked<ReservaNotificationsService>;
   let toastr: jest.Mocked<ToastrService>;
   let userService: jest.Mocked<UserService>;
-  let loggingService: jest.Mocked<LoggingService>;
+  let logger: jest.Mocked<LoggingService>;
+
+  async function crear(rol: string | null, userId: number | null): Promise<void> {
+    userService.getUserRole.mockReturnValue(rol);
+    userService.getUserId.mockReturnValue(userId);
+    fixture = TestBed.createComponent(ConsultarReservaComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }
 
   beforeEach(async () => {
-    const reservaServiceMock = createReservaServiceMock() as jest.Mocked<ReservaService>;
-    const reservaContactoServiceMock =
-      createReservaContactoServiceMock() as jest.Mocked<ReservaContactoService>;
-    const reservaNotificationsServiceMock =
-      createReservaNotificationsServiceMock() as jest.Mocked<ReservaNotificationsService>;
-    const toastrMock = createToastrMock() as jest.Mocked<ToastrService>;
-    const userServiceMock = createUserServiceMock() as jest.Mocked<UserService>;
-    userServiceMock.getUserRole.mockReturnValue('Administrador');
-    userServiceMock.getUserId.mockReturnValue(123456);
-    const loggingServiceMock = createLoggingServiceMock() as jest.Mocked<LoggingService>;
-
     await TestBed.configureTestingModule({
       imports: [ConsultarReservaComponent, FormsModule, CommonModule, HttpClientTestingModule],
       providers: [
-        { provide: ReservaService, useValue: reservaServiceMock },
-        { provide: ReservaContactoService, useValue: reservaContactoServiceMock },
-        { provide: ReservaNotificationsService, useValue: reservaNotificationsServiceMock },
-        { provide: ToastrService, useValue: toastrMock },
-        { provide: UserService, useValue: userServiceMock },
-        { provide: LoggingService, useValue: loggingServiceMock },
+        { provide: ReservaService, useValue: createReservaServiceMock() },
+        { provide: ReservaNotificationsService, useValue: createReservaNotificationsServiceMock() },
+        { provide: ToastrService, useValue: createToastrMock() },
+        { provide: UserService, useValue: createUserServiceMock() },
+        { provide: LoggingService, useValue: createLoggingServiceMock() },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ConsultarReservaComponent);
-    component = fixture.componentInstance;
     reservaService = TestBed.inject(ReservaService) as jest.Mocked<ReservaService>;
-    reservaContactoService = TestBed.inject(
-      ReservaContactoService,
-    ) as jest.Mocked<ReservaContactoService>;
-    reservaNotificationsService = TestBed.inject(
+    reservaNoti = TestBed.inject(
       ReservaNotificationsService,
     ) as jest.Mocked<ReservaNotificationsService>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
-    loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
-
-    fixture.detectChanges();
+    logger = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should reset reservations and message when no search criteria is selected', () => {
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = false;
-    component.actualizarTipoBusqueda();
-    expect(component.reservas).toEqual([]);
-    expect(component.mostrarMensaje).toBe(false);
-  });
-
-  it('should show warning if no search criteria is selected', () => {
-    component.buscarReserva();
-    expect(toastr.warning).toHaveBeenCalledWith(
-      'Selecciona al menos un criterio de búsqueda',
-      'Atención',
-    );
-  });
-
-  it('should show warning if document is required but missing', () => {
-    component.buscarPorDocumento = true;
-    component.documentoCliente = '';
-    component.buscarReserva();
-    expect(toastr.warning).toHaveBeenCalledWith('Por favor ingresa un documento', 'Atención');
-  });
-
-  it('should show warning if date is required but missing', () => {
-    component.buscarPorFecha = true;
-    component.fechaReserva = '';
-    component.buscarReserva();
-    expect(toastr.warning).toHaveBeenCalledWith('Por favor selecciona una fecha', 'Atención');
-  });
-
-  it('should show error if document is invalid', () => {
-    component.buscarPorDocumento = true;
-    component.documentoCliente = 'abc';
-    component.buscarReserva();
-    expect(toastr.error).toHaveBeenCalledWith('El documento debe ser un número válido', 'Error');
-  });
-
-  it('should call reservaService.getReservasByDocumento with correct params', () => {
-    reservaService.getReservasByDocumento.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas con éxito', data: [mockReserva] }),
-    );
-
-    component.buscarPorDocumento = true;
-    component.documentoCliente = '123456';
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-01';
-
-    component.buscarReserva();
-
-    expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(123456, '2025-01-01');
-    expect(component.reservas.length).toBe(1);
-  });
-
-  it('should handle error when searching for reservations', () => {
-    reservaService.getReservasByDocumento.mockReturnValue(throwError(() => new Error()));
-
-    component.buscarPorDocumento = true;
-    component.documentoCliente = '123456';
-
-    component.buscarReserva();
-
-    expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error al buscar la reserva', 'Error');
-  });
-
-  it('should confirm a reservation and update its status', () => {
-    reservaService.actualizarReserva.mockReturnValue(of(mockReservaUpdateResponse));
-
-    component.confirmarReserva(mockReserva);
-
-    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
-      1,
-      expect.objectContaining({ estadoReserva: estadoReserva.CONFIRMADA }),
-    );
-    // El backend ignora contactoId/restauranteId en el PUT: no se envían (eran objetos embebidos)
-    const payload = reservaService.actualizarReserva.mock.calls[0][1];
-    expect(payload).not.toHaveProperty('contactoId');
-    expect(payload).not.toHaveProperty('restauranteId');
-    expect(payload.fechaReserva).toBe('2025-01-01');
-    expect(toastr.success).toHaveBeenCalledWith(
-      'Reserva marcada como CONFIRMADA',
-      'Actualización Exitosa',
-    );
-  });
-
-  it('should cancel a reservation and update its status', () => {
-    const mockUpdateResponse: ApiResponse<Reserva> = {
-      code: 200,
-      message: 'Reserva actualizada con éxito',
-      data: mockReserva,
-    };
-
-    reservaService.actualizarReserva.mockReturnValue(of(mockUpdateResponse));
-
-    component.cancelarReserva(mockReserva);
-
-    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
-      1,
-      expect.objectContaining({ estadoReserva: 'CANCELADA' }),
-    );
-    expect(toastr.success).toHaveBeenCalledWith(
-      'Reserva marcada como CANCELADA',
-      'Actualización Exitosa',
-    );
-  });
-
-  it('should fulfill a reservation and update its status', () => {
-    const mockUpdateResponse: ApiResponse<Reserva> = {
-      code: 200,
-      message: 'Reserva actualizada con éxito',
-      data: mockReserva,
-    };
-
-    reservaService.actualizarReserva.mockReturnValue(of(mockUpdateResponse));
-
-    component.cumplirReserva(mockReserva);
-
-    expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
-      1,
-      expect.objectContaining({ estadoReserva: 'CUMPLIDA' }),
-    );
-    expect(toastr.success).toHaveBeenCalledWith(
-      'Reserva marcada como CUMPLIDA',
-      'Actualización Exitosa',
-    );
-  });
-
-  it('should show error if updating a reservation fails', () => {
-    reservaService.actualizarReserva.mockReturnValue(throwError(() => new Error()));
-
-    component.confirmarReserva(mockReserva);
-
-    expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error al actualizar la reserva', 'Error');
-  });
-
-  it('should show error if reservaId is invalid', () => {
-    const invalidReserva = { ...mockReserva, reservaId: NaN };
-    component.confirmarReserva(invalidReserva);
-    expect(toastr.error).toHaveBeenCalledWith('Error: ID de reserva no válido', 'Error');
-  });
-
-  it('should sort reservations by date (desc) and time (desc)', () => {
-    reservaService.getReservasByDocumento.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: mockReservasUnordered }),
-    );
-
-    component.buscarPorDocumento = true;
-    component.documentoCliente = '123456';
-    component.buscarReserva();
-
-    expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(123456, undefined);
-
-    expect(component.reservas.map((r) => ({ fecha: r.fechaReserva, hora: r.horaReserva }))).toEqual(
-      [
-        { fecha: '02-01-2025', hora: '16:00:00' },
-        { fecha: '01-01-2025', hora: '18:00:00' },
-        { fecha: '01-01-2025', hora: '14:00:00' },
-      ],
-    );
-  });
-
-  it('should initialize as non-admin and load reservations', () => {
-    userService.getUserRole.mockReturnValue('Cliente');
-    userService.getUserId.mockReturnValue(123456);
-    reservaService.getReservasByDocumento.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] }),
-    );
-
-    component.ngOnInit();
-
-    expect(component.esAdmin).toBe(false);
-    expect(component.mostrarFiltros).toBe(false);
-    expect(component.documentoCliente).toBe('123456');
-    expect(component.buscarPorDocumento).toBe(true);
-    expect(component.buscarPorFecha).toBe(false);
-    expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(123456, undefined);
-    expect(component.reservas).toEqual([mockReserva]);
-    expect(component.mostrarMensaje).toBe(true);
-  });
-
-  it('should warn on init when non-admin has no document', () => {
-    userService.getUserRole.mockReturnValue('Cliente');
-    userService.getUserId.mockReturnValue(undefined as unknown as number);
-
-    component.ngOnInit();
-
-    expect(component.documentoCliente).toBe('');
-    expect(toastr.warning).toHaveBeenCalledWith('Por favor ingresa un documento', 'Atención');
-  });
-
-  it('should use user id when no criteria provided for non-admin', () => {
-    userService.getUserId.mockReturnValue(123456);
-    component.esAdmin = false;
-    component.mostrarFiltros = false;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = false;
-    component.documentoCliente = '';
-    reservaService.getReservasByDocumento.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] }),
-    );
-
-    component.buscarReserva();
-
-    expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(123456, undefined);
-  });
-
-  it('should warn when user id is missing for non-admin (no documento)', () => {
-    userService.getUserId.mockReturnValue(undefined as unknown as number);
-    component.esAdmin = false;
-    component.mostrarFiltros = false;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = false;
-    component.documentoCliente = '';
-
-    component.buscarReserva();
-
-    expect(toastr.warning).toHaveBeenCalledWith('Documento requerido para la búsqueda', 'Atención');
-    expect(reservaService.getReservasByDocumento).not.toHaveBeenCalled();
-  });
-
-  it('should not update reservation when user is not admin', () => {
-    component.esAdmin = false;
-
-    component.confirmarReserva(mockReserva);
-
-    expect(reservaService.actualizarReserva).not.toHaveBeenCalled();
-  });
-
-  it('should return the same date if it has three parts', () => {
-    const result = component['convertirFechaISO']('2025-01-15');
-    expect(result).toBe('2025-01-15');
-  });
-
-  it('should return the original string if it does not have three parts', () => {
-    const result = component['convertirFechaISO']('invalid-date');
-    expect(result).toBe('invalid-date');
-  });
-
-  it('should search by date only (without documento) for admin', async () => {
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-15';
-
-    const mockResponse: ApiResponse<any> = {
-      code: 200,
-      message: 'Reservas obtenidas',
-      data: [mockReserva],
-    };
-
-    reservaService.getReservaByParameter.mockReturnValue(of(mockResponse));
-
-    component.buscarReserva();
-
-    expect(reservaService.getReservaByParameter).toHaveBeenCalledWith(undefined, '2025-01-15');
-
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    expect(component.reservas).toHaveLength(1);
-    expect(component.mostrarMensaje).toBe(true);
-  });
-
-  it('should handle error when searching by date only', () => {
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-15';
-
-    reservaService.getReservaByParameter.mockReturnValue(throwError(() => new Error('API Error')));
-
-    component.buscarReserva();
-
-    expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error al buscar la reserva', 'Error');
-  });
-
-  it('should enrich reservas with missing contact info', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: 1,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'Juan Pérez',
-        telefono: '3001234567',
-        documentoCliente: 1234567890,
-      },
-    };
-
-    reservaService.getReservasByDocumento.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarPorDocumento = true;
-    component.documentoCliente = '123456';
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(reservaContactoService.getById).toHaveBeenCalledWith(1);
-    expect(component.reservas[0].nombreCompleto).toBe('Juan Pérez');
-    expect(component.reservas[0].telefono).toBe('3001234567');
-  });
-
-  it('should handle error when enriching contact info', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: 1,
-    };
-
-    reservaService.getReservasByDocumento.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(throwError(() => new Error('Contact Error')));
-
-    component.buscarPorDocumento = true;
-    component.documentoCliente = '123456';
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas).toHaveLength(1);
-  });
-
-  it('should update reserva in list after confirming', async () => {
-    component.reservas = [mockReserva];
-    reservaService.actualizarReserva.mockReturnValue(of(mockReservaUpdateResponse));
-
-    component.confirmarReserva(mockReserva);
-
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    expect(component.reservas[0].estadoReserva).toBe(estadoReserva.CONFIRMADA);
-  });
-
-  it('should pass documentoInput parameter to buscarReserva', () => {
-    reservaService.getReservasByDocumento.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReserva] }),
-    );
-
-    component.buscarPorDocumento = true;
-    component.buscarReserva(987654);
-
-    expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(987654, undefined);
-  });
-
-  it('should enrich reservas by date only with missing contact info', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: 1,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'María García',
-        telefono: '3112345678',
-        documentoCliente: 9876543210,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(reservaContactoService.getById).toHaveBeenCalledWith(1);
-    expect(component.reservas[0].nombreCompleto).toBe('María García');
-    expect(component.reservas[0].telefono).toBe('3112345678');
-  });
-
-  it('should handle reservas without contactoId when enriching by date', async () => {
-    const mockReservaSinContacto = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: null,
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaSinContacto] }),
-    );
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(reservaContactoService.getById).not.toHaveBeenCalled();
-    expect(component.reservas).toHaveLength(1);
-  });
-
-  it('should handle response.data as empty array', () => {
-    reservaService.getReservasByDocumento.mockReturnValue(
-      of({ code: 200, message: 'No hay reservas', data: null } as any),
-    );
-
-    component.buscarPorDocumento = true;
-    component.documentoCliente = '123456';
-    component.buscarReserva();
-
-    expect(component.reservas).toHaveLength(0);
-    expect(component.mostrarMensaje).toBe(true);
-  });
-
-  it('should handle reservas without contactoId when enriching by documento', async () => {
-    const mockReservaSinContacto = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: null,
-    };
-
-    reservaService.getReservasByDocumento.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaSinContacto] }),
-    );
-
-    component.buscarPorDocumento = true;
-    component.documentoCliente = '123456';
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(reservaContactoService.getById).not.toHaveBeenCalled();
-    expect(component.reservas).toHaveLength(1);
-  });
-
-  it('should handle contactoId as object when enriching', async () => {
-    const mockReservaConObjetoContacto = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: { contactoId: 2 },
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 2,
-        nombreCompleto: 'Pedro López',
-        telefono: '3209876543',
-        documentoCliente: 1122334455,
-      },
-    };
-
-    reservaService.getReservasByDocumento.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaConObjetoContacto] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarPorDocumento = true;
-    component.documentoCliente = '123456';
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(reservaContactoService.getById).toHaveBeenCalledWith(2);
-    expect(component.reservas[0].nombreCompleto).toBe('Pedro López');
-  });
-
-  it('should handle null documentoCliente when notifying estado cambio', async () => {
-    const mockReservaSinDoc = { ...mockReserva, documentoCliente: null };
-    component.reservas = [mockReservaSinDoc];
-    reservaService.actualizarReserva.mockReturnValue(of(mockReservaUpdateResponse));
-
-    component.confirmarReserva(mockReservaSinDoc);
-
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    expect(reservaNotificationsService.notifyEstadoCambio).toHaveBeenCalled();
-  });
-
-  it('should sort multiple reservas by date when searching by date only', async () => {
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-15';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: mockReservasUnordered }),
-    );
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas).toHaveLength(3);
-    expect(component.reservas[0].fechaReserva).toBe('02-01-2025');
-    expect(component.reservas[1].horaReserva).toBe('18:00:00');
-  });
-
-  it('should handle enrichment with null values in contacto info', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: 1,
-    };
-
-    const mockContactoInfoIncompleto = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: null,
-        telefono: null,
-        documentoCliente: null,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfoIncompleto));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas).toHaveLength(1);
-  });
-
-  it('should handle response.data as null for date search', async () => {
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-15';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'No hay reservas', data: null } as any),
-    );
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas).toHaveLength(0);
-  });
-
-  it('should preserve existing nombreCompleto when enriching by date', async () => {
-    const mockReservaConNombre = {
-      ...mockReserva,
-      nombreCompleto: 'Nombre Existente',
-      telefono: '',
-      contactoId: 1,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'Nombre Desde API',
-        telefono: '3001234567',
-        documentoCliente: 1234567890,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaConNombre] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas[0].nombreCompleto).toBe('Nombre Existente');
-  });
-
-  it('should preserve existing telefono when enriching by date', async () => {
-    const mockReservaConTelefono = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '3009876543',
-      contactoId: 1,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'Nombre Desde API',
-        telefono: '3001234567',
-        documentoCliente: 1234567890,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaConTelefono] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas[0].telefono).toBe('3009876543');
-  });
-
-  it('should handle documentoCliente when both are null during enrichment by date', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: 1,
-      documentoCliente: null,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'Nombre',
-        telefono: '3001234567',
-        documentoCliente: null,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas[0].documentoCliente).toBeNull();
-  });
-
-  it('should handle empty nombreCompleto from API when enriching by date', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: 1,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: '',
-        telefono: '3001234567',
-        documentoCliente: 1234567890,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas[0].nombreCompleto).toBe('');
-  });
-
-  it('should handle empty telefono from API when enriching by date', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: 'Nombre Existente',
-      telefono: '',
-      contactoId: 1,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'Nombre',
-        telefono: '',
-        documentoCliente: 1234567890,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas[0].telefono).toBe('');
-  });
-
-  it('should use documentoCliente from API when reserva value is null', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: 1,
-      documentoCliente: null,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'Nombre',
-        telefono: '3001234567',
-        documentoCliente: { documentoCliente: 987654321 },
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas[0].documentoCliente).toBe(987654321);
-  });
-
-  it('should preserve non-empty nombreCompleto with spaces when enriching by date', async () => {
-    const mockReservaConNombreConEspacios = {
-      ...mockReserva,
-      nombreCompleto: ' Valid Name ',
-      telefono: '',
-      contactoId: 1,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'Nombre API',
-        telefono: '3001234567',
-        documentoCliente: 1234567890,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaConNombreConEspacios] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(component.reservas[0].nombreCompleto).toBe(' Valid Name ');
-  });
-
-  it('should preserve non-empty telefono with spaces when enriching by date', async () => {
-    const mockReservaConTelefonoConEspacios = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: ' 3009876543 ',
-      contactoId: 1,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'Nombre API',
-        telefono: '3001234567',
-        documentoCliente: 1234567890,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaConTelefonoConEspacios] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    expect(component.reservas[0].telefono).toBe(' 3009876543 ');
-  });
-
-  it('should use empty string when API nombreCompleto is null', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: '   ',
-      telefono: '',
-      contactoId: 1,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: null,
-        telefono: '3001234567',
-        documentoCliente: 1234567890,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas[0].nombreCompleto).toBe('');
-  });
-
-  it('should use empty string when API telefono is null', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: 'Nombre',
-      telefono: '   ',
-      contactoId: 1,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'Nombre API',
-        telefono: null,
-        documentoCliente: 1234567890,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas[0].telefono).toBe('');
-  });
-
-  it('should use null when both reserva and API documentoCliente are undefined', async () => {
-    const mockReservaIncompleta = {
-      ...mockReserva,
-      nombreCompleto: '',
-      telefono: '',
-      contactoId: 1,
-      documentoCliente: undefined,
-    };
-
-    const mockContactoInfo = {
-      code: 200,
-      message: 'Contacto obtenido',
-      data: {
-        contactoId: 1,
-        nombreCompleto: 'Nombre',
-        telefono: '3001234567',
-        documentoCliente: undefined,
-      },
-    };
-
-    component.mostrarFiltros = true;
-    component.buscarPorDocumento = false;
-    component.buscarPorFecha = true;
-    component.fechaReserva = '2025-01-20';
-
-    reservaService.getReservaByParameter.mockReturnValue(
-      of({ code: 200, message: 'Reservas obtenidas', data: [mockReservaIncompleta] }),
-    );
-    reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-    component.buscarReserva();
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(component.reservas[0].documentoCliente).toBeNull();
-  });
-
-  describe('ramas adicionales de enriquecimiento y criterios', () => {
-    const flushAsync = () => new Promise((resolve) => setTimeout(resolve, 20));
-    const infoResp = (data: any) => ({ code: 200, message: 'ok', data }) as any;
-
-    const buscarPorDocumentoCon = async (reserva: any, info: any) => {
-      reservaService.getReservasByDocumento.mockReturnValue(
-        of({ code: 200, message: 'ok', data: [reserva] }) as any,
-      );
-      reservaContactoService.getById.mockReturnValue(of(info));
-      component.buscarPorDocumento = true;
-      component.documentoCliente = '123456';
-      component.buscarReserva();
-      await flushAsync();
-      return component.reservas[0] as any;
-    };
-
-    const buscarPorFechaCon = async (reserva: any, info: any) => {
-      reservaService.getReservaByParameter.mockReturnValue(
-        of({ code: 200, message: 'ok', data: [reserva] }) as any,
-      );
-      reservaContactoService.getById.mockReturnValue(of(info));
-      component.buscarPorDocumento = false;
-      component.buscarPorFecha = true;
-      component.fechaReserva = '2025-09-15';
-      component.buscarReserva();
-      await flushAsync();
-      return component.reservas[0] as any;
-    };
-
-    it('actualizarTipoBusqueda conserva reservas si hay al menos un criterio', () => {
-      component.reservas = [mockReserva as any];
+  describe('como administrador', () => {
+    beforeEach(async () => {
+      await crear('Administrador', 123456);
+    });
+
+    it('muestra los filtros y no busca al iniciar', () => {
+      expect(component.esAdmin).toBe(true);
+      expect(component.mostrarFiltros).toBe(true);
+      expect(component.buscarPorDocumento).toBe(false);
+      expect(reservaService.getReservasByDocumento).not.toHaveBeenCalled();
+    });
+
+    it('actualizarTipoBusqueda limpia resultados si no hay criterios y los conserva si hay', () => {
+      component.reservas = [mockReserva];
       component.mostrarMensaje = true;
-      component.buscarPorDocumento = true;
+      component.buscarPorFecha = true;
+      component.actualizarTipoBusqueda();
+      expect(component.reservas).toHaveLength(1);
+
       component.buscarPorFecha = false;
       component.actualizarTipoBusqueda();
-      expect(component.reservas).toHaveLength(1);
-      expect(component.mostrarMensaje).toBe(true);
+      expect(component.reservas).toEqual([]);
+      expect(component.mostrarMensaje).toBe(false);
+    });
 
-      component.buscarPorDocumento = false;
+    it('advierte si no hay criterio de búsqueda', () => {
+      component.buscarReserva();
+      expect(toastr.warning).toHaveBeenCalledWith(
+        'Selecciona al menos un criterio de búsqueda',
+        'Atención',
+      );
+    });
+
+    it('advierte si falta el documento', () => {
+      component.buscarPorDocumento = true;
+      component.documentoCliente = '';
+      component.buscarReserva();
+      expect(toastr.warning).toHaveBeenCalledWith('Por favor ingresa un documento', 'Atención');
+    });
+
+    it('rechaza un documento no numérico', () => {
+      component.buscarPorDocumento = true;
+      component.buscarReserva('abc');
+      expect(toastr.error).toHaveBeenCalledWith('El documento debe ser un número válido', 'Error');
+      expect(reservaService.getReservasByDocumento).not.toHaveBeenCalled();
+    });
+
+    it('advierte si falta la fecha', () => {
       component.buscarPorFecha = true;
-      component.actualizarTipoBusqueda();
-      expect(component.reservas).toHaveLength(1);
+      component.fechaReserva = '';
+      component.buscarReserva();
+      expect(toastr.warning).toHaveBeenCalledWith('Por favor selecciona una fecha', 'Atención');
     });
 
-    it('documento: no modifica la reserva si getById devuelve vacío', async () => {
-      const r = await buscarPorDocumentoCon(
-        { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1 },
-        undefined,
+    it('advierte "documento requerido" cuando el documento es 0', () => {
+      component.buscarPorDocumento = true;
+      component.buscarReserva(0);
+      expect(toastr.warning).toHaveBeenCalledWith(
+        'Documento requerido para la búsqueda',
+        'Atención',
       );
-      expect(reservaContactoService.getById).toHaveBeenCalledWith(1);
-      expect(r.nombreCompleto).toBe('');
-      expect(r.telefono).toBe('');
     });
 
-    it('fecha: no modifica la reserva si getById devuelve vacío', async () => {
-      const r = await buscarPorFechaCon(
-        { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1 },
-        undefined,
-      );
-      expect(reservaContactoService.getById).toHaveBeenCalledWith(1);
-      expect(r.nombreCompleto).toBe('');
-      expect(r.telefono).toBe('');
+    it('busca por documento usando el valor del campo y ordena de más reciente a más antigua', () => {
+      reservaService.getReservasByDocumento.mockReturnValue(of(respuesta(mockReservasUnordered)));
+      component.buscarPorDocumento = true;
+      component.documentoCliente = ' 1015466495 ';
+
+      component.buscarReserva();
+
+      expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(1015466495, undefined);
+      // 02-01 16:00, luego 01-01 18:00 y 01-01 14:00
+      expect(component.reservas.map((r) => r.reservaId)).toEqual([2, 3, 1]);
+      expect(component.mostrarMensaje).toBe(true);
+      // la lista original no se muta
+      expect(mockReservasUnordered.map((r) => r.reservaId)).toEqual([1, 2, 3]);
     });
 
-    it('documento: conserva nombre existente y completa el teléfono', async () => {
-      const r = await buscarPorDocumentoCon(
-        { ...mockReserva, nombreCompleto: 'Existente', telefono: '', contactoId: 1 },
-        infoResp({ nombreCompleto: 'API', telefono: '300', documentoCliente: 9 }),
-      );
-      expect(r.nombreCompleto).toBe('Existente');
-      expect(r.telefono).toBe('300');
+    it('busca por documento recibido por parámetro y fecha, sin consultar contactos', () => {
+      reservaService.getReservasByDocumento.mockReturnValue(of(respuesta([])));
+      component.buscarPorDocumento = true;
+      component.buscarPorFecha = true;
+      component.fechaReserva = '2025-02-06';
+
+      component.buscarReserva(555);
+
+      expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(555, '2025-02-06');
+      expect(component.reservas).toEqual([]);
+      expect(component.mostrarMensaje).toBe(true);
     });
 
-    it('documento: conserva teléfono existente y completa el nombre', async () => {
-      const r = await buscarPorDocumentoCon(
-        { ...mockReserva, nombreCompleto: '', telefono: '311', contactoId: 1 },
-        infoResp({ nombreCompleto: 'API', telefono: '300', documentoCliente: 9 }),
-      );
-      expect(r.nombreCompleto).toBe('API');
-      expect(r.telefono).toBe('311');
+    it('busca solo por fecha con getReservaByParameter', () => {
+      reservaService.getReservaByParameter.mockReturnValue(of(mockReservasDelDiaResponse));
+      component.buscarPorFecha = true;
+      component.fechaReserva = '2025-02-06';
+
+      component.buscarReserva();
+
+      expect(reservaService.getReservaByParameter).toHaveBeenCalledWith(undefined, '2025-02-06');
+      expect(component.reservas).toHaveLength(2);
+      expect(component.mostrarMensaje).toBe(true);
     });
 
-    it('documento: nombre/telefono nulos desde la API se convierten en vacío', async () => {
-      const r = await buscarPorDocumentoCon(
-        { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1 },
-        infoResp({ nombreCompleto: null, telefono: null, documentoCliente: 9 }),
-      );
-      expect(r.nombreCompleto).toBe('');
-      expect(r.telefono).toBe('');
+    it('muestra error si la búsqueda falla', () => {
+      reservaService.getReservasByDocumento.mockReturnValue(throwError(() => new Error('x')));
+      component.buscarPorDocumento = true;
+      component.buscarReserva(1);
+      expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error al buscar la reserva', 'Error');
+      expect(component.mostrarMensaje).toBe(false);
     });
 
-    it('documento: nombre/telefono con solo espacios se reemplazan por los de la API', async () => {
-      const r = await buscarPorDocumentoCon(
-        { ...mockReserva, nombreCompleto: '   ', telefono: '  ', contactoId: 1 },
-        infoResp({ nombreCompleto: 'API', telefono: '300', documentoCliente: 9 }),
-      );
-      expect(r.nombreCompleto).toBe('API');
-      expect(r.telefono).toBe('300');
+    it('renderiza nombre y teléfono desde el contacto embebido en la reserva', () => {
+      component.reservas = [mockReserva];
+      fixture.detectChanges();
+      const html: string = fixture.nativeElement.textContent;
+      expect(html).toContain('Carlos Perez');
+      expect(html).toContain('3216549870');
     });
 
-    it('documento: conserva documentoCliente existente', async () => {
-      const r = await buscarPorDocumentoCon(
-        { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1, documentoCliente: 55 },
-        infoResp({ nombreCompleto: 'A', telefono: '1', documentoCliente: { documentoCliente: 9 } }),
-      );
-      expect(r.documentoCliente).toBe(55);
+    describe('cambios de estado', () => {
+      const actualizada: ReservaBase = { ...mockReserva, estadoReserva: estadoReserva.CONFIRMADA };
+
+      beforeEach(() => {
+        component.reservas = [mockReserva, { ...mockReserva, reservaId: 2 }];
+        reservaService.actualizarReserva.mockReturnValue(
+          of({ code: 200, message: 'ok', data: actualizada }),
+        );
+        reservaNoti.notifyEstadoCambio.mockResolvedValue(null);
+      });
+
+      it('confirmar envía solo el estado, notifica y reemplaza la reserva con la respuesta', async () => {
+        component.confirmarReserva(mockReserva);
+        await fixture.whenStable();
+
+        expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, {
+          estadoReserva: estadoReserva.CONFIRMADA,
+        });
+        expect(toastr.success).toHaveBeenCalledWith(
+          'Reserva marcada como CONFIRMADA',
+          'Actualización Exitosa',
+        );
+        expect(reservaNoti.notifyEstadoCambio).toHaveBeenCalledWith(
+          {
+            fechaReserva: '01-01-2025',
+            horaReserva: '18:00:00',
+            documentoCliente: 1015466495,
+            reservaId: 1,
+          },
+          estadoReserva.CONFIRMADA,
+        );
+        expect(component.reservas[0]).toBe(actualizada);
+        expect(component.reservas[1].reservaId).toBe(2);
+      });
+
+      it('cancelar y cumplir usan el estado correspondiente', async () => {
+        component.cancelarReserva(mockReserva);
+        component.cumplirReserva(mockReserva);
+        await fixture.whenStable();
+        expect(reservaService.actualizarReserva).toHaveBeenNthCalledWith(1, 1, {
+          estadoReserva: estadoReserva.CANCELADA,
+        });
+        expect(reservaService.actualizarReserva).toHaveBeenNthCalledWith(2, 1, {
+          estadoReserva: estadoReserva.CUMPLIDA,
+        });
+      });
+
+      it('un invitado (sin cliente registrado) se notifica con documento null', async () => {
+        const invitada = mockReservasDelDiaResponse.data[1];
+        component.cumplirReserva(invitada);
+        await fixture.whenStable();
+        expect(reservaNoti.notifyEstadoCambio).toHaveBeenCalledWith(
+          expect.objectContaining({ documentoCliente: null, reservaId: 9 }),
+          estadoReserva.CUMPLIDA,
+        );
+      });
+
+      it('ignora un fallo al notificar', async () => {
+        reservaNoti.notifyEstadoCambio.mockRejectedValue(new Error('push'));
+        component.confirmarReserva(mockReserva);
+        await fixture.whenStable();
+        expect(toastr.success).toHaveBeenCalled();
+        expect(component.reservas[0]).toBe(actualizada);
+      });
+
+      it('rechaza un id de reserva no válido', () => {
+        component.confirmarReserva({ ...mockReserva, reservaId: NaN });
+        component.confirmarReserva({ ...mockReserva, reservaId: 0 });
+        expect(toastr.error).toHaveBeenCalledWith('Error: ID de reserva no válido', 'Error');
+        expect(reservaService.actualizarReserva).not.toHaveBeenCalled();
+      });
+
+      it('registra el error y avisa si el backend rechaza el cambio', () => {
+        const error = { code: 404, message: 'Reserva no encontrada' };
+        reservaService.actualizarReserva.mockReturnValue(throwError(() => error));
+        component.confirmarReserva(mockReserva);
+        expect(logger.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error:', error);
+        expect(toastr.error).toHaveBeenCalledWith(
+          'Ocurrió un error al actualizar la reserva',
+          'Error',
+        );
+        expect(component.reservas[0]).toBe(mockReserva);
+      });
+    });
+  });
+
+  describe('como cliente', () => {
+    it('carga sus reservas con el documento del token', async () => {
+      reservaService.getReservasByDocumento.mockReturnValue(of(respuesta([mockReserva])));
+      await crear('Cliente', 1015466495);
+
+      expect(component.esAdmin).toBe(false);
+      expect(component.mostrarFiltros).toBe(false);
+      expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(1015466495, undefined);
+      expect(component.reservas).toEqual([mockReserva]);
     });
 
-    it('documento: usa documentoCliente de la API si el de la reserva es null', async () => {
-      const r = await buscarPorDocumentoCon(
-        {
-          ...mockReserva,
-          nombreCompleto: '',
-          telefono: '',
-          contactoId: 1,
-          documentoCliente: null,
-        },
-        infoResp({ nombreCompleto: 'A', telefono: '1', documentoCliente: { documentoCliente: 9 } }),
-      );
-      expect(r.documentoCliente).toBe(9);
+    it('sin documento en el token no consulta y pide el documento', async () => {
+      await crear('Cliente', null);
+      expect(component.documentoCliente).toBe('');
+      expect(toastr.warning).toHaveBeenCalledWith('Por favor ingresa un documento', 'Atención');
+      expect(reservaService.getReservasByDocumento).not.toHaveBeenCalled();
     });
 
-    it('documento: documentoCliente queda null si ambos faltan', async () => {
-      const r = await buscarPorDocumentoCon(
-        {
-          ...mockReserva,
-          nombreCompleto: '',
-          telefono: '',
-          contactoId: 1,
-          documentoCliente: undefined,
-        },
-        infoResp({ nombreCompleto: 'A', telefono: '1' }),
-      );
-      expect(r.documentoCliente).toBeNull();
+    it('usa el documento del token si no hay criterios activos', async () => {
+      reservaService.getReservasByDocumento.mockReturnValue(of(respuesta([])));
+      await crear('Cliente', 77);
+      reservaService.getReservasByDocumento.mockClear();
+      component.buscarPorDocumento = false;
+      component.documentoCliente = '';
+
+      component.buscarReserva();
+
+      expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(77, undefined);
     });
 
-    it('documento: reserva con nombreCompleto/telefono ausentes (undefined) se enriquece', async () => {
-      const base: any = { ...mockReserva, contactoId: 1 };
-      delete base.nombreCompleto;
-      delete base.telefono;
-      const r = await buscarPorDocumentoCon(
-        base,
-        infoResp({ nombreCompleto: 'N', telefono: 'T', documentoCliente: 1 }),
+    it('sin criterios ni documento del token advierte que el documento es requerido', async () => {
+      reservaService.getReservasByDocumento.mockReturnValue(of(respuesta([])));
+      await crear('Cliente', 77);
+      userService.getUserId.mockReturnValue(null);
+      component.buscarPorDocumento = false;
+
+      component.buscarReserva();
+
+      expect(toastr.warning).toHaveBeenCalledWith(
+        'Documento requerido para la búsqueda',
+        'Atención',
       );
-      expect(r.nombreCompleto).toBe('N');
-      expect(r.telefono).toBe('T');
     });
 
-    it('documento: needsEnrich sólo por teléfono ausente con nombre presente', async () => {
-      const base: any = { ...mockReserva, nombreCompleto: 'Nombre', contactoId: 1 };
-      delete base.telefono;
-      const r = await buscarPorDocumentoCon(
-        base,
-        infoResp({ nombreCompleto: 'N', telefono: 'T', documentoCliente: 1 }),
-      );
-      expect(r.nombreCompleto).toBe('Nombre');
-      expect(r.telefono).toBe('T');
+    it('un cliente no puede cambiar el estado de una reserva', async () => {
+      reservaService.getReservasByDocumento.mockReturnValue(of(respuesta([])));
+      await crear('Cliente', 77);
+      component.confirmarReserva(mockReserva);
+      expect(reservaService.actualizarReserva).not.toHaveBeenCalled();
     });
+  });
 
-    it('documento: needsEnrich sólo por teléfono vacío con nombre presente', async () => {
-      const r = await buscarPorDocumentoCon(
-        { ...mockReserva, nombreCompleto: 'Nombre', telefono: '', contactoId: 1 },
-        infoResp({ nombreCompleto: 'N', telefono: 'T', documentoCliente: 1 }),
-      );
-      expect(r.telefono).toBe('T');
-    });
-
-    it('documento: needsEnrich por teléfono con espacios y nombre presente', async () => {
-      const r = await buscarPorDocumentoCon(
-        { ...mockReserva, nombreCompleto: 'Nombre', telefono: '   ', contactoId: 1 },
-        infoResp({ nombreCompleto: 'N', telefono: 'T', documentoCliente: 1 }),
-      );
-      expect(r.telefono).toBe('T');
-    });
+  it('ordena por hora descendente cuando la fecha coincide', async () => {
+    await crear('Administrador', 1);
+    reservaService.getReservaByParameter.mockReturnValue(
+      of(
+        respuesta([
+          { ...mockReserva, reservaId: 1, horaReserva: '12:00:00' },
+          { ...mockReserva, reservaId: 2, horaReserva: '20:00:00' },
+        ]),
+      ),
+    );
+    component.buscarPorFecha = true;
+    component.fechaReserva = '2025-01-01';
+    component.buscarReserva();
+    expect(component.reservas.map((r) => r.reservaId)).toEqual([2, 1]);
   });
 });

@@ -8,6 +8,7 @@ import { ApiResponse } from '../../shared/models/api-response.model';
 import { DomicilioDetalle } from '../../shared/models/domicilio.model';
 import {
   mockDomicilioBody,
+  mockDomicilioEntregadoBody,
   mockDomicilioRespone,
   mockDomiciliosRespone,
   mockDomicilioUpdateBody,
@@ -193,6 +194,13 @@ describe('DomicilioService', () => {
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual(updatedData);
       req.flush(mockResponse);
+    });
+
+    it('should PUT estado ENTREGADO', () => {
+      service.updateDomicilio(1, mockDomicilioEntregadoBody).subscribe();
+      const req = httpMock.expectOne(`${baseUrl}?id=1`);
+      expect(req.request.body).toEqual({ estado: 'ENTREGADO', updatedBy: 'Usuario 1015466495' });
+      req.flush(mockDomicilioUpdateResponse);
     });
 
     it('should handle error when PUT domicilio', () => {

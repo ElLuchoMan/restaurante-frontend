@@ -67,6 +67,11 @@ export const mockDomicilioUpdateBody: DomicilioUpdate = {
   telefono: '3003334455',
 };
 
+export const mockDomicilioEntregadoBody: DomicilioUpdate = {
+  estado: estadoDomicilio.ENTREGADO,
+  updatedBy: 'Usuario 1015466495',
+};
+
 export const mockDomicilioUpdateResponse: ApiResponse<Domicilio> = {
   code: 200,
   message: 'Domicilio actualizado',

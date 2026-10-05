@@ -57,7 +57,7 @@ export const mockPedidoDetalle: ApiResponse<PedidoDetalle> = {
   message: 'Detalles del pedido obtenidos exitosamente',
   data: {
     pedidoId: 1,
-    fechaPedido: '2024-12-25',
+    fechaPedido: '25-12-2024',
     horaPedido: '12:00:00',
     delivery: true,
     estadoPedido: EstadoPedido.EstadoPedidoTerminado,

@@ -1,17 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
-import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
+import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { ReservaCreate } from '../../../../shared/models/reserva.model';
 import { ClienteService } from './../../../../core/services/cliente.service';
+
+/** `showPicker` no está en todos los lib.dom ni navegadores (p. ej. iOS). */
+type InputConShowPicker = HTMLInputElement & { showPicker?: () => void };
 
 @Component({
   selector: 'app-reserva',
@@ -131,12 +134,7 @@ export class CrearReservaComponent implements OnInit {
     const fechaReservaFormateada = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
 
     // Construir payload de acuerdo a guía actualizada
-    const base: ReservaCreate & {
-      documentoCliente?: number | null;
-      documentoContacto?: number | null;
-      nombreCompleto?: string;
-      telefono?: string;
-    } = {
+    const base: ReservaCreate = {
       estadoReserva: estadoReserva.PENDIENTE,
       fechaReserva: fechaReservaFormateada,
       horaReserva: this.horaReserva,
@@ -165,15 +163,14 @@ export class CrearReservaComponent implements OnInit {
           // Solo clientes loggeados: notificar creación
           const rolActual = this.rol || this.userService.getUserRole() || '';
           if (rolActual === 'Cliente') {
+            const creada = response.data;
             await this.reservaNoti.notifyCreacion({
-              fechaReserva: (response as any)?.data?.fechaReserva || fechaReservaFormateada,
-              horaReserva: (response as any)?.data?.horaReserva || this.horaReserva,
+              fechaReserva: creada.fechaReserva,
+              horaReserva: creada.horaReserva,
               documentoCliente:
-                ((response as any)?.data && (response as any).data.documentoCliente) ??
-                base.documentoCliente ??
-                this.userId,
-              reservaId: (response as any)?.data?.reservaId,
-            } as any);
+                creada.contactoId.documentoCliente?.documentoCliente ?? base.documentoCliente,
+              reservaId: creada.reservaId,
+            });
           }
         } catch {}
         // Redirección según rol
@@ -187,7 +184,7 @@ export class CrearReservaComponent implements OnInit {
           this.router.navigate(['/reservas/crear']);
         }
       },
-      error: (error) => {
+      error: (error: { message?: string }) => {
         this.logger.log(LogLevel.ERROR, 'Error al crear la reserva', error);
         this.toastr.error(error.message, 'Error');
       },
@@ -248,7 +245,7 @@ export class CrearReservaComponent implements OnInit {
       this.horaReserva = normalized;
       // Re-abrir el picker para reflejar la hora corregida (cuando soporte)
       try {
-        (inputEl as any)?.showPicker?.();
+        (inputEl as InputConShowPicker | undefined)?.showPicker?.();
       } catch {}
     }
   }
@@ -256,7 +253,7 @@ export class CrearReservaComponent implements OnInit {
   openTimePicker(inputEl: HTMLInputElement): void {
     try {
       // showPicker está soportado en Chromium/Android; en iOS abrirá el control nativo con el foco/click
-      (inputEl as any).showPicker?.();
+      (inputEl as InputConShowPicker).showPicker?.();
     } catch {
       // Silencioso si no existe
     }

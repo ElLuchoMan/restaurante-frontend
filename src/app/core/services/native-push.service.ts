@@ -65,12 +65,6 @@ export class NativePushService {
         try {
           PushNotifications.addListener('pushNotificationActionPerformed', async (ev) => {
             const url = (ev?.notification?.data as { url?: unknown } | undefined)?.url;
-            console.log(
-              '[Push] Notification tapped. URL:',
-              url,
-              'Full data:',
-              ev?.notification?.data,
-            );
             if (typeof url === 'string' && url) {
               // Emitir evento para que AppComponent lo maneje
               try {
@@ -169,9 +163,6 @@ export class NativePushService {
         } catch {}
         return;
       }
-      try {
-        console.log('[Push] FCM token', fcmToken);
-      } catch {}
 
       // Resolver identidad actual (cliente o trabajador). El backend exige exactamente uno de los dos.
       const role = this.userService.getUserRole?.();

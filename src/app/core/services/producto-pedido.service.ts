@@ -1,12 +1,13 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, mergeMap, Observable, of, throwError } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import {
   ProductoPedido,
   ProductoPedidoCreate,
+  ProductoPedidoError,
   ProductoPedidoItem,
 } from '../../shared/models/producto-pedido.model';
 import { HandleErrorService } from './handle-error.service';
@@ -14,10 +15,11 @@ import { HandleErrorService } from './handle-error.service';
 /**
  * Cliente de `/producto_pedido` (requiere token).
  *
- * Este controlador del back responde SIEMPRE con HTTP 200 y deja el resultado en `code`
- * (400 datos inválidos o inventario insuficiente, 404, 500, 201 creado). Por eso `create` y
- * `update` convierten `code >= 400` en un error con la misma forma que `HandleErrorService`
- * (`{ code, message, cause }`), para que un inventario insuficiente no pase como éxito.
+ * El back usa el status HTTP real. Un 409 por inventario insuficiente trae en `data` la lista
+ * `{ productoId, requerido, disponible }`; `HandleErrorService` la descarta, así que aquí se
+ * conserva en el error (`ProductoPedidoError.data`). El resto de errores (400 línea inválida,
+ * 404 pedido/producto inexistente, 409 producto ya presente en el pedido) pasan por
+ * `HandleErrorService`.
  */
 @Injectable({ providedIn: 'root' })
 export class ProductoPedidoService {
@@ -29,8 +31,9 @@ export class ProductoPedidoService {
   ) {}
 
   /**
-   * POST /producto_pedido. Descuenta inventario; las líneas con `cantidad <= 0` se ignoran y
-   * las repetidas se suman.
+   * POST /producto_pedido. Descuenta inventario; las líneas con `cantidad` 0 se ignoran y las
+   * repetidas se suman. Responde 409 si el inventario no alcanza o si el producto ya está en el
+   * pedido (usar `update`).
    */
   create(
     pedidoId: number,
@@ -39,23 +42,24 @@ export class ProductoPedidoService {
     const body: ProductoPedidoCreate = { pedidoId, detalles };
     return this.http
       .post<ApiResponse<ProductoPedido>>(`${this.baseUrl}/producto_pedido`, body)
-      .pipe(
-        catchError(this.handleError.handleError),
-        mergeMap((res) => this.failOnBodyError(res)),
-      );
+      .pipe(catchError((err) => this.mapError(err)));
   }
 
-  /** GET /producto_pedido?pedido_id=. Sin productos responde `code: 404` y sin `data`. */
-  getByPedido(pedidoId: number): Observable<ApiResponse<ProductoPedido | undefined>> {
+  /**
+   * GET /producto_pedido?pedido_id=. Un pedido sin productos responde 200 con `detalles: []`;
+   * un pedido inexistente, 404.
+   */
+  getByPedido(pedidoId: number): Observable<ApiResponse<ProductoPedido>> {
     const params = new HttpParams().set('pedido_id', String(pedidoId));
     return this.http
-      .get<ApiResponse<ProductoPedido | undefined>>(`${this.baseUrl}/producto_pedido`, { params })
+      .get<ApiResponse<ProductoPedido>>(`${this.baseUrl}/producto_pedido`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * PUT /producto_pedido?pedido_id=. Reemplaza las líneas del pedido y ajusta el inventario;
-   * una línea con `cantidad: 0` quita el producto.
+   * PUT /producto_pedido?pedido_id=. Reemplaza las líneas del pedido (las que no se envían se
+   * quitan) y ajusta el inventario; una línea con `cantidad: 0` quita el producto. La lista no
+   * puede ir vacía.
    */
   update(
     pedidoId: number,
@@ -64,18 +68,20 @@ export class ProductoPedidoService {
     const params = new HttpParams().set('pedido_id', String(pedidoId));
     return this.http
       .put<ApiResponse<ProductoPedido>>(`${this.baseUrl}/producto_pedido`, detalles, { params })
-      .pipe(
-        catchError(this.handleError.handleError),
-        mergeMap((res) => this.failOnBodyError(res)),
-      );
+      .pipe(catchError((err) => this.mapError(err)));
   }
 
-  private failOnBodyError<T>(res: ApiResponse<T>): Observable<ApiResponse<T>> {
-    if (res.code < 400) return of(res);
-    return throwError(() => ({
-      code: res.code,
-      message: res.message,
-      cause: res.cause || 'No especificado',
-    }));
+  private mapError(err: HttpErrorResponse): Observable<never> {
+    const data = err.error?.data;
+    if (err.status === 409 && Array.isArray(data)) {
+      const error: ProductoPedidoError = {
+        code: err.status,
+        message: err.error?.message || 'Inventario insuficiente',
+        cause: err.error?.cause || 'No especificado',
+        data,
+      };
+      return throwError(() => error);
+    }
+    return this.handleError.handleError(err);
   }
 }

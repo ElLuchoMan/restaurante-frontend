@@ -181,6 +181,41 @@ describe('ProductoService', () => {
     req.flush(mock);
   });
 
+  it('propaga 404 de getProductoById como error HTTP (ya no llega como 200)', () => {
+    service.getProductoById(1).subscribe({ error: (err) => expect(err).toBeTruthy() });
+    http
+      .expectOne(`${baseUrl}/search?id=1`)
+      .flush({ code: 404, message: 'no existe' }, { status: 404, statusText: 'Not Found' });
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 404 });
+  });
+
+  it('deleteProducto propaga 400 (producto ya desactivado) como error HTTP', () => {
+    service.deleteProducto(1).subscribe({ error: (err) => expect(err).toBeTruthy() });
+    http
+      .expectOne(`${baseUrl}?id=1`)
+      .flush({ code: 400, message: 'ya desactivado' }, { status: 400, statusText: 'Bad Request' });
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 400 });
+  });
+
+  it('updateProducto JSON con merge envía sólo lo presente y null para limpiar anulables', () => {
+    const body = { precio: 5, calorias: null, descripcion: null, subcategoriaId: null };
+    service.updateProducto(3, body).subscribe();
+    const req = http.expectOne(`${baseUrl}?id=3`);
+    expect(req.request.body).toEqual(body);
+    req.flush({ code: 200, message: 'ok', data: {} });
+  });
+
+  it('updateProducto multipart parcial no envía nombre ni precio ausentes', () => {
+    const file = new Blob(['x'], { type: 'image/jpeg' }) as any as File;
+    service.updateProducto(3, { cantidad: 2 }, file).subscribe();
+    const req = http.expectOne(`${baseUrl}?id=3`);
+    const fd = req.request.body as FormData;
+    expect(fd.has('nombre')).toBe(false);
+    expect(fd.has('precio')).toBe(false);
+    expect(fd.get('cantidad')).toBe('2');
+    req.flush({ code: 200, message: 'ok', data: {} });
+  });
+
   it('passes through null data in getById', () => {
     const mock = { code: 200, message: 'ok', data: null } as any;
     service.getProductoById(1).subscribe((res) => {

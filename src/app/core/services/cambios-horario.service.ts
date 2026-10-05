@@ -10,6 +10,7 @@ import {
   CambioHorarioUpdate,
 } from '../../shared/models/cambio-horario.model';
 import { HandleErrorService } from './handle-error.service';
+import { notFoundAsEmpty } from './not-found.operator';
 
 export type CambiosHorarioCreate = CambioHorarioCreate;
 export type CambiosHorarioUpdate = CambioHorarioUpdate;
@@ -28,29 +29,35 @@ export class CambiosHorarioService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** GET /cambios_horario/actual (público). Sin cambio hoy: HTTP 200, code 404 y sin `data`. */
+  /**
+   * GET /cambios_horario/actual (público). Sin cambio hoy el back responde 404 HTTP; aquí se
+   * expone como `{ code: 404, data: undefined }` (es "sin cambio", no un error).
+   */
   getActual(): Observable<ApiResponse<CambioHorario | undefined>> {
     return this.http
-      .get<ApiResponse<CambioHorario | undefined>>(`${this.baseUrl}/actual`)
-      .pipe(catchError(this.handleError.handleError));
+      .get<ApiResponse<CambioHorario>>(`${this.baseUrl}/actual`)
+      .pipe(
+        notFoundAsEmpty<CambioHorario>('No hay cambios de horario para la fecha actual'),
+        catchError(this.handleError.handleError),
+      );
   }
 
+  /** POST /cambios_horario. Errores: 400 (fecha/horas), 409 (ya hay un cambio para esa fecha). */
   create(body: CambiosHorarioCreate): Observable<ApiResponse<CambioHorario>> {
     return this.http
       .post<ApiResponse<CambioHorario>>(this.baseUrl, body)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  update(
-    id: number,
-    body: CambiosHorarioUpdate,
-  ): Observable<ApiResponse<CambioHorario | undefined>> {
+  /** PUT /cambios_horario?id= con merge. Errores: 400, 404 (no existe), 409 (fecha repetida). */
+  update(id: number, body: CambiosHorarioUpdate): Observable<ApiResponse<CambioHorario>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .put<ApiResponse<CambioHorario | undefined>>(this.baseUrl, body, { params })
+      .put<ApiResponse<CambioHorario>>(this.baseUrl, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /** DELETE /cambios_horario?id=. Errores: 404 (no existe), 409 (en uso por un restaurante). */
   delete(id: number): Observable<ApiResponse<unknown>> {
     const params = new HttpParams().set('id', String(id));
     return this.http

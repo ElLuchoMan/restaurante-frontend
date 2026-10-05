@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
@@ -16,8 +16,8 @@ export class NominaService {
   ) {}
 
   /**
-   * GET /nominas. Filtros opcionales: `fecha` (YYYY-MM-DD), `mes` (1-12) y `anio`.
-   * Sin coincidencias el backend responde 200 con `code: 404` y sin `data`: se devuelve [].
+   * GET /nominas. Filtros opcionales: `fecha` (YYYY-MM-DD), `mes` (1-12) y `anio`; valores
+   * inválidos responden 400. Sin coincidencias el backend responde 200 con `data: []`.
    */
   list(params?: { fecha?: string; mes?: number; anio?: number }): Observable<Nomina[]> {
     let hp: HttpParams | undefined;
@@ -28,39 +28,45 @@ export class NominaService {
       if (params.anio !== undefined) p = p.set('anio', String(params.anio));
       hp = p;
     }
-    return this.http.get<ApiResponse<Nomina[] | undefined>>(this.baseUrl, { params: hp }).pipe(
-      map((res) => res.data ?? []),
+    return this.http.get<ApiResponse<Nomina[]>>(this.baseUrl, { params: hp }).pipe(
+      map((res) => res.data),
       catchError(this.handleError.handleError),
     );
   }
 
   /**
-   * PUT /nominas?id=: marca la nómina como PAGO (400 si ya lo estaba).
-   * Si no existe responde 200 con `code: 404` y sin `data`: se devuelve null.
+   * PUT /nominas?id=: marca la nómina como PAGO y la devuelve. Si no existe el backend
+   * responde 404 y se devuelve `null`; 409 si ya estaba en PAGO (se propaga como error `code` 409).
    */
   updateEstado(id: number): Observable<Nomina | null> {
     const params = new HttpParams().set('id', String(id));
-    return this.http.put<ApiResponse<Nomina | undefined>>(this.baseUrl, {}, { params }).pipe(
-      map((res) => res.data ?? null),
-      catchError(this.handleError.handleError),
+    return this.http.put<ApiResponse<Nomina>>(this.baseUrl, {}, { params }).pipe(
+      map((res) => res.data),
+      catchError((error) =>
+        error?.status === 404 ? of(null) : this.handleError.handleError(error),
+      ),
     );
   }
 
   /**
-   * POST /nominas. 201 con la nómina creada; si ya existía una en el mes responde 200 con
-   * la existente (marcada REGENERADA en control_nomina). La fecha debe ser día >= 20.
+   * POST /nominas. Body opcional (`nominaId` y `monto` se ignoran; `estadoNomina` inválido = 400).
+   * 201 con la nómina creada; si el mes ya tenía una responde 200 con la existente (marcada
+   * REGENERADA en control_nomina); 409 si ya hay una nómina con esa fecha. Día >= 20.
    */
-  create(body: NominaCreate): Observable<ApiResponse<Nomina>> {
+  create(body: NominaCreate = {}): Observable<ApiResponse<Nomina>> {
     return this.http
       .post<ApiResponse<Nomina>>(this.baseUrl, body)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** DELETE /nominas?id=: borrado lógico (estado NO_PAGO); la respuesta no incluye `data`. */
-  delete(id: number): Observable<ApiResponse<undefined>> {
+  /**
+   * DELETE /nominas?id=: borrado lógico (estado NO_PAGO); devuelve la nómina en `data`.
+   * 404 si no existe y 409 si ya estaba en NO_PAGO (se propagan como error).
+   */
+  delete(id: number): Observable<ApiResponse<Nomina>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .delete<ApiResponse<undefined>>(this.baseUrl, { params })
+      .delete<ApiResponse<Nomina>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

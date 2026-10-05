@@ -42,9 +42,30 @@ describe('DescuentoService', () => {
     req.flush({ code: 200, message: 'ok', data: [] });
   });
 
-  it('listarPorPedido admite data null (pedido sin descuentos)', () => {
-    service.listarPorPedido(9).subscribe((res) => expect(res.data).toBeNull());
-    http.expectOne(`${baseUrl}?pedido_id=9`).flush({ code: 200, message: 'ok', data: null });
+  it('listarPorPedido devuelve [] cuando el pedido no tiene descuentos', () => {
+    service.listarPorPedido(9).subscribe((res) => expect(res.data).toEqual([]));
+    http.expectOne(`${baseUrl}?pedido_id=9`).flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('listarPorPedido propaga 404 (pedido inexistente) como error HTTP', () => {
+    service.listarPorPedido(9).subscribe({ error: (err) => expect(err).toBeTruthy() });
+    http
+      .expectOne(`${baseUrl}?pedido_id=9`)
+      .flush(
+        { code: 404, message: 'Pedido no encontrado' },
+        { status: 404, statusText: 'Not Found' },
+      );
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 404 });
+  });
+
+  it('aplicar propaga 409 (descuento ya aplicado) como error HTTP', () => {
+    service.aplicar(5, { ofertaId: 2, montoDescuento: 1 }).subscribe({
+      error: (err) => expect(err).toBeTruthy(),
+    });
+    http
+      .expectOne(`${baseUrl}?pedido_id=5`)
+      .flush({ code: 409, message: 'ya aplicado' }, { status: 409, statusText: 'Conflict' });
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 409 });
   });
 
   it('propaga errores HTTP a HandleErrorService', () => {

@@ -359,7 +359,7 @@ export class CrearProductoComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al crear producto:', err);
-          this.toastr.error('Error al crear el producto', 'Error');
+          this.toastr.error(this.mensajeError(err, 'Error al crear el producto'), 'Error');
           this.guardando = false;
         },
       });
@@ -437,10 +437,15 @@ export class CrearProductoComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al actualizar producto:', err);
-          this.toastr.error('Error al actualizar el producto', 'Error');
+          this.toastr.error(this.mensajeError(err, 'Error al actualizar el producto'), 'Error');
           this.guardando = false;
         },
       });
+  }
+
+  /** Mensaje del back (400 validación/FK, 409 duplicado) con texto por defecto. */
+  private mensajeError(err: { message?: string } | null, porDefecto: string): string {
+    return err?.message || porDefecto;
   }
 
   cancelar(): void {

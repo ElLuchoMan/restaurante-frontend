@@ -27,13 +27,13 @@ export class RestauranteDiaService {
   }
 
   /**
-   * GET /restaurante_dia/search?id=. El `id` es el de la fila de `restaurante_dia`, que el back
-   * no incluye en las respuestas. Si no existe: `code: 404` y sin `data`.
+   * GET /restaurante_dia/search?id=. El `id` es el `restauranteDiaId` de la fila. Si no existe
+   * responde 404.
    */
-  getById(id: number): Observable<ApiResponse<RestauranteDia | undefined>> {
+  getById(id: number): Observable<ApiResponse<RestauranteDia>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .get<ApiResponse<RestauranteDia | undefined>>(`${this.baseUrl}/search`, { params })
+      .get<ApiResponse<RestauranteDia>>(`${this.baseUrl}/search`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

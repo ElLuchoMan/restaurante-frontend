@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
@@ -16,10 +16,11 @@ export class ReservaContactoService {
     private handleError: HandleErrorService,
   ) {}
 
+  /** GET /reserva_contacto (público). Filtros opcionales; sin coincidencias responde 200 con `data: []`. */
   getContactos(params?: {
     documento_contacto?: number;
     documento_cliente?: number;
-  }): Observable<ApiResponse<ReservaContacto[] | null>> {
+  }): Observable<ApiResponse<ReservaContacto[]>> {
     let httpParams = new HttpParams();
     if (params?.documento_contacto)
       httpParams = httpParams.set('documento_contacto', String(params.documento_contacto));
@@ -27,18 +28,25 @@ export class ReservaContactoService {
       httpParams = httpParams.set('documento_cliente', String(params.documento_cliente));
 
     return this.http
-      .get<ApiResponse<ReservaContacto[] | null>>(`${this.baseUrl}/reserva_contacto`, {
+      .get<ApiResponse<ReservaContacto[]>>(`${this.baseUrl}/reserva_contacto`, {
         params: httpParams,
       })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getById(id: number): Observable<ApiResponse<ReservaContacto | undefined>> {
+  /**
+   * GET /reserva_contacto/search?id=. Si el contacto no existe el backend responde 404 y se
+   * devuelve `null`; un id inválido (400) y el resto de errores se propagan.
+   */
+  getById(id: number): Observable<ReservaContacto | null> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .get<ApiResponse<ReservaContacto | undefined>>(`${this.baseUrl}/reserva_contacto/search`, {
-        params,
-      })
-      .pipe(catchError(this.handleError.handleError));
+      .get<ApiResponse<ReservaContacto>>(`${this.baseUrl}/reserva_contacto/search`, { params })
+      .pipe(
+        map((res) => res.data),
+        catchError((error) =>
+          error?.status === 404 ? of(null) : this.handleError.handleError(error),
+        ),
+      );
   }
 }

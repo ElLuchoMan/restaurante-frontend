@@ -116,7 +116,15 @@ describe('PagoService', () => {
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });
 
-  it('updatePago llama PUT con fecha/hora del contrato de actualización', () => {
+  it('updatePago acepta cuerpo parcial con alias fecha/hora y updatedBy null (merge)', () => {
+    const body = { fecha: '2025-02-01', hora: '15:00', updatedBy: null };
+    service.updatePago(9, body).subscribe();
+    const req = httpMock.expectOne(`${baseUrl}?id=9`);
+    expect(req.request.body).toEqual(body);
+    req.flush(mockPagoUpdateResponse);
+  });
+
+  it('updatePago llama PUT con el cuerpo parcial de actualización', () => {
     service.updatePago(9, mockPagoUpdateBody).subscribe((resp) => {
       expect(resp).toEqual(mockPagoUpdateResponse);
     });

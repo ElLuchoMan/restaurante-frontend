@@ -5,10 +5,14 @@ export type TimePeriod =
   | 'ultimos_3_meses'
   | 'ultimos_6_meses'
   | 'ultimo_año'
-  | 'historico';
+  | 'historico'
+  | 'mes_año'
+  | 'rango_fechas';
 
-// NOTA: el backend (Go/beego) devuelve `null` en vez de `[]` para las listas cuando la consulta
-// no trae filas (slice nil), por eso todas las listas de las respuestas son `T[] | null`.
+// NOTA: el backend devuelve siempre `[]` (nunca `null`) en las listas cuando la consulta no trae filas.
+// Semántica de `periodo` (Swagger): `mes`/`año` pisan a `fecha_inicio`/`fecha_fin`, que a su vez pisan
+// a `periodo`. `mes_año` sin mes/año equivale al mes en curso; `rango_fechas` sin fechas, al último mes;
+// un valor desconocido se trata como `ultimo_mes`. `/productos-populares` solo admite hasta `historico`.
 
 // Dashboard Types
 export interface DashboardData {
@@ -40,8 +44,8 @@ export interface EstadisticasVentas {
 }
 
 export interface SalesData {
-  ventasPorMetodoPago: VentaPorMetodo[] | null;
-  tendenciaVentas: VentaPorFecha[] | null;
+  ventasPorMetodoPago: VentaPorMetodo[];
+  tendenciaVentas: VentaPorFecha[];
   estadisticasGenerales: EstadisticasVentas;
 }
 
@@ -62,14 +66,14 @@ export interface EstadisticasProductos {
 }
 
 export interface ProductsData {
-  productosMasVendidos: ProductoVendido[] | null;
-  productosMenosVendidos: ProductoVendido[] | null;
+  productosMasVendidos: ProductoVendido[];
+  productosMenosVendidos: ProductoVendido[];
   estadisticasProductos: EstadisticasProductos;
 }
 
 // Productos Populares Types (Endpoint Público)
 export interface ProductosPopularesData {
-  productosPopulares: ProductoVendido[] | null;
+  productosPopulares: ProductoVendido[];
 }
 
 // Users Types
@@ -96,8 +100,8 @@ export interface EstadisticasUsuarios {
 }
 
 export interface UsersData {
-  usuariosFrecuentes: UsuarioFrecuente[] | null;
-  usuariosInactivos: UsuarioInactivo[] | null;
+  usuariosFrecuentes: UsuarioFrecuente[];
+  usuariosInactivos: UsuarioInactivo[];
   estadisticasUsuarios: EstadisticasUsuarios;
 }
 
@@ -121,9 +125,9 @@ export interface VentaPorMes {
 }
 
 export interface TimeAnalysisData {
-  ventasPorHora: VentaPorHora[] | null;
-  ventasPorDiaSemana: VentaPorDiaSemana[] | null;
-  ventasPorMes: VentaPorMes[] | null;
+  ventasPorHora: VentaPorHora[];
+  ventasPorDiaSemana: VentaPorDiaSemana[];
+  ventasPorMes: VentaPorMes[];
 }
 
 // Rentabilidad Types
@@ -146,8 +150,8 @@ export interface EstadisticasRentabilidad {
 }
 
 export interface RentabilidadData {
-  productosRentables: ProductoRentabilidad[] | null;
-  productosMenosRentables: ProductoRentabilidad[] | null;
+  productosRentables: ProductoRentabilidad[];
+  productosMenosRentables: ProductoRentabilidad[];
   estadisticasRentabilidad: EstadisticasRentabilidad;
 }
 
@@ -175,10 +179,10 @@ export interface EstadisticasSegmentacion {
 }
 
 export interface SegmentacionData {
-  clientesVIP: ClienteSegmento[] | null;
-  clientesRegulares: ClienteSegmento[] | null;
-  clientesOcasionales: ClienteSegmento[] | null;
-  clientesNuevos: ClienteSegmento[] | null;
+  clientesVIP: ClienteSegmento[];
+  clientesRegulares: ClienteSegmento[];
+  clientesOcasionales: ClienteSegmento[];
+  clientesNuevos: ClienteSegmento[];
   estadisticasSegmentacion: EstadisticasSegmentacion;
 }
 
@@ -220,9 +224,9 @@ export interface EstadisticasEficiencia {
 }
 
 export interface EficienciaData {
-  tiemposEntrega: TiempoEntrega[] | null;
-  rendimientoTrabajadores: RendimientoTrabajador[] | null;
-  analisisPorHora: EficienciaPorHora[] | null;
+  tiemposEntrega: TiempoEntrega[];
+  rendimientoTrabajadores: RendimientoTrabajador[];
+  analisisPorHora: EficienciaPorHora[];
   estadisticasEficiencia: EstadisticasEficiencia;
 }
 
@@ -260,9 +264,9 @@ export interface EstadisticasReservas {
 }
 
 export interface ReservasAnalisisData {
-  reservasPorDia: ReservaPorDia[] | null;
-  reservasPorHora: ReservaPorHora[] | null;
-  reservasPorDiaSemana: ReservaPorDiaSemana[] | null;
+  reservasPorDia: ReservaPorDia[];
+  reservasPorHora: ReservaPorHora[];
+  reservasPorDiaSemana: ReservaPorDiaSemana[];
   estadisticasReservas: EstadisticasReservas;
 }
 
@@ -300,9 +304,9 @@ export interface EstadisticasPedidos {
 }
 
 export interface PedidosAnalisisData {
-  pedidosPorDia: PedidoPorDia[] | null;
-  pedidosPorHora: PedidoPorHora[] | null;
-  pedidosPorDiaSemana: PedidoPorDiaSemana[] | null;
+  pedidosPorDia: PedidoPorDia[];
+  pedidosPorHora: PedidoPorHora[];
+  pedidosPorDiaSemana: PedidoPorDiaSemana[];
   estadisticasPedidos: EstadisticasPedidos;
 }
 
@@ -310,7 +314,7 @@ export interface PedidosAnalisisData {
 /** GET /estados-pedidos: conteo por estado + clave sintética NO_FINALIZADOS. */
 export type EstadosPedidosData = Record<string, number>;
 
-/** GET /productos-disponibles: `data` es un array (null si no hay productos). */
+/** GET /productos-disponibles: `data` es un array (`[]` si no hay productos). */
 export interface ProductoDisponible {
   productoId: number;
   nombreProducto: string;
@@ -323,6 +327,7 @@ export interface ProductoDisponible {
 export interface TelemetryParams {
   // Filtros predefinidos
   periodo?: TimePeriod;
+  /** Máximo de filas por lista (1-100; el backend reduce los valores > 100 a 100). */
   limit?: number;
 
   // Filtros por mes y año

@@ -10,7 +10,8 @@ import { LoggingService } from '../../../../core/services/logging.service';
 import { ModalService } from '../../../../core/services/modal.service';
 import { PagoService } from '../../../../core/services/pago.service';
 import { PedidoService } from '../../../../core/services/pedido.service';
-import { metodoPago } from '../../../../shared/constants';
+import { UserService } from '../../../../core/services/user.service';
+import { estadoDomicilio, metodoPago } from '../../../../shared/constants';
 import {
   createDomicilioServiceMock,
   createDomSanitizerMock,
@@ -21,6 +22,7 @@ import {
   createPedidoServiceMock,
   createRouterMock,
   createToastrMock,
+  createUserServiceMock,
 } from '../../../../shared/mocks/test-doubles';
 import { mockDomicilioRespone } from './../../../../shared/mocks/domicilio.mock';
 import { RutaDomicilioComponent } from './ruta-domicilio.component';
@@ -34,6 +36,7 @@ describe('RutaDomicilioComponent', () => {
   let modalService: jest.Mocked<ModalService>;
   let toastrService: jest.Mocked<ToastrService>;
   let loggingService: jest.Mocked<LoggingService>;
+  let userService: jest.Mocked<UserService>;
 
   // Simulación de queryParams
   const queryParamsMock = {
@@ -70,6 +73,7 @@ describe('RutaDomicilioComponent', () => {
         { provide: ToastrService, useValue: toastrServiceMock },
         { provide: LoggingService, useValue: loggingServiceMock },
         { provide: Router, useValue: routerMock },
+        { provide: UserService, useValue: createUserServiceMock() },
       ],
     }).compileComponents();
 
@@ -81,6 +85,7 @@ describe('RutaDomicilioComponent', () => {
     toastrService = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
+    userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
 
     component.ngOnInit();
   });
@@ -91,10 +96,36 @@ describe('RutaDomicilioComponent', () => {
   });
 
   it('should mark domicilio as finalizado when marcarFinalizado is called', () => {
+    userService.getUserId.mockReturnValue(7);
     domicilioService.updateDomicilio.mockReturnValue(of(mockDomicilioRespone));
+    expect(component.entregado).toBe(false);
     component.marcarFinalizado();
-    expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, {});
+    expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, {
+      estado: estadoDomicilio.ENTREGADO,
+      updatedBy: 'Usuario 7',
+    });
+    expect(component.entregado).toBe(true);
     expect(toastrService.success).toHaveBeenCalledWith('Domicilio marcado como finalizado');
+  });
+
+  it('should reflect entregado from the domicilio detail on init', () => {
+    domicilioService.getDomicilioById.mockReturnValue(
+      of({
+        code: 200,
+        message: 'ok',
+        data: { domicilio: { ...mockDomicilioRespone.data, entregado: true } },
+      }),
+    );
+    component.ngOnInit();
+    expect(component.entregado).toBe(true);
+  });
+
+  it('should keep entregado false when the detail comes without domicilio', () => {
+    domicilioService.getDomicilioById.mockReturnValue(
+      of({ code: 200, message: 'ok', data: {} as any }),
+    );
+    component.ngOnInit();
+    expect(component.entregado).toBe(false);
   });
 
   it('should log error when marking domicilio as finalizado fails', () => {
@@ -103,6 +134,8 @@ describe('RutaDomicilioComponent', () => {
     jest.spyOn(console, 'error').mockImplementation();
     component.marcarFinalizado();
     expect(console.error).toHaveBeenCalledWith('Error al marcar finalizado', errorResponse);
+    expect(toastrService.error).toHaveBeenCalledWith('Error al marcar como finalizado');
+    expect(component.entregado).toBe(false);
   });
 
   it('should log error when domicilioId is missing in marcarFinalizado', () => {

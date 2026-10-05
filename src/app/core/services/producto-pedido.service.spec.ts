@@ -1,8 +1,11 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import {
+  mockInventarioInsuficiente,
+  mockInventarioInsuficienteBody,
   mockProductoPedidoCreateBody,
   mockProductoPedidoResponse,
   mockProductoPedidoUpdateBody,
@@ -90,40 +93,80 @@ describe('ProductoPedidoService', () => {
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });
 
-  it('create convierte un code >= 400 con HTTP 200 (inventario insuficiente) en error', () => {
+  it('create conserva el detalle del 409 por inventario insuficiente', () => {
     let captured: unknown;
-    service.create(1, [{ productoId: 1, cantidad: 99 }]).subscribe({
+    service.create(1, [{ productoId: 1, cantidad: 5 }]).subscribe({
       next: () => fail('should have failed'),
       error: (err) => (captured = err),
     });
-    http.expectOne(`${baseUrl}`).flush({
-      code: 400,
-      message: 'Inventario insuficiente para uno o más productos',
-      data: [{ productoId: 1, requerido: 99, disponible: 3 }],
-    });
+    http
+      .expectOne(`${baseUrl}`)
+      .flush(mockInventarioInsuficienteBody, { status: 409, statusText: 'Conflict' });
     expect(captured).toEqual({
-      code: 400,
-      message: 'Inventario insuficiente para uno o más productos',
+      code: 409,
+      message: mockInventarioInsuficienteBody.message,
       cause: 'No especificado',
+      data: mockInventarioInsuficiente,
     });
     expect(mockHandleErrorService.handleError).not.toHaveBeenCalled();
   });
 
-  it('update convierte un code >= 400 con HTTP 200 en error conservando la causa', () => {
+  it('update conserva el detalle del 409 y la causa del back', () => {
     let captured: unknown;
     service.update(55, mockProductoPedidoUpdateBody).subscribe({
       next: () => fail('should have failed'),
       error: (err) => (captured = err),
     });
-    http.expectOne(`${baseUrl}?pedido_id=55`).flush({
-      code: 500,
-      message: 'Error al actualizar los productos del pedido',
-      cause: 'db down',
-    });
+    http
+      .expectOne(`${baseUrl}?pedido_id=55`)
+      .flush(
+        { ...mockInventarioInsuficienteBody, cause: 'stock' },
+        { status: 409, statusText: 'Conflict' },
+      );
     expect(captured).toEqual({
-      code: 500,
-      message: 'Error al actualizar los productos del pedido',
-      cause: 'db down',
+      code: 409,
+      message: mockInventarioInsuficienteBody.message,
+      cause: 'stock',
+      data: mockInventarioInsuficiente,
     });
+  });
+
+  it('un 409 sin detalle (producto ya presente) usa HandleErrorService', () => {
+    const formatted = { code: 409, message: 'ya existe', cause: 'x' };
+    mockHandleErrorService.handleError.mockReturnValue(throwError(() => formatted));
+    let captured: unknown;
+    service.create(1, [{ productoId: 1, cantidad: 1 }]).subscribe({
+      next: () => fail('should have failed'),
+      error: (err) => (captured = err),
+    });
+    http
+      .expectOne(`${baseUrl}`)
+      .flush({ code: 409, message: 'ya existe' }, { status: 409, statusText: 'Conflict' });
+    expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+    expect(captured).toEqual(formatted);
+  });
+
+  it('un 409 sin mensaje usa el texto por defecto', () => {
+    let captured: { message?: string } | undefined;
+    service.create(1, [{ productoId: 1, cantidad: 5 }]).subscribe({
+      next: () => fail('should have failed'),
+      error: (err) => (captured = err),
+    });
+    http
+      .expectOne(`${baseUrl}`)
+      .flush({ data: mockInventarioInsuficiente }, { status: 409, statusText: 'Conflict' });
+    expect(captured?.message).toBe('Inventario insuficiente');
+  });
+
+  it('un 404 usa HandleErrorService', () => {
+    mockHandleErrorService.handleError.mockReturnValue(throwError(() => ({ code: 404 })));
+    service.update(55, mockProductoPedidoUpdateBody).subscribe({
+      next: () => fail('should have failed'),
+      error: (err) => expect(err).toEqual({ code: 404 }),
+    });
+    http
+      .expectOne(`${baseUrl}?pedido_id=55`)
+      .flush({ code: 404, message: 'no existe' }, { status: 404, statusText: 'Not Found' });
+    expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });
 });

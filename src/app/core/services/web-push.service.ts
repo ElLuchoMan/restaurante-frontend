@@ -122,7 +122,7 @@ export class WebPushService {
       const keys = subscriptionJson.keys;
 
       if (!endpoint || !keys?.['p256dh'] || !keys?.['auth']) {
-        console.error('[WebPush] Suscripción inválida', subscriptionJson);
+        console.error('[WebPush] Suscripción inválida: faltan endpoint o claves');
         alert('❌ Error: Suscripción inválida. Faltan credenciales push.');
         return false;
       }
@@ -154,8 +154,6 @@ export class WebPushService {
         subscribedTopics: ['promos', 'novedades'],
         ...(isCliente ? { documentoCliente: doc } : { documentoTrabajador: doc }),
       };
-
-      console.log('[WebPush] Payload a enviar:', { ...payload, endpoint: 'truncado...' });
 
       await firstValueFrom(this.pushService.registrarDispositivo(payload));
       console.log('[WebPush] ✅ Dispositivo registrado exitosamente en el backend');
@@ -193,8 +191,6 @@ export class WebPushService {
    */
   private listenToPushMessages(): void {
     this.swPush.messages.subscribe((message: any) => {
-      console.log('[WebPush] Mensaje recibido:', message);
-
       const { notification, data } = message;
 
       if (notification) {
@@ -208,8 +204,6 @@ export class WebPushService {
 
     // Escuchar clics en notificaciones
     this.swPush.notificationClicks.subscribe(({ action, notification }) => {
-      console.log('[WebPush] Notificación clickeada:', action, notification);
-
       const url = notification.data?.url;
       if (url && typeof window !== 'undefined') {
         browserLocation.assign(url);

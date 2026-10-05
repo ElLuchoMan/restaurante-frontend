@@ -50,6 +50,37 @@ describe('RestauranteService', () => {
     req.flush(mockCambioHorarioResponse);
   });
 
+  it('should expose HTTP 404 of cambios_horario/actual as "sin cambio" (not an error)', () => {
+    let result: { code: number; data?: unknown } | undefined;
+    let failed = false;
+    service.getCambiosHorario().subscribe({
+      next: (response) => (result = response),
+      error: () => (failed = true),
+    });
+
+    httpTestingController
+      .expectOne(`${service['baseUrl']}/cambios_horario/actual`)
+      .flush(
+        { code: 404, message: 'No hay cambios de horario para la fecha actual' },
+        { status: 404, statusText: 'Not Found' },
+      );
+
+    expect(failed).toBe(false);
+    expect(result?.code).toBe(404);
+    expect(result?.data).toBeUndefined();
+  });
+
+  it('should propagate other errors of cambios_horario/actual', () => {
+    let failed = false;
+    service.getCambiosHorario().subscribe({ error: () => (failed = true) });
+
+    httpTestingController
+      .expectOne(`${service['baseUrl']}/cambios_horario/actual`)
+      .flush({ code: 500 }, { status: 500, statusText: 'Server Error' });
+
+    expect(failed).toBe(true);
+  });
+
   it('should list restaurantes', () => {
     service.listRestaurantes().subscribe((response) => {
       expect(response).toEqual(mockRestaurantesResponse);

@@ -10,18 +10,18 @@ export interface Oferta {
   fechaInicio: string;
   /** Formato de respuesta `DD-MM-YYYY` (en la petición se envía `YYYY-MM-DD`). */
   fechaFin: string;
-  /** Días en español ('Lunes', 'Martes', 'Miércoles', ...); `null` si se creó sin días. */
-  diasSemana?: string[] | null;
+  /** Días en español ('Lunes', 'Martes', 'Miércoles', ...); `[]` si se creó sin días. */
+  diasSemana: string[];
   /** `HH:MM:SS`; el back omite el campo si la oferta no tiene horario. */
   horaInicio?: string;
   /** `HH:MM:SS`; el back omite el campo si la oferta no tiene horario. */
   horaFin?: string;
   activo: boolean;
-  /** FK serializada como objeto restaurante (ver `FkRef`). */
+  /** FK serializada como objeto restaurante cargado (ver `FkRef`). */
   restauranteId: number | FkRef<'restauranteId'>;
 }
 
-/** Body de POST/PUT /ofertas (el PUT exige el cuerpo completo, no parcial). */
+/** Body de POST /ofertas. */
 export interface CrearOfertaRequest {
   titulo: string;
   tipoDescuento: TipoDescuento;
@@ -38,13 +38,32 @@ export interface CrearOfertaRequest {
   restauranteId: number;
 }
 
+/**
+ * Body de PUT /ofertas (merge): los campos ausentes se conservan. `horaInicio` y `horaFin`
+ * admiten `null` para quitar el horario (deben limpiarse juntos); el resto no admite `null`
+ * (400). `activo` permite reactivar una oferta desactivada.
+ */
+export type ActualizarOfertaRequest = Partial<
+  Omit<CrearOfertaRequest, 'horaInicio' | 'horaFin'>
+> & {
+  horaInicio?: string | null;
+  horaFin?: string | null;
+  activo?: boolean;
+};
+
+/** `data` de POST /ofertas/productos. */
+export interface OfertaProductoAsociacion {
+  ofertaId: number;
+  productoId: number;
+}
+
 export interface OfertaActiva {
   ofertaId: number;
   titulo: string;
   tipoDescuento: TipoDescuento;
   valorDescuento: number;
-  /** `null` cuando la oferta no tiene productos asociados. */
-  productosIds: number[] | null;
+  /** `[]` cuando la oferta no tiene productos asociados. */
+  productosIds: number[];
 }
 
 export interface AsociarProductoRequest {

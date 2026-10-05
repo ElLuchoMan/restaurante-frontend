@@ -8,7 +8,7 @@ export interface Incidencia {
   motivo: string;
 }
 
-/** Cuerpo de POST /incidencias (todos obligatorios; `fechaIncidencia` como YYYY-MM-DD). */
+/** Cuerpo de POST /incidencias (todos obligatorios; `fechaIncidencia` como YYYY-MM-DD; monto >= 0). */
 export interface IncidenciaCreate {
   documentoTrabajador: number;
   fechaIncidencia: string;
@@ -17,5 +17,5 @@ export interface IncidenciaCreate {
   motivo: string;
 }
 
-/** Cuerpo de PUT /incidencias?id= (todo opcional). */
+/** Cuerpo de PUT /incidencias?id= (merge): lo ausente se conserva; ningún campo admite null (400). */
 export type IncidenciaUpdate = Partial<IncidenciaCreate>;

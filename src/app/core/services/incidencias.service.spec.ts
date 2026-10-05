@@ -81,15 +81,16 @@ describe('IncidenciasService', () => {
     req.flush(mockIncidenciasSearchResponse);
   });
 
-  it('search sin resultados: HTTP 200, code 404 y sin data', () => {
+  it('search sin resultados: HTTP 200 con data []', () => {
     let result: { code: number; data?: unknown } | undefined;
     service.search({ documento: 1, mes: 1, anio: 2025 }).subscribe((res) => (result = res));
     http.expectOne(`${baseUrl}/search?documento=1&mes=1&anio=2025`).flush({
-      code: 404,
-      message: 'No se encontraron incidencias para los parámetros proporcionados',
+      code: 200,
+      message: 'No se encontraron incidencias',
+      data: [],
     });
-    expect(result?.code).toBe(404);
-    expect(result?.data).toBeUndefined();
+    expect(result?.code).toBe(200);
+    expect(result?.data).toEqual([]);
   });
 
   it('maneja error en search incidencias', () => {

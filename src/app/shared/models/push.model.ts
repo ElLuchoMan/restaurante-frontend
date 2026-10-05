@@ -4,29 +4,6 @@ export type TipoRemitente = 'TRABAJADOR' | 'SISTEMA';
 export type TipoDestinatario =
   'TODOS' | 'CLIENTE' | 'TRABAJADOR' | 'TOPIC' | 'CLIENTES' | 'TRABAJADORES';
 
-/**
- * El backend serializa las relaciones FK de PushDispositivo con el struct completo
- * (models.Cliente / models.Trabajador), no con el número de documento. Al listar solo
- * viene poblado el documento (el resto llega vacío).
- */
-export interface PushClienteRef {
-  documentoCliente: number;
-  nombre?: string;
-  apellido?: string;
-  correo?: string;
-  direccion?: string;
-  telefono?: string;
-  observaciones?: string | null;
-}
-
-export interface PushTrabajadorRef {
-  documentoTrabajador: number;
-  nombre?: string;
-  apellido?: string;
-  rol?: string;
-  telefono?: string;
-}
-
 /** Envoltorio de listados paginados de /push (models.PaginatedResponse), dentro de ApiResponse.data. */
 export interface PushPaginatedData<T> {
   data: T[];
@@ -36,6 +13,11 @@ export interface PushPaginatedData<T> {
   totalPages: number;
 }
 
+/**
+ * Dispositivo push tal como lo expone el backend: `documentoCliente`/`documentoTrabajador` son el
+ * número de documento (no el struct), `subscribedTopics` siempre es una lista y las fechas llegan como
+ * `DD-MM-YYYY HH:MM:SS` en hora de Bogotá.
+ */
 export interface PushDispositivo {
   pushDispositivoId: number;
   plataforma: PlataformaNotificacion;
@@ -49,12 +31,19 @@ export interface PushDispositivo {
   appVersion?: string | null;
   userAgent?: string | null;
   subscribedTopics: string[];
-  documentoCliente?: PushClienteRef | null;
-  documentoTrabajador?: PushTrabajadorRef | null;
+  documentoCliente?: number | null;
+  documentoTrabajador?: number | null;
+  /** `DD-MM-YYYY HH:MM:SS` (hora de Bogotá). */
   createdAt: string;
+  /** `DD-MM-YYYY HH:MM:SS` (hora de Bogotá). */
   lastSeenAt?: string | null;
 }
 
+/**
+ * POST /push/dispositivos: upsert por `fcmToken`/`endpoint`. Responde 201 si el dispositivo es nuevo y
+ * 200 si ya existía (se reactiva y se reasigna el dueño). Indicar exactamente uno de
+ * `documentoCliente`/`documentoTrabajador`.
+ */
 export interface RegistrarDispositivoRequest {
   plataforma: PlataformaNotificacion;
   endpoint?: string;
@@ -120,7 +109,24 @@ export interface EnviarNotificacionResponse {
   resumenDestinatarios: ResumenDestinatarios;
 }
 
-/** Query params de GET /push/dispositivos (el backend no filtra por `enabled`). */
+/**
+ * Body de PUT /push/dispositivos (merge): los campos ausentes se conservan. `locale`, `timeZone`,
+ * `appVersion` y `userAgent` admiten `null` para limpiarse; `enabled` y `subscribedTopics` NO admiten
+ * `null` (400).
+ */
+export interface ActualizarDispositivoRequest {
+  enabled?: boolean;
+  locale?: string | null;
+  timeZone?: string | null;
+  appVersion?: string | null;
+  userAgent?: string | null;
+  subscribedTopics?: string[];
+}
+
+/**
+ * Query params de GET /push/dispositivos (el backend no filtra por `enabled`).
+ * `limit` 1-100 (por defecto 20; >100 se reduce a 100) y `offset` >= 0; valores inválidos responden 400.
+ */
 export interface PushParams {
   limit?: number;
   offset?: number;
@@ -147,10 +153,28 @@ export interface RegistrarEnvioRequest {
   errorCode?: string;
 }
 
+/** `pushDispositivoId` es el id numérico del dispositivo; `sentAt` llega como `DD-MM-YYYY HH:MM:SS` (Bogotá). */
+export interface PushEnviosParams {
+  dispositivo_id?: number;
+  fecha_desde?: string;
+  fecha_hasta?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RegistrarEnvioRequest {
+  pushDispositivoId: number;
+  proveedor: ProveedorPush;
+  data?: Record<string, unknown>;
+  exito: boolean;
+  statusCode?: number;
+  errorCode?: string;
+}
+
 /** El backend serializa `pushDispositivoId` con el dispositivo (FK) completo, no con el id. */
 export interface PushEnvio {
   pushEnvioId: number;
-  pushDispositivoId: Partial<PushDispositivo> & Pick<PushDispositivo, 'pushDispositivoId'>;
+  pushDispositivoId: number;
   proveedor: ProveedorPush;
   data?: Record<string, unknown>;
   exito: boolean;

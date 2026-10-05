@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { estadoNomina } from '../../shared/constants';
 import {
   mockNominaBody,
+  mockNominaEliminadaResponse,
   mockNominaFecha,
   mockNominaPagaResponse,
   mockNominaResponse,
@@ -49,10 +50,10 @@ describe('NominaService', () => {
     req.flush(mockNominaFecha);
   });
 
-  it('list devuelve [] cuando el backend responde code 404 sin data', () => {
+  it('list devuelve [] cuando el backend responde data []', () => {
     service.list({ mes: 3 }).subscribe((res) => expect(res).toEqual([]));
     const req = http.expectOne(`${baseUrl}?mes=3`);
-    req.flush({ code: 404, message: 'No se encontraron nóminas' });
+    req.flush({ code: 200, message: 'No se encontraron nóminas', data: [] });
   });
 
   it('actualiza estado nomina y devuelve la nómina', () => {
@@ -63,10 +64,24 @@ describe('NominaService', () => {
     req.flush(mockNominaPagaResponse);
   });
 
-  it('updateEstado devuelve null cuando el backend responde code 404 sin data', () => {
-    service.updateEstado(99).subscribe((res) => expect(res).toBeNull());
+  it('updateEstado devuelve null cuando el backend responde 404', () => {
+    let resultado: Nomina | null | undefined;
+    service.updateEstado(99).subscribe((res) => (resultado = res));
     const req = http.expectOne(`${baseUrl}?id=99`);
-    req.flush({ code: 404, message: 'Nómina no encontrada' });
+    req.flush(
+      { code: 404, message: 'Nómina no encontrada' },
+      { status: 404, statusText: 'Not Found' },
+    );
+    expect(resultado).toBeNull();
+    expect(mockHandle.handleError).not.toHaveBeenCalled();
+  });
+
+  it('updateEstado propaga el 409 (ya estaba PAGO) por HandleErrorService', () => {
+    service.updateEstado(4).subscribe({ error: () => undefined });
+    http
+      .expectOne(`${baseUrl}?id=4`)
+      .flush({ code: 409, message: 'ya pagada' }, { status: 409, statusText: 'Conflict' });
+    expect(mockHandle.handleError).toHaveBeenCalled();
   });
 
   it('crea nomina', () => {
@@ -87,19 +102,20 @@ describe('NominaService', () => {
     req.flush(mock);
   });
 
-  it('crea nomina sin campos (el backend usa hoy y NO_PAGO)', () => {
-    service.create({}).subscribe();
+  it('crea nomina sin body (opcional: el backend usa hoy y NO_PAGO)', () => {
+    service.create().subscribe();
     const req = http.expectOne(baseUrl);
     expect(req.request.body).toEqual({});
-    req.flush({ code: 400, message: 'No se puede generar una nómina antes del día 20 del mes' });
+    req.flush(mockNominaPagaResponse);
+  });
+
+  it('create devuelve la nómina existente con 200 cuando el mes ya tenía una (REGENERADA)', () => {
+    service.create({}).subscribe((res) => expect(res.code).toBe(200));
+    http.expectOne(baseUrl).flush(mockNominaPagaResponse);
   });
 
   it('elimina nomina por id', () => {
-    const mock: ApiResponse<undefined> = {
-      code: 200,
-      message: 'Nómina eliminada lógicamente',
-      data: undefined,
-    };
+    const mock = mockNominaEliminadaResponse;
     service.delete(9).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(`${baseUrl}?id=9`);
     expect(req.request.method).toBe('DELETE');

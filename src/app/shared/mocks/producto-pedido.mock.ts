@@ -1,5 +1,9 @@
 import { ApiResponse } from '../models/api-response.model';
-import { ProductoPedido, ProductoPedidoCreate } from '../models/producto-pedido.model';
+import {
+  InventarioInsuficiente,
+  ProductoPedido,
+  ProductoPedidoCreate,
+} from '../models/producto-pedido.model';
 
 export const mockProductoPedidoResponse: ApiResponse<ProductoPedido> = {
   code: 200,
@@ -29,4 +33,16 @@ export const mockProductoPedidoCreateBody: ProductoPedidoCreate = {
     { productoId: 2, cantidad: 1 },
     { productoId: 3, cantidad: 2 },
   ],
+};
+
+/** `data` del 409 de POST/PUT /producto_pedido por inventario insuficiente. */
+export const mockInventarioInsuficiente: InventarioInsuficiente[] = [
+  { productoId: 1, requerido: 5, disponible: 2 },
+];
+
+/** Cuerpo de error del back (HTTP 409) por inventario insuficiente. */
+export const mockInventarioInsuficienteBody: ApiResponse<InventarioInsuficiente[]> = {
+  code: 409,
+  message: 'Inventario insuficiente para uno o más productos',
+  data: mockInventarioInsuficiente,
 };

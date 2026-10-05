@@ -4,9 +4,18 @@ import { firstValueFrom } from 'rxjs';
 import { estadoReserva } from '../../shared/constants';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import { EnviarNotificacionRequest } from '../../shared/models/push.model';
-import { ReservaPopulada } from '../../shared/models/reserva.model';
 import { PushService } from './push.service';
 import { UserService } from './user.service';
+
+/** Datos mínimos de una reserva para notificar al cliente (se extraen de `ReservaBase`). */
+export interface ReservaNotificable {
+  reservaId: number;
+  /** DD-MM-YYYY (respuesta del backend) o YYYY-MM-DD. */
+  fechaReserva: string;
+  horaReserva: string;
+  /** Documento del cliente registrado; sin él se usa el del usuario autenticado. */
+  documentoCliente?: number | null;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ReservaNotificationsService {
@@ -72,87 +81,61 @@ export class ReservaNotificationsService {
     }
   }
 
-  async notifyEstadoCambio(
-    reserva: Pick<
-      ReservaPopulada,
-      'fechaReserva' | 'horaReserva' | 'documentoCliente' | 'reservaId'
-    >,
-    nuevoEstado: estadoReserva,
-  ): Promise<ApiResponse<unknown> | null> {
-    console.log('[Reservas] Notificando estado cambio:', nuevoEstado);
-    let documento: number | { documentoCliente?: number; documento?: number } | null | undefined =
-      (reserva?.documentoCliente as
-        number | { documentoCliente?: number; documento?: number } | null | undefined) ??
-      this.userService.getUserId?.();
-    if (documento && typeof documento === 'object') {
-      documento =
-        (documento as { documentoCliente?: number; documento?: number }).documentoCliente ??
-        (documento as { documentoCliente?: number; documento?: number }).documento ??
-        null;
-    }
+  /** Documento del destinatario: el de la reserva o, si falta, el del usuario autenticado. */
+  private resolverDocumento(reserva: ReservaNotificable): number | null {
+    const documento = reserva.documentoCliente ?? this.userService.getUserId?.();
     if (!documento || isNaN(Number(documento))) return null;
-    const { titulo, mensaje } = this.buildEstadoMessage(
-      nuevoEstado,
-      reserva?.fechaReserva,
-      reserva?.horaReserva,
-    );
-    const payload: EnviarNotificacionRequest = {
-      remitente: { tipo: 'SISTEMA' },
-      destinatarios: { tipo: 'CLIENTE', documentoCliente: Number(documento) },
-      notificacion: {
-        titulo,
-        mensaje,
-        datos: {
-          tipo: 'RESERVA',
-          reservaId: reserva?.reservaId,
-          estado: nuevoEstado,
-          url: `/reservas/consultar?reservaId=${encodeURIComponent(String(reserva?.reservaId ?? ''))}`,
-        },
-      },
-    };
-    try {
-      console.log('[Reservas] Enviando notificación estado:', payload);
-    } catch {}
-    return await firstValueFrom(this.pushService.enviarNotificacion(payload));
+    return Number(documento);
   }
 
-  async notifyCreacion(
-    reserva: Pick<
-      ReservaPopulada,
-      'fechaReserva' | 'horaReserva' | 'documentoCliente' | 'reservaId'
-    >,
-  ): Promise<ApiResponse<unknown> | null> {
-    let documento: number | { documentoCliente?: number; documento?: number } | null | undefined =
-      (reserva?.documentoCliente as
-        number | { documentoCliente?: number; documento?: number } | null | undefined) ??
-      this.userService.getUserId?.();
-    if (documento && typeof documento === 'object') {
-      documento =
-        (documento as { documentoCliente?: number; documento?: number }).documentoCliente ??
-        (documento as { documentoCliente?: number; documento?: number }).documento ??
-        null;
-    }
-    if (!documento || isNaN(Number(documento))) return null; // Solo registrados
-    const { fecha, hora } = this.formatDateTime(reserva?.fechaReserva, reserva?.horaReserva);
-    const titulo = 'Reserva creada';
-    const mensaje = `Recibimos tu solicitud para el ${fecha} ${hora}. Te llamaremos días antes para confirmar.`;
+  private enviar(
+    documentoCliente: number,
+    reserva: ReservaNotificable,
+    estado: string,
+    titulo: string,
+    mensaje: string,
+  ): Promise<ApiResponse<unknown>> {
     const payload: EnviarNotificacionRequest = {
       remitente: { tipo: 'SISTEMA' },
-      destinatarios: { tipo: 'CLIENTE', documentoCliente: Number(documento) },
+      destinatarios: { tipo: 'CLIENTE', documentoCliente },
       notificacion: {
         titulo,
         mensaje,
         datos: {
           tipo: 'RESERVA',
-          reservaId: reserva?.reservaId,
-          estado: 'PENDIENTE',
-          url: `/reservas/consultar?reservaId=${encodeURIComponent(String(reserva?.reservaId ?? ''))}`,
+          reservaId: reserva.reservaId,
+          estado,
+          url: `/reservas/consultar?reservaId=${encodeURIComponent(String(reserva.reservaId))}`,
         },
       },
     };
-    try {
-      console.log('[Reservas] Enviando notificación creación:', payload);
-    } catch {}
-    return await firstValueFrom(this.pushService.enviarNotificacion(payload));
+    return firstValueFrom(this.pushService.enviarNotificacion(payload));
+  }
+
+  async notifyEstadoCambio(
+    reserva: ReservaNotificable,
+    nuevoEstado: estadoReserva,
+  ): Promise<ApiResponse<unknown> | null> {
+    const documento = this.resolverDocumento(reserva);
+    if (documento === null) return null;
+    const { titulo, mensaje } = this.buildEstadoMessage(
+      nuevoEstado,
+      reserva.fechaReserva,
+      reserva.horaReserva,
+    );
+    return this.enviar(documento, reserva, nuevoEstado, titulo, mensaje);
+  }
+
+  async notifyCreacion(reserva: ReservaNotificable): Promise<ApiResponse<unknown> | null> {
+    const documento = this.resolverDocumento(reserva); // Solo registrados
+    if (documento === null) return null;
+    const { fecha, hora } = this.formatDateTime(reserva.fechaReserva, reserva.horaReserva);
+    return this.enviar(
+      documento,
+      reserva,
+      'PENDIENTE',
+      'Reserva creada',
+      `Recibimos tu solicitud para el ${fecha} ${hora}. Te llamaremos días antes para confirmar.`,
+    );
   }
 }

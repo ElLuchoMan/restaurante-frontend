@@ -125,16 +125,10 @@ describe('PedidoNotificationsService', () => {
       );
     });
 
-    it('should log notification payload', async () => {
+    it('should not log the payload (contains user data)', async () => {
       await service.notifyCreacion(mockDocumentoCliente, mockPedidoId);
 
-      expect(console.log).toHaveBeenCalledWith(
-        '[Pedidos] Enviando notificación creación al cliente:',
-        expect.objectContaining({
-          remitente: { tipo: 'SISTEMA' },
-          destinatarios: { tipo: 'CLIENTE', documentoCliente: mockDocumentoCliente },
-        }),
-      );
+      expect(console.log).not.toHaveBeenCalled();
     });
   });
 
@@ -222,16 +216,10 @@ describe('PedidoNotificationsService', () => {
       );
     });
 
-    it('should log notification payload', async () => {
+    it('should not log the payload', async () => {
       await service.notifyAdminDomicilio(mockPedidoId, mockDomicilioId);
 
-      expect(console.log).toHaveBeenCalledWith(
-        '[Pedidos] Enviando notificación domicilio al admin:',
-        expect.objectContaining({
-          remitente: { tipo: 'SISTEMA' },
-          destinatarios: { tipo: 'TRABAJADORES' },
-        }),
-      );
+      expect(console.log).not.toHaveBeenCalled();
     });
 
     it('should handle zero pedidoId correctly', async () => {

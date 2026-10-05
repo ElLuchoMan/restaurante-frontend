@@ -57,9 +57,35 @@ describe('ReservaContactoService', () => {
       message: 'ok',
       data: { contactoId: 1, nombreCompleto: 'Carlos Perez' },
     };
-    service.getById(1).subscribe((res) => expect(res).toEqual(mock));
+    service.getById(1).subscribe((res) => expect(res).toEqual(mock.data));
     const req = http.expectOne(`${baseUrl}/reserva_contacto/search?id=1`);
     expect(req.request.method).toBe('GET');
     req.flush(mock);
+  });
+
+  it('getById devuelve null cuando el backend responde 404', () => {
+    let resultado: ReservaContacto | null | undefined;
+    service.getById(77).subscribe((res) => (resultado = res));
+    http
+      .expectOne(`${baseUrl}/reserva_contacto/search?id=77`)
+      .flush({ code: 404, message: 'no encontrado' }, { status: 404, statusText: 'Not Found' });
+    expect(resultado).toBeNull();
+    expect(mockHandle.handleError).not.toHaveBeenCalled();
+  });
+
+  it('getById propaga otros errores (400) por HandleErrorService', () => {
+    service.getById(0).subscribe({ error: () => undefined });
+    http
+      .expectOne(`${baseUrl}/reserva_contacto/search?id=0`)
+      .flush({ code: 400, message: 'id inválido' }, { status: 400, statusText: 'Bad Request' });
+    expect(mockHandle.handleError).toHaveBeenCalled();
+  });
+
+  it('getContactos propaga errores (400 por documento inválido) por HandleErrorService', () => {
+    service.getContactos({ documento_cliente: 5 }).subscribe({ error: () => undefined });
+    http
+      .expectOne(`${baseUrl}/reserva_contacto?documento_cliente=5`)
+      .flush({ code: 400, message: 'inválido' }, { status: 400, statusText: 'Bad Request' });
+    expect(mockHandle.handleError).toHaveBeenCalled();
   });
 });

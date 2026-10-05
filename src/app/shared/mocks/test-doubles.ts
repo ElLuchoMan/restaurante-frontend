@@ -516,6 +516,8 @@ export function createTelemetryServiceMock() {
     getReservasAnalisis: jest.fn(),
     getPedidosAnalisis: jest.fn(),
     getProductosPopulares: jest.fn(),
+    getEstadosPedidos: jest.fn(),
+    getProductosDisponibles: jest.fn(),
     // Métodos de usuario y dispositivo
     setUserDocument: jest.fn(),
     getUserDocument: jest.fn(),
@@ -614,9 +616,14 @@ export function createPushServiceMock() {
   return {
     registrarDispositivo: jest.fn(),
     listarDispositivos: jest.fn(),
+    obtenerDispositivo: jest.fn(),
+    eliminarDispositivo: jest.fn(),
     actualizarUltimaVista: jest.fn(),
+    actualizarDispositivo: jest.fn(),
     actualizarEstado: jest.fn(),
     actualizarTopics: jest.fn(),
+    listarEnvios: jest.fn(),
+    registrarEnvio: jest.fn(),
     enviarNotificacion: jest.fn(),
   } as any;
 }

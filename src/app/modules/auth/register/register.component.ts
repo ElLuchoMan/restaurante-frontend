@@ -206,6 +206,24 @@ export class RegisterComponent implements OnInit {
   onSubmit(): void {
     if (this.registerForm.invalid || this.isSubmitting) return;
 
+    // /trabajadores exige token de Administrador: un no-admin solo puede registrar clientes
+    if (this.esTrabajador && !this.isAdmin()) {
+      this.toastr.error('Solo un administrador puede registrar trabajadores', 'Acceso denegado');
+      return;
+    }
+
+    // El back exige horaFin > horaInicio: se valida antes de crear al trabajador
+    if (this.esTrabajador) {
+      const invalido = this.construirHorarios(0).find((h) => h.horaFin <= h.horaInicio);
+      if (invalido) {
+        this.toastr.error(
+          `La hora de fin debe ser mayor que la de inicio (${invalido.dia})`,
+          'Horario inválido',
+        );
+        return;
+      }
+    }
+
     this.isSubmitting = true;
     this.progress = 30; // Progreso inicial
 
@@ -225,6 +243,7 @@ export class RegisterComponent implements OnInit {
         telefono: values.telefono,
         fechaIngreso,
         fechaNacimiento: values.fechaNacimiento,
+        nuevo: values.nuevo,
       };
       this.progress = 70; // Progreso medio
 
@@ -244,7 +263,14 @@ export class RegisterComponent implements OnInit {
             } catch (error) {
               this.progress = 0;
               this.isSubmitting = false;
-              this.toastr.error('Trabajador creado, pero error al crear horarios', 'Error');
+              // 400/409 del back (p. ej. horaFin <= horaInicio) traen un mensaje útil en `message`
+              const detalle = (error as { message?: string } | null)?.message;
+              this.toastr.error(
+                detalle
+                  ? `Trabajador creado, pero error al crear horarios: ${detalle}`
+                  : 'Trabajador creado, pero error al crear horarios',
+                'Error',
+              );
             }
           } else {
             this.progress = 0; // Reset en error
@@ -479,7 +505,8 @@ export class RegisterComponent implements OnInit {
     this.updateFormProgress();
   }
 
-  private async crearHorariosTrabajador(documentoTrabajador: number): Promise<void> {
+  /** Horarios a crear según la configuración del formulario (omite los días libres). */
+  private construirHorarios(documentoTrabajador: number): HorarioTrabajadorCreate[] {
     const horariosParaCrear: HorarioTrabajadorCreate[] = [];
 
     for (const dia of this.diasSemana) {
@@ -507,6 +534,12 @@ export class RegisterComponent implements OnInit {
         });
       }
     }
+
+    return horariosParaCrear;
+  }
+
+  private async crearHorariosTrabajador(documentoTrabajador: number): Promise<void> {
+    const horariosParaCrear = this.construirHorarios(documentoTrabajador);
 
     // Crear todos los horarios
     for (const horarioData of horariosParaCrear) {

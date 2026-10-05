@@ -2,14 +2,15 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { Observable } from 'rxjs';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
-import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
 import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
-import { ReservaPopulada, ReservaUpdate } from '../../../../shared/models/reserva.model';
+import { ApiResponse } from '../../../../shared/models/api-response.model';
+import { ReservaBase, ReservaUpdate } from '../../../../shared/models/reserva.model';
 import { FormatDatePipe } from '../../../../shared/pipes/format-date.pipe';
 
 @Component({
@@ -21,7 +22,7 @@ import { FormatDatePipe } from '../../../../shared/pipes/format-date.pipe';
   imports: [CommonModule, FormsModule, FormatDatePipe],
 })
 export class ConsultarReservaComponent implements OnInit {
-  reservas: ReservaPopulada[] = [];
+  reservas: ReservaBase[] = [];
   mostrarMensaje: boolean = false;
   mostrarFiltros: boolean = true;
   esAdmin: boolean = false;
@@ -33,7 +34,6 @@ export class ConsultarReservaComponent implements OnInit {
 
   constructor(
     private reservaService: ReservaService,
-    private reservaContactoService: ReservaContactoService,
     private toastr: ToastrService,
     private userService: UserService,
     private logger: LoggingService,
@@ -97,7 +97,7 @@ export class ConsultarReservaComponent implements OnInit {
         this.toastr.warning('Por favor selecciona una fecha', 'Atención');
         return;
       }
-      fechaISO = this.convertirFechaISO(this.fechaReserva);
+      fechaISO = this.fechaReserva; // el input de fecha ya entrega YYYY-MM-DD
     }
 
     // Auto documento desde JWT cuando aplica
@@ -106,140 +106,53 @@ export class ConsultarReservaComponent implements OnInit {
       documentoNumerico = typeof uid === 'number' && !isNaN(uid) ? uid : undefined;
     }
 
-    // Si el usuario elige solo Fecha (sin Documento), permitimos búsqueda sin documento
+    let solicitud: Observable<ApiResponse<ReservaBase[]>>;
     if (!documentoNumerico && this.buscarPorFecha && !this.buscarPorDocumento) {
-      this.reservaService.getReservaByParameter(undefined, fechaISO).subscribe({
-        next: (response) => {
-          const normalizados: ReservaPopulada[] = (response.data || []).map((r: any) => ({
-            ...r,
-          })) as any;
-          const subs = normalizados.map(async (r: any) => {
-            const cidVal =
-              typeof r?.contactoId === 'number' ? r.contactoId : r?.contactoId?.contactoId;
-            if (!cidVal) return r as ReservaPopulada;
-            try {
-              const info = await this.reservaContactoService.getById(cidVal).toPromise();
-              const contacto = info?.data;
-              if (contacto) {
-                r.nombreCompleto =
-                  r?.nombreCompleto && r.nombreCompleto.trim() !== ''
-                    ? r.nombreCompleto
-                    : contacto.nombreCompleto || '';
-                r.telefono =
-                  r?.telefono && r.telefono.trim() !== '' ? r.telefono : contacto.telefono || '';
-                r.documentoCliente =
-                  r?.documentoCliente ?? contacto.documentoCliente?.documentoCliente ?? null;
-              }
-            } catch {}
-            return r as ReservaPopulada;
-          });
-          Promise.all(subs).then((enriched) => {
-            this.reservas = (enriched as ReservaPopulada[]).sort((a, b) => {
-              const fechaA = new Date(a.fechaReserva.split('-').reverse().join('-'));
-              const fechaB = new Date(b.fechaReserva.split('-').reverse().join('-'));
-              if (fechaA.getTime() !== fechaB.getTime()) return fechaB.getTime() - fechaA.getTime();
-              const horaA = new Date(`1970-01-01T${a.horaReserva}`);
-              const horaB = new Date(`1970-01-01T${b.horaReserva}`);
-              return horaB.getTime() - horaA.getTime();
-            });
-            this.mostrarMensaje = true;
-          });
-        },
-        error: () => this.toastr.error('Ocurrió un error al buscar la reserva', 'Error'),
-      });
-      return;
-    }
-
-    if (!documentoNumerico) {
+      // Si el usuario elige solo Fecha (sin Documento), permitimos búsqueda sin documento
+      solicitud = this.reservaService.getReservaByParameter(undefined, fechaISO);
+    } else if (documentoNumerico) {
+      // Endpoint universal: funciona para clientes y contactos
+      solicitud = this.reservaService.getReservasByDocumento(documentoNumerico, fechaISO);
+    } else {
       this.toastr.warning('Documento requerido para la búsqueda', 'Atención');
       return;
     }
 
-    // Endpoint universal: funciona para clientes y contactos
-    this.reservaService.getReservasByDocumento(documentoNumerico, fechaISO).subscribe({
+    // El backend ya incluye el contacto (nombre, teléfono, documentos) en cada reserva
+    solicitud.subscribe({
       next: (response) => {
-        console.log('[Reservas] Respuesta /reservas/documento:', response);
-        const normalizados: ReservaPopulada[] = (response.data || []).map((r: any) => ({
-          ...r,
-        })) as any;
-        console.log('[Reservas] Normalizados (pre-enriquecidos):', normalizados);
-
-        // Si falta nombre/telefono y tenemos contactoId numérico, enriquecer desde /reserva_contacto/search
-        const needsEnrich = normalizados.some(
-          (r: any) =>
-            !r?.nombreCompleto ||
-            r?.nombreCompleto.trim() === '' ||
-            !r?.telefono ||
-            r?.telefono.trim() === '',
-        );
-
-        const finish = (items: ReservaPopulada[]) => {
-          this.reservas = items.sort((a: ReservaPopulada, b: ReservaPopulada) => {
-            const fechaA = new Date(a.fechaReserva.split('-').reverse().join('-'));
-            const fechaB = new Date(b.fechaReserva.split('-').reverse().join('-'));
-            if (fechaA.getTime() !== fechaB.getTime()) {
-              return fechaB.getTime() - fechaA.getTime();
-            }
-            const horaA = new Date(`1970-01-01T${a.horaReserva}`);
-            const horaB = new Date(`1970-01-01T${b.horaReserva}`);
-            return horaB.getTime() - horaA.getTime();
-          });
-          this.mostrarMensaje = true;
-        };
-
-        if (!needsEnrich) {
-          finish(normalizados);
-          return;
-        }
-
-        // Enriquecer en paralelo por cada contactoId
-        const subs = normalizados.map(async (r: any) => {
-          const cidVal =
-            typeof r?.contactoId === 'number' ? r.contactoId : r?.contactoId?.contactoId;
-          if (!cidVal) return r as ReservaPopulada;
-          try {
-            const info = await this.reservaContactoService.getById(cidVal).toPromise();
-            const contacto = info?.data;
-            if (contacto) {
-              r.nombreCompleto =
-                r?.nombreCompleto && r.nombreCompleto.trim() !== ''
-                  ? r.nombreCompleto
-                  : contacto.nombreCompleto || '';
-              r.telefono =
-                r?.telefono && r.telefono.trim() !== '' ? r.telefono : contacto.telefono || '';
-              r.documentoCliente =
-                r?.documentoCliente ?? contacto.documentoCliente?.documentoCliente ?? null;
-            }
-          } catch {}
-          return r as ReservaPopulada;
-        });
-
-        Promise.all(subs).then((enriched) => finish(enriched as ReservaPopulada[]));
+        this.reservas = this.ordenarMasRecientesPrimero(response.data);
+        this.mostrarMensaje = true;
       },
-      error: () => {
-        this.toastr.error('Ocurrió un error al buscar la reserva', 'Error');
-      },
+      error: () => this.toastr.error('Ocurrió un error al buscar la reserva', 'Error'),
     });
   }
 
-  private convertirFechaISO(fecha: string): string {
-    const partes = fecha.split('-');
-    return partes.length === 3 ? `${partes[0]}-${partes[1]}-${partes[2]}` : fecha;
+  /** Fecha y hora descendentes; `fechaReserva` llega como DD-MM-YYYY. */
+  private ordenarMasRecientesPrimero(reservas: ReservaBase[]): ReservaBase[] {
+    return [...reservas].sort((a, b) => {
+      const fechaA = new Date(a.fechaReserva.split('-').reverse().join('-'));
+      const fechaB = new Date(b.fechaReserva.split('-').reverse().join('-'));
+      if (fechaA.getTime() !== fechaB.getTime()) return fechaB.getTime() - fechaA.getTime();
+      const horaA = new Date(`1970-01-01T${a.horaReserva}`);
+      const horaB = new Date(`1970-01-01T${b.horaReserva}`);
+      return horaB.getTime() - horaA.getTime();
+    });
   }
 
-  confirmarReserva(reserva: ReservaPopulada): void {
+  confirmarReserva(reserva: ReservaBase): void {
     this.actualizarReserva(reserva, estadoReserva.CONFIRMADA);
   }
 
-  cancelarReserva(reserva: ReservaPopulada): void {
+  cancelarReserva(reserva: ReservaBase): void {
     this.actualizarReserva(reserva, estadoReserva.CANCELADA);
   }
 
-  cumplirReserva(reserva: ReservaPopulada): void {
+  cumplirReserva(reserva: ReservaBase): void {
     this.actualizarReserva(reserva, estadoReserva.CUMPLIDA);
   }
 
-  private actualizarReserva(reserva: ReservaPopulada, nuevoEstado: estadoReserva): void {
+  private actualizarReserva(reserva: ReservaBase, nuevoEstado: estadoReserva): void {
     if (!this.esAdmin) return;
 
     if (!reserva.reservaId || isNaN(reserva.reservaId)) {
@@ -247,41 +160,27 @@ export class ConsultarReservaComponent implements OnInit {
       return;
     }
 
-    const [dia, mes, anio] = reserva.fechaReserva.split('-');
-    const fechaISO = `${anio}-${mes}-${dia}`;
-
-    const payload: ReservaUpdate = {
-      estadoReserva: nuevoEstado,
-      fechaReserva: fechaISO,
-      horaReserva: reserva.horaReserva,
-      indicaciones: reserva.indicaciones,
-      personas: reserva.personas,
-    };
+    // PUT con merge: basta con enviar el campo que cambia
+    const payload: ReservaUpdate = { estadoReserva: nuevoEstado };
 
     this.reservaService.actualizarReserva(reserva.reservaId, payload).subscribe({
-      next: async () => {
+      next: async (response) => {
         this.toastr.success(`Reserva marcada como ${nuevoEstado}`, 'Actualización Exitosa');
         try {
-          console.log('[Reservas] Notificando estado cambio:', nuevoEstado);
           await this.reservaNoti.notifyEstadoCambio(
             {
-              fechaReserva: fechaISO,
+              fechaReserva: reserva.fechaReserva,
               horaReserva: reserva.horaReserva,
-              documentoCliente: reserva.documentoCliente || null,
+              documentoCliente: reserva.contactoId.documentoCliente?.documentoCliente ?? null,
               reservaId: reserva.reservaId,
-            } as any,
+            },
             nuevoEstado,
           );
         } catch {}
-        const idx = this.reservas.findIndex((r) => r.reservaId === reserva.reservaId);
-        if (idx > -1) {
-          const updated = { ...this.reservas[idx], estadoReserva: nuevoEstado } as ReservaPopulada;
-          this.reservas = [
-            ...this.reservas.slice(0, idx),
-            updated,
-            ...this.reservas.slice(idx + 1),
-          ];
-        }
+        // El backend devuelve la reserva actualizada con su contacto y restaurante
+        this.reservas = this.reservas.map((r) =>
+          r.reservaId === reserva.reservaId ? response.data : r,
+        );
       },
       error: (error) => {
         this.logger.log(LogLevel.ERROR, 'Error:', error);

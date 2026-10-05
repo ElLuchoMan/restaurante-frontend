@@ -63,9 +63,8 @@ export class EnviarNotificacionComponent {
     };
 
     this.pushService.enviarNotificacion(request).subscribe({
-      next: (response) => {
+      next: () => {
         this.toastr.success('Notificación enviada exitosamente', 'Éxito');
-        console.log('Respuesta:', response);
       },
       error: (error) => {
         this.toastr.error(error.message || 'Error al enviar notificación', 'Error');

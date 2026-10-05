@@ -1,4 +1,4 @@
-/** Cliente tal como lo devuelve el back (password siempre llega vacío: ""). */
+/** Cliente tal como lo devuelve el back. La contraseña nunca viaja en las respuestas. */
 export interface Cliente {
   documentoCliente: number;
   nombre: string;
@@ -7,39 +7,38 @@ export interface Cliente {
   direccion: string;
   telefono: string;
   observaciones: string | null;
-  password: string;
 }
 
-/** Cuerpo de POST /clientes (correo y password obligatorios; el resto opcional). */
+/**
+ * Cuerpo de POST /clientes (público). Obligatorios: documento, nombre, apellido, correo válido,
+ * telefono y password (máx. 72 bytes). 409 si el documento, correo o teléfono ya existen.
+ */
 export interface ClienteCreate {
   documentoCliente: number;
   nombre: string;
   apellido: string;
   correo: string;
   password: string;
-  telefono?: string;
+  telefono: string;
   direccion?: string;
   observaciones?: string;
 }
 
 /**
- * Cuerpo de PUT /clientes?id=. El back NO hace merge: actualiza todas las columnas con lo
- * recibido (solo conserva correo y password si vienen vacíos), así que un body parcial
- * borraría nombre, apellido, teléfono, etc. Por eso se exige el cliente completo.
+ * Cuerpo de PUT /clientes?id= (merge): los campos ausentes se conservan. Solo `observaciones`
+ * admite `null` (la limpia); null en cualquier otro campo responde 400. 409 si el correo o
+ * teléfono ya pertenecen a otro cliente.
  */
-export interface ClienteUpdate {
-  nombre: string;
-  apellido: string;
-  correo: string;
-  telefono: string;
-  direccion: string;
-  observaciones: string | null;
-  password?: string;
-}
+export type ClienteUpdate = Partial<
+  Pick<ClienteCreate, 'nombre' | 'apellido' | 'correo' | 'telefono' | 'direccion' | 'password'>
+> & {
+  observaciones?: string | null;
+};
 
 /** Único valor de `fields` que soporta GET /clientes. */
 export type ClienteFields = 'nombre_completo_telefono';
 
+/** Parámetros de GET /clientes: `limit` entre 1 y 100 (si se omite, devuelve todos); `offset` >= 0. */
 export interface ClienteListParams {
   limit?: number;
   offset?: number;

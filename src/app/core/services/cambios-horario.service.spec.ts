@@ -42,14 +42,26 @@ describe('CambiosHorarioService', () => {
     req.flush(mockCambiosHorarioActual);
   });
 
-  it('get actual sin cambio hoy: HTTP 200, code 404 y sin data', () => {
+  it('get actual sin cambio hoy: el 404 HTTP se expone como respuesta sin data', () => {
     let result: { code: number; data?: unknown } | undefined;
     service.getActual().subscribe((res) => (result = res));
     http
       .expectOne(`${baseUrl}/actual`)
-      .flush({ code: 404, message: 'No hay cambios de horario para la fecha actual' });
+      .flush(
+        { code: 404, message: 'No hay cambios de horario para la fecha actual' },
+        { status: 404, statusText: 'Not Found' },
+      );
     expect(result?.code).toBe(404);
     expect(result?.data).toBeUndefined();
+  });
+
+  it('get actual propaga errores distintos de 404', () => {
+    let failed = false;
+    service.getActual().subscribe({ error: () => (failed = true) });
+    http
+      .expectOne(`${baseUrl}/actual`)
+      .flush({ code: 500 }, { status: 500, statusText: 'Server Error' });
+    expect(failed).toBe(true);
   });
 
   it('create cambio envía el body tal cual (fechaCambioHorario en YYYY-MM-DD)', () => {

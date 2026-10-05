@@ -47,9 +47,9 @@ describe('ControlNominaService', () => {
     req.flush(mock);
   });
 
-  it('list devuelve [] cuando data llega null (sin filas)', () => {
+  it('list devuelve [] cuando el backend responde data []', () => {
     service.list().subscribe((res) => expect(res).toEqual([]));
-    http.expectOne(baseUrl).flush({ code: 200, message: 'Control de nómina', data: null });
+    http.expectOne(baseUrl).flush({ code: 200, message: 'Control de nómina', data: [] });
   });
 
   it('gets by id', () => {
@@ -60,11 +60,25 @@ describe('ControlNominaService', () => {
     req.flush(mock);
   });
 
-  it('getById devuelve null cuando el backend responde code 404 sin data', () => {
-    service.getById(77).subscribe((res) => expect(res).toBeNull());
+  it('getById devuelve null cuando el backend responde 404', () => {
+    let resultado: ControlNomina | null | undefined;
+    service.getById(77).subscribe((res) => (resultado = res));
     http
       .expectOne(`${baseUrl}/search?id=77`)
-      .flush({ code: 404, message: 'Registro no encontrado' });
+      .flush(
+        { code: 404, message: 'Registro no encontrado' },
+        { status: 404, statusText: 'Not Found' },
+      );
+    expect(resultado).toBeNull();
+    expect(mockHandle.handleError).not.toHaveBeenCalled();
+  });
+
+  it('getById propaga un 400 (id inválido) por HandleErrorService', () => {
+    service.getById(0).subscribe({ error: () => undefined });
+    http
+      .expectOne(`${baseUrl}/search?id=0`)
+      .flush({ code: 400, message: 'id inválido' }, { status: 400, statusText: 'Bad Request' });
+    expect(mockHandle.handleError).toHaveBeenCalled();
   });
 
   it('propaga errores HTTP mediante HandleErrorService', () => {

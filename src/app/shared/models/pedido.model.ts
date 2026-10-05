@@ -5,7 +5,8 @@ import { Pago } from './pago.model';
 import { Restaurante } from './restaurante.model';
 
 /**
- * Pedido tal como lo devuelve el back (`GET/POST /pedidos` y respuestas de asignar-*).
+ * Pedido tal como lo devuelve el back (`GET/POST /pedidos` y el pedido completo que devuelven
+ * asignar-pago, asignar-domicilio y actualizar-estado).
  * - `fechaPedido` llega como DD-MM-YYYY, `horaPedido` como HH:MM:SS y `updatedAt` como
  *   DD-MM-YYYY HH:mm:ss.
  * - Las relaciones (`pagoId`, `domicilioId`, `restauranteId`, `documentoCliente`) NO llegan como
@@ -27,8 +28,9 @@ export interface Pedido {
 }
 
 /**
- * Cuerpo de POST /pedidos. El back fuerza fecha, hora y estado INICIADO. Con `delivery: true`
- * `pk_id_domicilio` es obligatorio (si no, responde 400).
+ * Cuerpo de POST /pedidos (responde 201). El back fuerza fecha, hora y estado INICIADO. Con
+ * `delivery: true` `pk_id_domicilio` es obligatorio (400). Las referencias enviadas
+ * (`pk_id_domicilio`, `restauranteId`, `documentoCliente`) deben existir (404 si no).
  */
 export interface PedidoCreate {
   delivery: boolean;
@@ -37,7 +39,10 @@ export interface PedidoCreate {
   pk_id_domicilio?: number;
 }
 
-/** Filtros de GET /pedidos. `desde` y `hasta` solo se aplican juntos. Fechas en YYYY-MM-DD. */
+/**
+ * Filtros de GET /pedidos. `desde` y `hasta` solo se aplican juntos. Fechas en YYYY-MM-DD, `mes`
+ * 1-12. Un filtro con formato inválido responde 400; sin resultados responde 200 con `data: []`.
+ */
 export interface PedidoListParams {
   fecha?: string;
   desde?: string;
@@ -61,8 +66,8 @@ export interface PedidoDetalleProducto {
 }
 
 /**
- * `data` de GET /pedidos/detalles. A diferencia de `Pedido`, aquí `fechaPedido` llega como
- * YYYY-MM-DD y las relaciones llegan como número (0 cuando no existen). `productos` es un
+ * `data` de GET /pedidos/detalles. Igual que en `Pedido`, `fechaPedido` llega como DD-MM-YYYY;
+ * a diferencia de `Pedido`, las relaciones llegan como número (0 cuando no existen). `productos` es un
  * string con un JSON de `PedidoDetalleProducto[]`.
  */
 export interface PedidoDetalle {

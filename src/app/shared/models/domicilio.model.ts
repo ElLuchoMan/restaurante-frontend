@@ -2,10 +2,10 @@ import { estadoDomicilio } from '../constants';
 import { Trabajador } from './trabajador.model';
 
 /**
- * Domicilio tal como lo devuelve el back.
+ * Domicilio tal como lo devuelve el back (también el `data` completo de POST /domicilios/asignar).
  * - `fechaDomicilio` llega como DD-MM-YYYY; `createdAt` y `updatedAt` como DD-MM-YYYY HH:mm:ss.
- * - `trabajadorAsignado` NO llega como número: es un objeto de la relación en el que solo
- *   `documentoTrabajador` es fiable. Se omite si el domicilio no tiene domiciliario.
+ * - `trabajadorAsignado` NO llega como número: es el trabajador como objeto (sin contraseña) en
+ *   el que solo `documentoTrabajador` es significativo. Se omite si el domicilio no tiene domiciliario.
  * - `trabajadorNombre` no lo envía el back: lo rellenan localmente los componentes.
  */
 export interface Domicilio {
@@ -26,9 +26,10 @@ export interface Domicilio {
 }
 
 /**
- * Cuerpo de POST /domicilios. `direccion`, `telefono` y `fechaDomicilio` (YYYY-MM-DD) son
- * obligatorios; `entregado` lo calcula el back. `trabajadorAsignado` es el documento del
- * trabajador (0 se ignora).
+ * Cuerpo de POST /domicilios (responde 201). `direccion`, `telefono` (no vacíos) y
+ * `fechaDomicilio` (YYYY-MM-DD) son obligatorios; `entregado` lo calcula el back.
+ * `trabajadorAsignado` es el documento del trabajador (0 = sin asignar; si se envía debe existir,
+ * 404 si no).
  */
 export interface DomicilioCreate {
   direccion: string;
@@ -44,13 +45,20 @@ export interface DomicilioCreate {
 export type DomicilioRequest = DomicilioCreate;
 
 /**
- * Cuerpo de PUT /domicilios?id=. El back solo aplica `direccion`, `telefono` y `updatedBy`
- * (el resto de campos se ignora) y siempre refresca `updatedAt`.
+ * Cuerpo de PUT /domicilios?id=: actualización parcial (merge); `{}` solo refresca `updatedAt`.
+ * `estado` (alias `estadoDomicilio`) permite marcar el domicilio como ENTREGADO; `entregado` lo
+ * calcula el back. Solo `observaciones` y `updatedBy` son anulables (`null` los limpia).
  */
 export interface DomicilioUpdate {
   direccion?: string;
   telefono?: string;
-  updatedBy?: string;
+  estado?: estadoDomicilio;
+  /** Alias de `estado`. */
+  estadoDomicilio?: estadoDomicilio;
+  observaciones?: string | null;
+  /** YYYY-MM-DD */
+  fechaDomicilio?: string;
+  updatedBy?: string | null;
 }
 
 /** Filtros de GET /domicilios (todos opcionales). */

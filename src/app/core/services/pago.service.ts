@@ -8,8 +8,8 @@ import { Pago, PagoCreate, PagoListParams, PagoUpdate } from '../../shared/model
 import { HandleErrorService } from './handle-error.service';
 
 /**
- * Cliente de `/pagos` (requiere token). Cuando no hay resultados o el pago no existe, el back
- * responde HTTP 200 con `code: 404` y sin `data`.
+ * Cliente de `/pagos` (requiere token). El back usa el status HTTP real (400 datos inválidos,
+ * 404 inexistente) y un listado sin resultados responde 200 con `data: []`.
  */
 @Injectable({ providedIn: 'root' })
 export class PagoService {
@@ -27,7 +27,7 @@ export class PagoService {
   }
 
   /** GET /pagos con filtros opcionales (se omiten los `undefined`/`null`). */
-  getPagos(params?: PagoListParams): Observable<ApiResponse<Pago[] | undefined>> {
+  getPagos(params?: PagoListParams): Observable<ApiResponse<Pago[]>> {
     let httpParams = new HttpParams();
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
@@ -35,19 +35,20 @@ export class PagoService {
       });
     }
     return this.http
-      .get<ApiResponse<Pago[] | undefined>>(this.baseUrl, { params: httpParams })
+      .get<ApiResponse<Pago[]>>(this.baseUrl, { params: httpParams })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getPagoById(id: number): Observable<ApiResponse<Pago | undefined>> {
+  getPagoById(id: number): Observable<ApiResponse<Pago>> {
     return this.http
-      .get<ApiResponse<Pago | undefined>>(`${this.baseUrl}/search?id=${id}`)
+      .get<ApiResponse<Pago>>(`${this.baseUrl}/search?id=${id}`)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  updatePago(id: number, payload: PagoUpdate): Observable<ApiResponse<Pago | undefined>> {
+  /** PUT /pagos?id=: merge, el cuerpo puede ser parcial. Responde el pago actualizado. */
+  updatePago(id: number, payload: PagoUpdate): Observable<ApiResponse<Pago>> {
     return this.http
-      .put<ApiResponse<Pago | undefined>>(`${this.baseUrl}?id=${id}`, payload)
+      .put<ApiResponse<Pago>>(`${this.baseUrl}?id=${id}`, payload)
       .pipe(catchError(this.handleError.handleError));
   }
 

@@ -18,6 +18,7 @@ import { ReservaService } from '../../../../core/services/reserva.service';
 import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { UserService } from '../../../../core/services/user.service';
 import { mockResponseCliente } from '../../../../shared/mocks/cliente.mock';
+import { mockReserva } from '../../../../shared/mocks/reserva.mocks';
 import {
   createClienteServiceMock,
   createInputWithPickerMock,
@@ -30,7 +31,7 @@ import {
   createUserServiceMock,
 } from '../../../../shared/mocks/test-doubles';
 import { mockTrabajadorResponse } from '../../../../shared/mocks/trabajador.mock';
-import { Reserva } from '../../../../shared/models/reserva.model';
+import { ReservaBase } from '../../../../shared/models/reserva.model';
 import { TrabajadorService } from './../../../../core/services/trabajador.service';
 import { CrearReservaComponent } from './crear-reserva.component';
 
@@ -47,6 +48,15 @@ describe('CrearReservaComponent', () => {
   let reservaNotifications: jest.Mocked<ReservaNotificationsService>;
 
   // Helper para generar fecha válida (2+ días en el futuro)
+  // Reserva devuelta por el backend (201) con un contacto distinto al de los mocks
+  const reservaDe = (contacto: ReservaBase['contactoId']): ReservaBase => ({
+    ...mockReserva,
+    reservaId: 77,
+    fechaReserva: '02-01-2030',
+    horaReserva: '10:00:00',
+    contactoId: contacto,
+  });
+
   const getValidReservaDate = (): string => {
     const date = new Date();
     date.setDate(date.getDate() + 3); // 3 días en el futuro
@@ -135,7 +145,7 @@ describe('CrearReservaComponent', () => {
 
       trabajadorService.getTrabajadorId.mockReturnValue(of(mockTrabajadorResponse));
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+        of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
       );
 
       component.onSubmit();
@@ -158,7 +168,7 @@ describe('CrearReservaComponent', () => {
 
       trabajadorService.getTrabajadorId.mockReturnValue(throwError(() => new Error('error')));
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+        of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
       );
 
       component.onSubmit();
@@ -183,7 +193,7 @@ describe('CrearReservaComponent', () => {
         of({ code: 404, message: 'Trabajador no encontrado', data: undefined }),
       );
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+        of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
       );
 
       component.onSubmit();
@@ -206,9 +216,9 @@ describe('CrearReservaComponent', () => {
         of({ code: 404, message: 'Cliente no encontrado', data: undefined }),
       );
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+        of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
       );
-      reservaNotifications.notifyCreacion.mockResolvedValue(undefined);
+      reservaNotifications.notifyCreacion.mockResolvedValue(null);
 
       component.onSubmit();
       tick();
@@ -234,9 +244,9 @@ describe('CrearReservaComponent', () => {
 
       clienteService.getClienteId.mockReturnValue(of(mockResponseCliente));
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+        of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
       );
-      reservaNotifications.notifyCreacion.mockResolvedValue(undefined);
+      reservaNotifications.notifyCreacion.mockResolvedValue(null);
 
       component.onSubmit();
       tick(); // Process getClienteId subscription
@@ -267,9 +277,9 @@ describe('CrearReservaComponent', () => {
 
       clienteService.getClienteId.mockReturnValue(throwError(() => new Error('error')));
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+        of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
       );
-      reservaNotifications.notifyCreacion.mockResolvedValue(undefined);
+      reservaNotifications.notifyCreacion.mockResolvedValue(null);
 
       component.onSubmit();
       tick(); // Process getClienteId subscription (error case)
@@ -299,7 +309,7 @@ describe('CrearReservaComponent', () => {
       component.telefono = '1234567890';
 
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+        of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
       );
 
       component.onSubmit();
@@ -320,7 +330,7 @@ describe('CrearReservaComponent', () => {
 
       trabajadorService.getTrabajadorId.mockReturnValue(of(mockTrabajadorResponse));
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+        of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
       );
 
       component.onSubmit();
@@ -342,7 +352,7 @@ describe('CrearReservaComponent', () => {
 
       trabajadorService.getTrabajadorId.mockReturnValue(of(mockTrabajadorResponse));
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+        of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
       );
       component.onSubmit();
       const reservaArg = reservaService.crearReserva.mock.calls[0][0] as Reserva;
@@ -386,7 +396,7 @@ describe('CrearReservaComponent', () => {
     component.telefono = '9876543210';
 
     reservaService.crearReserva.mockReturnValue(
-      of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+      of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
     );
 
     component.onSubmit();
@@ -407,7 +417,7 @@ describe('CrearReservaComponent', () => {
     component.telefono = '3001234567';
 
     reservaService.crearReserva.mockReturnValue(
-      of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+      of({ code: 200, message: 'Reserva creada exitosamente', data: mockReserva }),
     );
 
     component.onSubmit();
@@ -577,7 +587,7 @@ describe('CrearReservaComponent', () => {
       component.personas = '2';
       component.documentoContacto = '123456';
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'ok', data: {} as Reserva }),
+        of({ code: 200, message: 'ok', data: mockReserva }),
       );
 
       component.onSubmit();
@@ -598,7 +608,7 @@ describe('CrearReservaComponent', () => {
       component.nombreCompleto = 'Invitado';
       component.telefono = '';
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'ok', data: {} as Reserva }),
+        of({ code: 200, message: 'ok', data: mockReserva }),
       );
 
       component.onSubmit();
@@ -609,7 +619,7 @@ describe('CrearReservaComponent', () => {
       expect(payload.nombreCompleto).toBe('Invitado');
     });
 
-    it('Cliente con userId inválido (0) no envía documentoCliente y notifica con userId', async () => {
+    it('Cliente con userId inválido (0) no envía documentoCliente y notifica con lo devuelto por el backend', async () => {
       component.rol = 'Cliente';
       userService.getUserId.mockReturnValue(null as any);
       userService.getUserRole.mockReturnValue('Cliente');
@@ -617,25 +627,30 @@ describe('CrearReservaComponent', () => {
       component.horaReserva = '09:30';
       component.personas = '2';
       clienteService.getClienteId.mockReturnValue(of(mockResponseCliente));
-      reservaService.crearReserva.mockReturnValue(of({ code: 200, message: 'ok' } as any));
-      reservaNotifications.notifyCreacion.mockResolvedValue(undefined);
+      reservaService.crearReserva.mockReturnValue(
+        of({
+          code: 201,
+          message: 'ok',
+          data: reservaDe({ contactoId: 5, nombreCompleto: 'Carlos Perez' }),
+        }),
+      );
+      reservaNotifications.notifyCreacion.mockResolvedValue(null);
 
       component.onSubmit();
       await settle();
 
       const payload: any = reservaService.crearReserva.mock.calls[0][0];
       expect(payload.documentoCliente).toBeUndefined();
-      expect(reservaNotifications.notifyCreacion).toHaveBeenCalledWith(
-        expect.objectContaining({
-          documentoCliente: 0,
-          horaReserva: '09:30:00',
-          reservaId: undefined,
-        }),
-      );
+      expect(reservaNotifications.notifyCreacion).toHaveBeenCalledWith({
+        fechaReserva: '02-01-2030',
+        horaReserva: '10:00:00',
+        documentoCliente: undefined,
+        reservaId: 77,
+      });
       expect(router.navigate).toHaveBeenCalledWith(['/reservas/consultar']);
     });
 
-    it('Cliente usa los datos devueltos por el backend al notificar la creación', async () => {
+    it('Cliente notifica con el documento del contacto devuelto por el backend', async () => {
       component.rol = 'Cliente';
       userService.getUserId.mockReturnValue(2);
       userService.getUserRole.mockReturnValue('Cliente');
@@ -645,30 +660,29 @@ describe('CrearReservaComponent', () => {
       clienteService.getClienteId.mockReturnValue(of(mockResponseCliente));
       reservaService.crearReserva.mockReturnValue(
         of({
-          code: 200,
+          code: 201,
           message: 'ok',
-          data: {
-            reservaId: 77,
-            fechaReserva: '2030-01-02',
-            horaReserva: '10:00:00',
-            documentoCliente: 999,
-          },
-        } as any),
+          data: reservaDe({
+            contactoId: 5,
+            nombreCompleto: 'Carlos Perez',
+            documentoCliente: { documentoCliente: 999 },
+          }),
+        }),
       );
-      reservaNotifications.notifyCreacion.mockResolvedValue(undefined);
+      reservaNotifications.notifyCreacion.mockResolvedValue(null);
 
       component.onSubmit();
       await settle();
 
       expect(reservaNotifications.notifyCreacion).toHaveBeenCalledWith({
-        fechaReserva: '2030-01-02',
+        fechaReserva: '02-01-2030',
         horaReserva: '10:00:00',
         documentoCliente: 999,
         reservaId: 77,
       });
     });
 
-    it('usa base.documentoCliente cuando la respuesta no trae documentoCliente', async () => {
+    it('usa base.documentoCliente cuando el contacto devuelto no trae documentoCliente', async () => {
       component.rol = 'Cliente';
       userService.getUserId.mockReturnValue(2);
       userService.getUserRole.mockReturnValue('Cliente');
@@ -677,15 +691,19 @@ describe('CrearReservaComponent', () => {
       component.personas = '2';
       clienteService.getClienteId.mockReturnValue(of(mockResponseCliente));
       reservaService.crearReserva.mockReturnValue(
-        of({ code: 200, message: 'ok', data: { reservaId: 1 } } as any),
+        of({
+          code: 201,
+          message: 'ok',
+          data: reservaDe({ contactoId: 5, nombreCompleto: 'Carlos Perez' }),
+        }),
       );
-      reservaNotifications.notifyCreacion.mockResolvedValue(undefined);
+      reservaNotifications.notifyCreacion.mockResolvedValue(null);
 
       component.onSubmit();
       await settle();
 
       expect(reservaNotifications.notifyCreacion).toHaveBeenCalledWith(
-        expect.objectContaining({ documentoCliente: 2, reservaId: 1 }),
+        expect.objectContaining({ documentoCliente: 2, reservaId: 77 }),
       );
     });
 
@@ -697,7 +715,9 @@ describe('CrearReservaComponent', () => {
       component.horaReserva = '09:30';
       component.personas = '2';
       clienteService.getClienteId.mockReturnValue(of(mockResponseCliente));
-      reservaService.crearReserva.mockReturnValue(of({ code: 200, message: 'ok' } as any));
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 201, message: 'ok', data: mockReserva }),
+      );
       reservaNotifications.notifyCreacion.mockRejectedValue(new Error('push'));
 
       component.onSubmit();

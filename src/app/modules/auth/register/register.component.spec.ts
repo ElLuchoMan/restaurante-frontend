@@ -85,6 +85,9 @@ describe('RegisterComponent', () => {
       HorarioTrabajadorService,
     ) as jest.Mocked<HorarioTrabajadorService>;
 
+    // El alta de trabajadores es solo para Administradores (los tests de cliente no dependen del rol)
+    userService.getUserRole.mockReturnValue('Administrador');
+
     fixture.detectChanges();
   });
 
@@ -157,7 +160,7 @@ describe('RegisterComponent', () => {
     tick(1000); // Give more time for final operations (toastr and navigation)
     flush(); // Process all pending timers and promises
 
-    // El back exige YYYY-MM-DD y no conoce `horario` ni `nuevo` en el alta
+    // El back exige YYYY-MM-DD y acepta `nuevo` (opcional) en el alta
     expect(trabajadorService.registroTrabajador).toHaveBeenCalledWith({
       ...mockTrabajadorBody,
       fechaIngreso: fechaYYYYMMDD_Bogota(),
@@ -745,6 +748,88 @@ describe('RegisterComponent', () => {
     });
   });
 
+  describe('permisos y validaciones del alta de trabajador', () => {
+    const fillWorker = () =>
+      component.registerForm.patchValue({
+        esTrabajador: true,
+        documento: '1234567',
+        nombre: 'Ana',
+        apellido: 'Perez',
+        password: 'pass123',
+        confirmPassword: 'pass123',
+        sueldo: 1000000,
+        telefono: '3001234567',
+        rol: RolTrabajador.RolMesero,
+        fechaNacimiento: '1990-01-01',
+      });
+    const settle = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    it('no permite registrar un trabajador si el usuario no es administrador', () => {
+      userService.getUserRole.mockReturnValue('Cliente');
+      fillWorker();
+
+      component.onSubmit();
+
+      expect(toastr.error).toHaveBeenCalledWith(
+        'Solo un administrador puede registrar trabajadores',
+        'Acceso denegado',
+      );
+      expect(trabajadorService.registroTrabajador).not.toHaveBeenCalled();
+      expect(component.isSubmitting).toBe(false);
+    });
+
+    it('no envía nada si algún horario tiene horaFin menor o igual a horaInicio', () => {
+      fillWorker();
+      component.horarioGeneral = { horaInicio: '17:00', horaFin: '08:00' };
+
+      component.onSubmit();
+
+      expect(toastr.error).toHaveBeenCalledWith(
+        'La hora de fin debe ser mayor que la de inicio (Lunes)',
+        'Horario inválido',
+      );
+      expect(trabajadorService.registroTrabajador).not.toHaveBeenCalled();
+      expect(component.isSubmitting).toBe(false);
+    });
+
+    it('muestra el mensaje del back (409/400) al fallar el alta del trabajador', async () => {
+      trabajadorService.registroTrabajador.mockReturnValue(
+        throwError(() => ({
+          code: 409,
+          message: 'El teléfono ya está registrado por otro trabajador',
+        })),
+      );
+      fillWorker();
+
+      component.onSubmit();
+      await settle();
+
+      expect(toastr.error).toHaveBeenCalledWith(
+        'El teléfono ya está registrado por otro trabajador',
+        'Error',
+      );
+      expect(component.isSubmitting).toBe(false);
+    });
+
+    it('incluye el detalle del back cuando falla la creación de un horario', async () => {
+      trabajadorService.registroTrabajador.mockReturnValue(
+        of({ ...mockTrabajadorRegisterResponse, code: 201 }),
+      );
+      jest
+        .spyOn(component as any, 'crearHorariosTrabajador')
+        .mockRejectedValue({ code: 409, message: 'El trabajador ya tiene horario para ese día' });
+      fillWorker();
+
+      component.onSubmit();
+      await settle();
+
+      expect(toastr.error).toHaveBeenCalledWith(
+        'Trabajador creado, pero error al crear horarios: El trabajador ya tiene horario para ese día',
+        'Error',
+      );
+    });
+  });
+
   describe('onSubmit trabajador: resultado de la creación de horarios', () => {
     const fillWorkerForm = () => {
       component.registerForm.patchValue({
@@ -788,9 +873,7 @@ describe('RegisterComponent', () => {
       trabajadorService.registroTrabajador.mockReturnValue(
         of({ ...mockTrabajadorRegisterResponse, code: 201 }),
       );
-      jest
-        .spyOn(component as any, 'crearHorariosTrabajador')
-        .mockRejectedValue(new Error('fallo horarios'));
+      jest.spyOn(component as any, 'crearHorariosTrabajador').mockRejectedValue(null); // sin detalle: mensaje genérico
       fillWorkerForm();
 
       component.onSubmit();

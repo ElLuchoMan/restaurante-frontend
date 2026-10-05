@@ -26,6 +26,22 @@ export interface Producto {
   observaciones?: string;
 }
 
+/**
+ * Body de PUT /productos (merge): los campos ausentes se conservan. Admiten `null` (se limpian)
+ * sólo `calorias`, `descripcion`, `imagen` y `subcategoriaId`; `null` en otro campo da 400.
+ */
+export interface ProductoUpdate {
+  nombre?: string;
+  calorias?: number | null;
+  descripcion?: string | null;
+  precio?: number;
+  estadoProducto?: estadoProducto;
+  /** Base64 sin prefijo `data:`. */
+  imagen?: string | null;
+  cantidad?: number;
+  subcategoriaId?: number | null;
+}
+
 /** Query de GET /productos (nombres exactos que lee el back). */
 export interface ProductoListParams {
   /** Incluir la imagen Base64 en cada producto (por defecto false en el back). */

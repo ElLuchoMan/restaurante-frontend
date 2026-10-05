@@ -14,8 +14,9 @@ import {
 import { HandleErrorService } from './handle-error.service';
 
 /**
- * Cliente de `/domicilios` (requiere token). Cuando no hay resultados o el registro no existe,
- * el back responde HTTP 200 con `code: 404` y sin `data`.
+ * Cliente de `/domicilios` (requiere token). El back usa el status HTTP real (400 filtros o body
+ * inválidos, 404 inexistente, 409 conflicto) y un listado sin resultados responde 200 con
+ * `data: []`.
  */
 @Injectable({
   providedIn: 'root',
@@ -29,9 +30,10 @@ export class DomicilioService {
   ) {}
 
   /**
-   * GET /domicilios con filtros opcionales (se omiten los `undefined`/`null`).
+   * GET /domicilios con filtros opcionales (se omiten los `undefined`/`null`). Un filtro con
+   * formato inválido responde 400.
    */
-  getDomicilios(params?: DomicilioListParams): Observable<ApiResponse<Domicilio[] | undefined>> {
+  getDomicilios(params?: DomicilioListParams): Observable<ApiResponse<Domicilio[]>> {
     let httpParams = new HttpParams();
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
@@ -39,22 +41,23 @@ export class DomicilioService {
       });
     }
     return this.http
-      .get<ApiResponse<Domicilio[] | undefined>>(this.baseUrl, { params: httpParams })
+      .get<ApiResponse<Domicilio[]>>(this.baseUrl, { params: httpParams })
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * GET /domicilios/search?id=. Incluye cliente y resumen del pedido si existen.
+   * GET /domicilios/search?id=. Incluye cliente y resumen del pedido si existen; 404 si no existe.
    * @param id ID del domicilio
    */
-  getDomicilioById(id: number): Observable<ApiResponse<DomicilioDetalle | undefined>> {
+  getDomicilioById(id: number): Observable<ApiResponse<DomicilioDetalle>> {
     return this.http
-      .get<ApiResponse<DomicilioDetalle | undefined>>(`${this.baseUrl}/search?id=${id}`)
+      .get<ApiResponse<DomicilioDetalle>>(`${this.baseUrl}/search?id=${id}`)
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * Crea un nuevo domicilio.
+   * Crea un nuevo domicilio (responde 201; 400 si falta direccion/telefono, 404 si el
+   * trabajador asignado no existe).
    * @param domicilio Datos del domicilio a crear
    */
   createDomicilio(domicilio: DomicilioCreate): Observable<ApiResponse<Domicilio>> {
@@ -64,21 +67,19 @@ export class DomicilioService {
   }
 
   /**
-   * Actualiza un domicilio existente. El back solo aplica `direccion`, `telefono` y `updatedBy`.
+   * Actualiza un domicilio existente con merge (los campos ausentes se conservan). Con
+   * `estado: ENTREGADO` lo marca como entregado; responde el domicilio completo actualizado.
    * @param id ID del domicilio
-   * @param domicilio Datos actualizados
+   * @param domicilio Campos a modificar
    */
-  updateDomicilio(
-    id: number,
-    domicilio: DomicilioUpdate,
-  ): Observable<ApiResponse<Domicilio | undefined>> {
+  updateDomicilio(id: number, domicilio: DomicilioUpdate): Observable<ApiResponse<Domicilio>> {
     return this.http
-      .put<ApiResponse<Domicilio | undefined>>(`${this.baseUrl}?id=${id}`, domicilio)
+      .put<ApiResponse<Domicilio>>(`${this.baseUrl}?id=${id}`, domicilio)
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * Elimina un domicilio por ID.
+   * Elimina un domicilio por ID (404 si no existe, 409 si lo referencia un pedido).
    * @param id ID del domicilio
    */
   deleteDomicilio(id: number): Observable<ApiResponse<undefined>> {
@@ -89,7 +90,7 @@ export class DomicilioService {
 
   /**
    * Asigna un domiciliario a un domicilio (lo pasa a EN_CAMINO). Responde 409 si ya estaba
-   * asignado y 404 si no existe. `data` es un domicilio parcial (solo estado y trabajador).
+   * asignado y 404 si el domicilio o el trabajador no existen. `data` es el domicilio completo.
    * @param domicilioId
    * @param trabajadorId
    */

@@ -100,7 +100,16 @@ describe('PushService', () => {
     expect(req.request.method).toBe('PUT');
     expect(req.request.params.get('id')).toBe('2');
     expect(req.request.body).toEqual({ enabled: false });
-    req.flush({ code: 200, message: 'ok', data: null });
+    req.flush({ code: 200, message: 'ok', data: {} });
+  });
+
+  it('actualiza el dispositivo con merge parcial permitiendo null en campos anulables', () => {
+    service.actualizarDispositivo(5, { locale: null, subscribedTopics: ['a'] }).subscribe();
+    const req = http.expectOne((r) => r.url === `${baseUrl}/dispositivos`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.params.get('id')).toBe('5');
+    expect(req.request.body).toEqual({ locale: null, subscribedTopics: ['a'] });
+    req.flush({ code: 200, message: 'ok', data: {} });
   });
 
   it('actualiza topics (PATCH /dispositivos/topics?id=)', () => {

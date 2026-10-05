@@ -5,6 +5,7 @@ import { catchError, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import {
+  ActualizarCuponRequest,
   CrearCuponRequest,
   Cupon,
   CuponParams,
@@ -19,7 +20,9 @@ import { HandleErrorService } from './handle-error.service';
 
 /**
  * Cliente de /cupones (todas las rutas requieren token). En el back el id va como query param
- * `id` (no existen rutas `/cupones/{id}`).
+ * `id` (no existen rutas `/cupones/{id}`). Los errores llegan con su status HTTP real (400, 404,
+ * 409 código duplicado/agotado, 422 validación de negocio, 500) y `HandleErrorService` conserva
+ * `message`.
  */
 @Injectable({ providedIn: 'root' })
 export class CuponService {
@@ -53,14 +56,18 @@ export class CuponService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** El back exige el cuerpo completo (scope, tipo y fechas), no una actualización parcial. */
-  actualizar(id: number, body: CrearCuponRequest): Observable<ApiResponse<Cupon>> {
+  /**
+   * PUT con merge: lo ausente se conserva; `null` limpia sólo los campos anulables y
+   * `activo: true` reactiva el cupón.
+   */
+  actualizar(id: number, body: ActualizarCuponRequest): Observable<ApiResponse<Cupon>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
       .put<ApiResponse<Cupon>>(`${this.baseUrl}`, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /** 200 con `aplicable` true/false; 400 si `clienteId` <= 0 o no hay ítems; 500 error de servicio. */
   validar(body: ValidarCuponRequest): Observable<ApiResponse<ValidarCuponResponse>> {
     return this.http
       .post<ApiResponse<ValidarCuponResponse>>(`${this.baseUrl}/validar`, body)
@@ -68,9 +75,8 @@ export class CuponService {
   }
 
   /**
-   * OJO: el contrato documentado es POST /cupones/{codigo}/redimir, pero el router del back sólo
-   * registra `/cupones/redimir` (sin `:codigo`), por lo que esta llamada no funciona hasta que
-   * el back añada la ruta con el parámetro de ruta.
+   * POST /cupones/{codigo}/redimir. 400 ids inválidos, 404 cupón/cliente/pedido inexistente,
+   * 409 cupón agotado o ya redimido, 422 cupón no aplicable, 500 error interno.
    */
   redimir(codigo: string, body: RedimirCuponRequest): Observable<ApiResponse<CuponRedencion>> {
     return this.http

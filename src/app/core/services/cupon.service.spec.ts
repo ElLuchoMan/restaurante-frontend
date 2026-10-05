@@ -87,12 +87,29 @@ describe('CuponService', () => {
     req.flush(mockCuponBienvenida);
   });
 
-  it('actualiza cupón usando PUT /cupones?id= con el body completo', () => {
+  it('actualiza cupón usando PUT /cupones?id=', () => {
     service.actualizar(2, crearBody).subscribe((res) => expect(res).toEqual(mockCuponBienvenida));
     const req = http.expectOne(`${baseUrl}?id=2`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(crearBody);
     req.flush(mockCuponBienvenida);
+  });
+
+  it('actualizar con merge envía sólo lo presente, null para limpiar anulables y activo', () => {
+    const body = { activo: true, maxUsos: null, montoMinimo: null, productoId: null };
+    service.actualizar(2, body).subscribe();
+    const req = http.expectOne(`${baseUrl}?id=2`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(body);
+    req.flush(mockCuponBienvenida);
+  });
+
+  it('crear propaga 409 (código duplicado) como error HTTP', () => {
+    service.crear(crearBody).subscribe({ error: (err) => expect(err).toBeTruthy() });
+    http
+      .expectOne(baseUrl)
+      .flush({ code: 409, message: 'código duplicado' }, { status: 409, statusText: 'Conflict' });
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 409 });
   });
 
   it('valida cupón', () => {
@@ -109,13 +126,21 @@ describe('CuponService', () => {
     req.flush(mockValidarCuponExitoso);
   });
 
-  it('redime cupón (ruta con código; el router del back aún no la registra)', () => {
+  it('redime cupón (POST /cupones/{codigo}/redimir)', () => {
     const body = { clienteId: 1, pedidoId: 2 };
     service.redimir('COD 1', body).subscribe((res) => expect(res).toEqual(mockRedencionCupon));
     const req = http.expectOne(`${baseUrl}/COD%201/redimir`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(body);
     req.flush(mockRedencionCupon);
+  });
+
+  it('redimir propaga 422 (cupón no aplicable) como error HTTP', () => {
+    service.redimir('X', { clienteId: 1 }).subscribe({ error: (err) => expect(err).toBeTruthy() });
+    http
+      .expectOne(`${baseUrl}/X/redimir`)
+      .flush({ code: 422, message: 'no aplicable' }, { status: 422, statusText: 'Unprocessable' });
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 422 });
   });
 
   it('lista redenciones con los query params del back', () => {
@@ -166,7 +191,7 @@ describe('CuponService', () => {
     service.listarRedenciones().subscribe();
     const req = http.expectOne(`${baseUrl}/redenciones`);
     expect(req.request.params.keys().length).toBe(0);
-    req.flush({ code: 200, message: 'ok', data: { data: null } });
+    req.flush({ code: 200, message: 'ok', data: { data: [] } });
   });
 
   it('listarRedenciones omite undefined/null y envía el resto', () => {

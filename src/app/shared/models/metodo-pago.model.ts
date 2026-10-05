@@ -12,7 +12,7 @@ export interface MetodoPagoCreate {
 }
 
 /**
- * Cuerpo de PUT /metodos_pago?id=. El back NO hace merge: reemplaza todas las columnas con lo
- * recibido, así que un body parcial dejaría `tipo` o `detalle` vacíos. Por eso se exigen ambos.
+ * Cuerpo de PUT /metodos_pago?id=: actualización parcial (merge). `tipo` y `detalle` no son
+ * anulables (`null` responde 400) y `tipo` no puede quedar vacío.
  */
-export type MetodoPagoUpdate = Omit<MetodosPago, 'metodoPagoId'>;
+export type MetodoPagoUpdate = Partial<Omit<MetodosPago, 'metodoPagoId'>>;

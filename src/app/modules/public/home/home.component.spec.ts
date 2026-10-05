@@ -501,6 +501,18 @@ describe('HomeComponent', () => {
     expect(detectSpy).toHaveBeenCalled();
   });
 
+  it('trata una lista vacía de productos populares como estado vacío, no como error', () => {
+    mockTelemetryService.getProductosPopulares.mockReturnValue(
+      of({ code: 200, data: { productosPopulares: [] }, message: 'ok' }),
+    );
+
+    component.loadProductosPopulares();
+
+    expect(component.productosPopulares).toEqual([]);
+    expect(component.errorProductos).toBe(false);
+    expect(component.loadingProductos).toBe(false);
+  });
+
   it('marca error cuando el backend no retorna datos válidos', () => {
     mockTelemetryService.getProductosPopulares.mockReturnValue(
       of({ code: 500, message: 'fail' } as any),

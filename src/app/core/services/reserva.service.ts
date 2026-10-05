@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { HandleErrorService } from '../../core/services/handle-error.service';
@@ -21,8 +21,8 @@ export class ReservaService {
   ) {}
 
   /**
-   * POST /reservas. El backend resuelve el contacto SOLO a partir de `documentoContacto`
-   * (invitado) o `documentoCliente` (cliente registrado); `contactoId` se ignora.
+   * POST /reservas (201). El backend resuelve el contacto SOLO a partir de `documentoContacto`
+   * (invitado) o `documentoCliente` (cliente registrado); `contactoId` no se acepta.
    * Si el llamador no informa ninguno y el usuario es Cliente, se usa su documento del token.
    */
   crearReserva(reserva: ReservaCreate): Observable<ApiResponse<ReservaBase>> {
@@ -43,39 +43,40 @@ export class ReservaService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  obtenerReservas(): Observable<ApiResponse<ReservaBase[] | null>> {
+  /** GET /reservas (público). Sin reservas responde 200 con `data: []`. */
+  obtenerReservas(): Observable<ApiResponse<ReservaBase[]>> {
     return this.http
-      .get<ApiResponse<ReservaBase[] | null>>(`${this.baseUrl}/reservas`)
+      .get<ApiResponse<ReservaBase[]>>(`${this.baseUrl}/reservas`)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  // Nuevo endpoint: reservas por documento de cliente con fecha opcional
+  /** GET /reservas/cliente: reservas de un cliente registrado, `fecha` opcional (YYYY-MM-DD). `data: []` si no hay. */
   getReservasByCliente(
     documentoCliente: number,
     fecha?: string,
-  ): Observable<ApiResponse<ReservaBase[] | null>> {
+  ): Observable<ApiResponse<ReservaBase[]>> {
     let params = new HttpParams().set('documentoCliente', String(documentoCliente));
     if (fecha) params = params.set('fecha', fecha);
 
     return this.http
-      .get<ApiResponse<ReservaBase[] | null>>(`${this.baseUrl}/reservas/cliente`, { params })
+      .get<ApiResponse<ReservaBase[]>>(`${this.baseUrl}/reservas/cliente`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  // Nuevo endpoint universal: reservas por documento (cliente registrado o contacto)
+  /** GET /reservas/documento: reservas por documento (cliente registrado o invitado). `data: []` si no hay. */
   getReservasByDocumento(
     documento: number,
     fecha?: string,
-  ): Observable<ApiResponse<ReservaBase[] | null>> {
+  ): Observable<ApiResponse<ReservaBase[]>> {
     let params = new HttpParams().set('documento', String(documento));
     if (fecha) params = params.set('fecha', fecha);
 
     return this.http
-      .get<ApiResponse<ReservaBase[] | null>>(`${this.baseUrl}/reservas/documento`, { params })
+      .get<ApiResponse<ReservaBase[]>>(`${this.baseUrl}/reservas/documento`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** PUT /reservas?id= (requiere token). Solo se envían los campos a modificar. */
+  /** PUT /reservas?id= (requiere token). Merge: solo se envían los campos a modificar. 404 si no existe. */
   actualizarReserva(
     reservaId: number,
     reserva: ReservaUpdate,
@@ -90,7 +91,7 @@ export class ReservaService {
   getReservaByParameter(
     contactoId?: number,
     fecha?: string,
-  ): Observable<ApiResponse<ReservaBase[] | null>> {
+  ): Observable<ApiResponse<ReservaBase[]>> {
     let params = new HttpParams();
 
     if (contactoId !== undefined && !isNaN(contactoId)) {
@@ -100,26 +101,35 @@ export class ReservaService {
     if (fecha) params = params.set('fecha', fecha);
 
     return this.http
-      .get<ApiResponse<ReservaBase[] | null>>(`${this.baseUrl}/reservas/parameter`, { params })
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  /** GET /reservas/search?id=. Si no existe responde 200 con `code: 404` y sin `data`. */
-  getReservaById(id: number): Observable<ApiResponse<ReservaBase | undefined>> {
-    const params = new HttpParams().set('id', String(id));
-    return this.http
-      .get<ApiResponse<ReservaBase | undefined>>(`${this.baseUrl}/reservas/search`, { params })
+      .get<ApiResponse<ReservaBase[]>>(`${this.baseUrl}/reservas/parameter`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * DELETE /reservas?id= (requiere token). El backend no borra: marca la reserva como
-   * CANCELADA y la devuelve en `data`. Si no existe responde 200 con `code: 404` y sin `data`.
+   * GET /reservas/search?id=. Si la reserva no existe el backend responde 404 y se devuelve
+   * `null`; un id inválido (400) y el resto de errores se propagan.
    */
-  deleteReserva(id: number): Observable<ApiResponse<ReservaBase | undefined>> {
+  getReservaById(id: number): Observable<ReservaBase | null> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .delete<ApiResponse<ReservaBase | undefined>>(`${this.baseUrl}/reservas`, { params })
+      .get<ApiResponse<ReservaBase>>(`${this.baseUrl}/reservas/search`, { params })
+      .pipe(
+        map((res) => res.data),
+        catchError((error) =>
+          error?.status === 404 ? of(null) : this.handleError.handleError(error),
+        ),
+      );
+  }
+
+  /**
+   * DELETE /reservas?id= (requiere token). El backend no borra: marca la reserva como
+   * CANCELADA y la devuelve en `data`. 404 si no existe y 409 si ya estaba cancelada; ambos
+   * se propagan como error (`code` 404/409).
+   */
+  deleteReserva(id: number): Observable<ApiResponse<ReservaBase>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<ReservaBase>>(`${this.baseUrl}/reservas`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

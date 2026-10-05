@@ -234,41 +234,11 @@ describe('ReservaNotificationsService', () => {
       );
     });
 
-    it('should handle documentoCliente as object with documentoCliente property', async () => {
-      const reservaWithObject = {
-        ...mockReserva,
-        documentoCliente: { documentoCliente: 987654321 } as any,
-      };
-
-      await service.notifyEstadoCambio(reservaWithObject, estadoReserva.CONFIRMADA);
-
-      expect(pushService.enviarNotificacion).toHaveBeenCalledWith(
-        expect.objectContaining({
-          destinatarios: { tipo: 'CLIENTE', documentoCliente: 987654321 },
-        }),
-      );
-    });
-
-    it('should handle documentoCliente as object with documento property', async () => {
-      const reservaWithObject = {
-        ...mockReserva,
-        documentoCliente: { documento: 555555555 } as any,
-      };
-
-      await service.notifyEstadoCambio(reservaWithObject, estadoReserva.CONFIRMADA);
-
-      expect(pushService.enviarNotificacion).toHaveBeenCalledWith(
-        expect.objectContaining({
-          destinatarios: { tipo: 'CLIENTE', documentoCliente: 555555555 },
-        }),
-      );
-    });
-
     it('should use getUserId when documentoCliente is null', async () => {
       userService.getUserId.mockReturnValue(111111111);
       const reservaWithoutDoc = {
         ...mockReserva,
-        documentoCliente: null as any,
+        documentoCliente: null,
       };
 
       await service.notifyEstadoCambio(reservaWithoutDoc, estadoReserva.CONFIRMADA);
@@ -297,22 +267,10 @@ describe('ReservaNotificationsService', () => {
       );
     });
 
-    it('should return null when documento is null after extraction', async () => {
-      const reservaWithObject = {
-        ...mockReserva,
-        documentoCliente: {} as any,
-      };
-
-      const result = await service.notifyEstadoCambio(reservaWithObject, estadoReserva.CONFIRMADA);
-
-      expect(result).toBeNull();
-      expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
-    });
-
     it('should return null when documento is NaN', async () => {
       const reservaWithNaN = {
         ...mockReserva,
-        documentoCliente: 'not-a-number' as any,
+        documentoCliente: NaN,
       };
 
       const result = await service.notifyEstadoCambio(reservaWithNaN, estadoReserva.CONFIRMADA);
@@ -331,13 +289,6 @@ describe('ReservaNotificationsService', () => {
 
       expect(result).toBeNull();
       expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
-    });
-
-    it('should handle console.log error gracefully', async () => {
-      // El try-catch vacío en línea 109 captura cualquier error del console.log
-      await service.notifyEstadoCambio(mockReserva, estadoReserva.CONFIRMADA);
-
-      expect(pushService.enviarNotificacion).toHaveBeenCalled();
     });
   });
 
@@ -376,41 +327,11 @@ describe('ReservaNotificationsService', () => {
       expect(result).toEqual({ success: true, message: 'Notificación enviada' });
     });
 
-    it('should handle documentoCliente as object with documentoCliente property', async () => {
-      const reservaWithObject = {
-        ...mockReserva,
-        documentoCliente: { documentoCliente: 987654321 } as any,
-      };
-
-      await service.notifyCreacion(reservaWithObject);
-
-      expect(pushService.enviarNotificacion).toHaveBeenCalledWith(
-        expect.objectContaining({
-          destinatarios: { tipo: 'CLIENTE', documentoCliente: 987654321 },
-        }),
-      );
-    });
-
-    it('should handle documentoCliente as object with documento property', async () => {
-      const reservaWithObject = {
-        ...mockReserva,
-        documentoCliente: { documento: 555555555 } as any,
-      };
-
-      await service.notifyCreacion(reservaWithObject);
-
-      expect(pushService.enviarNotificacion).toHaveBeenCalledWith(
-        expect.objectContaining({
-          destinatarios: { tipo: 'CLIENTE', documentoCliente: 555555555 },
-        }),
-      );
-    });
-
     it('should use getUserId when documentoCliente is null', async () => {
       userService.getUserId.mockReturnValue(111111111);
       const reservaWithoutDoc = {
         ...mockReserva,
-        documentoCliente: null as any,
+        documentoCliente: null,
       };
 
       await service.notifyCreacion(reservaWithoutDoc);
@@ -439,22 +360,10 @@ describe('ReservaNotificationsService', () => {
       );
     });
 
-    it('should return null when documento is null after extraction', async () => {
-      const reservaWithObject = {
-        ...mockReserva,
-        documentoCliente: {} as any,
-      };
-
-      const result = await service.notifyCreacion(reservaWithObject);
-
-      expect(result).toBeNull();
-      expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
-    });
-
     it('should return null when documento is NaN', async () => {
       const reservaWithNaN = {
         ...mockReserva,
-        documentoCliente: 'not-a-number' as any,
+        documentoCliente: NaN,
       };
 
       const result = await service.notifyCreacion(reservaWithNaN);
@@ -474,13 +383,6 @@ describe('ReservaNotificationsService', () => {
       expect(result).toBeNull();
       expect(pushService.enviarNotificacion).not.toHaveBeenCalled();
     });
-
-    it('should handle console.log error gracefully', async () => {
-      // El try-catch vacío en línea 151 captura cualquier error del console.log
-      await service.notifyCreacion(mockReserva);
-
-      expect(pushService.enviarNotificacion).toHaveBeenCalled();
-    });
   });
 
   describe('ramas adicionales', () => {
@@ -498,43 +400,24 @@ describe('ReservaNotificationsService', () => {
       expect(result).toEqual({ fecha: 'invalid-date', hora: '' });
     });
 
-    it('notifyEstadoCambio usa url con reservaId vacío si reservaId es undefined', async () => {
-      pushService.enviarNotificacion.mockReturnValue(of({ success: true }));
-      await service.notifyEstadoCambio(
-        { fechaReserva: '2024-03-15', horaReserva: '18:30:00', documentoCliente: 5 } as any,
-        estadoReserva.CONFIRMADA,
-      );
-      const payload = pushService.enviarNotificacion.mock.calls[0][0];
-      expect(payload.notificacion.datos.url).toBe('/reservas/consultar?reservaId=');
-    });
-
-    it('notifyCreacion usa url con reservaId vacío si reservaId es undefined', async () => {
-      pushService.enviarNotificacion.mockReturnValue(of({ success: true }));
-      await service.notifyCreacion({
-        fechaReserva: '2024-03-15',
-        horaReserva: '18:30:00',
-        documentoCliente: 5,
-      } as any);
-      const payload = pushService.enviarNotificacion.mock.calls[0][0];
-      expect(payload.notificacion.datos.url).toBe('/reservas/consultar?reservaId=');
-    });
-
-    it('notifyEstadoCambio/notifyCreacion con reserva undefined usan getUserId', async () => {
+    it('la url de la notificación incluye el reservaId y el documento cae al del usuario', async () => {
       pushService.enviarNotificacion.mockReturnValue(of({ success: true }));
       userService.getUserId.mockReturnValue(42);
-      await service.notifyEstadoCambio(undefined as any, estadoReserva.PENDIENTE);
-      await service.notifyCreacion(undefined as any);
+      const reserva = { reservaId: 7, fechaReserva: '15-03-2024', horaReserva: '18:30:00' };
+      await service.notifyEstadoCambio(reserva, estadoReserva.PENDIENTE);
+      await service.notifyCreacion(reserva);
       expect(pushService.enviarNotificacion).toHaveBeenCalledTimes(2);
       for (const call of pushService.enviarNotificacion.mock.calls) {
         expect(call[0].destinatarios.documentoCliente).toBe(42);
-        expect(call[0].notificacion.datos.url).toBe('/reservas/consultar?reservaId=');
+        expect(call[0].notificacion.datos.url).toBe('/reservas/consultar?reservaId=7');
       }
     });
 
     it('sin getUserId en UserService y sin documentoCliente retorna null', async () => {
       (userService as any).getUserId = undefined;
-      const r1 = await service.notifyEstadoCambio({} as any, estadoReserva.PENDIENTE);
-      const r2 = await service.notifyCreacion({} as any);
+      const reservaSinDoc = { reservaId: 1, fechaReserva: '15-03-2024', horaReserva: '18:30:00' };
+      const r1 = await service.notifyEstadoCambio(reservaSinDoc, estadoReserva.PENDIENTE);
+      const r2 = await service.notifyCreacion(reservaSinDoc);
       expect(r1).toBeNull();
       expect(r2).toBeNull();
       expect(pushService.enviarNotificacion).not.toHaveBeenCalled();

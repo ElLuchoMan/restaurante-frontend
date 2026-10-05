@@ -55,7 +55,7 @@ export class HistoricoPreciosComponent implements OnInit {
   aplicarFiltros(): void {
     this.historicoFiltrado = this.historico.filter((item) => {
       const coincideProductoId = this.filtroProductoId
-        ? item.productoId?.toString().includes(this.filtroProductoId)
+        ? item.productoId.toString().includes(this.filtroProductoId)
         : true;
 
       const coincideNombre = this.filtroNombre
@@ -72,11 +72,11 @@ export class HistoricoPreciosComponent implements OnInit {
 
   /**
    * El input de fecha entrega `YYYY-MM-DD` pero el back devuelve `fechaVigencia` como
-   * `DD-MM-YYYY`, así que se compara contra ambos formatos.
+   * `DD-MM-YYYY`, así que se convierte el filtro antes de comparar.
    */
   private coincideFecha(fechaVigencia: string, filtro: string): boolean {
     const [anio, mes, dia] = filtro.split('-');
-    return fechaVigencia.includes(filtro) || fechaVigencia === `${dia}-${mes}-${anio}`;
+    return fechaVigencia === `${dia}-${mes}-${anio}`;
   }
 
   limpiarFiltros(): void {

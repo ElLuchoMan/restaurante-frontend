@@ -234,7 +234,9 @@ describe('GestionarCategoriasComponent', () => {
 
     it('should handle error when creating categoria', fakeAsync(() => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockCategoriaService.create.mockReturnValue(throwError(() => new Error('Error')));
+      mockCategoriaService.create.mockReturnValue(
+        throwError(() => ({ code: 409, message: 'Ya existe una categoría con ese nombre' })),
+      );
 
       document.body.innerHTML = '<input class="form-input-enhanced" value="Test" />';
 
@@ -245,7 +247,10 @@ describe('GestionarCategoriasComponent', () => {
       const createButton = modalCall.buttons![1];
       createButton.action();
 
-      expect(mockToastr.error).toHaveBeenCalledWith('Error al crear la categoría', 'Error');
+      expect(mockToastr.error).toHaveBeenCalledWith(
+        'Ya existe una categoría con ese nombre',
+        'Error',
+      );
       consoleSpy.mockRestore();
       document.body.innerHTML = '';
     }));
@@ -253,7 +258,7 @@ describe('GestionarCategoriasComponent', () => {
     it('should handle error when updating categoria', fakeAsync(() => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       const categoria = { categoriaId: 1, nombre: 'Test' };
-      mockCategoriaService.update.mockReturnValue(throwError(() => new Error('Error')));
+      mockCategoriaService.update.mockReturnValue(throwError(() => null));
 
       document.body.innerHTML = '<input class="form-input-enhanced" value="Updated" />';
 
@@ -335,7 +340,9 @@ describe('GestionarCategoriasComponent', () => {
 
     it('should handle error when deleting categoria', fakeAsync(() => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockCategoriaService.delete.mockReturnValue(throwError(() => new Error('Error')));
+      mockCategoriaService.delete.mockReturnValue(
+        throwError(() => ({ code: 409, message: 'La categoría tiene subcategorías asociadas' })),
+      );
 
       component.eliminarCategoria({ categoriaId: 1, nombre: 'Test' });
       tick();
@@ -346,7 +353,7 @@ describe('GestionarCategoriasComponent', () => {
       deleteButton.action();
 
       expect(mockToastr.error).toHaveBeenCalledWith(
-        'Error al eliminar la categoría. Puede tener subcategorías o productos asociados.',
+        'La categoría tiene subcategorías asociadas',
         'Error',
       );
       consoleSpy.mockRestore();
@@ -448,7 +455,7 @@ describe('GestionarCategoriasComponent', () => {
 
     it('should handle error when deleting subcategoria', fakeAsync(() => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockSubcategoriaService.delete.mockReturnValue(throwError(() => new Error('Error')));
+      mockSubcategoriaService.delete.mockReturnValue(throwError(() => ({ code: 500 })));
 
       component.eliminarSubcategoria({ subcategoriaId: 1, nombre: 'Test', categoriaId: 1 });
       tick();
@@ -811,24 +818,31 @@ describe('GestionarCategoriasComponent', () => {
 
     it('maneja error al crear subcategoría', fakeAsync(() => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockSubcategoriaService.create.mockReturnValue(throwError(() => new Error('fail')));
+      mockSubcategoriaService.create.mockReturnValue(
+        throwError(() => ({ code: 400, message: 'La categoría indicada no existe' })),
+      );
       montarDom('Jugos', '1');
       const modal = abrir();
       modal.buttons![1].action();
 
-      expect(mockToastr.error).toHaveBeenCalledWith('Error al crear la subcategoría', 'Error');
+      expect(mockToastr.error).toHaveBeenCalledWith('La categoría indicada no existe', 'Error');
       expect(component.cargando).toBe(false);
       consoleSpy.mockRestore();
     }));
 
     it('maneja error al actualizar subcategoría', fakeAsync(() => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockSubcategoriaService.update.mockReturnValue(throwError(() => new Error('fail')));
+      mockSubcategoriaService.update.mockReturnValue(
+        throwError(() => ({ code: 409, message: 'Ya existe una subcategoría con ese nombre' })),
+      );
       montarDom('Jugos', '1');
       const modal = abrir({ subcategoriaId: 7, nombre: 'Gaseosas', categoriaId: 1 });
       modal.buttons![1].action();
 
-      expect(mockToastr.error).toHaveBeenCalledWith('Error al actualizar la subcategoría', 'Error');
+      expect(mockToastr.error).toHaveBeenCalledWith(
+        'Ya existe una subcategoría con ese nombre',
+        'Error',
+      );
       expect(component.cargando).toBe(false);
       consoleSpy.mockRestore();
     }));

@@ -17,7 +17,6 @@ export const mockResponseCliente: ApiResponse<Cliente> = {
     direccion: 'Carrera 50 #20-30',
     telefono: '3216549870',
     observaciones: 'Cliente frecuente',
-    password: '',
     correo: 'carlos.perez@example.com',
   },
 };
@@ -43,7 +42,6 @@ export const mockClienteRegisterResponse: ApiResponse<Cliente> = {
     direccion: 'Carrera 50 #20-30',
     telefono: '3216549870',
     observaciones: 'Cliente frecuente',
-    password: '',
     correo: 'carlos.perez@example.com',
   },
 };
@@ -59,7 +57,6 @@ export const mockClientesResponse: ApiResponse<Cliente[]> = {
       direccion: 'Carrera 50 #20-30',
       telefono: '3216549870',
       observaciones: 'Cliente frecuente',
-      password: '',
       correo: 'carlos.perez@example.com',
     },
   ],
@@ -75,7 +72,6 @@ export const mockClienteUpdateResponse: ApiResponse<Cliente> = {
     direccion: 'Carrera 50 #20-30',
     telefono: '3001112233',
     observaciones: 'Cliente frecuente',
-    password: '',
     correo: 'carlos.perez@example.com',
   },
 };
@@ -93,14 +89,10 @@ export const mockClienteFields = {
   fields: 'nombre_completo_telefono',
 } as const satisfies ClienteListParams;
 
-// El back exige el cliente completo en PUT (no hace merge)
+// PUT con merge: basta con enviar los campos que cambian; observaciones admite null
 export const mockClienteUpdateBody: ClienteUpdate = {
-  nombre: 'Carlos',
-  apellido: 'Perez',
-  correo: 'carlos.perez@example.com',
   telefono: '3001112233',
-  direccion: 'Carrera 50 #20-30',
-  observaciones: 'Cliente frecuente',
+  observaciones: null,
 };
 
 export const mockClientesPage1: ApiResponse<Cliente[]> = {
@@ -120,7 +112,6 @@ export const mockClientesPage2: ApiResponse<Cliente[]> = {
       direccion: 'Avenida Siempreviva 742',
       telefono: '3131234567',
       observaciones: '',
-      password: '',
       correo: 'laura.ramirez@example.com',
     },
   ],

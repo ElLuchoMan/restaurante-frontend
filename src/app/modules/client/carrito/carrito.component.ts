@@ -1,7 +1,7 @@
 // src/app/modules/client/carrito/carrito.component.ts
 
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom, Subject } from 'rxjs';
@@ -14,8 +14,8 @@ import { LiveAnnouncerService } from '../../../core/services/live-announcer.serv
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { PagoService } from '../../../core/services/pago.service';
-import { PedidoNotificationsService } from '../../../core/services/pedido-notifications.service';
 import { PedidoService } from '../../../core/services/pedido.service';
+import { PedidoNotificationsService } from '../../../core/services/pedido-notifications.service';
 import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
@@ -26,6 +26,7 @@ import { MetodosPago } from '../../../shared/models/metodo-pago.model';
 import { PagoCreate } from '../../../shared/models/pago.model';
 import { PedidoCreate } from '../../../shared/models/pedido.model';
 import { Producto } from '../../../shared/models/producto.model';
+import { ProductoPedidoError } from '../../../shared/models/producto-pedido.model';
 
 @Component({
   selector: 'app-carrito',
@@ -342,10 +343,11 @@ export class CarritoComponent implements OnInit, OnDestroy {
       );
       this.router.navigate(['/cliente/mis-pedidos']);
     } catch (err: any) {
-      // Manejar errores específicos
-      if (err?.message?.includes('Inventario insuficiente')) {
+      // Manejar errores específicos: 409 con el detalle por producto (ProductoPedidoError.data)
+      const faltantes = this.inventarioInsuficiente(err);
+      if (faltantes) {
         this.toastr.error(
-          'No hay suficiente inventario para algunos productos. Por favor, reduce las cantidades.',
+          `No hay suficiente inventario: ${faltantes}. Por favor, reduce las cantidades.`,
           'Inventario Insuficiente',
         );
       } else {
@@ -353,6 +355,23 @@ export class CarritoComponent implements OnInit, OnDestroy {
       }
       throw err;
     }
+  }
+
+  /**
+   * Si el error es el 409 de inventario de /producto_pedido devuelve el texto con los productos
+   * faltantes (nombre del carrito, requerido y disponible); si no, `null`.
+   */
+  private inventarioInsuficiente(err: unknown): string | null {
+    const e = err as Partial<ProductoPedidoError> | null;
+    if (e?.code !== 409 || !Array.isArray(e.data)) return null;
+    return e.data
+      .map((i) => {
+        const nombre =
+          this.carrito.find((p) => p.productoId === i.productoId)?.nombre ??
+          `Producto ${i.productoId}`;
+        return `${nombre} (pediste ${i.requerido}, disponible ${i.disponible})`;
+      })
+      .join(', ');
   }
 
   private handleError(error: unknown, message: string): void {

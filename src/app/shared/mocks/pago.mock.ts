@@ -51,8 +51,6 @@ export const mockPagoBody: PagoCreate = {
 };
 
 export const mockPagoUpdateBody: PagoUpdate = {
-  hora: '12:05:00',
-  metodoPagoId: 1,
   monto: 2200,
   updatedBy: 'Administrador - Bryan Luis',
 };
