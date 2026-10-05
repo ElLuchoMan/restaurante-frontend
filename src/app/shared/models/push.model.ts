@@ -4,6 +4,38 @@ export type TipoRemitente = 'TRABAJADOR' | 'SISTEMA';
 export type TipoDestinatario =
   'TODOS' | 'CLIENTE' | 'TRABAJADOR' | 'TOPIC' | 'CLIENTES' | 'TRABAJADORES';
 
+/**
+ * El backend serializa las relaciones FK de PushDispositivo con el struct completo
+ * (models.Cliente / models.Trabajador), no con el número de documento. Al listar solo
+ * viene poblado el documento (el resto llega vacío).
+ */
+export interface PushClienteRef {
+  documentoCliente: number;
+  nombre?: string;
+  apellido?: string;
+  correo?: string;
+  direccion?: string;
+  telefono?: string;
+  observaciones?: string | null;
+}
+
+export interface PushTrabajadorRef {
+  documentoTrabajador: number;
+  nombre?: string;
+  apellido?: string;
+  rol?: string;
+  telefono?: string;
+}
+
+/** Envoltorio de listados paginados de /push (models.PaginatedResponse), dentro de ApiResponse.data. */
+export interface PushPaginatedData<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export interface PushDispositivo {
   pushDispositivoId: number;
   plataforma: PlataformaNotificacion;
@@ -17,8 +49,8 @@ export interface PushDispositivo {
   appVersion?: string | null;
   userAgent?: string | null;
   subscribedTopics: string[];
-  documentoCliente?: number | null;
-  documentoTrabajador?: number | null;
+  documentoCliente?: PushClienteRef | null;
+  documentoTrabajador?: PushTrabajadorRef | null;
   createdAt: string;
   lastSeenAt?: string | null;
 }
@@ -88,11 +120,41 @@ export interface EnviarNotificacionResponse {
   resumenDestinatarios: ResumenDestinatarios;
 }
 
+/** Query params de GET /push/dispositivos (el backend no filtra por `enabled`). */
 export interface PushParams {
   limit?: number;
   offset?: number;
   plataforma?: PlataformaNotificacion;
-  enabled?: boolean;
   cliente_id?: number;
   trabajador_id?: number;
+}
+
+/** Query params de GET /push/envios (fechas YYYY-MM-DD). */
+export interface PushEnviosParams {
+  dispositivo_id?: number;
+  fecha_desde?: string;
+  fecha_hasta?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RegistrarEnvioRequest {
+  pushDispositivoId: number;
+  proveedor: ProveedorPush;
+  data?: Record<string, unknown>;
+  exito: boolean;
+  statusCode?: number;
+  errorCode?: string;
+}
+
+/** El backend serializa `pushDispositivoId` con el dispositivo (FK) completo, no con el id. */
+export interface PushEnvio {
+  pushEnvioId: number;
+  pushDispositivoId: Partial<PushDispositivo> & Pick<PushDispositivo, 'pushDispositivoId'>;
+  proveedor: ProveedorPush;
+  data?: Record<string, unknown>;
+  exito: boolean;
+  statusCode?: number;
+  errorCode?: string;
+  sentAt: string;
 }

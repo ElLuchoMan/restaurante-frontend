@@ -62,10 +62,21 @@ export class HistoricoPreciosComponent implements OnInit {
         ? item.nombre?.toLowerCase().includes(this.filtroNombre.toLowerCase())
         : true;
 
-      const coincideFecha = this.filtroFecha ? item.fechaVigencia.includes(this.filtroFecha) : true;
+      const coincideFecha = this.filtroFecha
+        ? this.coincideFecha(item.fechaVigencia, this.filtroFecha)
+        : true;
 
       return coincideProductoId && coincideNombre && coincideFecha;
     });
+  }
+
+  /**
+   * El input de fecha entrega `YYYY-MM-DD` pero el back devuelve `fechaVigencia` como
+   * `DD-MM-YYYY`, así que se compara contra ambos formatos.
+   */
+  private coincideFecha(fechaVigencia: string, filtro: string): boolean {
+    const [anio, mes, dia] = filtro.split('-');
+    return fechaVigencia.includes(filtro) || fechaVigencia === `${dia}-${mes}-${anio}`;
   }
 
   limpiarFiltros(): void {
@@ -89,8 +100,12 @@ export class HistoricoPreciosComponent implements OnInit {
     }
 
     try {
+      // El back devuelve DD-MM-YYYY, que Date() interpretaría como MM-DD-YYYY (o inválida)
+      const ddmmyyyy = /^(\d{2})-(\d{2})-(\d{4})$/.exec(fecha);
       // Intentar parsear la fecha directamente
-      let fechaObj = new Date(fecha);
+      let fechaObj = ddmmyyyy
+        ? new Date(Number(ddmmyyyy[3]), Number(ddmmyyyy[2]) - 1, Number(ddmmyyyy[1]))
+        : new Date(fecha);
 
       // Si no es válida, intentar con el formato ISO agregando la hora
       if (isNaN(fechaObj.getTime())) {

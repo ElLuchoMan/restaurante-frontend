@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
-import { BehaviorSubject, catchError, map, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
@@ -9,10 +9,13 @@ import { Login, LoginResponse } from '../../shared/models/login.model';
 import { HandleErrorService } from './handle-error.service';
 import { LoggingService, LogLevel } from './logging.service';
 
+/** Claims del JWT de acceso emitido por el back (Claims en controllers/login). */
 export interface DecodedToken {
   rol: string;
   documento: number;
+  nombre?: string;
   exp: number;
+  iat?: number;
   [key: string]: unknown;
 }
 
@@ -24,7 +27,7 @@ export class UserService {
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'refresh_token';
   private useSession = false;
-  private refreshTimer: any = null;
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
   private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
 
@@ -163,7 +166,7 @@ export class UserService {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
       this.logout();
-      throw new Error('No refresh token available');
+      return throwError(() => new Error('No refresh token available'));
     }
 
     return this.http
@@ -175,7 +178,7 @@ export class UserService {
         },
       )
       .pipe(
-        catchError((error) => {
+        catchError((error: HttpErrorResponse) => {
           this.logger.log(LogLevel.ERROR, 'Error al refrescar token', error);
           this.logout(); // Si falla el refresh, hacer logout
           return this.handleError.handleError(error);
@@ -214,12 +217,7 @@ export class UserService {
         this.saveTokens(response.data.access_token, response.data.refresh_token);
         return true;
       }),
-      catchError(() => {
-        return new Observable<boolean>((observer) => {
-          observer.next(false);
-          observer.complete();
-        });
-      }),
+      catchError(() => of(false)),
     );
   }
 }

@@ -4,7 +4,11 @@ import { catchError, map, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Trabajador } from '../../shared/models/trabajador.model';
+import {
+  Trabajador,
+  TrabajadorCreate,
+  TrabajadorUpdate,
+} from '../../shared/models/trabajador.model';
 import { HandleErrorService } from './handle-error.service';
 
 @Injectable({
@@ -17,19 +21,24 @@ export class TrabajadorService {
     private handleError: HandleErrorService,
   ) {}
 
-  registroTrabajador(trabajador: Trabajador): Observable<ApiResponse<Trabajador>> {
+  registroTrabajador(trabajador: TrabajadorCreate): Observable<ApiResponse<Trabajador>> {
     return this.http
       .post<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores`, trabajador)
       .pipe(catchError(this.handleError.handleError));
   }
-  searchTrabajador(documento_trabajador: number): Observable<ApiResponse<Trabajador>> {
+
+  /** GET /trabajadores/search?id=. Si no existe: HTTP 200, code 404 y sin `data`. */
+  searchTrabajador(documento_trabajador: number): Observable<ApiResponse<Trabajador | undefined>> {
     return this.http
-      .get<ApiResponse<Trabajador>>(
+      .get<ApiResponse<Trabajador | undefined>>(
         `${this.baseUrl}/trabajadores/search?id=${documento_trabajador}`,
       )
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /**
+   * GET /trabajadores. Por defecto excluye retirados; `fecha_ingreso` va como YYYY-MM-DD.
+   */
   getTrabajadores(params?: {
     fecha_ingreso?: string;
     rol?: string;
@@ -49,32 +58,36 @@ export class TrabajadorService {
     }
 
     return this.http
-      .get<ApiResponse<Trabajador[]>>(`${this.baseUrl}/trabajadores`, { params: httpParams })
+      .get<ApiResponse<Trabajador[] | null>>(`${this.baseUrl}/trabajadores`, {
+        params: httpParams,
+      })
       .pipe(
-        map((res: ApiResponse<Trabajador[]>) => res.data),
+        map((res) => res.data ?? []),
         catchError(this.handleError.handleError),
       );
   }
 
-  getTrabajadorId(documento: number): Observable<ApiResponse<Trabajador>> {
-    return this.http
-      .get<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores/search?id=${documento}`)
-      .pipe(catchError(this.handleError.handleError));
+  getTrabajadorId(documento: number): Observable<ApiResponse<Trabajador | undefined>> {
+    return this.searchTrabajador(documento);
   }
 
   updateTrabajador(
     documento: number,
-    partial: Partial<Trabajador>,
-  ): Observable<ApiResponse<Trabajador>> {
+    partial: TrabajadorUpdate,
+  ): Observable<ApiResponse<Trabajador | undefined>> {
     return this.http
-      .put<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores?id=${documento}`, partial)
+      .put<ApiResponse<Trabajador | undefined>>(
+        `${this.baseUrl}/trabajadores?id=${documento}`,
+        partial,
+      )
       .pipe(catchError(this.handleError.handleError));
   }
 
-  deleteTrabajador(documento: number): Observable<ApiResponse<unknown>> {
+  /** DELETE /trabajadores: baja lógica (el back fija fechaRetiro = hoy y devuelve el trabajador). */
+  deleteTrabajador(documento: number): Observable<ApiResponse<Trabajador | undefined>> {
     const params = new HttpParams().set('id', String(documento));
     return this.http
-      .delete<ApiResponse<unknown>>(`${this.baseUrl}/trabajadores`, { params })
+      .delete<ApiResponse<Trabajador | undefined>>(`${this.baseUrl}/trabajadores`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

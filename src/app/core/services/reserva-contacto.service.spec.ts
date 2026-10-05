@@ -3,6 +3,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
 import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
+import { ApiResponse } from '../../shared/models/api-response.model';
+import { ReservaContacto } from '../../shared/models/reserva-contacto.model';
 import { HandleErrorService } from './handle-error.service';
 import { ReservaContactoService } from './reserva-contacto.service';
 
@@ -50,7 +52,11 @@ describe('ReservaContactoService', () => {
   });
 
   it('gets contacto by id', () => {
-    const mock = { code: 200, message: 'ok', data: { contactoId: 1 } } as any;
+    const mock: ApiResponse<ReservaContacto> = {
+      code: 200,
+      message: 'ok',
+      data: { contactoId: 1, nombreCompleto: 'Carlos Perez' },
+    };
     service.getById(1).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(`${baseUrl}/reserva_contacto/search?id=1`);
     expect(req.request.method).toBe('GET');

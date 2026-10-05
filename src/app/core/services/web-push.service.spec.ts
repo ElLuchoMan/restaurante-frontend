@@ -372,9 +372,27 @@ describe('WebPushService', () => {
       expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
         expect.objectContaining({
           documentoTrabajador: 456,
-          documentoCliente: undefined,
         }),
       );
+      expect(pushService.registrarDispositivo.mock.calls[0][0]).not.toHaveProperty(
+        'documentoCliente',
+      );
+    });
+
+    it('no registra el dispositivo si no hay sesión (documento 0)', async () => {
+      jest.spyOn(service, 'isSupported').mockReturnValue(true);
+      swPush.isEnabled = true;
+      (window.Notification as any).permission = 'granted';
+      (userService.getUserRole as jest.Mock).mockReturnValue(null);
+      (userService.getUserId as jest.Mock).mockReturnValue(0);
+      swPush.requestSubscription.mockResolvedValue({
+        toJSON: () => ({ endpoint: 'https://x', keys: { p256dh: 'a', auth: 'b' } }),
+      } as any);
+
+      const result = await service.requestPermissionAndSubscribe();
+
+      expect(result).toBe(false);
+      expect(pushService.registrarDispositivo).not.toHaveBeenCalled();
     });
   });
 

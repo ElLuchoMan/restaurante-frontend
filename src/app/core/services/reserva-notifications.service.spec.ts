@@ -47,6 +47,14 @@ describe('ReservaNotificationsService', () => {
       expect(result.hora).toMatch(/\d{2}:\d{2}/);
     });
 
+    it('interpreta fechas DD-MM-YYYY del backend igual que YYYY-MM-DD', () => {
+      const delBackend = service['formatDateTime']('15-03-2024', '18:30:00');
+      const iso = service['formatDateTime']('2024-03-15', '18:30:00');
+
+      expect(delBackend).toEqual(iso);
+      expect(delBackend.fecha).toMatch(/15\/0?3/);
+    });
+
     it('should handle missing hora parameter', () => {
       const result = service['formatDateTime']('2024-03-15', undefined);
 

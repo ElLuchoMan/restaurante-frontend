@@ -4,7 +4,13 @@ import { catchError, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Cliente } from '../../shared/models/cliente.model';
+import {
+  Cliente,
+  ClienteCreate,
+  ClienteListParams,
+  ClienteResumen,
+  ClienteUpdate,
+} from '../../shared/models/cliente.model';
 import { HandleErrorService } from './handle-error.service';
 
 @Injectable({
@@ -18,23 +24,29 @@ export class ClienteService {
     private handleError: HandleErrorService,
   ) {}
 
-  getClienteId(documento: number): Observable<ApiResponse<Cliente>> {
+  /**
+   * GET /clientes/search?id=. Si no existe, el back responde HTTP 200 con code 404 y sin `data`.
+   */
+  getClienteId(documento: number): Observable<ApiResponse<Cliente | undefined>> {
     return this.http
-      .get<ApiResponse<Cliente>>(`${this.baseUrl}/clientes/search?id=${documento}`)
+      .get<ApiResponse<Cliente | undefined>>(`${this.baseUrl}/clientes/search?id=${documento}`)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  registroCliente(cliente: Cliente): Observable<ApiResponse<Cliente>> {
+  registroCliente(cliente: ClienteCreate): Observable<ApiResponse<Cliente>> {
     return this.http
       .post<ApiResponse<Cliente>>(`${this.baseUrl}/clientes`, cliente)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getClientes(options?: {
-    limit?: number;
-    offset?: number;
-    fields?: string;
-  }): Observable<ApiResponse<Cliente[]>> {
+  /** GET /clientes con `fields=nombre_completo_telefono` devuelve la proyección reducida. */
+  getClientes(
+    options: ClienteListParams & { fields: 'nombre_completo_telefono' },
+  ): Observable<ApiResponse<ClienteResumen[]>>;
+  getClientes(options?: Omit<ClienteListParams, 'fields'>): Observable<ApiResponse<Cliente[]>>;
+  getClientes(
+    options?: ClienteListParams,
+  ): Observable<ApiResponse<Cliente[]> | ApiResponse<ClienteResumen[]>> {
     const params = new URLSearchParams();
     if (options?.limit !== undefined) params.set('limit', String(options.limit));
     if (options?.offset !== undefined) params.set('offset', String(options.offset));
@@ -42,17 +54,17 @@ export class ClienteService {
 
     const url = `${this.baseUrl}/clientes${params.toString() ? `?${params.toString()}` : ''}`;
     return this.http
-      .get<ApiResponse<Cliente[]>>(url)
+      .get<ApiResponse<Cliente[]> | ApiResponse<ClienteResumen[]>>(url)
       .pipe(catchError(this.handleError.handleError));
   }
 
   actualizarCliente(
     documento: number,
-    partial: Partial<Cliente>,
-  ): Observable<ApiResponse<Cliente>> {
+    cliente: ClienteUpdate,
+  ): Observable<ApiResponse<Cliente | undefined>> {
     const url = `${this.baseUrl}/clientes?id=${documento}`;
     return this.http
-      .put<ApiResponse<Cliente>>(url, partial)
+      .put<ApiResponse<Cliente | undefined>>(url, cliente)
       .pipe(catchError(this.handleError.handleError));
   }
 

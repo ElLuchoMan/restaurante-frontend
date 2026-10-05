@@ -1,11 +1,23 @@
 import { DiaSemana } from '../constants';
 
+/** Horario tal como lo devuelve el back (el id interno no se expone). Horas en HH:MM:SS. */
 export interface HorarioTrabajador {
-  horarioTrabajadorId?: number;
-  documentoTrabajador: number;
+  documentoTrabajador: number | null;
   dia: DiaSemana;
-  horaInicio?: string; // HH:MM:SS
-  horaFin?: string; // HH:MM:SS
+  horaInicio: string;
+  horaFin: string;
 }
 
-export type HorarioTrabajadorUpdate = Partial<Pick<HorarioTrabajador, 'horaInicio' | 'horaFin'>>;
+/** Cuerpo de POST /horario_trabajador (acepta HH:MM:SS o HH:MM; horaFin > horaInicio). */
+export interface HorarioTrabajadorCreate {
+  documentoTrabajador: number;
+  dia: DiaSemana;
+  horaInicio: string;
+  horaFin: string;
+}
+
+/** Cuerpo de PUT /horario_trabajador?documento=&dia=. */
+export interface HorarioTrabajadorUpdate {
+  horaInicio?: string;
+  horaFin?: string;
+}

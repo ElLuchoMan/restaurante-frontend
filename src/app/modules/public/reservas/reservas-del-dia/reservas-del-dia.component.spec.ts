@@ -121,6 +121,9 @@ describe('ReservasDelDiaComponent', () => {
         1,
         expect.objectContaining({ estadoReserva: 'CONFIRMADA', fechaReserva: '2025-02-06' }),
       );
+      const payload = reservaService.actualizarReserva.mock.calls[0][1];
+      expect(payload).not.toHaveProperty('contactoId');
+      expect(payload).not.toHaveProperty('restauranteId');
       expect(toastr.success).toHaveBeenCalledWith(
         'Reserva marcada como CONFIRMADA',
         'Actualización Exitosa',
@@ -251,7 +254,7 @@ describe('ReservasDelDiaComponent', () => {
               contactoId: 1,
               nombreCompleto: 'Nombre Desde Contacto',
               telefono: '3001234567',
-              documentoCliente: 987654321,
+              documentoCliente: { documentoCliente: 987654321 },
             },
           },
         ],
@@ -279,7 +282,7 @@ describe('ReservasDelDiaComponent', () => {
               contactoId: 1,
               nombreCompleto: 'Nombre Desde Contacto',
               telefono: '3001234567',
-              documentoCliente: 987654321,
+              documentoCliente: { documentoCliente: 987654321 },
             },
           },
         ],
@@ -511,7 +514,7 @@ describe('ReservasDelDiaComponent', () => {
           contactoId: 1,
           nombreCompleto: 'Nombre',
           telefono: '3001234567',
-          documentoCliente: 555666777,
+          documentoCliente: { documentoCliente: 555666777 },
         },
       };
 

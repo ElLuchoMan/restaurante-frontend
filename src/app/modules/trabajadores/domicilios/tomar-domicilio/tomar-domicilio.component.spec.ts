@@ -79,7 +79,7 @@ describe('TomarDomicilioComponent', () => {
             entregado: false,
             observaciones: '',
             createdBy: '',
-            trabajadorAsignado: 99,
+            trabajadorAsignado: { documentoTrabajador: 99 },
           },
           {
             domicilioId: 4,
@@ -90,7 +90,7 @@ describe('TomarDomicilioComponent', () => {
             entregado: false,
             observaciones: '',
             createdBy: '',
-            trabajadorAsignado: 1,
+            trabajadorAsignado: { documentoTrabajador: 1 },
           },
         ] as Domicilio[],
       }),
@@ -116,6 +116,20 @@ describe('TomarDomicilioComponent', () => {
 
     expect(component.mostrarMensaje).toBe(true);
     expect(component.mensaje).toBe('error');
+  });
+
+  it('obtenerDomiciliosDisponibles should show the message when code 200 comes without data', () => {
+    userService.getUserId.mockReturnValue(1);
+    domicilioService.getDomicilios.mockReturnValue(
+      of({ code: 200, message: 'sin datos', data: undefined }),
+    );
+
+    createComponent();
+    component.trabajadorId = 1;
+    component.obtenerDomiciliosDisponibles();
+
+    expect(component.mostrarMensaje).toBe(true);
+    expect(component.mensaje).toBe('sin datos');
   });
 
   it('obtenerDomiciliosDisponibles should return early when no trabajadorId', () => {
@@ -147,7 +161,7 @@ describe('TomarDomicilioComponent', () => {
     component.tomarDomicilio(domicilio);
 
     expect(domicilioService.asignarDomiciliario).toHaveBeenCalledWith(1, 1);
-    expect(domicilio.trabajadorAsignado).toBe(1);
+    expect(domicilio.trabajadorAsignado).toEqual({ documentoTrabajador: 1 });
   });
 
   it('tomarDomicilio should not assign when trabajadorId is cleared before the response', () => {

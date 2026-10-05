@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
+import { ReservaService } from '../../../../core/services/reserva.service';
 import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
 import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
-import { ReservaService } from '../../../../core/services/reserva.service';
 import { estadoReserva } from '../../../../shared/constants';
-import { ReservaPopulada } from '../../../../shared/models/reserva.model';
+import { ReservaPopulada, ReservaUpdate } from '../../../../shared/models/reserva.model';
 import { FormatDatePipe } from '../../../../shared/pipes/format-date.pipe';
 
 @Component({
@@ -55,7 +55,8 @@ export class ReservasDelDiaComponent implements OnInit {
           const telefonoFinal = telTop && telTop.trim().length > 0 ? telTop : telContacto || '';
 
           const docTop: number | null | undefined = r?.documentoCliente as any;
-          const docContacto: number | null | undefined = r?.contactoId?.documentoCliente as any;
+          const docContacto: number | null | undefined =
+            r?.contactoId?.documentoCliente?.documentoCliente;
 
           return {
             ...r,
@@ -92,14 +93,16 @@ export class ReservasDelDiaComponent implements OnInit {
           if (!cidVal) return r as ReservaPopulada;
           try {
             const info = await this.reservaContactoService.getById(cidVal).toPromise();
-            if (info) {
+            const contacto = info?.data;
+            if (contacto) {
               r.nombreCompleto =
                 r?.nombreCompleto && r.nombreCompleto.trim() !== ''
                   ? r.nombreCompleto
-                  : info.data.nombreCompleto || '';
+                  : contacto.nombreCompleto || '';
               r.telefono =
-                r?.telefono && r.telefono.trim() !== '' ? r.telefono : info.data.telefono || '';
-              r.documentoCliente = r?.documentoCliente ?? info.data.documentoCliente ?? null;
+                r?.telefono && r.telefono.trim() !== '' ? r.telefono : contacto.telefono || '';
+              r.documentoCliente =
+                r?.documentoCliente ?? contacto.documentoCliente?.documentoCliente ?? null;
             }
           } catch {}
           return r as ReservaPopulada;
@@ -134,14 +137,12 @@ export class ReservasDelDiaComponent implements OnInit {
     const [dia, mes, anio] = reserva.fechaReserva.split('-');
     const fechaISO = `${anio}-${mes}-${dia}`;
 
-    const payload: any = {
+    const payload: ReservaUpdate = {
       estadoReserva: reserva.estadoReserva,
       fechaReserva: fechaISO,
       horaReserva: reserva.horaReserva,
       indicaciones: reserva.indicaciones,
       personas: reserva.personas,
-      restauranteId: (reserva as any).restauranteId,
-      contactoId: (reserva as any).contactoId,
     };
 
     this.reservaService.actualizarReserva(Number(reserva.reservaId), payload).subscribe({

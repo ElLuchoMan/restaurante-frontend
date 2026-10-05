@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
 import {
+  mockProductoPedidoCreateBody,
   mockProductoPedidoResponse,
   mockProductoPedidoUpdateBody,
 } from '../../shared/mocks/producto-pedido.mock';
@@ -33,18 +34,17 @@ describe('ProductoPedidoService', () => {
   });
 
   it('creates producto pedido', () => {
-    const detalles = [{ productoId: 1, cantidad: 1 }];
-    const mock = { code: 200, message: 'ok', data: {} };
-    service.create(1, detalles as any).subscribe((res) => expect(res).toEqual(mock));
+    const { pedidoId, detalles } = mockProductoPedidoCreateBody;
+    const mock = { ...mockProductoPedidoResponse, code: 201 };
+    service.create(pedidoId, detalles).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(`${baseUrl}`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ pedidoId: 1, detalles });
+    expect(req.request.body).toEqual({ pedidoId, detalles });
     req.flush(mock);
   });
 
   it('handles error on create', () => {
-    const detalles = [{ productoId: 1, cantidad: 1 }];
-    service.create(1, detalles as any).subscribe({
+    service.create(1, [{ productoId: 1, cantidad: 1 }]).subscribe({
       next: () => fail('should have failed'),
       error: (err) => expect(err).toBeTruthy(),
     });
@@ -62,19 +62,68 @@ describe('ProductoPedidoService', () => {
 
   it('updates producto pedido with detalles', () => {
     service
-      .update(55, mockProductoPedidoUpdateBody as any)
-      .subscribe((res) => expect(res).toEqual({ code: 200 }));
+      .update(55, mockProductoPedidoUpdateBody)
+      .subscribe((res) => expect(res).toEqual(mockProductoPedidoResponse));
     const req = http.expectOne(`${baseUrl}?pedido_id=55`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(mockProductoPedidoUpdateBody);
-    req.flush({ code: 200 });
+    req.flush(mockProductoPedidoResponse);
   });
 
-  it('deleteByPedido elimina productos por pedido', () => {
-    const mock = { code: 200, message: 'ok', data: {} };
-    service.deleteByPedido(31).subscribe((res) => expect(res).toEqual(mock));
-    const req = http.expectOne(`${baseUrl}?pedido_id=31`);
-    expect(req.request.method).toBe('DELETE');
-    req.flush(mock);
+  it('handles error on getByPedido', () => {
+    service.getByPedido(42).subscribe({
+      next: () => fail('should have failed'),
+      error: (err) => expect(err).toBeTruthy(),
+    });
+    const req = http.expectOne(`${baseUrl}?pedido_id=42`);
+    req.error(new ErrorEvent('Network error'));
+    expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+  });
+
+  it('handles error on update', () => {
+    service.update(55, mockProductoPedidoUpdateBody).subscribe({
+      next: () => fail('should have failed'),
+      error: (err) => expect(err).toBeTruthy(),
+    });
+    const req = http.expectOne(`${baseUrl}?pedido_id=55`);
+    req.error(new ErrorEvent('Network error'));
+    expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+  });
+
+  it('create convierte un code >= 400 con HTTP 200 (inventario insuficiente) en error', () => {
+    let captured: unknown;
+    service.create(1, [{ productoId: 1, cantidad: 99 }]).subscribe({
+      next: () => fail('should have failed'),
+      error: (err) => (captured = err),
+    });
+    http.expectOne(`${baseUrl}`).flush({
+      code: 400,
+      message: 'Inventario insuficiente para uno o más productos',
+      data: [{ productoId: 1, requerido: 99, disponible: 3 }],
+    });
+    expect(captured).toEqual({
+      code: 400,
+      message: 'Inventario insuficiente para uno o más productos',
+      cause: 'No especificado',
+    });
+    expect(mockHandleErrorService.handleError).not.toHaveBeenCalled();
+  });
+
+  it('update convierte un code >= 400 con HTTP 200 en error conservando la causa', () => {
+    let captured: unknown;
+    service.update(55, mockProductoPedidoUpdateBody).subscribe({
+      next: () => fail('should have failed'),
+      error: (err) => (captured = err),
+    });
+    http.expectOne(`${baseUrl}?pedido_id=55`).flush({
+      code: 500,
+      message: 'Error al actualizar los productos del pedido',
+      cause: 'db down',
+    });
+    expect(captured).toEqual({
+      code: 500,
+      message: 'Error al actualizar los productos del pedido',
+      cause: 'db down',
+    });
   });
 });

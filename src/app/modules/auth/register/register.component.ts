@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -15,16 +15,15 @@ import { HorarioTrabajadorService } from '../../../core/services/horario-trabaja
 import { TrabajadorService } from '../../../core/services/trabajador.service';
 import { UserService } from '../../../core/services/user.service';
 import { DiaSemana, RolTrabajador } from '../../../shared/constants';
-import { Cliente } from '../../../shared/models/cliente.model';
-import { HorarioTrabajador } from '../../../shared/models/horario-trabajador.model';
-import { Trabajador } from '../../../shared/models/trabajador.model';
-import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
+import { ClienteCreate } from '../../../shared/models/cliente.model';
+import { HorarioTrabajadorCreate } from '../../../shared/models/horario-trabajador.model';
+import { TrabajadorCreate } from '../../../shared/models/trabajador.model';
+import { fechaYYYYMMDD_Bogota } from '../../../shared/utils/dateHelper';
 import { ClienteService } from './../../../core/services/cliente.service';
 
 @Component({
   selector: 'app-register',
   imports: [CommonModule, ReactiveFormsModule],
-  providers: [FormatDatePipe],
   standalone: true,
   templateUrl: './register.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -137,7 +136,6 @@ export class RegisterComponent implements OnInit {
     private clienteService: ClienteService,
     private toastr: ToastrService,
     private router: Router,
-    private formatDatePipe: FormatDatePipe,
   ) {}
 
   ngOnInit(): void {
@@ -212,25 +210,21 @@ export class RegisterComponent implements OnInit {
     this.progress = 30; // Progreso inicial
 
     const values = this.registerForm.getRawValue();
-    const formattedFechaIngreso = this.formatDatePipe.transform(new Date());
+    // El back exige fechas en formato YYYY-MM-DD (DD-MM-YYYY responde 400)
+    const fechaIngreso = fechaYYYYMMDD_Bogota();
 
     if (values.esTrabajador) {
-      const formattedFechaNacimiento = this.formatDatePipe.transform(
-        new Date(values.fechaNacimiento),
-      );
-      const trabajador: Trabajador = {
+      const trabajador: TrabajadorCreate = {
         documentoTrabajador: Number(values.documento),
         nombre: values.nombre,
         apellido: values.apellido,
         password: values.password,
         restauranteId: 1,
         rol: (values.rol as unknown as RolTrabajador) || RolTrabajador.RolMesero,
-        nuevo: values.nuevo,
-        horario: 'Definido por días', // Los horarios se manejan por separado
         sueldo: Number(values.sueldo),
         telefono: values.telefono,
-        fechaIngreso: formattedFechaIngreso,
-        fechaNacimiento: formattedFechaNacimiento,
+        fechaIngreso,
+        fechaNacimiento: values.fechaNacimiento,
       };
       this.progress = 70; // Progreso medio
 
@@ -265,7 +259,7 @@ export class RegisterComponent implements OnInit {
         },
       });
     } else {
-      const cliente: Cliente = {
+      const cliente: ClienteCreate = {
         documentoCliente: Number(values.documento),
         nombre: values.nombre,
         apellido: values.apellido,
@@ -486,7 +480,7 @@ export class RegisterComponent implements OnInit {
   }
 
   private async crearHorariosTrabajador(documentoTrabajador: number): Promise<void> {
-    const horariosParaCrear: HorarioTrabajador[] = [];
+    const horariosParaCrear: HorarioTrabajadorCreate[] = [];
 
     for (const dia of this.diasSemana) {
       let horario;

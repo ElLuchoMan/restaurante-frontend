@@ -10,7 +10,9 @@ import {
   DashboardData,
   DeviceType,
   EficienciaData,
+  EstadosPedidosData,
   PedidosAnalisisData,
+  ProductoDisponible,
   ProductosPopularesData,
   ProductsData,
   PurchaseData,
@@ -211,6 +213,24 @@ export class TelemetryService {
       .get<ApiResponse<ProductosPopularesData>>(url, {
         params: httpParams,
       })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Conteo de pedidos por estado (endpoint público - sin autenticación)
+   */
+  getEstadosPedidos(): Observable<ApiResponse<EstadosPedidosData>> {
+    return this.http
+      .get<ApiResponse<EstadosPedidosData>>(`${environment.apiUrl}/estados-pedidos`)
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * Productos disponibles con total vendido (endpoint público - sin autenticación)
+   */
+  getProductosDisponibles(): Observable<ApiResponse<ProductoDisponible[] | null>> {
+    return this.http
+      .get<ApiResponse<ProductoDisponible[] | null>>(`${environment.apiUrl}/productos-disponibles`)
       .pipe(catchError(this.handleError.handleError));
   }
 

@@ -2,13 +2,12 @@ import { ApiResponse } from '../models/api-response.model';
 import { PedidoDescuentoAplicado } from '../models/descuento.model';
 
 export const mockDescuentoAplicado: ApiResponse<PedidoDescuentoAplicado> = {
-  code: 200,
+  code: 201,
   message: 'Descuento aplicado exitosamente',
   data: {
     pedidoDescuentoId: 1,
-    pedidoId: 1,
-    cuponId: 1,
-    ofertaId: null,
+    pedidoId: { pedidoId: 1 },
+    cuponId: { cuponId: 1 },
     montoDescuento: 2000,
     detalle: {
       fuente: 'CUPON',
@@ -16,6 +15,6 @@ export const mockDescuentoAplicado: ApiResponse<PedidoDescuentoAplicado> = {
       tipo: 'PORCENTAJE',
       valor: 10,
     },
-    createdAt: '2025-01-15T14:30:00Z',
+    createdAt: '15-01-2025 14:30:00',
   },
 };

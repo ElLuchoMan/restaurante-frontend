@@ -25,41 +25,42 @@ export class IncidenciasService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  create(body: IncidenciaCreate): Observable<ApiResponse<Record<string, unknown>>> {
+  create(body: IncidenciaCreate): Observable<ApiResponse<Incidencia>> {
     return this.http
-      .post<ApiResponse<Record<string, unknown>>>(this.baseUrl, body)
+      .post<ApiResponse<Incidencia>>(this.baseUrl, body)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  update(id: number, body: IncidenciaUpdate): Observable<ApiResponse<Record<string, unknown>>> {
+  update(id: number, body: IncidenciaUpdate): Observable<ApiResponse<Incidencia | undefined>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .put<ApiResponse<Record<string, unknown>>>(this.baseUrl, body, { params })
+      .put<ApiResponse<Incidencia | undefined>>(this.baseUrl, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  delete(id: number): Observable<ApiResponse<Record<string, unknown>>> {
+  delete(id: number): Observable<ApiResponse<unknown>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .delete<ApiResponse<Record<string, unknown>>>(this.baseUrl, { params })
+      .delete<ApiResponse<unknown>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * Busca incidencias por documento y periodo (mes y año)
+   * Busca incidencias por documento y periodo (mes 1-12 y año <= año actual)
    * GET /incidencias/search?documento=...&mes=...&anio=...
+   * Sin resultados: HTTP 200, code 404 y sin `data`.
    */
   search(params: {
     documento: number;
     mes: number;
     anio: number;
-  }): Observable<ApiResponse<Incidencia[]>> {
+  }): Observable<ApiResponse<Incidencia[] | undefined>> {
     let hp = new HttpParams();
     hp = hp.set('documento', String(params.documento));
     hp = hp.set('mes', String(params.mes));
     hp = hp.set('anio', String(params.anio));
     return this.http
-      .get<ApiResponse<Incidencia[]>>(`${this.baseUrl}/search`, { params: hp })
+      .get<ApiResponse<Incidencia[] | undefined>>(`${this.baseUrl}/search`, { params: hp })
       .pipe(catchError(this.handleError.handleError));
   }
 }

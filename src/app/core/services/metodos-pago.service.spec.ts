@@ -2,6 +2,15 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
+import {
+  mockMetodoPagoBody,
+  mockMetodoPagoCreateResponse,
+  mockMetodoPagoDeleteResponse,
+  mockMetodoPagoRespone,
+  mockMetodoPagoUpdateBody,
+  mockMetodoPagoUpdateResponse,
+  mockMetodosPagoRespone,
+} from '../../shared/mocks/metodo-pago.mock';
 import { MetodosPagoService } from './metodos-pago.service';
 
 describe('MetodosPagoService', () => {
@@ -22,50 +31,43 @@ describe('MetodosPagoService', () => {
   });
 
   it('gets all methods', () => {
-    const mock = { code: 200, message: 'ok', data: [] };
-    service.getAll().subscribe((res) => expect(res).toEqual(mock));
+    service.getAll().subscribe((res) => expect(res).toEqual(mockMetodosPagoRespone));
     const req = http.expectOne(baseUrl);
     expect(req.request.method).toBe('GET');
-    req.flush(mock);
+    req.flush(mockMetodosPagoRespone);
   });
 
   it('gets method by id', () => {
-    const mock = { code: 200, message: 'ok', data: {} };
-    service.getById(5).subscribe((res) => expect(res).toEqual(mock));
+    service.getById(5).subscribe((res) => expect(res).toEqual(mockMetodoPagoRespone));
     const req = http.expectOne(`${baseUrl}/search?id=5`);
     expect(req.request.method).toBe('GET');
-    req.flush(mock);
+    req.flush(mockMetodoPagoRespone);
   });
 
   it('creates a method', () => {
-    const body = { tipo: 'Nequi', detalle: '3000000000' } as any;
-    const mock = { code: 201, message: 'created', data: { ...body, metodoPagoId: 10 } };
-    service.create(body).subscribe((res) => expect(res).toEqual(mock));
+    service
+      .create(mockMetodoPagoBody)
+      .subscribe((res) => expect(res).toEqual(mockMetodoPagoCreateResponse));
     const req = http.expectOne(baseUrl);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(body);
-    req.flush(mock);
+    expect(req.request.body).toEqual(mockMetodoPagoBody);
+    req.flush(mockMetodoPagoCreateResponse);
   });
 
   it('updates a method', () => {
-    const body = { detalle: '3111111111' } as any;
-    const mock = {
-      code: 200,
-      message: 'updated',
-      data: { metodoPagoId: 1, tipo: 'Nequi', detalle: '3111111111' },
-    };
-    service.update(1, body).subscribe((res) => expect(res).toEqual(mock));
+    service
+      .update(1, mockMetodoPagoUpdateBody)
+      .subscribe((res) => expect(res).toEqual(mockMetodoPagoUpdateResponse));
     const req = http.expectOne(`${baseUrl}?id=1`);
     expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual(body);
-    req.flush(mock);
+    expect(req.request.body).toEqual(mockMetodoPagoUpdateBody);
+    req.flush(mockMetodoPagoUpdateResponse);
   });
 
   it('deletes a method', () => {
-    const mock = { code: 200, message: 'deleted', data: {} };
-    service.delete(1).subscribe((res) => expect(res).toEqual(mock));
+    service.delete(1).subscribe((res) => expect(res).toEqual(mockMetodoPagoDeleteResponse));
     const req = http.expectOne(`${baseUrl}?id=1`);
     expect(req.request.method).toBe('DELETE');
-    req.flush(mock);
+    req.flush(mockMetodoPagoDeleteResponse);
   });
 });

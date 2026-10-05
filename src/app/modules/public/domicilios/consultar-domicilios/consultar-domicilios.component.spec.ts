@@ -99,7 +99,7 @@ describe('ConsultarDomicilioComponent', () => {
           entregado: false,
           observaciones: '',
           createdBy: '',
-          trabajadorAsignado: 10,
+          trabajadorAsignado: { documentoTrabajador: 10 },
           domicilioId: 1,
         },
         {
@@ -110,7 +110,7 @@ describe('ConsultarDomicilioComponent', () => {
           entregado: false,
           observaciones: '',
           createdBy: '',
-          trabajadorAsignado: 20,
+          trabajadorAsignado: { documentoTrabajador: 20 },
           domicilioId: 2,
         },
         {
@@ -159,6 +159,17 @@ describe('ConsultarDomicilioComponent', () => {
       expect(component.mostrarMensaje).toBe(true);
       expect(component.mensaje).toBe('Error');
       expect(trabajadorService.searchTrabajador).not.toHaveBeenCalled();
+    });
+
+    it('should show message when code 200 comes without data', () => {
+      domicilioService.getDomicilios.mockReturnValue(
+        of({ code: 200, message: 'sin datos', data: undefined }),
+      );
+
+      component.buscarDomicilios();
+
+      expect(component.mostrarMensaje).toBe(true);
+      expect(component.mensaje).toBe('sin datos');
     });
   });
 
@@ -236,8 +247,31 @@ describe('ConsultarDomicilioComponent', () => {
 
       expect(domicilioService.asignarDomiciliario).toHaveBeenCalledWith(1, 5);
       expect(trabajadorService.searchTrabajador).toHaveBeenCalledWith(5);
-      expect(domicilio.trabajadorAsignado).toBe(5);
+      expect(domicilio.trabajadorAsignado).toEqual({ documentoTrabajador: 5 });
       expect(domicilio.trabajadorNombre).toBe('Ana Gómez');
+    });
+
+    it('should show "No asignado" when the trabajador lookup comes without data (code 404)', () => {
+      const domicilio: Domicilio = {
+        fechaDomicilio: '',
+        direccion: 'dir',
+        telefono: '123',
+        estadoDomicilio: estadoDomicilio.PENDIENTE,
+        entregado: false,
+        observaciones: '',
+        createdBy: '',
+        domicilioId: 1,
+      };
+
+      domicilioService.asignarDomiciliario.mockReturnValue(of({ code: 200 }));
+      trabajadorService.searchTrabajador.mockReturnValue(
+        of({ code: 404, message: 'Trabajador no encontrado' }),
+      );
+
+      component.confirmarAsignacion(domicilio, 5);
+
+      expect(domicilio.trabajadorNombre).toBe('No asignado');
+      expect(domicilio.trabajadorAsignado).toBeTruthy();
     });
 
     it('should not update when service returns error code', () => {

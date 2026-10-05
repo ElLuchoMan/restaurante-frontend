@@ -78,14 +78,16 @@ describe('MisPedidosComponent', () => {
   it('ngOnInit should sort and enrich pedidos', () => {
     userService.getUserId.mockReturnValue(5);
     const createPedido = (id: number | undefined, fecha: string, hora: string): Pedido => ({
-      pedidoId: id,
+      // Un pedido sin id no existe en el back; se fuerza para cubrir la rama defensiva.
+      pedidoId: id as number,
       fechaPedido: fecha,
       horaPedido: hora,
-      createdAt: '',
+      updatedAt: '',
       delivery: false,
       estadoPedido: EstadoPedido.EstadoPedidoIniciado,
-      pagoId: 0,
-      restauranteId: 0,
+      pagoId: null,
+      restauranteId: null,
+      documentoCliente: null,
     });
 
     const pedidos = [
@@ -140,11 +142,12 @@ describe('MisPedidosComponent', () => {
       pedidoId: 1,
       fechaPedido: '01-01-2024',
       horaPedido: '0000-01-01 00:00:00 +0000 UTC',
-      createdAt: '',
+      updatedAt: '',
       delivery: false,
       estadoPedido: EstadoPedido.EstadoPedidoIniciado,
-      pagoId: 0,
-      restauranteId: 0,
+      pagoId: null,
+      restauranteId: null,
+      documentoCliente: null,
     };
 
     it('should return base when det undefined', () => {

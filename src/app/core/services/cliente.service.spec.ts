@@ -7,10 +7,13 @@ import {
   mockClienteBody,
   mockClienteDeleteResponse,
   mockClienteRegisterResponse,
+  mockClientesProjected,
   mockClientesResponse,
+  mockClienteUpdateBody,
   mockClienteUpdateResponse,
   mockResponseCliente,
 } from '../../shared/mocks/cliente.mock';
+import { ApiResponse } from '../../shared/models/api-response.model';
 import { Cliente } from '../../shared/models/cliente.model';
 import { ClienteService } from './cliente.service';
 import { HandleErrorService } from './handle-error.service';
@@ -58,6 +61,20 @@ describe('ClienteService', () => {
       req.flush(mockResponseCliente);
     });
 
+    it('should expose a not found response (HTTP 200, code 404, no data)', () => {
+      let result: ApiResponse<Cliente | undefined> | undefined;
+      service.getClienteId(1).subscribe((response) => (result = response));
+
+      httpMock.expectOne(`${baseUrl}/clientes/search?id=1`).flush({
+        code: 404,
+        message: 'Cliente no encontrado',
+      });
+
+      expect(result?.code).toBe(404);
+      expect(result?.data).toBeUndefined();
+      expect(result?.message).toBe('Cliente no encontrado');
+    });
+
     it('should handle error when fetching cliente by id', () => {
       const documento = mockResponseCliente.data.documentoCliente;
       service.getClienteId(documento).subscribe({
@@ -100,12 +117,13 @@ describe('ClienteService', () => {
       service
         .getClientes({ limit: 20, offset: 0, fields: 'nombre_completo_telefono' })
         .subscribe((res) => {
-          expect(res).toEqual(mockClientesResponse);
+          expect(res).toEqual(mockClientesProjected);
+          expect(res.data[0].nombre_completo).toBe('Carlos Perez');
         });
 
       const req = httpMock.expectOne(`${baseUrl}/clientes?${params}`);
       expect(req.request.method).toBe('GET');
-      req.flush(mockClientesResponse);
+      req.flush(mockClientesProjected);
     });
 
     it('should list clientes without options (no query string)', () => {
@@ -127,7 +145,7 @@ describe('ClienteService', () => {
   describe('actualizarCliente', () => {
     it('should update cliente by id', () => {
       const documento = mockResponseCliente.data.documentoCliente;
-      const partial: Partial<Cliente> = { telefono: '3001112233' };
+      const partial = mockClienteUpdateBody;
 
       service.actualizarCliente(documento, partial).subscribe((res) => {
         expect(res).toEqual(mockClienteUpdateResponse);
@@ -142,7 +160,7 @@ describe('ClienteService', () => {
     it('should handle error when updating cliente', () => {
       const documento = mockResponseCliente.data.documentoCliente;
       service
-        .actualizarCliente(documento, { telefono: 'x' })
+        .actualizarCliente(documento, mockClienteUpdateBody)
         .subscribe({ error: (e) => expect(e).toBeTruthy() });
       const req = httpMock.expectOne(`${baseUrl}/clientes?id=${documento}`);
       req.error(new ErrorEvent('API error'));

@@ -9,12 +9,18 @@ import {
   Cupon,
   CuponParams,
   CuponRedencion,
+  CuponRedencionParams,
   RedimirCuponRequest,
   ValidarCuponRequest,
   ValidarCuponResponse,
 } from '../../shared/models/cupon.model';
+import { PaginatedData } from '../../shared/models/descuento-types.model';
 import { HandleErrorService } from './handle-error.service';
 
+/**
+ * Cliente de /cupones (todas las rutas requieren token). En el back el id va como query param
+ * `id` (no existen rutas `/cupones/{id}`).
+ */
 @Injectable({ providedIn: 'root' })
 export class CuponService {
   private baseUrl = `${environment.apiUrl}/cupones`;
@@ -30,27 +36,28 @@ export class CuponService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  listar(params?: CuponParams): Observable<ApiResponse<Cupon[]>> {
-    let hp = new HttpParams();
-    if (params) {
-      Object.entries(params).forEach(([k, v]) => {
-        if (v !== undefined && v !== null) hp = hp.set(k, String(v));
-      });
-    }
+  /** El back devuelve un envoltorio paginado (no un array) dentro de `data`. */
+  listar(params?: CuponParams): Observable<ApiResponse<PaginatedData<Cupon>>> {
     return this.http
-      .get<ApiResponse<Cupon[]>>(`${this.baseUrl}`, { params: hp })
+      .get<ApiResponse<PaginatedData<Cupon>>>(`${this.baseUrl}`, {
+        params: this.toHttpParams(params),
+      })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  obtener(id: number): Observable<ApiResponse<Cupon>> {
+  /** `/cupones/search` acepta el id numérico o el código del cupón en `id`. */
+  obtener(idOrCodigo: number | string): Observable<ApiResponse<Cupon>> {
+    const params = new HttpParams().set('id', String(idOrCodigo));
     return this.http
-      .get<ApiResponse<Cupon>>(`${this.baseUrl}/${id}`)
+      .get<ApiResponse<Cupon>>(`${this.baseUrl}/search`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  actualizar(id: number, body: Partial<CrearCuponRequest>): Observable<ApiResponse<Cupon>> {
+  /** El back exige el cuerpo completo (scope, tipo y fechas), no una actualización parcial. */
+  actualizar(id: number, body: CrearCuponRequest): Observable<ApiResponse<Cupon>> {
+    const params = new HttpParams().set('id', String(id));
     return this.http
-      .put<ApiResponse<Cupon>>(`${this.baseUrl}/${id}`, body)
+      .put<ApiResponse<Cupon>>(`${this.baseUrl}`, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
@@ -60,6 +67,11 @@ export class CuponService {
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /**
+   * OJO: el contrato documentado es POST /cupones/{codigo}/redimir, pero el router del back sólo
+   * registra `/cupones/redimir` (sin `:codigo`), por lo que esta llamada no funciona hasta que
+   * el back añada la ruta con el parámetro de ruta.
+   */
   redimir(codigo: string, body: RedimirCuponRequest): Observable<ApiResponse<CuponRedencion>> {
     return this.http
       .post<ApiResponse<CuponRedencion>>(
@@ -69,18 +81,24 @@ export class CuponService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  listarRedenciones(params?: {
-    limit?: number;
-    offset?: number;
-  }): Observable<ApiResponse<CuponRedencion[]>> {
+  /** El back devuelve un envoltorio paginado (no un array) dentro de `data`. */
+  listarRedenciones(
+    params?: CuponRedencionParams,
+  ): Observable<ApiResponse<PaginatedData<CuponRedencion>>> {
+    return this.http
+      .get<ApiResponse<PaginatedData<CuponRedencion>>>(`${this.baseUrl}/redenciones`, {
+        params: this.toHttpParams(params),
+      })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  private toHttpParams(params?: object): HttpParams {
     let hp = new HttpParams();
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         if (v !== undefined && v !== null) hp = hp.set(k, String(v));
       });
     }
-    return this.http
-      .get<ApiResponse<CuponRedencion[]>>(`${this.baseUrl}/redenciones`, { params: hp })
-      .pipe(catchError(this.handleError.handleError));
+    return hp;
   }
 }

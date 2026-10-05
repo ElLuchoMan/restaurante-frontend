@@ -1,5 +1,9 @@
 import { ApiResponse } from '../models/api-response.model';
-import { EnviarNotificacionResponse, PushDispositivo } from '../models/push.model';
+import {
+  EnviarNotificacionResponse,
+  PushDispositivo,
+  PushPaginatedData,
+} from '../models/push.model';
 
 export const mockPushDispositivoWeb: ApiResponse<PushDispositivo> = {
   code: 200,
@@ -17,7 +21,7 @@ export const mockPushDispositivoWeb: ApiResponse<PushDispositivo> = {
     appVersion: '1.0.0',
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     subscribedTopics: ['promos', 'novedades'],
-    documentoCliente: 1015466495,
+    documentoCliente: { documentoCliente: 1015466495 },
     documentoTrabajador: null,
     createdAt: '2025-01-01T10:00:00Z',
     lastSeenAt: '2025-01-15T14:30:00Z',
@@ -41,16 +45,22 @@ export const mockPushDispositivoAndroid: ApiResponse<PushDispositivo> = {
     userAgent: null,
     subscribedTopics: ['domicilios'],
     documentoCliente: null,
-    documentoTrabajador: 1000000000,
+    documentoTrabajador: { documentoTrabajador: 1000000000 },
     createdAt: '2025-01-01T08:00:00Z',
     lastSeenAt: '2025-01-15T16:45:00Z',
   },
 };
 
-export const mockListaDispositivos: ApiResponse<PushDispositivo[]> = {
+export const mockListaDispositivos: ApiResponse<PushPaginatedData<PushDispositivo>> = {
   code: 200,
   message: 'Dispositivos obtenidos exitosamente',
-  data: [mockPushDispositivoWeb.data, mockPushDispositivoAndroid.data],
+  data: {
+    data: [mockPushDispositivoWeb.data, mockPushDispositivoAndroid.data],
+    total: 2,
+    page: 1,
+    pageSize: 20,
+    totalPages: 1,
+  },
 };
 
 export const mockEnvioNotificacionExitoso: ApiResponse<EnviarNotificacionResponse> = {

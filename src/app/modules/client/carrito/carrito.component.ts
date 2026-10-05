@@ -21,9 +21,10 @@ import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
 import { estadoDomicilio, estadoPago } from '../../../shared/constants';
 import { Cliente } from '../../../shared/models/cliente.model';
-import { Domicilio, DomicilioRequest } from '../../../shared/models/domicilio.model';
+import { DomicilioCreate } from '../../../shared/models/domicilio.model';
 import { MetodosPago } from '../../../shared/models/metodo-pago.model';
 import { PagoCreate } from '../../../shared/models/pago.model';
+import { PedidoCreate } from '../../../shared/models/pedido.model';
 import { Producto } from '../../../shared/models/producto.model';
 
 @Component({
@@ -218,7 +219,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       obsCompleta += ' - Sin observaciones';
     }
 
-    const nuevoDomicilio: DomicilioRequest = {
+    const nuevoDomicilio: DomicilioCreate = {
       direccion: cliente.direccion,
       telefono: cliente.telefono,
       estadoDomicilio: estadoDomicilio.PENDIENTE,
@@ -231,7 +232,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       const resp = await firstValueFrom(
         this.domicilioService.createDomicilio(nuevoDomicilio).pipe(takeUntil(this.destroy$)),
       );
-      return (resp.data as Domicilio).domicilioId!;
+      return resp.data.domicilioId;
     } catch (err) {
       this.handleError(err, 'Error al crear domicilio');
       throw err;
@@ -243,7 +244,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       const documentoCliente = this.userService.getUserId();
 
       // PASO 1: Crear pedido base (con pk_id_domicilio si se requiere)
-      const pedidoPayload: any = {
+      const pedidoPayload: PedidoCreate = {
         delivery: domicilioId !== null,
         restauranteId: 1,
         ...(documentoCliente && { documentoCliente }),
@@ -253,7 +254,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       const pedidoRes = await firstValueFrom(
         this.pedidoService.createPedido(pedidoPayload).pipe(takeUntil(this.destroy$)),
       );
-      const pedidoId = pedidoRes.data.pedidoId!;
+      const pedidoId = pedidoRes.data.pedidoId;
 
       // PASO 2: Asociar productos al pedido
       const detalles = this.carrito.map((p) => ({
@@ -262,7 +263,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       }));
 
       await firstValueFrom(
-        this.productoPedidoService.create(pedidoId, detalles as any).pipe(takeUntil(this.destroy$)),
+        this.productoPedidoService.create(pedidoId, detalles).pipe(takeUntil(this.destroy$)),
       );
 
       // PASO 3: Crear registro de pago
@@ -290,7 +291,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       const pagoRes = await firstValueFrom(
         this.pagoService.createPago(nuevoPago).pipe(takeUntil(this.destroy$)),
       );
-      const pagoId = pagoRes.data.pagoId!;
+      const pagoId = pagoRes.data.pagoId;
 
       // PASO 4: Asignar pago al pedido (sin cambiar estados)
       await firstValueFrom(
@@ -342,7 +343,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       this.router.navigate(['/cliente/mis-pedidos']);
     } catch (err: any) {
       // Manejar errores específicos
-      if (err.error?.message?.includes('Inventario insuficiente')) {
+      if (err?.message?.includes('Inventario insuficiente')) {
         this.toastr.error(
           'No hay suficiente inventario para algunos productos. Por favor, reduce las cantidades.',
           'Inventario Insuficiente',

@@ -15,7 +15,7 @@ export class CartService {
   public count$ = new BehaviorSubject<number>(0);
   public items$ = new BehaviorSubject<Producto[]>([]);
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(@Inject(PLATFORM_ID) private platformId: object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
       this.clearIfNeeded();

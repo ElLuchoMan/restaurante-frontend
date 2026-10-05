@@ -52,15 +52,15 @@ export class ConsultarDomicilioComponent implements OnInit {
     if (this.buscarPorFecha && this.fechaDomicilio) params.fecha = this.fechaDomicilio;
 
     this.domicilioService.getDomicilios(params).subscribe((response) => {
-      if (response.code === 200) {
+      if (response.code === 200 && response.data) {
         this.domicilios = response.data;
 
         this.domicilios.forEach((domicilio) => {
           if (domicilio.trabajadorAsignado) {
             this.trabajadorService
-              .searchTrabajador(domicilio.trabajadorAsignado)
+              .searchTrabajador(domicilio.trabajadorAsignado.documentoTrabajador)
               .subscribe((trabajador) => {
-                domicilio.trabajadorNombre = trabajador
+                domicilio.trabajadorNombre = trabajador?.data
                   ? `${trabajador.data.nombre} ${trabajador.data.apellido}`
                   : 'No asignado';
               });
@@ -114,10 +114,12 @@ export class ConsultarDomicilioComponent implements OnInit {
       .asignarDomiciliario(domicilio.domicilioId!, trabajadorId)
       .subscribe((response) => {
         if (response.code === 200) {
-          domicilio.trabajadorAsignado = trabajadorId;
+          domicilio.trabajadorAsignado = { documentoTrabajador: trabajadorId };
 
           this.trabajadorService.searchTrabajador(trabajadorId).subscribe((trabajador) => {
-            domicilio.trabajadorNombre = `${trabajador.data.nombre} ${trabajador.data.apellido}`;
+            domicilio.trabajadorNombre = trabajador.data
+              ? `${trabajador.data.nombre} ${trabajador.data.apellido}`
+              : 'No asignado';
           });
         }
       });

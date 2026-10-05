@@ -2,13 +2,16 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
+import { estadoDomicilio } from '../../shared/constants';
 import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { DomicilioRequest } from '../../shared/models/domicilio.model';
+import { DomicilioDetalle } from '../../shared/models/domicilio.model';
 import {
   mockDomicilioBody,
   mockDomicilioRespone,
   mockDomiciliosRespone,
+  mockDomicilioUpdateBody,
+  mockDomicilioUpdateResponse,
 } from './../../shared/mocks/domicilio.mock';
 import { DomicilioService } from './domicilio.service';
 import { HandleErrorService } from './handle-error.service';
@@ -58,27 +61,48 @@ describe('DomicilioService', () => {
 
     it('should GET domicilios with query params', () => {
       const mockResponse = mockDomiciliosRespone;
-      const params = { filter: 'test' };
+      service
+        .getDomicilios({
+          direccion: 'Carrera',
+          telefono: '3006543210',
+          fecha: '2024-12-30',
+          estado: estadoDomicilio.EN_CAMINO,
+          updated_by: 'admin',
+          trabajador: 1015466495,
+        })
+        .subscribe((response) => {
+          expect(response).toEqual(mockResponse);
+        });
 
-      service.getDomicilios(params).subscribe((response) => {
-        expect(response).toEqual(mockResponse);
-      });
-
-      const req = httpMock.expectOne(
-        (req) => req.url === baseUrl && req.params.get('filter') === 'test',
-      );
+      const req = httpMock.expectOne((req) => req.url === baseUrl);
       expect(req.request.method).toBe('GET');
+      expect(req.request.params.get('direccion')).toBe('Carrera');
+      expect(req.request.params.get('telefono')).toBe('3006543210');
+      expect(req.request.params.get('fecha')).toBe('2024-12-30');
+      expect(req.request.params.get('estado')).toBe('EN_CAMINO');
+      expect(req.request.params.get('updated_by')).toBe('admin');
+      expect(req.request.params.get('trabajador')).toBe('1015466495');
       req.flush(mockResponse);
     });
 
+    it('should omit null/undefined filters', () => {
+      service
+        .getDomicilios({ direccion: undefined, fecha: null as unknown as string, telefono: '1' })
+        .subscribe();
+      const req = httpMock.expectOne((req) => req.url === baseUrl);
+      expect(req.request.params.keys()).toEqual(['telefono']);
+      req.flush(mockDomiciliosRespone);
+    });
+
     it('should handle error when GET domicilios', () => {
-      const params = { filter: 'test' };
-      service.getDomicilios(params).subscribe({
+      service.getDomicilios({ direccion: 'test' }).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();
         },
       });
-      const req = httpMock.expectOne((r) => r.url === baseUrl && r.params.get('filter') === 'test');
+      const req = httpMock.expectOne(
+        (r) => r.url === baseUrl && r.params.get('direccion') === 'test',
+      );
       req.error(new ErrorEvent('API error'));
       expect(mockHandleErrorService.handleError).toHaveBeenCalled();
     });
@@ -87,7 +111,24 @@ describe('DomicilioService', () => {
   describe('getDomicilioById', () => {
     it('should GET a domicilio by id', () => {
       const id = 1;
-      const mockResponse = mockDomicilioRespone;
+      const mockResponse: ApiResponse<DomicilioDetalle> = {
+        code: 200,
+        message: 'Domicilio encontrado',
+        data: {
+          domicilio: mockDomicilioRespone.data,
+          cliente: { documento: 1015466495, nombre: 'Ana', apellido: 'Gómez' },
+          pedido: {
+            pedidoId: 3,
+            pagoId: null,
+            montoPago: 0,
+            subtotalProductos: 6000,
+            total: 6000,
+            productos: [
+              { pk_id_producto: 7, nombre: 'Arepa', cantidad: 2, precio: 3000, subtotal: 6000 },
+            ],
+          },
+        },
+      };
 
       service.getDomicilioById(id).subscribe((response) => {
         expect(response).toEqual(mockResponse);
@@ -141,11 +182,8 @@ describe('DomicilioService', () => {
   describe('updateDomicilio', () => {
     it('should PUT updated domicilio', () => {
       const id = 1;
-      const updatedData: DomicilioRequest = {
-        ...mockDomicilioBody,
-        direccion: 'Nueva Direccion',
-      };
-      const mockResponse = mockDomicilioRespone;
+      const updatedData = { ...mockDomicilioUpdateBody, direccion: 'Nueva Direccion' };
+      const mockResponse = mockDomicilioUpdateResponse;
 
       service.updateDomicilio(id, updatedData).subscribe((response) => {
         expect(response).toEqual(mockResponse);
@@ -159,7 +197,7 @@ describe('DomicilioService', () => {
 
     it('should handle error when PUT domicilio', () => {
       const id = 1;
-      const updatedData: Partial<DomicilioRequest> = { direccion: 'Dir' };
+      const updatedData = { direccion: 'Dir' };
       service.updateDomicilio(id, updatedData).subscribe({
         error: (error) => {
           expect(error).toBeTruthy();
@@ -174,10 +212,10 @@ describe('DomicilioService', () => {
   describe('deleteDomicilio', () => {
     it('should DELETE a domicilio', () => {
       const id = 1;
-      const mockResponse: ApiResponse<any> = {
+      const mockResponse: ApiResponse<undefined> = {
         code: 200,
-        message: 'Deleted',
-        data: null,
+        message: 'Domicilio eliminado',
+        data: undefined,
       };
 
       service.deleteDomicilio(id).subscribe((response) => {

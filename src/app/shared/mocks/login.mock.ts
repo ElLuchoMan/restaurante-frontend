@@ -13,6 +13,8 @@ export const mockLoginResponse: ApiResponse<LoginResponse> = {
     token: 'testToken', // mantener compatibilidad hacia atrás
     access_token: 'testAccessToken',
     refresh_token: 'testRefreshToken',
+    token_type: 'Bearer',
+    expires_in: '1800',
     nombre: 'Test User',
   },
 };

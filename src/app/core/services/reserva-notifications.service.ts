@@ -15,7 +15,14 @@ export class ReservaNotificationsService {
     private userService: UserService,
   ) {}
 
-  private formatDateTime(fechaISO?: string, hora?: string): { fecha: string; hora: string } {
+  /** El backend devuelve las fechas como DD-MM-YYYY; los requests usan YYYY-MM-DD. */
+  private normalizarFecha(fecha?: string): string | undefined {
+    const m = fecha ? /^(\d{2})-(\d{2})-(\d{4})$/.exec(fecha) : null;
+    return m ? `${m[3]}-${m[2]}-${m[1]}` : fecha;
+  }
+
+  private formatDateTime(fechaRaw?: string, hora?: string): { fecha: string; hora: string } {
+    const fechaISO = this.normalizarFecha(fechaRaw);
     try {
       const base = fechaISO ? `${fechaISO}T${hora || '00:00:00'}` : undefined;
       const d = base ? new Date(base) : new Date();
@@ -30,7 +37,7 @@ export class ReservaNotificationsService {
       }).format(d);
       return { fecha, hora: horaTxt };
     } catch {
-      return { fecha: fechaISO || '', hora: hora || '' };
+      return { fecha: fechaRaw || '', hora: hora || '' };
     }
   }
 

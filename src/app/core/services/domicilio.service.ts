@@ -4,9 +4,19 @@ import { catchError, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Domicilio, DomicilioDetalle, DomicilioRequest } from '../../shared/models/domicilio.model';
+import {
+  Domicilio,
+  DomicilioCreate,
+  DomicilioDetalle,
+  DomicilioListParams,
+  DomicilioUpdate,
+} from '../../shared/models/domicilio.model';
 import { HandleErrorService } from './handle-error.service';
 
+/**
+ * Cliente de `/domicilios` (requiere token). Cuando no hay resultados o el registro no existe,
+ * el back responde HTTP 200 con `code: 404` y sin `data`.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -19,23 +29,27 @@ export class DomicilioService {
   ) {}
 
   /**
-   * Obtiene todos los domicilios según filtros
-   * @param params
-   * @returns
+   * GET /domicilios con filtros opcionales (se omiten los `undefined`/`null`).
    */
-  getDomicilios(params?: any): Observable<ApiResponse<Domicilio[]>> {
+  getDomicilios(params?: DomicilioListParams): Observable<ApiResponse<Domicilio[] | undefined>> {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) httpParams = httpParams.set(k, String(v));
+      });
+    }
     return this.http
-      .get<ApiResponse<Domicilio[]>>(this.baseUrl, { params })
+      .get<ApiResponse<Domicilio[] | undefined>>(this.baseUrl, { params: httpParams })
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * Obtiene un domicilio por ID.
+   * GET /domicilios/search?id=. Incluye cliente y resumen del pedido si existen.
    * @param id ID del domicilio
    */
-  getDomicilioById(id: number): Observable<ApiResponse<DomicilioDetalle>> {
+  getDomicilioById(id: number): Observable<ApiResponse<DomicilioDetalle | undefined>> {
     return this.http
-      .get<ApiResponse<DomicilioDetalle>>(`${this.baseUrl}/search?id=${id}`)
+      .get<ApiResponse<DomicilioDetalle | undefined>>(`${this.baseUrl}/search?id=${id}`)
       .pipe(catchError(this.handleError.handleError));
   }
 
@@ -43,23 +57,23 @@ export class DomicilioService {
    * Crea un nuevo domicilio.
    * @param domicilio Datos del domicilio a crear
    */
-  createDomicilio(domicilio: DomicilioRequest): Observable<ApiResponse<Domicilio>> {
+  createDomicilio(domicilio: DomicilioCreate): Observable<ApiResponse<Domicilio>> {
     return this.http
       .post<ApiResponse<Domicilio>>(this.baseUrl, domicilio)
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * Actualiza un domicilio existente.
+   * Actualiza un domicilio existente. El back solo aplica `direccion`, `telefono` y `updatedBy`.
    * @param id ID del domicilio
    * @param domicilio Datos actualizados
    */
   updateDomicilio(
     id: number,
-    domicilio: Partial<DomicilioRequest>,
-  ): Observable<ApiResponse<Domicilio>> {
+    domicilio: DomicilioUpdate,
+  ): Observable<ApiResponse<Domicilio | undefined>> {
     return this.http
-      .put<ApiResponse<Domicilio>>(`${this.baseUrl}?id=${id}`, domicilio)
+      .put<ApiResponse<Domicilio | undefined>>(`${this.baseUrl}?id=${id}`, domicilio)
       .pipe(catchError(this.handleError.handleError));
   }
 
@@ -67,13 +81,15 @@ export class DomicilioService {
    * Elimina un domicilio por ID.
    * @param id ID del domicilio
    */
-  deleteDomicilio(id: number): Observable<ApiResponse<any>> {
+  deleteDomicilio(id: number): Observable<ApiResponse<undefined>> {
     return this.http
-      .delete<ApiResponse<any>>(`${this.baseUrl}?id=${id}`)
+      .delete<ApiResponse<undefined>>(`${this.baseUrl}?id=${id}`)
       .pipe(catchError(this.handleError.handleError));
   }
+
   /**
-   * Asigna un domiciliario a un domicilio
+   * Asigna un domiciliario a un domicilio (lo pasa a EN_CAMINO). Responde 409 si ya estaba
+   * asignado y 404 si no existe. `data` es un domicilio parcial (solo estado y trabajador).
    * @param domicilioId
    * @param trabajadorId
    */

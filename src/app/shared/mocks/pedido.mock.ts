@@ -1,65 +1,60 @@
 import { EstadoPedido } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
-import { Pedido, PedidoDetalle } from '../models/pedido.model';
+import { Pedido, PedidoCreate, PedidoDetalle } from '../models/pedido.model';
 
+// Formas reales del back: fechaPedido DD-MM-YYYY, horaPedido HH:MM:SS y relaciones como objetos.
 export const mockPedidosResponse: ApiResponse<Pedido[]> = {
   code: 200,
-  message: 'Pedidos encontrados.',
+  message: 'Pedidos obtenidos exitosamente',
   data: [
     {
-      fechaPedido: '2024-12-25',
-      createdAt: '',
-      updatedAt: '0001-01-01 00:00:00',
+      fechaPedido: '25-12-2024',
+      updatedAt: '25-12-2024 12:05:00',
       pedidoId: 1,
       horaPedido: '12:00:00',
       delivery: true,
       estadoPedido: EstadoPedido.EstadoPedidoTerminado,
-      domicilioId: 1,
-      pagoId: 1,
-      restauranteId: 1,
-      updatedBy: '',
+      domicilioId: { domicilioId: 1 },
+      pagoId: { pagoId: 1 },
+      restauranteId: { restauranteId: 1 },
+      documentoCliente: null,
     },
     {
-      fechaPedido: '2024-12-30',
-      createdAt: '',
-      updatedAt: '0001-01-01 00:00:00',
+      fechaPedido: '30-12-2024',
+      updatedAt: '30-12-2024 14:10:00',
       pedidoId: 2,
       horaPedido: '14:10:00',
       delivery: false,
       estadoPedido: EstadoPedido.EstadoPedidoIniciado,
-      pagoId: 2,
-      restauranteId: 1,
-      updatedBy: '',
+      pagoId: { pagoId: 2 },
+      restauranteId: { restauranteId: 1 },
+      documentoCliente: { documentoCliente: 1015466495 },
     },
     {
-      fechaPedido: '2024-12-30',
-      createdAt: '',
-      updatedAt: '0001-01-01 00:00:00',
+      fechaPedido: '30-12-2024',
+      updatedAt: '30-12-2024 14:30:00',
       pedidoId: 3,
       horaPedido: '14:30:00',
       delivery: true,
       estadoPedido: EstadoPedido.EstadoPedidoIniciado,
-      domicilioId: 2,
-      pagoId: 2,
-      restauranteId: 1,
-      updatedBy: '',
+      domicilioId: { domicilioId: 2 },
+      pagoId: { pagoId: 2 },
+      restauranteId: { restauranteId: 1 },
+      documentoCliente: null,
     },
   ],
 };
-export const mockPedidoBody: Pedido = {
-  fechaPedido: '2024-12-30',
-  horaPedido: '14:30:00',
+
+export const mockPedidoBody: PedidoCreate = {
   delivery: true,
-  estadoPedido: EstadoPedido.EstadoPedidoIniciado,
-  domicilioId: 2,
-  pagoId: 2,
   restauranteId: 1,
-  createdAt: '',
+  documentoCliente: 1015466495,
+  pk_id_domicilio: 2,
 };
 
 export const mockPedidoDetalle: ApiResponse<PedidoDetalle> = {
   code: 200,
-  message: 'Detalle de pedido encontrado',
+  message: 'Detalles del pedido obtenidos exitosamente',
   data: {
     pedidoId: 1,
     fechaPedido: '2024-12-25',
@@ -68,7 +63,7 @@ export const mockPedidoDetalle: ApiResponse<PedidoDetalle> = {
     estadoPedido: EstadoPedido.EstadoPedidoTerminado,
     metodoPago: 'Nequi',
     productos:
-      '[{"nombre": "Coca Cola 500ml", "cantidad": 1, "subtotal": 2000, "productoId": 1, "precioUnitario": 2000}]',
+      '[{"pk_id_producto": 1, "nombre": "Coca Cola 500ml", "cantidad": 1, "precio": 2000, "subtotal": 2000}]',
     pagoId: 1,
     metodoPagoId: 1,
     domicilioId: 1,
@@ -78,26 +73,19 @@ export const mockPedidoDetalle: ApiResponse<PedidoDetalle> = {
 
 export const mockPedidosFiltroResponse: ApiResponse<Pedido[]> = {
   code: 200,
-  message: 'Filtrado ok',
+  message: 'Pedidos obtenidos exitosamente',
   data: [
     {
-      fechaPedido: '2025-09-15',
-      createdAt: '',
-      updatedAt: '',
+      fechaPedido: '15-09-2025',
+      updatedAt: '15-09-2025 21:00:00',
       pedidoId: 9,
       horaPedido: '21:00:00',
       delivery: true,
-      estadoPedido: 'PENDIENTE',
-      domicilioId: 1,
-      pagoId: 1,
-      restauranteId: 1,
-      updatedBy: '',
+      estadoPedido: EstadoPedido.EstadoPedidoIniciado,
+      domicilioId: { domicilioId: 1 },
+      pagoId: { pagoId: 1 },
+      restauranteId: { restauranteId: 1 },
+      documentoCliente: null,
     },
   ],
 };
-
-export const mockPedidoUpdateBody: Partial<Pedido> = {
-  delivery: true,
-};
-
-export const mockPedidoDeleteResponse = { code: 200, message: 'Pedido eliminado', data: {} };

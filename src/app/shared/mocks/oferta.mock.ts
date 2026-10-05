@@ -9,13 +9,13 @@ export const mockOfertaMartes: ApiResponse<Oferta> = {
     titulo: 'Martes de Gaseosas',
     tipoDescuento: 'PORCENTAJE',
     valorDescuento: 30,
-    fechaInicio: '2025-01-01',
-    fechaFin: '2025-12-31',
+    // JSON real del back: fechas `DD-MM-YYYY`, horas ausentes si no hay horario y la FK de
+    // restaurante serializada como objeto.
+    fechaInicio: '01-01-2025',
+    fechaFin: '31-12-2025',
     diasSemana: ['Martes'],
-    horaInicio: null,
-    horaFin: null,
     activo: true,
-    restauranteId: 1,
+    restauranteId: { restauranteId: 1 },
   },
 };
 

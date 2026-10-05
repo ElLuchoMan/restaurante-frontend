@@ -150,9 +150,8 @@ export class CrearProductoComponent implements OnInit {
 
               // Buscar y asignar nombre de categoría
               const categoriaId =
-                typeof subcategoria.categoriaId === 'object' &&
-                'categoriaId' in subcategoria.categoriaId
-                  ? (subcategoria.categoriaId as any).categoriaId
+                typeof subcategoria.categoriaId === 'object'
+                  ? subcategoria.categoriaId.categoriaId
                   : subcategoria.categoriaId;
 
               const categoria = this.categorias.find((cat) => cat.categoriaId === categoriaId);
@@ -189,9 +188,7 @@ export class CrearProductoComponent implements OnInit {
       if (categoria?.categoriaId) {
         this.subcategoriasFiltradas = this.subcategorias.filter((sub) => {
           const subCatId =
-            typeof sub.categoriaId === 'object' && 'categoriaId' in sub.categoriaId
-              ? (sub.categoriaId as any).categoriaId
-              : sub.categoriaId;
+            typeof sub.categoriaId === 'object' ? sub.categoriaId.categoriaId : sub.categoriaId;
           return subCatId === categoria.categoriaId;
         });
       }

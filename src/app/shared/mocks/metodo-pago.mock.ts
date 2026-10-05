@@ -1,5 +1,5 @@
 import { ApiResponse } from '../models/api-response.model';
-import { MetodosPago } from '../models/metodo-pago.model';
+import { MetodoPagoCreate, MetodoPagoUpdate, MetodosPago } from '../models/metodo-pago.model';
 
 export const mockMetodoPagoRespone: ApiResponse<MetodosPago> = {
   code: 200,
@@ -31,7 +31,7 @@ export const mockMetodosPagoRespone: ApiResponse<MetodosPago[]> = {
     },
   ],
 };
-export const mockMetodoPagoBody: MetodosPago = {
+export const mockMetodoPagoBody: MetodoPagoCreate = {
   tipo: 'Nequi',
   detalle: '3042449339',
 };
@@ -42,7 +42,8 @@ export const mockMetodoPagoCreateResponse: ApiResponse<MetodosPago> = {
   data: { metodoPagoId: 4, tipo: 'Nequi', detalle: '3000000000' },
 };
 
-export const mockMetodoPagoUpdateBody: Partial<MetodosPago> = {
+export const mockMetodoPagoUpdateBody: MetodoPagoUpdate = {
+  tipo: 'Nequi',
   detalle: '3000000000',
 };
 

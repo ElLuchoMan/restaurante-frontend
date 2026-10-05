@@ -1,12 +1,16 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Pago, PagoCreate, PagoUpdate } from '../../shared/models/pago.model';
+import { Pago, PagoCreate, PagoListParams, PagoUpdate } from '../../shared/models/pago.model';
 import { HandleErrorService } from './handle-error.service';
 
+/**
+ * Cliente de `/pagos` (requiere token). Cuando no hay resultados o el pago no existe, el back
+ * responde HTTP 200 con `code: 404` y sin `data`.
+ */
 @Injectable({ providedIn: 'root' })
 export class PagoService {
   private baseUrl = `${environment.apiUrl}/pagos`;
@@ -22,27 +26,34 @@ export class PagoService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getPagos(params?: any): Observable<ApiResponse<Pago[]>> {
+  /** GET /pagos con filtros opcionales (se omiten los `undefined`/`null`). */
+  getPagos(params?: PagoListParams): Observable<ApiResponse<Pago[] | undefined>> {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) httpParams = httpParams.set(k, String(v));
+      });
+    }
     return this.http
-      .get<ApiResponse<Pago[]>>(this.baseUrl, { params })
+      .get<ApiResponse<Pago[] | undefined>>(this.baseUrl, { params: httpParams })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getPagoById(id: number): Observable<ApiResponse<Pago>> {
+  getPagoById(id: number): Observable<ApiResponse<Pago | undefined>> {
     return this.http
-      .get<ApiResponse<Pago>>(`${this.baseUrl}/search?id=${id}`)
+      .get<ApiResponse<Pago | undefined>>(`${this.baseUrl}/search?id=${id}`)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  updatePago(id: number, payload: PagoUpdate): Observable<ApiResponse<Pago>> {
+  updatePago(id: number, payload: PagoUpdate): Observable<ApiResponse<Pago | undefined>> {
     return this.http
-      .put<ApiResponse<Pago>>(`${this.baseUrl}?id=${id}`, payload)
+      .put<ApiResponse<Pago | undefined>>(`${this.baseUrl}?id=${id}`, payload)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  deletePago(id: number): Observable<ApiResponse<any>> {
+  deletePago(id: number): Observable<ApiResponse<undefined>> {
     return this.http
-      .delete<ApiResponse<any>>(`${this.baseUrl}?id=${id}`)
+      .delete<ApiResponse<undefined>>(`${this.baseUrl}?id=${id}`)
       .pipe(catchError(this.handleError.handleError));
   }
 }

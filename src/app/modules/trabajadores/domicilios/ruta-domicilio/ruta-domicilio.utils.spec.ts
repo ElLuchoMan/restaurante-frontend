@@ -104,6 +104,19 @@ describe('ruta-domicilio.utils', () => {
       });
     });
 
+    it('mapea las claves reales del back (pk_id_producto, precio, subtotal)', () => {
+      const res = normalizeProductos(
+        '[{"pk_id_producto":7,"nombre":"Arepa","cantidad":2,"precio":3000,"subtotal":6000}]',
+      );
+      expect(res[0]).toEqual({
+        nombre: 'Arepa',
+        cantidad: 2,
+        precioUnitario: 3000,
+        subtotal: 6000,
+        productoId: 7,
+      });
+    });
+
     it('devuelve [] para JSON inválido o no array', () => {
       expect(normalizeProductos('{invalid')).toEqual([]);
       expect(normalizeProductos('{"a":1}')).toEqual([]);

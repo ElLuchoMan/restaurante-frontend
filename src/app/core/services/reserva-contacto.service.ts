@@ -19,7 +19,7 @@ export class ReservaContactoService {
   getContactos(params?: {
     documento_contacto?: number;
     documento_cliente?: number;
-  }): Observable<ApiResponse<ReservaContacto[]>> {
+  }): Observable<ApiResponse<ReservaContacto[] | null>> {
     let httpParams = new HttpParams();
     if (params?.documento_contacto)
       httpParams = httpParams.set('documento_contacto', String(params.documento_contacto));
@@ -27,16 +27,18 @@ export class ReservaContactoService {
       httpParams = httpParams.set('documento_cliente', String(params.documento_cliente));
 
     return this.http
-      .get<ApiResponse<ReservaContacto[]>>(`${this.baseUrl}/reserva_contacto`, {
+      .get<ApiResponse<ReservaContacto[] | null>>(`${this.baseUrl}/reserva_contacto`, {
         params: httpParams,
       })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getById(id: number): Observable<ApiResponse<ReservaContacto>> {
+  getById(id: number): Observable<ApiResponse<ReservaContacto | undefined>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .get<ApiResponse<ReservaContacto>>(`${this.baseUrl}/reserva_contacto/search`, { params })
+      .get<ApiResponse<ReservaContacto | undefined>>(`${this.baseUrl}/reserva_contacto/search`, {
+        params,
+      })
       .pipe(catchError(this.handleError.handleError));
   }
 }

@@ -155,6 +155,11 @@ describe('ConsultarReservaComponent', () => {
       1,
       expect.objectContaining({ estadoReserva: estadoReserva.CONFIRMADA }),
     );
+    // El backend ignora contactoId/restauranteId en el PUT: no se envían (eran objetos embebidos)
+    const payload = reservaService.actualizarReserva.mock.calls[0][1];
+    expect(payload).not.toHaveProperty('contactoId');
+    expect(payload).not.toHaveProperty('restauranteId');
+    expect(payload.fechaReserva).toBe('2025-01-01');
     expect(toastr.success).toHaveBeenCalledWith(
       'Reserva marcada como CONFIRMADA',
       'Actualización Exitosa',
@@ -230,9 +235,9 @@ describe('ConsultarReservaComponent', () => {
 
     expect(component.reservas.map((r) => ({ fecha: r.fechaReserva, hora: r.horaReserva }))).toEqual(
       [
-        { fecha: '2025-01-02', hora: '16:00:00' },
-        { fecha: '2025-01-01', hora: '18:00:00' },
-        { fecha: '2025-01-01', hora: '14:00:00' },
+        { fecha: '02-01-2025', hora: '16:00:00' },
+        { fecha: '01-01-2025', hora: '18:00:00' },
+        { fecha: '01-01-2025', hora: '14:00:00' },
       ],
     );
   });
@@ -589,7 +594,7 @@ describe('ConsultarReservaComponent', () => {
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(component.reservas).toHaveLength(3);
-    expect(component.reservas[0].fechaReserva).toBe('2025-01-02');
+    expect(component.reservas[0].fechaReserva).toBe('02-01-2025');
     expect(component.reservas[1].horaReserva).toBe('18:00:00');
   });
 
@@ -843,7 +848,7 @@ describe('ConsultarReservaComponent', () => {
         contactoId: 1,
         nombreCompleto: 'Nombre',
         telefono: '3001234567',
-        documentoCliente: 987654321,
+        documentoCliente: { documentoCliente: 987654321 },
       },
     };
 
@@ -1148,7 +1153,7 @@ describe('ConsultarReservaComponent', () => {
     it('documento: conserva documentoCliente existente', async () => {
       const r = await buscarPorDocumentoCon(
         { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1, documentoCliente: 55 },
-        infoResp({ nombreCompleto: 'A', telefono: '1', documentoCliente: 9 }),
+        infoResp({ nombreCompleto: 'A', telefono: '1', documentoCliente: { documentoCliente: 9 } }),
       );
       expect(r.documentoCliente).toBe(55);
     });
@@ -1162,7 +1167,7 @@ describe('ConsultarReservaComponent', () => {
           contactoId: 1,
           documentoCliente: null,
         },
-        infoResp({ nombreCompleto: 'A', telefono: '1', documentoCliente: 9 }),
+        infoResp({ nombreCompleto: 'A', telefono: '1', documentoCliente: { documentoCliente: 9 } }),
       );
       expect(r.documentoCliente).toBe(9);
     });

@@ -4,8 +4,10 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import {
   mockTrabajadorBody,
+  mockTrabajadorDeleteResponse,
   mockTrabajadorRegisterResponse,
   mockTrabajadorResponse,
+  mockTrabajadorUpdateBody,
 } from '../../shared/mocks/trabajador.mock';
 import { HandleErrorService } from './handle-error.service';
 import { TrabajadorService } from './trabajador.service';
@@ -131,9 +133,9 @@ describe('TrabajadorService', () => {
   describe('updateTrabajador', () => {
     it('should PUT partial trabajador', () => {
       const documento = mockTrabajadorResponse.data.documentoTrabajador;
-      const partial = { telefono: '3000000000' } as any;
+      const partial = mockTrabajadorUpdateBody;
       service.updateTrabajador(documento, partial).subscribe((res) => {
-        expect(res).toBeTruthy();
+        expect(res.data?.documentoTrabajador).toBe(documento);
       });
       const req = httpMock.expectOne(`${baseUrl}/trabajadores?id=${documento}`);
       expect(req.request.method).toBe('PUT');
@@ -145,13 +147,31 @@ describe('TrabajadorService', () => {
   describe('deleteTrabajador', () => {
     it('should DELETE a trabajador by documento', () => {
       const documento = mockTrabajadorResponse.data.documentoTrabajador;
-      const mockResponse = { code: 200, message: 'ok', data: {} } as any;
       service.deleteTrabajador(documento).subscribe((res) => {
-        expect(res).toEqual(mockResponse);
+        expect(res).toEqual(mockTrabajadorDeleteResponse);
       });
       const req = httpMock.expectOne(`${baseUrl}/trabajadores?id=${documento}`);
       expect(req.request.method).toBe('DELETE');
-      req.flush(mockResponse);
+      req.flush(mockTrabajadorDeleteResponse);
+    });
+  });
+
+  describe('respuestas sin data', () => {
+    it('searchTrabajador expone el 404 de cuerpo (HTTP 200, sin data)', () => {
+      let result: { code: number; data?: unknown } | undefined;
+      service.searchTrabajador(1).subscribe((res) => (result = res));
+      httpMock
+        .expectOne(`${baseUrl}/trabajadores/search?id=1`)
+        .flush({ code: 404, message: 'Trabajador no encontrado' });
+      expect(result?.code).toBe(404);
+      expect(result?.data).toBeUndefined();
+    });
+
+    it('getTrabajadores devuelve [] cuando data llega null', () => {
+      let result: unknown;
+      service.getTrabajadores().subscribe((res) => (result = res));
+      httpMock.expectOne(`${baseUrl}/trabajadores`).flush({ code: 200, message: 'ok', data: null });
+      expect(result).toEqual([]);
     });
   });
 

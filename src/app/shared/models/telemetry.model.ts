@@ -7,6 +7,9 @@ export type TimePeriod =
   | 'ultimo_año'
   | 'historico';
 
+// NOTA: el backend (Go/beego) devuelve `null` en vez de `[]` para las listas cuando la consulta
+// no trae filas (slice nil), por eso todas las listas de las respuestas son `T[] | null`.
+
 // Dashboard Types
 export interface DashboardData {
   totalPedidos: number;
@@ -37,8 +40,8 @@ export interface EstadisticasVentas {
 }
 
 export interface SalesData {
-  ventasPorMetodoPago: VentaPorMetodo[];
-  tendenciaVentas: VentaPorFecha[];
+  ventasPorMetodoPago: VentaPorMetodo[] | null;
+  tendenciaVentas: VentaPorFecha[] | null;
   estadisticasGenerales: EstadisticasVentas;
 }
 
@@ -59,14 +62,14 @@ export interface EstadisticasProductos {
 }
 
 export interface ProductsData {
-  productosMasVendidos: ProductoVendido[];
-  productosMenosVendidos: ProductoVendido[];
+  productosMasVendidos: ProductoVendido[] | null;
+  productosMenosVendidos: ProductoVendido[] | null;
   estadisticasProductos: EstadisticasProductos;
 }
 
 // Productos Populares Types (Endpoint Público)
 export interface ProductosPopularesData {
-  productosPopulares: ProductoVendido[];
+  productosPopulares: ProductoVendido[] | null;
 }
 
 // Users Types
@@ -93,8 +96,8 @@ export interface EstadisticasUsuarios {
 }
 
 export interface UsersData {
-  usuariosFrecuentes: UsuarioFrecuente[];
-  usuariosInactivos: UsuarioInactivo[];
+  usuariosFrecuentes: UsuarioFrecuente[] | null;
+  usuariosInactivos: UsuarioInactivo[] | null;
   estadisticasUsuarios: EstadisticasUsuarios;
 }
 
@@ -118,9 +121,9 @@ export interface VentaPorMes {
 }
 
 export interface TimeAnalysisData {
-  ventasPorHora: VentaPorHora[];
-  ventasPorDiaSemana: VentaPorDiaSemana[];
-  ventasPorMes: VentaPorMes[];
+  ventasPorHora: VentaPorHora[] | null;
+  ventasPorDiaSemana: VentaPorDiaSemana[] | null;
+  ventasPorMes: VentaPorMes[] | null;
 }
 
 // Rentabilidad Types
@@ -143,8 +146,8 @@ export interface EstadisticasRentabilidad {
 }
 
 export interface RentabilidadData {
-  productosRentables: ProductoRentabilidad[];
-  productosMenosRentables: ProductoRentabilidad[];
+  productosRentables: ProductoRentabilidad[] | null;
+  productosMenosRentables: ProductoRentabilidad[] | null;
   estadisticasRentabilidad: EstadisticasRentabilidad;
 }
 
@@ -172,10 +175,10 @@ export interface EstadisticasSegmentacion {
 }
 
 export interface SegmentacionData {
-  clientesVIP: ClienteSegmento[];
-  clientesRegulares: ClienteSegmento[];
-  clientesOcasionales: ClienteSegmento[];
-  clientesNuevos: ClienteSegmento[];
+  clientesVIP: ClienteSegmento[] | null;
+  clientesRegulares: ClienteSegmento[] | null;
+  clientesOcasionales: ClienteSegmento[] | null;
+  clientesNuevos: ClienteSegmento[] | null;
   estadisticasSegmentacion: EstadisticasSegmentacion;
 }
 
@@ -217,9 +220,9 @@ export interface EstadisticasEficiencia {
 }
 
 export interface EficienciaData {
-  tiemposEntrega: TiempoEntrega[];
-  rendimientoTrabajadores: RendimientoTrabajador[];
-  analisisPorHora: EficienciaPorHora[];
+  tiemposEntrega: TiempoEntrega[] | null;
+  rendimientoTrabajadores: RendimientoTrabajador[] | null;
+  analisisPorHora: EficienciaPorHora[] | null;
   estadisticasEficiencia: EstadisticasEficiencia;
 }
 
@@ -257,9 +260,9 @@ export interface EstadisticasReservas {
 }
 
 export interface ReservasAnalisisData {
-  reservasPorDia: ReservaPorDia[];
-  reservasPorHora: ReservaPorHora[];
-  reservasPorDiaSemana: ReservaPorDiaSemana[];
+  reservasPorDia: ReservaPorDia[] | null;
+  reservasPorHora: ReservaPorHora[] | null;
+  reservasPorDiaSemana: ReservaPorDiaSemana[] | null;
   estadisticasReservas: EstadisticasReservas;
 }
 
@@ -297,152 +300,23 @@ export interface EstadisticasPedidos {
 }
 
 export interface PedidosAnalisisData {
-  pedidosPorDia: PedidoPorDia[];
-  pedidosPorHora: PedidoPorHora[];
-  pedidosPorDiaSemana: PedidoPorDiaSemana[];
+  pedidosPorDia: PedidoPorDia[] | null;
+  pedidosPorHora: PedidoPorHora[] | null;
+  pedidosPorDiaSemana: PedidoPorDiaSemana[] | null;
   estadisticasPedidos: EstadisticasPedidos;
 }
 
-// **🆕 NUEVOS TIPOS PARA LOS 5 DASHBOARDS FALTANTES**
+// Endpoints públicos (sin token)
+/** GET /estados-pedidos: conteo por estado + clave sintética NO_FINALIZADOS. */
+export type EstadosPedidosData = Record<string, number>;
 
-// Rentabilidad Types
-export interface ProductoRentabilidad {
+/** GET /productos-disponibles: `data` es un array (null si no hay productos). */
+export interface ProductoDisponible {
   productoId: number;
   nombreProducto: string;
-  precioVenta: number;
-  cantidadVendida: number;
-  ingresoTotal: number;
-  margenGanancia: number;
-  gananciaTotal: number;
-}
-
-export interface EstadisticasRentabilidad {
-  margenPromedioGeneral: number;
-  productoMasRentable: string;
-  productoMenosRentable: string;
-  totalGanancias: number;
-  totalIngresos: number;
-}
-
-export interface RentabilidadData {
-  productosRentables: ProductoRentabilidad[];
-  productosMenosRentables: ProductoRentabilidad[];
-  estadisticasRentabilidad: EstadisticasRentabilidad;
-}
-
-// Segmentación Types
-export interface ClienteSegmento {
-  documentoCliente: number;
-  nombreCompleto: string;
-  totalPedidos: number;
-  totalGastado: number;
-  promedioGasto: number;
-  ultimoPedido: string;
-  diasSinPedir: number;
-  segmento: string;
-  valorVida: number;
-}
-
-export interface EstadisticasSegmentacion {
-  totalClientesVIP: number;
-  totalClientesRegulares: number;
-  totalClientesOcasionales: number;
-  totalClientesNuevos: number;
-  promedioGastoVIP: number;
-  promedioGastoRegular: number;
-  porcentajeVIP: number;
-}
-
-export interface SegmentacionData {
-  clientesVIP: ClienteSegmento[];
-  clientesRegulares: ClienteSegmento[];
-  clientesOcasionales: ClienteSegmento[];
-  clientesNuevos: ClienteSegmento[];
-  estadisticasSegmentacion: EstadisticasSegmentacion;
-}
-
-// Eficiencia Types
-export interface TiempoEntrega {
-  pedidoId: number;
-  cliente: string;
-  fechaPedido: string;
-  horaPedido: string;
-  tiempoPreparacion: number;
-  estadoPedido: string;
-  trabajadorAsignado: string;
-}
-
-export interface RendimientoTrabajador {
-  documentoTrabajador: number;
-  nombreTrabajador: string;
-  pedidosAtendidos: number;
-  tiempoPromedioAtencion: number;
-  eficienciaScore: number;
-  horasTrabajadas: number;
-}
-
-export interface AnalisisPorHora {
-  hora: string;
-  pedidosRecibidos: number;
-  tiempoPromedioPrep: number;
-  capacidadUtilizada: number;
-  nivelEficiencia: string;
-}
-
-export interface EstadisticasEficiencia {
-  tiempoPromedioGeneral: number;
-  horaMasEficiente: string;
-  horaMenosEficiente: string;
-  trabajadorMasEficiente: string;
-  capacidadPromedioUso: number;
-  pedidosPendientes: number;
-}
-
-export interface EficienciaData {
-  tiemposEntrega: TiempoEntrega[];
-  rendimientoTrabajadores: RendimientoTrabajador[];
-  analisisPorHora: AnalisisPorHora[];
-  estadisticasEficiencia: EstadisticasEficiencia;
-}
-
-// Reservas Analysis Types
-export interface ReservaPorDia {
-  fecha: string;
-  totalReservas: number;
-  reservasCompletadas: number;
-  totalPersonas: number;
-  porcentajeCompletado: number;
-}
-
-export interface ReservaPorHora {
-  hora: string;
-  totalReservas: number;
-  reservasCompletadas: number;
-  totalPersonas: number;
-  porcentajeCompletado: number;
-}
-
-export interface ReservaPorDiaSemana {
-  diaSemana: string;
-  totalReservas: number;
-  reservasCompletadas: number;
-  totalPersonas: number;
-  porcentajeCompletado: number;
-}
-
-export interface EstadisticasReservas {
-  totalReservasCompletadas: number;
-  diaMasReservas: string;
-  horaMasReservas: string;
-  promedioPersonasPorReserva: number;
-  tasaCompletamiento: number;
-}
-
-export interface ReservasAnalisisData {
-  reservasPorDia: ReservaPorDia[];
-  reservasPorHora: ReservaPorHora[];
-  reservasPorDiaSemana: ReservaPorDiaSemana[];
-  estadisticasReservas: EstadisticasReservas;
+  precio: number;
+  estado: string;
+  totalVendido: number;
 }
 
 // Service Parameters - Filtros Temporales Avanzados

@@ -15,21 +15,23 @@ export class ControlNominaService {
     private handleError: HandleErrorService,
   ) {}
 
+  /** GET /control_nomina, filtro opcional `fecha` (YYYY-MM-DD). Sin filas `data` puede venir null. */
   list(fecha?: string): Observable<ControlNomina[]> {
     let params: HttpParams | undefined;
     if (fecha) params = new HttpParams().set('fecha', fecha);
-    return this.http.get<ApiResponse<ControlNomina[]>>(this.baseUrl, { params }).pipe(
-      map((res) => res.data),
+    return this.http.get<ApiResponse<ControlNomina[] | null>>(this.baseUrl, { params }).pipe(
+      map((res) => res.data ?? []),
       catchError(this.handleError.handleError),
     );
   }
 
-  getById(id: number): Observable<ControlNomina> {
+  /** GET /control_nomina/search?id=. Si no existe responde 200 con `code: 404` y sin `data`. */
+  getById(id: number): Observable<ControlNomina | null> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .get<ApiResponse<ControlNomina>>(`${environment.apiUrl}/control_nomina/search`, { params })
+      .get<ApiResponse<ControlNomina | undefined>>(`${this.baseUrl}/search`, { params })
       .pipe(
-        map((res) => res.data),
+        map((res) => res.data ?? null),
         catchError(this.handleError.handleError),
       );
   }

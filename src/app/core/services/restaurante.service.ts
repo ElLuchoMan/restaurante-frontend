@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable } from 'rxjs';
 
@@ -8,6 +8,11 @@ import { CambioHorario } from '../../shared/models/cambio-horario.model';
 import { Restaurante } from '../../shared/models/restaurante.model';
 import { HandleErrorService } from './handle-error.service';
 
+/**
+ * Cliente de solo lectura de `/restaurantes` (públicos, sin token). El back no expone rutas
+ * de alta, edición ni baja de restaurantes. Si el restaurante no existe responde HTTP 200 con
+ * `code: 404` y sin `data`.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -19,42 +24,22 @@ export class RestauranteService {
     private handleError: HandleErrorService,
   ) {}
 
-  getRestauranteInfo(): Observable<ApiResponse<Restaurante>> {
+  getRestauranteInfo(): Observable<ApiResponse<Restaurante | undefined>> {
     return this.http
-      .get<ApiResponse<Restaurante>>(`${this.baseUrl}/restaurantes/search?id=1`)
+      .get<ApiResponse<Restaurante | undefined>>(`${this.baseUrl}/restaurantes/search?id=1`)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getCambiosHorario(): Observable<ApiResponse<CambioHorario>> {
+  /** GET /cambios_horario/actual (público). Sin cambio para hoy: `code: 404` y sin `data`. */
+  getCambiosHorario(): Observable<ApiResponse<CambioHorario | undefined>> {
     return this.http
-      .get<ApiResponse<CambioHorario>>(`${this.baseUrl}/cambios_horario/actual`)
+      .get<ApiResponse<CambioHorario | undefined>>(`${this.baseUrl}/cambios_horario/actual`)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  // CRUD opcional según Swagger/Postman
   listRestaurantes(): Observable<ApiResponse<Restaurante[]>> {
     return this.http
       .get<ApiResponse<Restaurante[]>>(`${this.baseUrl}/restaurantes`)
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  createRestaurante(body: Partial<Restaurante>): Observable<ApiResponse<Restaurante>> {
-    return this.http
-      .post<ApiResponse<Restaurante>>(`${this.baseUrl}/restaurantes`, body)
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  updateRestaurante(id: number, body: Partial<Restaurante>): Observable<ApiResponse<Restaurante>> {
-    const params = new HttpParams().set('id', String(id));
-    return this.http
-      .put<ApiResponse<Restaurante>>(`${this.baseUrl}/restaurantes`, body, { params })
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  deleteRestaurante(id: number): Observable<ApiResponse<unknown>> {
-    const params = new HttpParams().set('id', String(id));
-    return this.http
-      .delete<ApiResponse<unknown>>(`${this.baseUrl}/restaurantes`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

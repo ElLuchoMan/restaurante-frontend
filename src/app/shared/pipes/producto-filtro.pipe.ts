@@ -25,8 +25,9 @@ export class ProductoFiltroPipe implements PipeTransform {
         !subcategoria || producto.subcategoria?.toLowerCase().includes(subcategoria.toLowerCase());
       const caloriasMatch =
         producto.calorias !== undefined &&
-        (minCalorias == null || producto.calorias >= minCalorias) &&
-        (maxCalorias == null || producto.calorias <= maxCalorias);
+        // El back envía `calorias: null` cuando no hay dato; Number(null) = 0
+        (minCalorias == null || Number(producto.calorias) >= minCalorias) &&
+        (maxCalorias == null || Number(producto.calorias) <= maxCalorias);
 
       return nombreMatch && categoriaMatch && subcategoriaMatch && caloriasMatch;
     });

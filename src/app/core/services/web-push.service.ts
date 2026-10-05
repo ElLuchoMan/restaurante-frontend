@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { SwPush } from '@angular/service-worker';
+import { firstValueFrom } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { RegistrarDispositivoRequest } from '../../shared/models/push.model';
+import { browserLocation } from '../../shared/utils/browser-location';
 import { PushService } from './push.service';
 import { UserService } from './user.service';
-import { browserLocation } from '../../shared/utils/browser-location';
 
 @Injectable({ providedIn: 'root' })
 export class WebPushService {
@@ -19,7 +21,7 @@ export class WebPushService {
    */
   private isWebBrowser(): boolean {
     if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
-    const cap: any = (window as any).Capacitor;
+    const cap = (window as unknown as { Capacitor?: { getPlatform?: unknown } }).Capacitor;
     const isCapacitor = !!(cap && typeof cap.getPlatform === 'function');
     return !isCapacitor;
   }
@@ -132,7 +134,15 @@ export class WebPushService {
       const doc = this.userService.getUserId?.();
       const isCliente = role === 'Cliente';
 
-      const payload = {
+      if (typeof doc !== 'number' || doc <= 0) {
+        // El backend exige exactamente un cliente o un trabajador: sin sesión no se registra.
+        console.warn(
+          '[WebPush] Sin sesión: registro del dispositivo diferido hasta iniciar sesión',
+        );
+        return false;
+      }
+
+      const payload: RegistrarDispositivoRequest = {
         plataforma: 'WEB' as const,
         endpoint,
         p256dh: keys['p256dh'],
@@ -142,13 +152,12 @@ export class WebPushService {
         appVersion: '1.0.0',
         userAgent: (typeof navigator !== 'undefined' && navigator.userAgent) || '',
         subscribedTopics: ['promos', 'novedades'],
-        documentoCliente: isCliente && typeof doc === 'number' ? doc : undefined,
-        documentoTrabajador: !isCliente && typeof doc === 'number' ? doc : undefined,
+        ...(isCliente ? { documentoCliente: doc } : { documentoTrabajador: doc }),
       };
 
       console.log('[WebPush] Payload a enviar:', { ...payload, endpoint: 'truncado...' });
 
-      await this.pushService.registrarDispositivo(payload).toPromise();
+      await firstValueFrom(this.pushService.registrarDispositivo(payload));
       console.log('[WebPush] ✅ Dispositivo registrado exitosamente en el backend');
 
       // Escuchar mensajes push

@@ -17,6 +17,7 @@ import { HorarioTrabajadorService } from '../../../core/services/horario-trabaja
 import { UserService } from '../../../core/services/user.service';
 import { RolTrabajador } from '../../../shared/constants';
 import { mockClienteBody, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
+import { mockHorarioTrabajadorCreateBody } from '../../../shared/mocks/horario-trabajador.mock';
 import {
   createClienteServiceMock,
   createHorarioTrabajadorServiceMock,
@@ -29,12 +30,20 @@ import {
   mockTrabajadorBody,
   mockTrabajadorRegisterResponse,
 } from '../../../shared/mocks/trabajador.mock';
+import { ApiResponse } from '../../../shared/models/api-response.model';
 import { Cliente } from '../../../shared/models/cliente.model';
+import { HorarioTrabajador } from '../../../shared/models/horario-trabajador.model';
 import { Trabajador } from '../../../shared/models/trabajador.model';
-import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
+import { fechaYYYYMMDD_Bogota } from '../../../shared/utils/dateHelper';
 import { ClienteService } from './../../../core/services/cliente.service';
 import { TrabajadorService } from './../../../core/services/trabajador.service';
 import { RegisterComponent } from './register.component';
+
+const mockHorarioCreateResponse: ApiResponse<HorarioTrabajador> = {
+  code: 201,
+  message: 'Horario creado',
+  data: { ...mockHorarioTrabajadorCreateBody },
+};
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
@@ -119,11 +128,6 @@ describe('RegisterComponent', () => {
   }));
 
   it('should register a worker successfully', fakeAsync(() => {
-    const formatDatePipe = new FormatDatePipe();
-
-    const formattedFechaIngreso = formatDatePipe.transform(new Date());
-    const formattedFechaNacimiento = formatDatePipe.transform(new Date('1990-01-01'));
-
     trabajadorService.registroTrabajador.mockReturnValue(
       of({ ...mockTrabajadorRegisterResponse, code: 201 }),
     );
@@ -153,11 +157,11 @@ describe('RegisterComponent', () => {
     tick(1000); // Give more time for final operations (toastr and navigation)
     flush(); // Process all pending timers and promises
 
+    // El back exige YYYY-MM-DD y no conoce `horario` ni `nuevo` en el alta
     expect(trabajadorService.registroTrabajador).toHaveBeenCalledWith({
       ...mockTrabajadorBody,
-      horario: 'Definido por días',
-      fechaIngreso: formattedFechaIngreso,
-      fechaNacimiento: formattedFechaNacimiento,
+      fechaIngreso: fechaYYYYMMDD_Bogota(),
+      fechaNacimiento: '1990-01-01',
     });
 
     // El flujo asíncrono puede no completarse en el test, pero verificamos que se llamó el servicio
@@ -683,9 +687,7 @@ describe('RegisterComponent', () => {
 
   describe('crearHorariosTrabajador', () => {
     it('should create horarios with general schedule', async () => {
-      horarioTrabajadorService.create.mockReturnValue(
-        of({ code: 201, message: 'Horario creado', data: {} }),
-      );
+      horarioTrabajadorService.create.mockReturnValue(of({ ...mockHorarioCreateResponse }));
       component.horarioGeneral = { horaInicio: '08:00', horaFin: '17:00' };
       component.horariosDiferentes = false;
 
@@ -696,9 +698,7 @@ describe('RegisterComponent', () => {
     });
 
     it('should create personalized horarios for specific days', async () => {
-      horarioTrabajadorService.create.mockReturnValue(
-        of({ code: 201, message: 'Horario creado', data: {} }),
-      );
+      horarioTrabajadorService.create.mockReturnValue(of({ ...mockHorarioCreateResponse }));
 
       component.horarioGeneral = { horaInicio: '08:00', horaFin: '17:00' };
       component.horariosDiferentes = true;
@@ -715,9 +715,7 @@ describe('RegisterComponent', () => {
     });
 
     it('should skip days marked as dia libre', async () => {
-      horarioTrabajadorService.create.mockReturnValue(
-        of({ code: 201, message: 'Horario creado', data: {} }),
-      );
+      horarioTrabajadorService.create.mockReturnValue(of({ ...mockHorarioCreateResponse }));
 
       component.horarioGeneral = { horaInicio: '08:00', horaFin: '17:00' };
       component.horariosDiferentes = true;

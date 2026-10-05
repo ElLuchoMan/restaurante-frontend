@@ -1,3 +1,4 @@
+import { SubcategoriaCreate, SubcategoriaUpdate } from '../../core/services/subcategoria.service';
 import { ApiResponse } from '../models/api-response.model';
 import { Subcategoria } from '../models/subcategoria.model';
 
@@ -18,7 +19,7 @@ export const mockSubcategoriaByIdResponse: ApiResponse<Subcategoria> = {
   data: { subcategoriaId: 1, nombre: 'Gaseosas', categoriaId: 1 },
 };
 
-export const mockSubcategoriaCreateBody: Subcategoria = { nombre: 'Jugos', categoriaId: 1 } as any;
+export const mockSubcategoriaCreateBody: SubcategoriaCreate = { nombre: 'Jugos', categoriaId: 1 };
 
 export const mockSubcategoriaCreateResponse: ApiResponse<Subcategoria> = {
   code: 201,
@@ -26,7 +27,7 @@ export const mockSubcategoriaCreateResponse: ApiResponse<Subcategoria> = {
   data: { subcategoriaId: 3, nombre: 'Jugos', categoriaId: 1 },
 };
 
-export const mockSubcategoriaUpdateBody: Partial<Subcategoria> = { nombre: 'Gaseosas light' };
+export const mockSubcategoriaUpdateBody: SubcategoriaUpdate = { nombre: 'Gaseosas light' };
 
 export const mockSubcategoriaDeleteResponse: ApiResponse<unknown> = {
   code: 200,

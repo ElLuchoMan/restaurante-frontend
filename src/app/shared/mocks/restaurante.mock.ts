@@ -3,27 +3,14 @@ import { Restaurante } from '../models/restaurante.model';
 
 export const mockRestaurantesResponse: ApiResponse<Restaurante[]> = {
   code: 200,
-  message: 'Restaurante obtenidos exitosamente',
+  message: 'Restaurantes obtenidos exitosamente',
   data: [
     {
       restauranteId: 1,
       nombreRestaurante: 'El fogón de María',
       horaApertura: '08:00:00',
-      diasLaborales: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
     },
   ],
-};
-
-export const mockRestauranteCreateBody: Partial<Restaurante> = {
-  nombreRestaurante: 'Sede Centro',
-  horaApertura: '08:00:00',
-  diasLaborales: ['Lunes'],
-};
-
-export const mockRestauranteDeleteResponse: ApiResponse<unknown> = {
-  code: 200,
-  message: 'Restaurante eliminado',
-  data: {},
 };
 
 export const mockRestauranteResponse: ApiResponse<Restaurante> = {
@@ -32,8 +19,7 @@ export const mockRestauranteResponse: ApiResponse<Restaurante> = {
   data: {
     restauranteId: 1,
     nombreRestaurante: 'El fogón de María',
-    horaApertura: '0000-01-01 08:00:00 +0000 UTC',
-    diasLaborales: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+    horaApertura: '08:00:00',
   },
 };
 

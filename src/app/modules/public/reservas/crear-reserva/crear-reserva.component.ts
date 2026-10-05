@@ -76,7 +76,9 @@ export class CrearReservaComponent implements OnInit {
     if (userRole === 'Administrador') {
       this.trabajadorService.getTrabajadorId(this.userId).subscribe({
         next: (response) => {
-          this.nombreTrabajador = response.data.nombre + ' ' + response.data.apellido;
+          this.nombreTrabajador = response.data
+            ? response.data.nombre + ' ' + response.data.apellido
+            : 'Administrador Desconocido';
 
           this.crearReserva(timestamp, userRole, userId);
         },
@@ -88,8 +90,12 @@ export class CrearReservaComponent implements OnInit {
     } else if (userRole === 'Cliente') {
       this.clienteService.getClienteId(this.userId).subscribe({
         next: (response) => {
-          this.nombreCompleto = response.data.nombre + ' ' + response.data.apellido;
-          this.telefono = response.data.telefono;
+          if (response.data) {
+            this.nombreCompleto = response.data.nombre + ' ' + response.data.apellido;
+            this.telefono = response.data.telefono;
+          } else {
+            this.nombreCompleto = 'Cliente Desconocido';
+          }
 
           this.crearReserva(timestamp, userRole, userId);
         },

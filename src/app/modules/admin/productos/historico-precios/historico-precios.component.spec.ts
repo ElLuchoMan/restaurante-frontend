@@ -117,6 +117,27 @@ describe('HistoricoPreciosComponent', () => {
       ).toBe(true);
     });
 
+    it('debería filtrar por fecha cuando el back devuelve DD-MM-YYYY', () => {
+      component.historico = [
+        {
+          nombre: 'Coca Cola',
+          precio: 2000,
+          fechaVigencia: '15-01-2024',
+          estadoProducto: 'DISPONIBLE',
+        },
+        {
+          nombre: 'Pepsi',
+          precio: 1800,
+          fechaVigencia: '20-02-2024',
+          estadoProducto: 'DISPONIBLE',
+        },
+      ];
+      component.filtroFecha = '2024-01-15';
+      component.aplicarFiltros();
+
+      expect(component.historicoFiltrado.map((i) => i.nombre)).toEqual(['Coca Cola']);
+    });
+
     it('debería aplicar múltiples filtros', () => {
       component.filtroProductoId = '1';
       component.filtroFecha = '2024-01-01';
@@ -172,6 +193,18 @@ describe('HistoricoPreciosComponent', () => {
       const fecha = component.formatearFecha('2024-01-15');
       expect(fecha).toContain('2024');
       expect(fecha.length).toBeGreaterThan(0);
+    });
+
+    it('interpreta DD-MM-YYYY del back como día-mes-año', () => {
+      const fecha = component.formatearFecha('25-12-2024');
+      expect(fecha).toContain('2024');
+      expect(fecha).toContain('25');
+      expect(fecha.toLowerCase()).toContain('diciembre');
+    });
+
+    it('no confunde día y mes en DD-MM-YYYY ambiguo', () => {
+      const fecha = component.formatearFecha('05-10-2024');
+      expect(fecha.toLowerCase()).toContain('octubre');
     });
 
     it('debería manejar diferentes formatos de fecha', () => {

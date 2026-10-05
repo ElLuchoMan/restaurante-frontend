@@ -170,6 +170,57 @@ describe('CrearReservaComponent', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/admin/reservas']);
     });
 
+    it('should fall back to "Administrador Desconocido" when getTrabajadorId comes without data', () => {
+      component.rol = 'Administrador';
+      userService.getUserId.mockReturnValue(1);
+      component.fechaReserva = getValidReservaDate();
+      component.horaReserva = '10:00';
+      component.personas = '3';
+      component.indicaciones = 'Test admin reservation not found';
+      component.documentoCliente = '0';
+
+      trabajadorService.getTrabajadorId.mockReturnValue(
+        of({ code: 404, message: 'Trabajador no encontrado', data: undefined }),
+      );
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+      );
+
+      component.onSubmit();
+
+      expect(component.nombreTrabajador).toBe('Administrador Desconocido');
+      expect(reservaService.crearReserva).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fall back to "Cliente Desconocido" when getClienteId comes without data', fakeAsync(() => {
+      component.rol = 'Cliente';
+      userService.getUserId.mockReturnValue(2);
+      userService.getUserRole.mockReturnValue('Cliente');
+      component.fechaReserva = getValidReservaDate();
+      component.horaReserva = '09:30';
+      component.personas = '4';
+      component.indicaciones = 'Test cliente reservation not found';
+      component.documentoCliente = '0';
+
+      clienteService.getClienteId.mockReturnValue(
+        of({ code: 404, message: 'Cliente no encontrado', data: undefined }),
+      );
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 200, message: 'Reserva creada exitosamente', data: {} as Reserva }),
+      );
+      reservaNotifications.notifyCreacion.mockResolvedValue(undefined);
+
+      component.onSubmit();
+      tick();
+      tick(1000);
+      flushMicrotasks();
+      flush();
+
+      expect(component.nombreCompleto).toBe('Cliente Desconocido');
+      expect(component.telefono).toBe('');
+      expect(reservaService.crearReserva).toHaveBeenCalledTimes(1);
+    }));
+
     it('should create reservation for Cliente with successful getClienteId', fakeAsync(() => {
       component.rol = 'Cliente';
       userService.getUserId.mockReturnValue(2);

@@ -40,11 +40,12 @@ export class TomarDomicilioComponent implements OnInit {
     const params = { trabajador: this.trabajadorId, fecha: today };
 
     this.domicilioService.getDomicilios(params).subscribe((response) => {
-      if (response.code === 200) {
+      if (response.code === 200 && response.data) {
         this.domicilios = response.data.filter(
           (domicilio) =>
             !domicilio.entregado &&
-            (!domicilio.trabajadorAsignado || domicilio.trabajadorAsignado === this.trabajadorId),
+            (!domicilio.trabajadorAsignado ||
+              domicilio.trabajadorAsignado.documentoTrabajador === this.trabajadorId),
         );
       } else {
         this.mostrarMensaje = true;
@@ -60,7 +61,7 @@ export class TomarDomicilioComponent implements OnInit {
       .asignarDomiciliario(domicilio.domicilioId!, this.trabajadorId)
       .subscribe((response) => {
         if (response.code === 200 && this.trabajadorId !== null) {
-          domicilio.trabajadorAsignado = this.trabajadorId;
+          domicilio.trabajadorAsignado = { documentoTrabajador: this.trabajadorId };
         }
       });
   }

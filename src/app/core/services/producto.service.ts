@@ -4,7 +4,7 @@ import { catchError, map, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Producto } from '../../shared/models/producto.model';
+import { Producto, ProductoListParams } from '../../shared/models/producto.model';
 import { getSafeImageSrc } from '../../shared/utils/image.utils';
 import { HandleErrorService } from './handle-error.service';
 
@@ -20,24 +20,19 @@ export class ProductoService {
   ) {}
 
   /**
-   * Obtiene productos del backend y los mapea con nombres en minúsculas
-   * @param params
-   * @returns
+   * Obtiene productos del backend y normaliza la imagen de cada uno.
+   * @param params includeImage / onlyActive (únicos query params que lee el back)
    */
-  getProductos(
-    params?: Record<string, string | number | boolean | readonly (string | number | boolean)[]>,
-  ): Observable<ApiResponse<Producto[]>> {
+  getProductos(params?: ProductoListParams): Observable<ApiResponse<Producto[]>> {
     let httpParams: HttpParams | undefined;
     if (params) {
-      let hp = new HttpParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          value.forEach((v) => (hp = hp.append(key, String(v))));
-        } else if (value !== undefined) {
-          hp = hp.set(key, String(value));
-        }
-      });
-      httpParams = hp;
+      httpParams = new HttpParams();
+      if (params.includeImage !== undefined) {
+        httpParams = httpParams.set('includeImage', String(params.includeImage));
+      }
+      if (params.onlyActive !== undefined) {
+        httpParams = httpParams.set('onlyActive', String(params.onlyActive));
+      }
     }
     return this.http.get<ApiResponse<Producto[]>>(`${this.baseUrl}`, { params: httpParams }).pipe(
       map((res) => ({
@@ -52,47 +47,19 @@ export class ProductoService {
   }
 
   /**
-   * Crea un nuevo producto
+   * Crea un nuevo producto. Con archivo se envía multipart/form-data; sin archivo, JSON
+   * (el back exige `estadoProducto` DISPONIBLE | NO_DISPONIBLE, `nombre` y `precio` > 0).
    */
   createProducto(producto: Producto, file?: File): Observable<ApiResponse<Producto>> {
-    if (file) {
-      const form = new FormData();
-      form.append('nombre', producto.nombre);
-      if (producto.calorias != null) form.append('calorias', String(producto.calorias));
-      if (producto.descripcion != null) form.append('descripcion', producto.descripcion);
-      form.append('precio', String(producto.precio));
-      if (producto.estadoProducto) form.append('estadoProducto', String(producto.estadoProducto));
-      if (producto.cantidad != null) form.append('cantidad', String(producto.cantidad));
-      if (producto.subcategoriaId != null)
-        form.append('subcategoriaId', String(producto.subcategoriaId));
-      form.append('imagen', file);
-
-      // Log del FormData para debug
-      console.log('=== FormData a enviar ===');
-      form.forEach((value, key) => {
-        if (value instanceof File) {
-          console.log(`${key}:`, {
-            name: value.name,
-            size: `${(value.size / 1024).toFixed(2)} KB`,
-            type: value.type,
-          });
-        } else {
-          console.log(`${key}:`, value);
-        }
-      });
-      console.log('========================');
-
-      return this.http
-        .post<ApiResponse<Producto>>(`${this.baseUrl}`, form)
-        .pipe(catchError(this.handleError.handleError));
-    }
+    const body = file ? this.toFormData(producto, file) : this.toJsonBody(producto);
     return this.http
-      .post<ApiResponse<Producto>>(`${this.baseUrl}`, producto)
+      .post<ApiResponse<Producto>>(`${this.baseUrl}`, body)
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * Obtiene un producto por ID
+   * Obtiene un producto por ID. Si no existe, el back responde HTTP 200 con `code: 404`
+   * y sin `data`.
    */
   getProductoById(id: number): Observable<ApiResponse<Producto>> {
     return this.http
@@ -120,52 +87,48 @@ export class ProductoService {
   }
 
   /**
-   * Actualiza un producto por ID
+   * Actualiza un producto por ID. En JSON el back reemplaza todos los campos (nombre, calorias,
+   * descripcion, precio, estadoProducto, cantidad, subcategoriaId), por lo que se debe enviar el
+   * producto completo; `imagen` sólo se reemplaza si viene con contenido.
    */
   updateProducto(id: number, producto: Producto, file?: File): Observable<ApiResponse<Producto>> {
-    if (file) {
-      const form = new FormData();
-      form.append('nombre', producto.nombre);
-      if (producto.calorias != null) form.append('calorias', String(producto.calorias));
-      if (producto.descripcion != null) form.append('descripcion', producto.descripcion);
-      form.append('precio', String(producto.precio));
-      if (producto.estadoProducto) form.append('estadoProducto', String(producto.estadoProducto));
-      if (producto.cantidad != null) form.append('cantidad', String(producto.cantidad));
-      if (producto.subcategoriaId != null)
-        form.append('subcategoriaId', String(producto.subcategoriaId));
-      form.append('imagen', file);
-
-      // Log del FormData para debug
-      console.log('=== FormData a enviar (UPDATE) ===');
-      form.forEach((value, key) => {
-        if (value instanceof File) {
-          console.log(`${key}:`, {
-            name: value.name,
-            size: `${(value.size / 1024).toFixed(2)} KB`,
-            type: value.type,
-          });
-        } else {
-          console.log(`${key}:`, value);
-        }
-      });
-      console.log('================================');
-
-      return this.http
-        .put<ApiResponse<Producto>>(`${this.baseUrl}`, form, { params: { id: id.toString() } })
-        .pipe(catchError(this.handleError.handleError));
-    }
+    const body = file ? this.toFormData(producto, file) : this.toJsonBody(producto);
     return this.http
-      .put<ApiResponse<Producto>>(`${this.baseUrl}`, producto, { params: { id: id.toString() } })
+      .put<ApiResponse<Producto>>(`${this.baseUrl}`, body, { params: { id: id.toString() } })
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * Elimina un producto por ID
+   * Desactiva un producto por ID (borrado lógico: pasa a NO_DISPONIBLE).
    */
   deleteProducto(id: number): Observable<ApiResponse<unknown>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
       .delete<ApiResponse<unknown>>(`${this.baseUrl}`, { params })
       .pipe(catchError(this.handleError.handleError));
+  }
+
+  /** Campos de formulario que lee el back en multipart (los demás del modelo son sólo front). */
+  private toFormData(producto: Producto, file: File): FormData {
+    const form = new FormData();
+    form.append('nombre', producto.nombre);
+    if (producto.calorias != null) form.append('calorias', String(producto.calorias));
+    if (producto.descripcion != null) form.append('descripcion', producto.descripcion);
+    form.append('precio', String(producto.precio));
+    if (producto.estadoProducto) form.append('estadoProducto', String(producto.estadoProducto));
+    if (producto.cantidad != null) form.append('cantidad', String(producto.cantidad));
+    if (producto.subcategoriaId != null)
+      form.append('subcategoriaId', String(producto.subcategoriaId));
+    form.append('imagen', file);
+    return form;
+  }
+
+  /**
+   * El back decodifica `imagen` como Base64 puro: un data URL (`data:image/...;base64,XXX`)
+   * hace fallar el JSON con 400, así que se le quita el prefijo.
+   */
+  private toJsonBody(producto: Producto): Producto {
+    const match = /^data:[^;]+;base64,(.*)$/.exec(producto.imagen ?? '');
+    return match ? { ...producto, imagen: match[1] } : producto;
   }
 }
