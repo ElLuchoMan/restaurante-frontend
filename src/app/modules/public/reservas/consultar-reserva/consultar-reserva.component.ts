@@ -10,7 +10,11 @@ import { ReservaNotificationsService } from '../../../../core/services/reserva-n
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
-import { ReservaBase, ReservaUpdate } from '../../../../shared/models/reserva.model';
+import {
+  ReservaBase,
+  ReservaConsulta,
+  ReservaUpdate,
+} from '../../../../shared/models/reserva.model';
 import { FormatDatePipe } from '../../../../shared/pipes/format-date.pipe';
 
 @Component({
@@ -26,6 +30,16 @@ export class ConsultarReservaComponent implements OnInit {
   mostrarMensaje: boolean = false;
   mostrarFiltros: boolean = true;
   esAdmin: boolean = false;
+  /** Sin sesión: solo puede consultar UNA reserva con su código y su teléfono/documento. */
+  esInvitado: boolean = false;
+  /** Cliente con sesión: ve únicamente sus propias reservas (el documento sale del token). */
+  esCliente: boolean = false;
+
+  // Consulta de invitado (GET /reservas/consulta): datos mínimos, nunca los del contacto.
+  reservaIdConsulta: string = '';
+  contactoConsulta: string = '';
+  reservaConsultada: ReservaConsulta | null = null;
+  consultaSinResultado: boolean = false;
 
   documentoCliente: string = '';
   fechaReserva: string = '';
@@ -43,19 +57,56 @@ export class ConsultarReservaComponent implements OnInit {
   ngOnInit(): void {
     const rol = this.userService.getUserRole();
     this.esAdmin = rol === 'Administrador';
+    this.esInvitado = !rol;
+    this.esCliente = rol === 'Cliente';
 
-    if (!this.esAdmin) {
-      this.mostrarFiltros = false;
-      const doc = this.userService.getUserId();
-      this.documentoCliente = doc ? String(doc) : '';
-      this.buscarPorDocumento = true;
-      this.buscarPorFecha = false;
-      this.buscarReserva();
-    } else {
-      this.mostrarFiltros = true;
-      this.buscarPorDocumento = false;
-      this.buscarPorFecha = false;
+    // Invitado: formulario de consulta; Cliente: lista propia; personal: filtros
+    this.mostrarFiltros = !this.esInvitado && !this.esCliente;
+    this.buscarPorDocumento = false;
+    this.buscarPorFecha = false;
+    if (this.esCliente) this.cargarMisReservas();
+  }
+
+  /** Lista las reservas del Cliente con sesión (el backend usa el documento del token). */
+  private cargarMisReservas(): void {
+    this.reservaService.getMisReservas().subscribe({
+      next: (response) => {
+        this.reservas = this.ordenarMasRecientesPrimero(response.data);
+        this.mostrarMensaje = true;
+      },
+      error: () => this.toastr.error('Ocurrió un error al buscar la reserva', 'Error'),
+    });
+  }
+
+  /** Consulta de invitado: id de la reserva + teléfono o documento del contacto. */
+  consultarComoInvitado(): void {
+    this.reservaConsultada = null;
+    this.consultaSinResultado = false;
+
+    const reservaId = Number(String(this.reservaIdConsulta).trim());
+    const contacto = String(this.contactoConsulta ?? '').trim();
+    if (!Number.isInteger(reservaId) || reservaId <= 0) {
+      this.toastr.warning('Ingresa el código de tu reserva', 'Atención');
+      return;
     }
+    if (contacto === '') {
+      this.toastr.warning('Ingresa el teléfono o documento con el que reservaste', 'Atención');
+      return;
+    }
+
+    this.reservaService.consultarReserva(reservaId, contacto).subscribe({
+      next: (reserva) => {
+        this.reservaConsultada = reserva;
+        this.consultaSinResultado = reserva === null;
+      },
+      error: (error: { code?: number; message?: string }) =>
+        this.toastr.error(
+          error?.code === 429
+            ? 'Demasiadas consultas, intenta de nuevo en un minuto'
+            : 'Ocurrió un error al consultar la reserva',
+          'Error',
+        ),
+    });
   }
 
   actualizarTipoBusqueda(): void {
@@ -98,12 +149,6 @@ export class ConsultarReservaComponent implements OnInit {
         return;
       }
       fechaISO = this.fechaReserva; // el input de fecha ya entrega YYYY-MM-DD
-    }
-
-    // Auto documento desde JWT cuando aplica
-    if (!this.esAdmin && !documentoNumerico) {
-      const uid = this.userService.getUserId();
-      documentoNumerico = typeof uid === 'number' && !isNaN(uid) ? uid : undefined;
     }
 
     let solicitud: Observable<ApiResponse<ReservaBase[]>>;

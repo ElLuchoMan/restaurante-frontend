@@ -18,7 +18,7 @@ import { ReservaService } from '../../../../core/services/reserva.service';
 import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { UserService } from '../../../../core/services/user.service';
 import { mockResponseCliente } from '../../../../shared/mocks/cliente.mock';
-import { mockReserva } from '../../../../shared/mocks/reserva.mocks';
+import { mockReserva, mockReservaConsulta } from '../../../../shared/mocks/reserva.mocks';
 import {
   createClienteServiceMock,
   createInputWithPickerMock,
@@ -405,6 +405,28 @@ describe('CrearReservaComponent', () => {
     expect(reservaArg.documentoContacto).toBe(987654321);
     expect(router.navigate).toHaveBeenCalledWith(['/reservas/crear']);
   });
+  it('un invitado recibe el código de su reserva (vista mínima) para consultarla después', () => {
+    component.rol = null;
+    userService.getUserRole.mockReturnValue(null);
+    userService.getUserId.mockReturnValue(null);
+    component.fechaReserva = getValidReservaDate();
+    component.horaReserva = '12:00';
+    component.personas = '2';
+    component.documentoContacto = '987654321';
+    component.nombreCompleto = 'Anonymous User';
+
+    reservaService.crearReserva.mockReturnValue(
+      of({ code: 201, message: 'Reserva creada', data: mockReservaConsulta }),
+    );
+
+    component.onSubmit();
+
+    expect(toastr.success).toHaveBeenCalledWith(
+      `Reserva creada exitosamente. Guarda tu código #${mockReservaConsulta.reservaId}: con él y tu teléfono o documento podrás consultarla`,
+      'Éxito',
+    );
+    expect(reservaNotifications.notifyCreacion).not.toHaveBeenCalled();
+  });
   it('should set userId to 0 when getUserId returns null', () => {
     component.rol = 'Otro';
     userService.getUserId.mockReturnValue(null);
@@ -680,6 +702,27 @@ describe('CrearReservaComponent', () => {
         documentoCliente: 999,
         reservaId: 77,
       });
+    });
+
+    it('usa base.documentoCliente cuando el backend devuelve la vista mínima', async () => {
+      component.rol = 'Cliente';
+      userService.getUserId.mockReturnValue(2);
+      userService.getUserRole.mockReturnValue('Cliente');
+      component.fechaReserva = getValidReservaDate();
+      component.horaReserva = '09:30';
+      component.personas = '2';
+      clienteService.getClienteId.mockReturnValue(of(mockResponseCliente));
+      reservaService.crearReserva.mockReturnValue(
+        of({ code: 201, message: 'ok', data: mockReservaConsulta }),
+      );
+      reservaNotifications.notifyCreacion.mockResolvedValue(null);
+
+      component.onSubmit();
+      await settle();
+
+      expect(reservaNotifications.notifyCreacion).toHaveBeenCalledWith(
+        expect.objectContaining({ documentoCliente: 2, reservaId: mockReservaConsulta.reservaId }),
+      );
     });
 
     it('usa base.documentoCliente cuando el contacto devuelto no trae documentoCliente', async () => {

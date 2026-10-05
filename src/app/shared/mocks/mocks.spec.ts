@@ -29,6 +29,7 @@ import { mockProductoPedidoResponse } from './producto-pedido.mock';
 import {
   mockReserva,
   mockReservaBody,
+  mockReservaConsulta,
   mockReservaResponse,
   mockReservasDelDiaResponse,
   mockReservasUnordered,
@@ -104,6 +105,8 @@ describe('shared mocks', () => {
 
   it('reserva mocks', () => {
     expect(mockReserva.reservaId).toBe(1);
+    expect(mockReservaConsulta.restaurante?.nombreRestaurante).toBe('Restaurante');
+    expect('contactoId' in mockReservaConsulta).toBe(false);
     expect(mockReservaResponse.data).toEqual(mockReserva);
     expect(mockReservasDelDiaResponse.data).toHaveLength(2);
     expect(mockReservaUpdateResponse.data).toEqual(mockReserva);

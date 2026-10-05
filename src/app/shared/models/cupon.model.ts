@@ -78,17 +78,32 @@ export interface ValidarCuponItemRequest {
   precio: number;
 }
 
-export interface ValidarCuponRequest {
+/** Campos comunes de POST /cupones/validar. */
+interface ValidarCuponBase {
   codigo: string;
-  /** Documento del cliente */
-  /** Debe ser > 0 (400 si no). */
-  clienteId: number;
-  pedidoId?: number;
-  /** Al menos 1 ítem (400 si viene vacío). */
-  items: ValidarCuponItemRequest[];
+  /**
+   * Documento del cliente. Un usuario Cliente NO lo envía: el back lo toma del token (si lo envía
+   * y no coincide con su documento responde 403). Un trabajador/administrador actúa en nombre de
+   * un cliente y debe enviarlo (400 si falta).
+   */
+  clienteId?: number;
 }
 
-/** Responde 200 con `aplicable` true/false; los errores de servicio dan 500. */
+/**
+ * Body de POST /cupones/validar. Con `pedidoId` el back evalúa el detalle REAL del pedido (debe
+ * ser del cliente: 404 si no existe, 403 si es de otro) e ignora `items`; sin `pedidoId`, `items`
+ * (al menos 1) es obligatorio y el resultado es solo una vista previa no vinculante.
+ */
+export type ValidarCuponRequest = ValidarCuponBase &
+  (
+    | { pedidoId: number; items?: ValidarCuponItemRequest[] }
+    | { pedidoId?: undefined; items: ValidarCuponItemRequest[] }
+  );
+
+/**
+ * Responde 200 con `aplicable` true/false; los errores de servicio dan 500 (401 sin sesión, 403
+ * si `clienteId` no es el del token o el pedido es de otro cliente, 404 si el pedido no existe).
+ */
 export interface ValidarCuponResponse {
   aplicable: boolean;
   montoDescuento: number;
@@ -96,10 +111,14 @@ export interface ValidarCuponResponse {
   motivo?: string;
 }
 
+/**
+ * Body de POST /cupones/{codigo}/redimir. `pedidoId` es obligatorio (400 si falta) y el pedido
+ * debe pertenecer al cliente. `clienteId`: un Cliente NO lo envía (sale del token; uno distinto
+ * da 403); un trabajador/administrador lo envía para actuar en nombre de un cliente.
+ */
 export interface RedimirCuponRequest {
-  /** Documento del cliente (> 0) */
-  clienteId: number;
-  pedidoId?: number;
+  clienteId?: number;
+  pedidoId: number;
 }
 
 /** Redención tal como la devuelve el back (`models.CuponRedencion.MarshalJSON`). */

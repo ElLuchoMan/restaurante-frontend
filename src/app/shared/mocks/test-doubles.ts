@@ -393,6 +393,8 @@ export function createReservaServiceMock() {
   return {
     getReservaByParameter: jest.fn(),
     getReservasByDocumento: jest.fn(),
+    getMisReservas: jest.fn(),
+    consultarReserva: jest.fn(),
     actualizarReserva: jest.fn(),
     crearReserva: jest.fn(),
     getContactoIdByDocumento: jest.fn(),

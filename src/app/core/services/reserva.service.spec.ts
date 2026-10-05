@@ -8,11 +8,12 @@ import { estadoReserva } from '../../shared/constants';
 import {
   mockReserva,
   mockReservaBody,
+  mockReservaConsulta,
   mockReservaResponse,
 } from '../../shared/mocks/reserva.mocks';
 import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { ReservaBase } from '../../shared/models/reserva.model';
+import { ReservaBase, ReservaConsulta } from '../../shared/models/reserva.model';
 import { ReservaService } from './reserva.service';
 
 describe('ReservaService', () => {
@@ -489,5 +490,70 @@ describe('ReservaService', () => {
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter`);
     expect(req.request.params.keys().length).toBe(0);
     req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  describe('consulta de invitado y reservas propias', () => {
+    it('consultarReserva envía reservaId y contacto y devuelve solo la vista mínima', () => {
+      let resultado: ReservaConsulta | null | undefined;
+      service.consultarReserva(12, '300 123 4567').subscribe((r) => (resultado = r));
+
+      const req = httpMock.expectOne((r) => r.url === `${environment.apiUrl}/reservas/consulta`);
+      expect(req.request.method).toBe('GET');
+      expect(req.request.params.get('reservaId')).toBe('12');
+      expect(req.request.params.get('contacto')).toBe('300 123 4567');
+      req.flush({ code: 200, message: 'Reserva encontrada', data: mockReservaConsulta });
+      expect(resultado).toEqual(mockReservaConsulta);
+    });
+
+    it('consultarReserva devuelve null en el 404 genérico (id inexistente o contacto distinto)', () => {
+      let resultado: ReservaConsulta | null | undefined;
+      service.consultarReserva(99, '1').subscribe((r) => (resultado = r));
+      httpMock
+        .expectOne((r) => r.url === `${environment.apiUrl}/reservas/consulta`)
+        .flush(
+          { code: 404, message: 'Reserva no encontrada' },
+          { status: 404, statusText: 'Not Found' },
+        );
+      expect(resultado).toBeNull();
+      expect(handleErrorService.handleError).not.toHaveBeenCalled();
+    });
+
+    it('consultarReserva propaga el 429 por HandleErrorService', () => {
+      service.consultarReserva(1, '1').subscribe({ error: () => undefined });
+      httpMock
+        .expectOne((r) => r.url === `${environment.apiUrl}/reservas/consulta`)
+        .flush({ code: 429, message: 'Demasiadas' }, { status: 429, statusText: 'Too Many' });
+      expect(handleErrorService.handleError).toHaveBeenCalled();
+    });
+
+    it('consultarReserva propaga un error de red sin respuesta', () => {
+      service.consultarReserva(1, '1').subscribe({ error: () => undefined });
+      httpMock
+        .expectOne((r) => r.url === `${environment.apiUrl}/reservas/consulta`)
+        .error(new ErrorEvent('red'));
+      expect(handleErrorService.handleError).toHaveBeenCalled();
+    });
+
+    it('getMisReservas no envía documento (sale del token) y admite fecha', () => {
+      service.getMisReservas().subscribe();
+      const sinFecha = httpMock.expectOne(`${environment.apiUrl}/reservas/cliente`);
+      expect(sinFecha.request.params.keys().length).toBe(0);
+      sinFecha.flush({ code: 200, message: 'ok', data: [] });
+
+      service.getMisReservas('2025-02-06').subscribe();
+      const conFecha = httpMock.expectOne(
+        `${environment.apiUrl}/reservas/cliente?fecha=2025-02-06`,
+      );
+      expect(conFecha.request.params.has('documentoCliente')).toBe(false);
+      conFecha.flush({ code: 200, message: 'ok', data: [] });
+    });
+
+    it('getMisReservas propaga errores por HandleErrorService', () => {
+      service.getMisReservas().subscribe({ error: () => undefined });
+      httpMock
+        .expectOne(`${environment.apiUrl}/reservas/cliente`)
+        .flush({ code: 401, message: 'x' }, { status: 401, statusText: 'Unauthorized' });
+      expect(handleErrorService.handleError).toHaveBeenCalled();
+    });
   });
 });

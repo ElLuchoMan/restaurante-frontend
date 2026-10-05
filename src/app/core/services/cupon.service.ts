@@ -19,10 +19,13 @@ import { PaginatedData } from '../../shared/models/descuento-types.model';
 import { HandleErrorService } from './handle-error.service';
 
 /**
- * Cliente de /cupones (todas las rutas requieren token). En el back el id va como query param
- * `id` (no existen rutas `/cupones/{id}`). Los errores llegan con su status HTTP real (400, 404,
- * 409 código duplicado/agotado, 422 validación de negocio, 500) y `HandleErrorService` conserva
- * `message`.
+ * Cliente de /cupones (todas las rutas requieren token). Permisos: gestionar y consultar cupones
+ * (`crear`, `listar`, `obtener`, `actualizar`, `desactivar`, `listarRedenciones`) es solo del
+ * Administrador (403 para cualquier otro rol); `validar` y `redimir` los puede usar cualquier
+ * usuario autenticado y el cliente SALE DEL TOKEN (un Cliente no envía `clienteId`). En el back el
+ * id va como query param `id` (no existen rutas `/cupones/{id}`). Los errores llegan con su status
+ * HTTP real (400, 401, 403, 404, 409 código duplicado/agotado/ya redimido, 422 validación de
+ * negocio, 500) y `HandleErrorService` conserva `message`.
  */
 @Injectable({ providedIn: 'root' })
 export class CuponService {
@@ -67,7 +70,11 @@ export class CuponService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** 200 con `aplicable` true/false; 400 si `clienteId` <= 0 o no hay ítems; 500 error de servicio. */
+  /**
+   * 200 con `aplicable` true/false; 400 si faltan `codigo`, `items`/`pedidoId` o (trabajador)
+   * `clienteId`; 403 si `clienteId` no es el del token o el pedido es de otro cliente; 404 si el
+   * pedido no existe; 500 error de servicio.
+   */
   validar(body: ValidarCuponRequest): Observable<ApiResponse<ValidarCuponResponse>> {
     return this.http
       .post<ApiResponse<ValidarCuponResponse>>(`${this.baseUrl}/validar`, body)
@@ -75,8 +82,11 @@ export class CuponService {
   }
 
   /**
-   * POST /cupones/{codigo}/redimir. 400 ids inválidos, 404 cupón/cliente/pedido inexistente,
-   * 409 cupón agotado o ya redimido, 422 cupón no aplicable, 500 error interno.
+   * POST /cupones/{codigo}/redimir. Solo registra la redención (para aplicar el descuento y
+   * recalcular el total del pedido use `DescuentoService.aplicar`). 400 ids inválidos o (trabajador)
+   * `clienteId` ausente, 403 `clienteId` distinto del token o pedido de otro cliente, 404
+   * cupón/pedido inexistente, 409 cupón agotado, límite por cliente alcanzado, ya redimido en el
+   * pedido o pedido cerrado, 422 cupón no aplicable, 500 error interno.
    */
   redimir(codigo: string, body: RedimirCuponRequest): Observable<ApiResponse<CuponRedencion>> {
     return this.http

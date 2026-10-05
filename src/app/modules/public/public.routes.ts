@@ -46,11 +46,11 @@ export const publicRoutes: Routes = [
   // Redirección: el antiguo menú de reservas ya no está aquí
   { path: 'reservas', redirectTo: 'reservas/crear', pathMatch: 'full' },
   { path: 'reservas/crear', component: CrearReservaComponent, title: 'Crear Reserva' },
+  // Sin guards: el invitado consulta una reserva con su código + teléfono/documento; el propio
+  // componente muestra a cada rol solo lo que le corresponde (el listado no se muestra al invitado).
   {
     path: 'reservas/consultar',
     component: ConsultarReservaComponent,
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Administrador', 'Cliente'] },
     title: 'Consultar Reservas',
   },
   {

@@ -1,6 +1,11 @@
 import { estadoReserva } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
-import { ReservaBase, ReservaCreate, RestauranteRef } from '../models/reserva.model';
+import {
+  ReservaBase,
+  ReservaConsulta,
+  ReservaCreate,
+  RestauranteRef,
+} from '../models/reserva.model';
 import { ReservaContacto } from '../models/reserva-contacto.model';
 
 // Los mocks reproducen la forma real del backend: `contactoId` (con nombre, teléfono y documento)
@@ -38,6 +43,16 @@ export const mockReserva: ReservaBase = {
   indicaciones: 'Ninguna',
   updatedAt: '01-01-2025 11:00:00',
   updatedBy: 'testUser',
+};
+
+// Vista mínima de invitado: sin nombre, teléfono ni documento del contacto.
+export const mockReservaConsulta: ReservaConsulta = {
+  reservaId: 1,
+  fechaReserva: '01-01-2025',
+  horaReserva: '18:00:00',
+  personas: 4,
+  estadoReserva: estadoReserva.PENDIENTE,
+  restaurante: { restauranteId: 1, nombreRestaurante: 'Restaurante' },
 };
 
 export const mockReservaResponse: ApiResponse<ReservaBase> = {

@@ -1,5 +1,6 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import {
@@ -112,18 +113,39 @@ describe('CuponService', () => {
     expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 409 });
   });
 
-  it('valida cupón', () => {
-    const body: ValidarCuponRequest = {
-      codigo: 'X',
-      clienteId: 1,
-      pedidoId: 3,
-      items: [{ productoId: 1, cantidad: 1, precio: 1000 }],
-    };
+  it('valida cupón con pedidoId (el back usa el detalle real del pedido)', () => {
+    const body: ValidarCuponRequest = { codigo: 'X', clienteId: 1, pedidoId: 3 };
     service.validar(body).subscribe((res) => expect(res).toEqual(mockValidarCuponExitoso));
     const req = http.expectOne(`${baseUrl}/validar`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(body);
     req.flush(mockValidarCuponExitoso);
+  });
+
+  it('un Cliente valida sin clienteId (sale del token) con ítems de vista previa', () => {
+    const body: ValidarCuponRequest = {
+      codigo: 'X',
+      items: [{ productoId: 1, cantidad: 1, precio: 1000 }],
+    };
+    service.validar(body).subscribe();
+    const req = http.expectOne(`${baseUrl}/validar`);
+    expect(req.request.body).toEqual(body);
+    expect(req.request.body).not.toHaveProperty('clienteId');
+    req.flush(mockValidarCuponExitoso);
+  });
+
+  it.each([
+    [400, 'faltan datos'],
+    [403, 'pedido de otro cliente'],
+    [404, 'pedido inexistente'],
+  ])('validar propaga %i (%s) como error HTTP', (status, message) => {
+    service.validar({ codigo: 'X', pedidoId: 3 }).subscribe({
+      error: (err) => expect(err).toBeTruthy(),
+    });
+    http
+      .expectOne(`${baseUrl}/validar`)
+      .flush({ code: status, message }, { status, statusText: message });
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status });
   });
 
   it('redime cupón (POST /cupones/{codigo}/redimir)', () => {
@@ -135,12 +157,38 @@ describe('CuponService', () => {
     req.flush(mockRedencionCupon);
   });
 
-  it('redimir propaga 422 (cupón no aplicable) como error HTTP', () => {
-    service.redimir('X', { clienteId: 1 }).subscribe({ error: (err) => expect(err).toBeTruthy() });
+  it('un Cliente redime sin clienteId (sale del token)', () => {
+    service.redimir('X', { pedidoId: 2 }).subscribe();
+    const req = http.expectOne(`${baseUrl}/X/redimir`);
+    expect(req.request.body).toEqual({ pedidoId: 2 });
+    req.flush(mockRedencionCupon);
+  });
+
+  it.each([
+    [403, 'clienteId distinto del token'],
+    [409, 'agotado, ya redimido o pedido cerrado'],
+    [422, 'cupón no aplicable'],
+  ])('redimir propaga %i (%s) como error HTTP', (status, message) => {
+    service.redimir('X', { pedidoId: 2 }).subscribe({ error: (err) => expect(err).toBeTruthy() });
     http
       .expectOne(`${baseUrl}/X/redimir`)
-      .flush({ code: 422, message: 'no aplicable' }, { status: 422, statusText: 'Unprocessable' });
-    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 422 });
+      .flush({ code: status, message }, { status, statusText: message });
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status });
+  });
+
+  it.each<[string, () => Observable<unknown>, string]>([
+    ['listar', () => service.listar(), baseUrl],
+    ['obtener', () => service.obtener(1), `${baseUrl}/search?id=1`],
+    ['listarRedenciones', () => service.listarRedenciones(), `${baseUrl}/redenciones`],
+  ])('%s propaga 403 (solo Administrador) como error HTTP', (_nombre, llamar, url) => {
+    llamar().subscribe({ error: (err: unknown) => expect(err).toBeTruthy() });
+    http
+      .expectOne(url)
+      .flush(
+        { code: 403, message: 'Se requiere rol Administrador' },
+        { status: 403, statusText: 'Forbidden' },
+      );
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 403 });
   });
 
   it('lista redenciones con los query params del back', () => {

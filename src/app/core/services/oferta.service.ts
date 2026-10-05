@@ -19,9 +19,11 @@ import { HandleErrorService } from './handle-error.service';
 
 /**
  * Cliente de /ofertas. En el back el id va SIEMPRE como query param `id` (no existen rutas
- * `/ofertas/{id}`); todas las rutas salvo `/ofertas/activas` requieren token. Los errores llegan
- * con su status HTTP real (400 validación/FK inválida, 404 no existe, 409 título duplicado o
- * producto ya asociado, 422 regla de negocio) y `HandleErrorService` conserva `message`.
+ * `/ofertas/{id}`); todas las rutas salvo `/ofertas/activas` requieren token. Crear, actualizar,
+ * desactivar y asociar/desasociar productos es solo del Administrador (403 para otros roles). Los
+ * errores llegan con su status HTTP real (400 validación/FK inválida, 401 sin sesión, 403 sin
+ * permiso, 404 no existe, 409 título duplicado o producto ya asociado, 422 regla de negocio) y
+ * `HandleErrorService` conserva `message`.
  */
 @Injectable({ providedIn: 'root' })
 export class OfertaService {

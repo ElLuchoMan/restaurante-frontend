@@ -16,7 +16,7 @@ export class ReservaContactoService {
     private handleError: HandleErrorService,
   ) {}
 
-  /** GET /reserva_contacto (público). Filtros opcionales; sin coincidencias responde 200 con `data: []`. */
+  /** GET /reserva_contacto (solo personal, requiere token). Filtros opcionales; sin coincidencias responde 200 con `data: []`. */
   getContactos(params?: {
     documento_contacto?: number;
     documento_cliente?: number;
@@ -35,7 +35,7 @@ export class ReservaContactoService {
   }
 
   /**
-   * GET /reserva_contacto/search?id=. Si el contacto no existe el backend responde 404 y se
+   * GET /reserva_contacto/search?id= (solo personal, requiere token). Si el contacto no existe el backend responde 404 y se
    * devuelve `null`; un id inválido (400) y el resto de errores se propagan.
    */
   getById(id: number): Observable<ReservaContacto | null> {

@@ -1,9 +1,90 @@
 <section class="page-shell">
   <div class="container">
     <h2 class="section-title text-center mb-2">
-      {{ esAdmin ? 'Buscar Reservas' : 'Mis reservas' }}
+      {{ esInvitado ? 'Consultar mi reserva' : esCliente ? 'Mis reservas' : 'Buscar Reservas' }}
     </h2>
-    <p class="subtitle text-center mb-4">Consulta por documento, por fecha o ambos</p>
+    <p class="subtitle text-center mb-4" *ngIf="esInvitado">
+      Ingresa el código de tu reserva y el teléfono o documento con el que la hiciste
+    </p>
+    <p class="subtitle text-center mb-4" *ngIf="!esInvitado">
+      {{ esCliente ? 'Tus reservas registradas' : 'Consulta por documento, por fecha o ambos' }}
+    </p>
+
+    <!-- Invitado: consulta de una sola reserva, solo con datos mínimos -->
+    <form
+      class="card-glass glow-border p-3"
+      *ngIf="esInvitado"
+      (ngSubmit)="consultarComoInvitado()"
+      novalidate
+    >
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-sm-4">
+          <div class="input-float">
+            <span class="icon" aria-hidden="true"><i class="fa-solid fa-hashtag"></i></span>
+            <input
+              type="number"
+              id="reservaIdConsulta"
+              name="reservaIdConsulta"
+              class="form-control form-control-sm"
+              [(ngModel)]="reservaIdConsulta"
+              placeholder=" "
+            />
+            <label class="float-label" for="reservaIdConsulta">Código de reserva</label>
+          </div>
+        </div>
+        <div class="col-12 col-sm-5">
+          <div class="input-float">
+            <span class="icon" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
+            <input
+              type="text"
+              id="contactoConsulta"
+              name="contactoConsulta"
+              class="form-control form-control-sm"
+              [(ngModel)]="contactoConsulta"
+              placeholder=" "
+            />
+            <label class="float-label" for="contactoConsulta">Teléfono o documento</label>
+          </div>
+        </div>
+        <div class="col-12 col-sm-3 d-grid">
+          <button type="submit" class="btn btn-primary btn-sm" aria-label="Consultar reserva">
+            <i class="fas fa-search me-2"></i>Consultar
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div class="list-surface mt-4" *ngIf="esInvitado && reservaConsultada as r">
+      <div class="reserva-item">
+        <div class="reserva-left">
+          <div class="reserva-fecha">{{ r.fechaReserva | formatDate: 'date' }}</div>
+          <div class="reserva-hora">{{ r.horaReserva | formatDate: 'time' }}</div>
+        </div>
+        <div class="reserva-center">
+          <div class="reserva-cliente">{{ r.restaurante?.nombreRestaurante }}</div>
+          <div class="reserva-telefono">Reserva #{{ r.reservaId }}</div>
+        </div>
+        <div class="reserva-right">
+          <span
+            class="badge estado"
+            [ngClass]="{
+              'bg-warning': r.estadoReserva === 'PENDIENTE',
+              'bg-success': r.estadoReserva === 'CONFIRMADA',
+              'bg-secondary': r.estadoReserva === 'CUMPLIDA',
+              'bg-danger': r.estadoReserva === 'CANCELADA',
+            }"
+            >{{ r.estadoReserva }}</span
+          >
+          <span class="badge bg-secondary pax"
+            ><i class="fas fa-user me-1"></i>{{ r.personas }}</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info text-center mt-4" *ngIf="esInvitado && consultaSinResultado">
+      No encontramos una reserva con esos datos. Verifica el código y el teléfono o documento.
+    </div>
 
     <div class="card-glass glow-border p-3" *ngIf="mostrarFiltros">
       <div class="row g-2 align-items-center">

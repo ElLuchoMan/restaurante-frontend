@@ -55,8 +55,9 @@ describe('Public Routes', () => {
     // Consultar reservas
     const consultar = publicRoutes.find((r) => r.path === 'reservas/consultar');
     expect(consultar?.component).toBe(ConsultarReservaComponent);
-    expect(consultar?.canActivate).toEqual([AuthGuard, RoleGuard]);
-    expect(consultar?.data).toEqual({ roles: ['Administrador', 'Cliente'] });
+    // pública: el invitado consulta con código + teléfono/documento
+    expect(consultar?.canActivate).toBeUndefined();
+    expect(consultar?.data).toBeUndefined();
 
     // Reservas del día
     const hoy = publicRoutes.find((r) => r.path === 'reservas/hoy');

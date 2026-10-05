@@ -12,6 +12,7 @@ import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import {
   mockReserva,
+  mockReservaConsulta,
   mockReservasDelDiaResponse,
   mockReservasUnordered,
 } from '../../../../shared/mocks/reserva.mocks';
@@ -276,54 +277,173 @@ describe('ConsultarReservaComponent', () => {
   });
 
   describe('como cliente', () => {
-    it('carga sus reservas con el documento del token', async () => {
-      reservaService.getReservasByDocumento.mockReturnValue(of(respuesta([mockReserva])));
+    it('carga solo sus reservas (el documento sale del token) y no muestra filtros', async () => {
+      reservaService.getMisReservas.mockReturnValue(of(respuesta(mockReservasUnordered)));
       await crear('Cliente', 1015466495);
 
+      expect(component.esCliente).toBe(true);
       expect(component.esAdmin).toBe(false);
+      expect(component.esInvitado).toBe(false);
       expect(component.mostrarFiltros).toBe(false);
-      expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(1015466495, undefined);
-      expect(component.reservas).toEqual([mockReserva]);
-    });
-
-    it('sin documento en el token no consulta y pide el documento', async () => {
-      await crear('Cliente', null);
-      expect(component.documentoCliente).toBe('');
-      expect(toastr.warning).toHaveBeenCalledWith('Por favor ingresa un documento', 'Atención');
+      expect(reservaService.getMisReservas).toHaveBeenCalledWith();
       expect(reservaService.getReservasByDocumento).not.toHaveBeenCalled();
+      expect(component.reservas.map((r) => r.reservaId)).toEqual([2, 3, 1]);
+      expect(component.mostrarMensaje).toBe(true);
+      expect(fixture.nativeElement.textContent).toContain('Mis reservas');
     });
 
-    it('usa el documento del token si no hay criterios activos', async () => {
-      reservaService.getReservasByDocumento.mockReturnValue(of(respuesta([])));
+    it('avisa si falla la carga de sus reservas', async () => {
+      reservaService.getMisReservas.mockReturnValue(throwError(() => new Error('x')));
       await crear('Cliente', 77);
-      reservaService.getReservasByDocumento.mockClear();
-      component.buscarPorDocumento = false;
-      component.documentoCliente = '';
-
-      component.buscarReserva();
-
-      expect(reservaService.getReservasByDocumento).toHaveBeenCalledWith(77, undefined);
+      expect(toastr.error).toHaveBeenCalledWith('Ocurrió un error al buscar la reserva', 'Error');
+      expect(component.mostrarMensaje).toBe(false);
     });
 
-    it('sin criterios ni documento del token advierte que el documento es requerido', async () => {
-      reservaService.getReservasByDocumento.mockReturnValue(of(respuesta([])));
+    it('un cliente no puede cambiar el estado de una reserva', async () => {
+      reservaService.getMisReservas.mockReturnValue(of(respuesta([])));
       await crear('Cliente', 77);
-      userService.getUserId.mockReturnValue(null);
-      component.buscarPorDocumento = false;
+      component.confirmarReserva(mockReserva);
+      expect(reservaService.actualizarReserva).not.toHaveBeenCalled();
+    });
+  });
 
-      component.buscarReserva();
+  describe('como personal no administrador', () => {
+    it('ve los filtros y no consulta nada al iniciar', async () => {
+      await crear('Mesero', 5);
+      expect(component.esAdmin).toBe(false);
+      expect(component.esInvitado).toBe(false);
+      expect(component.esCliente).toBe(false);
+      expect(component.mostrarFiltros).toBe(true);
+      expect(reservaService.getMisReservas).not.toHaveBeenCalled();
+    });
+  });
 
+  describe('como invitado (sin sesión)', () => {
+    beforeEach(async () => {
+      await crear(null, null);
+    });
+
+    it('muestra el formulario de consulta y nunca el listado ni los filtros', () => {
+      expect(component.esInvitado).toBe(true);
+      expect(component.mostrarFiltros).toBe(false);
+      expect(reservaService.getMisReservas).not.toHaveBeenCalled();
+      expect(reservaService.getReservasByDocumento).not.toHaveBeenCalled();
+      expect(reservaService.getReservaByParameter).not.toHaveBeenCalled();
+      const html: string = fixture.nativeElement.textContent;
+      expect(html).toContain('Consultar mi reserva');
+      expect(fixture.nativeElement.querySelector('#reservaIdConsulta')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('#busquedaDocumento')).toBeNull();
+    });
+
+    it('exige un código de reserva válido', () => {
+      for (const valor of ['', 'abc', '0', '-3', '1.5']) {
+        component.reservaIdConsulta = valor;
+        component.contactoConsulta = '3001234567';
+        component.consultarComoInvitado();
+      }
+      expect(toastr.warning).toHaveBeenCalledTimes(5);
+      expect(toastr.warning).toHaveBeenCalledWith('Ingresa el código de tu reserva', 'Atención');
+      expect(reservaService.consultarReserva).not.toHaveBeenCalled();
+    });
+
+    it('exige teléfono o documento', () => {
+      component.reservaIdConsulta = '12';
+      component.contactoConsulta = '   ';
+      component.consultarComoInvitado();
       expect(toastr.warning).toHaveBeenCalledWith(
-        'Documento requerido para la búsqueda',
+        'Ingresa el teléfono o documento con el que reservaste',
+        'Atención',
+      );
+      expect(reservaService.consultarReserva).not.toHaveBeenCalled();
+    });
+
+    it('consulta con id y contacto y muestra solo los datos mínimos', () => {
+      reservaService.consultarReserva.mockReturnValue(of(mockReservaConsulta));
+      component.reservaIdConsulta = ' 1 ';
+      component.contactoConsulta = ' 3216549870 ';
+
+      component.consultarComoInvitado();
+      fixture.detectChanges();
+
+      expect(reservaService.consultarReserva).toHaveBeenCalledWith(1, '3216549870');
+      expect(component.reservaConsultada).toBe(mockReservaConsulta);
+      expect(component.consultaSinResultado).toBe(false);
+      const html: string = fixture.nativeElement.textContent;
+      expect(html).toContain('Reserva #1');
+      expect(html).toContain('Restaurante');
+      expect(html).not.toContain('Carlos Perez');
+      expect(html).not.toContain('3216549870');
+    });
+
+    it('un contacto numérico (pegado como número) también se envía como texto', () => {
+      reservaService.consultarReserva.mockReturnValue(of(mockReservaConsulta));
+      component.reservaIdConsulta = '1';
+      component.contactoConsulta = 1000000542 as unknown as string;
+      component.consultarComoInvitado();
+      expect(reservaService.consultarReserva).toHaveBeenCalledWith(1, '1000000542');
+    });
+
+    it('un contacto nulo se trata como vacío', () => {
+      component.reservaIdConsulta = '1';
+      component.contactoConsulta = null as unknown as string;
+      component.consultarComoInvitado();
+      expect(toastr.warning).toHaveBeenCalledWith(
+        'Ingresa el teléfono o documento con el que reservaste',
         'Atención',
       );
     });
 
-    it('un cliente no puede cambiar el estado de una reserva', async () => {
-      reservaService.getReservasByDocumento.mockReturnValue(of(respuesta([])));
-      await crear('Cliente', 77);
+    it('muestra un mensaje genérico si no hay coincidencia y limpia el resultado previo', () => {
+      component.reservaConsultada = mockReservaConsulta;
+      reservaService.consultarReserva.mockReturnValue(of(null));
+      component.reservaIdConsulta = '99';
+      component.contactoConsulta = '300';
+
+      component.consultarComoInvitado();
+      fixture.detectChanges();
+
+      expect(component.reservaConsultada).toBeNull();
+      expect(component.consultaSinResultado).toBe(true);
+      expect(fixture.nativeElement.textContent).toContain('No encontramos una reserva');
+    });
+
+    it('avisa del límite de consultas (429) y de otros errores', () => {
+      component.reservaIdConsulta = '1';
+      component.contactoConsulta = '300';
+
+      reservaService.consultarReserva.mockReturnValue(throwError(() => ({ code: 429 })));
+      component.consultarComoInvitado();
+      expect(toastr.error).toHaveBeenCalledWith(
+        'Demasiadas consultas, intenta de nuevo en un minuto',
+        'Error',
+      );
+
+      reservaService.consultarReserva.mockReturnValue(throwError(() => ({ code: 500 })));
+      component.consultarComoInvitado();
+      expect(toastr.error).toHaveBeenCalledWith(
+        'Ocurrió un error al consultar la reserva',
+        'Error',
+      );
+
+      reservaService.consultarReserva.mockReturnValue(throwError(() => null));
+      component.consultarComoInvitado();
+      expect(toastr.error).toHaveBeenLastCalledWith(
+        'Ocurrió un error al consultar la reserva',
+        'Error',
+      );
+    });
+
+    it('un invitado no puede cambiar el estado', () => {
       component.confirmarReserva(mockReserva);
       expect(reservaService.actualizarReserva).not.toHaveBeenCalled();
+    });
+
+    it('el envío del formulario dispara la consulta', () => {
+      reservaService.consultarReserva.mockReturnValue(of(null));
+      component.reservaIdConsulta = '5';
+      component.contactoConsulta = '300';
+      fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit'));
+      expect(reservaService.consultarReserva).toHaveBeenCalledWith(5, '300');
     });
   });
 

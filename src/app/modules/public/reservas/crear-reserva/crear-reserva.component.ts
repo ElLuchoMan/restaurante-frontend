@@ -158,23 +158,30 @@ export class CrearReservaComponent implements OnInit {
 
     this.reservaService.crearReserva(base).subscribe({
       next: async (response) => {
-        this.toastr.success('Reserva creada exitosamente', 'Éxito');
+        const rolActual = this.rol || this.userService.getUserRole() || '';
+        // Un invitado recibe solo la vista mínima: el código de la reserva es lo que necesita
+        // (junto con su teléfono o documento) para consultarla después.
+        const codigo = rolActual
+          ? ''
+          : `. Guarda tu código #${response.data.reservaId}: con él y tu teléfono o documento podrás consultarla`;
+        this.toastr.success(`Reserva creada exitosamente${codigo}`, 'Éxito');
         try {
           // Solo clientes loggeados: notificar creación
-          const rolActual = this.rol || this.userService.getUserRole() || '';
           if (rolActual === 'Cliente') {
             const creada = response.data;
             await this.reservaNoti.notifyCreacion({
               fechaReserva: creada.fechaReserva,
               horaReserva: creada.horaReserva,
+              // El dueño recibe la reserva completa; con la vista mínima se usa el documento enviado
               documentoCliente:
-                creada.contactoId.documentoCliente?.documentoCliente ?? base.documentoCliente,
+                ('contactoId' in creada
+                  ? creada.contactoId.documentoCliente?.documentoCliente
+                  : undefined) ?? base.documentoCliente,
               reservaId: creada.reservaId,
             });
           }
         } catch {}
         // Redirección según rol
-        const rolActual = this.rol || this.userService.getUserRole() || '';
         if (rolActual === 'Administrador') {
           this.router.navigate(['/admin/reservas']);
         } else if (rolActual === 'Cliente') {

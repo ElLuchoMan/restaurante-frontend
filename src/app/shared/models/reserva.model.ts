@@ -31,6 +31,26 @@ export interface ReservaBase {
   updatedBy?: string;
 }
 
+/** Restaurante en la vista mínima de invitado (models.RestauranteConsultaResponse). */
+export interface RestauranteConsultaRef {
+  restauranteId: number;
+  nombreRestaurante: string;
+}
+
+/**
+ * Vista mínima de una reserva para invitados (models.ReservaConsultaResponse): la devuelven
+ * GET /reservas/consulta y POST /reservas cuando quien crea no es personal ni el cliente dueño.
+ * Nunca incluye nombre, teléfono ni documento del contacto.
+ */
+export interface ReservaConsulta {
+  reservaId: number;
+  fechaReserva: string; // DD-MM-YYYY
+  horaReserva: string; // HH:MM:SS
+  personas: number;
+  estadoReserva?: estadoReserva;
+  restaurante: RestauranteConsultaRef | null;
+}
+
 /**
  * Body de POST /reservas. El backend resuelve (o crea) el contacto a partir de
  * `documentoContacto` (invitado; exige `nombreCompleto`) o `documentoCliente`
