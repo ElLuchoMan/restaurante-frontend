@@ -55,6 +55,27 @@ describe('AppConfigService', () => {
     expect((globalThis as any)['__GMAPS_API_KEY__']).toBe('GMAPS_KEY');
   });
 
+  it('carga app-config.json aunque app-config.local.json devuelva HTML (fallback SPA)', async () => {
+    const svc = init('browser');
+    const fn: any = createSpy();
+    (fn as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => {
+        throw new SyntaxError('Unexpected token < in JSON');
+      },
+    } as any);
+    (fn as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ apiBase: 'https://api.example.com/restaurante/v1' }),
+    } as any);
+    global.fetch = fn as any;
+
+    await svc.load();
+
+    expect(fn).toHaveBeenCalledTimes(2);
+    expect(svc.apiBase).toBe('https://api.example.com/restaurante/v1');
+  });
+
   it('tolera fallos en fetch y conserva defaults', async () => {
     const svc = init('browser');
     // 1) local falla, 2) global no ok (llamamos manualmente ambas)

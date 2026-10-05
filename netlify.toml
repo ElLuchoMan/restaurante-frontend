@@ -24,17 +24,18 @@
 [[plugins]]
   package = "@netlify/plugin-emails"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
 # Proxy al backend (Render) para `netlify dev` y deploy previews
 [[redirects]]
   from = "/restaurante/v1/*"
   to = "https://restaurante-back-wlxp.onrender.com/restaurante/v1/:splat"
   status = 200
   force = true
+
+# Fallback SPA (debe ir DESPUES del proxy: Netlify aplica la primera regla que coincide)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 # Headers de seguridad globales
 [[headers]]
