@@ -62,7 +62,7 @@ describe('CarritoComponent', () => {
     domicilioServiceMock = createDomicilioServiceMock();
     pedidoServiceMock = createPedidoServiceMock();
     productoPedidoServiceMock = createProductoPedidoServiceMock();
-    pagoServiceMock = createPagoServiceMock({ data: { pagoId: 301 } });
+    pagoServiceMock = createPagoServiceMock({ data: { pagoId: 301, monto: 20 } });
     userServiceMock = createUserServiceMock();
     clienteServiceMock = createClienteServiceMock();
     routerMock = createRouterMock();
@@ -318,7 +318,7 @@ describe('CarritoComponent', () => {
     userServiceMock.getUserId.mockReturnValue(5);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301 } }));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301, monto: 20 } }));
     pedidoServiceMock.assignPago.mockReturnValue(of({}));
     await (component as any).finalizeOrder(1, null);
     // Sin domicilio: delivery: false, sin pk_id_domicilio
@@ -331,11 +331,13 @@ describe('CarritoComponent', () => {
     ]);
     expect(pagoServiceMock.createPago).toHaveBeenCalledWith(
       expect.objectContaining({
-        monto: 20,
+        pedidoId: 99,
         metodoPagoId: 1,
         estadoPago: 'PENDIENTE',
       }),
     );
+    // el monto lo fija el servidor: el cliente no lo envía
+    expect(pagoServiceMock.createPago.mock.calls[0][0]).not.toHaveProperty('monto');
     expect(pedidoServiceMock.assignPago).toHaveBeenCalledWith(99, 301, false);
     expect(cartServiceMock.clearCart).toHaveBeenCalled();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/cliente/mis-pedidos']);
@@ -348,7 +350,7 @@ describe('CarritoComponent', () => {
     userServiceMock.getUserId.mockReturnValue(5);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 50 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 302 } }));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 302, monto: 20 } }));
     pedidoServiceMock.assignPago.mockReturnValue(of({}));
     await (component as any).finalizeOrder(2, 7);
     // Con domicilio: delivery: true, pk_id_domicilio incluido
@@ -368,7 +370,7 @@ describe('CarritoComponent', () => {
     userServiceMock.getUserId.mockReturnValue(6);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 60 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 303 } }));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 303, monto: 20 } }));
     pedidoServiceMock.assignPago.mockReturnValue(of({}));
     await (component as any).finalizeOrder(2, 8);
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
@@ -406,7 +408,7 @@ describe('CarritoComponent', () => {
     // Mock flujo de API para que finalizeOrder complete OK
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 123 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 304 } }));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 304, monto: 20 } }));
     pedidoServiceMock.assignPago.mockReturnValue(of({}));
 
     await (component as any).finalizeOrder(2, null);
@@ -486,7 +488,7 @@ describe('CarritoComponent', () => {
       userServiceMock.getUserId.mockReturnValue(5);
       pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 77 } }));
       productoPedidoServiceMock.create.mockReturnValue(of({}));
-      pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301 } }));
+      pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301, monto: 20 } }));
       pedidoServiceMock.assignPago.mockReturnValue(
         throwError(() => ({ code, message: 'El pedido ya tiene un pago asignado' })),
       );
@@ -596,7 +598,7 @@ describe('CarritoComponent', () => {
     userServiceMock.getUserId.mockReturnValue(5);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301 } }));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301, monto: 20 } }));
     pedidoServiceMock.assignPago.mockReturnValue(of({}));
 
     await (component as any).finalizeOrder(1, null);
@@ -612,7 +614,7 @@ describe('CarritoComponent', () => {
     userServiceMock.getUserId.mockReturnValue(null);
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
     productoPedidoServiceMock.create.mockReturnValue(of({}));
-    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301 } }));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301, monto: 20 } }));
     pedidoServiceMock.assignPago.mockReturnValue(of({}));
 
     await (component as any).finalizeOrder(1, null);
@@ -673,5 +675,49 @@ describe('CarritoComponent', () => {
 
     const config = modalServiceMock.openModal.mock.calls[0][0];
     expect(config.message).toBeUndefined();
+  });
+
+  it('should use the total returned by the server (not the local preview) for toast and telemetry', async () => {
+    await setup();
+    component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 2, precio: 10 }];
+    component.subtotal = 20; // vista previa local, distinta de lo que cobra el servidor
+    userServiceMock.getUserId.mockReturnValue(5);
+    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
+    productoPedidoServiceMock.create.mockReturnValue(of({}));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301, monto: 35000 } }));
+    pedidoServiceMock.assignPago.mockReturnValue(of({}));
+
+    await (component as any).finalizeOrder(1, null);
+
+    expect(telemetryMock.logPurchase).toHaveBeenCalledWith(
+      expect.objectContaining({ subtotal: 35000 }),
+    );
+    expect(toastrServiceMock.success).toHaveBeenCalledWith(
+      `Tu pedido por $${(35000).toLocaleString('es-CO')} ha sido creado. Pronto recibirás actualizaciones.`,
+      'Pedido Exitoso',
+    );
+  });
+
+  it.each([
+    [403, 'No tienes permiso'],
+    [409, 'El pedido no tiene productos'],
+    [404, 'Pedido no encontrado'],
+  ])('should show the back reason when createPago responds %s', async (code, message) => {
+    await setup();
+    component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
+    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
+    productoPedidoServiceMock.create.mockReturnValue(of({}));
+    pagoServiceMock.createPago.mockReturnValue(throwError(() => ({ code, message })));
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+    await (component as any)
+      .finalizeOrder(1, null)
+      .catch(() => {})
+      .finally(() => errorSpy.mockRestore());
+    expect(toastrServiceMock.error).toHaveBeenCalledWith(
+      `Error al crear el pedido. Intenta nuevamente. ${message}`,
+      'Error',
+    );
+    expect(pedidoServiceMock.assignPago).not.toHaveBeenCalled();
+    expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
   });
 });

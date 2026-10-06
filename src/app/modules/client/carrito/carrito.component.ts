@@ -279,10 +279,12 @@ export class CarritoComponent implements OnInit, OnDestroy {
       const fechaPago = `${year}-${month}-${day}`;
       const horaPago = `${hour}:${minute}:${second}`;
 
+      // El monto lo calcula el servidor desde los productos del pedido (un `monto` del cliente se
+      // ignora): solo se envía el pedido y el `subtotal` local es una vista previa.
       const nuevoPago: PagoCreate = {
         fechaPago,
         horaPago,
-        monto: this.subtotal,
+        pedidoId,
         estadoPago: estadoPago.PENDIENTE,
         metodoPagoId: methodId,
       };
@@ -291,6 +293,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
         this.pagoService.createPago(nuevoPago).pipe(takeUntil(this.destroy$)),
       );
       const pagoId = pagoRes.data.pagoId;
+      const total = pagoRes.data.monto; // total real que fijó el servidor
 
       // PASO 4: Asignar pago al pedido (sin cambiar estados)
       await firstValueFrom(
@@ -313,7 +316,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
         paymentMethodLabel: methodLabel,
         requiresDelivery: domicilioId !== null,
         items: itemsSnapshot,
-        subtotal: this.subtotal,
+        subtotal: total,
       });
 
       // Las notificaciones push del pedido (al cliente y a los trabajadores) las envía el servidor.
@@ -322,7 +325,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
       this.cart.clearCart();
       this.live.announce('Pedido creado exitosamente');
       this.toastr.success(
-        'Tu pedido ha sido creado. Pronto recibirás actualizaciones.',
+        `Tu pedido por $${total.toLocaleString('es-CO')} ha sido creado. Pronto recibirás actualizaciones.`,
         'Pedido Exitoso',
       );
       this.router.navigate(['/cliente/mis-pedidos']);

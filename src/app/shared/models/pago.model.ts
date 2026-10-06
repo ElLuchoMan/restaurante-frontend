@@ -21,14 +21,24 @@ export interface Pago {
 
 /**
  * Cuerpo de POST /pagos. `fechaPago` va como YYYY-MM-DD y `horaPago` como HH:MM[:SS];
- * `monto` debe ser distinto de 0 y `metodoPagoId` es el id numérico del método.
+ * `metodoPagoId` es el id numérico del método.
+ *
+ * El servidor manda el monto: `MAX(0, SUM(precio x cantidad del detalle) - descuentos aplicados)`
+ * (no hay costo de domicilio ni propina). Un Cliente debe enviar `pedidoId` (su pedido, con
+ * productos; 404 si es ajeno, 409 si no tiene productos o ya tiene pago) y su `monto` se ignora:
+ * el monto real viene en la respuesta (`Pago.monto`). El personal puede enviar `pedidoId` con
+ * `monto` 0/omitido (usa el calculado) o fijar un `monto` manual > 0; sin `pedidoId` el `monto`
+ * es obligatorio.
  */
 export interface PagoCreate {
   estadoPago: estadoPago;
   fechaPago: string;
   horaPago: string;
   metodoPagoId: number;
-  monto: number;
+  /** Pedido del que el servidor calcula el monto (obligatorio para un Cliente). */
+  pedidoId?: number;
+  /** Solo personal (manual > 0); un Cliente no lo envía y, si lo envía, se ignora. */
+  monto?: number;
   updatedBy?: string;
 }
 
