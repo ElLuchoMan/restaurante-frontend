@@ -9,23 +9,20 @@ import { takeUntil } from 'rxjs/operators';
 
 import { CartService } from '../../../core/services/cart.service';
 import { ClienteService } from '../../../core/services/cliente.service';
-import { DomicilioService } from '../../../core/services/domicilio.service';
 import { LiveAnnouncerService } from '../../../core/services/live-announcer.service';
 import { MetodosPagoService } from '../../../core/services/metodos-pago.service';
 import { ModalService } from '../../../core/services/modal.service';
-import { PagoService } from '../../../core/services/pago.service';
 import { PedidoService } from '../../../core/services/pedido.service';
-import { ProductoPedidoService } from '../../../core/services/producto-pedido.service';
 import { TelemetryService } from '../../../core/services/telemetry.service';
 import { UserService } from '../../../core/services/user.service';
-import { estadoDomicilio, estadoPago } from '../../../shared/constants';
+import {
+  CheckoutDomicilio,
+  CheckoutError,
+  CheckoutRequest,
+} from '../../../shared/models/checkout.model';
 import { Cliente } from '../../../shared/models/cliente.model';
-import { DomicilioCreate } from '../../../shared/models/domicilio.model';
 import { MetodosPago } from '../../../shared/models/metodo-pago.model';
-import { PagoCreate } from '../../../shared/models/pago.model';
-import { PedidoCreate } from '../../../shared/models/pedido.model';
 import { Producto } from '../../../shared/models/producto.model';
-import { ProductoPedidoError } from '../../../shared/models/producto-pedido.model';
 
 @Component({
   selector: 'app-carrito',
@@ -42,15 +39,13 @@ export class CarritoComponent implements OnInit, OnDestroy {
   paymentMethods: MetodosPago[] = [];
 
   private destroy$ = new Subject<void>();
+  private enviando = false;
 
   constructor(
     private cart: CartService,
     private modalService: ModalService,
     private metodosPagoService: MetodosPagoService,
-    private domicilioService: DomicilioService,
     private pedidoService: PedidoService,
-    private productoPedidoService: ProductoPedidoService,
-    private pagoService: PagoService,
     private userService: UserService,
     private clienteService: ClienteService,
     private router: Router,
@@ -151,26 +146,24 @@ export class CarritoComponent implements OnInit, OnDestroy {
       deliverySelect.selected === true || String(deliverySelect.selected).toLowerCase() === 'true';
 
     this.modalService.closeModal();
-
+    // Evita un segundo checkout mientras el primero sigue en vuelo (crearía otro pedido).
+    if (this.enviando) return;
+    this.enviando = true;
     try {
-      let domicilioId: number | null = null;
-
-      // 🔹 Si requiere domicilio, crearlo PRIMERO
+      let domicilio: CheckoutDomicilio | undefined;
       if (needsDelivery) {
-        const clienteId = this.userService.getUserId();
-        const cliente = await this.fetchCliente(clienteId);
-        domicilioId = await this.crearDomicilio(cliente, clienteId, metodoLabel, observacion);
-        console.log(`✅ Domicilio creado con ID: ${domicilioId}`);
+        const cliente = await this.fetchCliente(this.userService.getUserId());
+        if (!cliente) return;
+        domicilio = this.construirDomicilio(cliente, metodoLabel, observacion);
       }
-
-      // 🔹 Crear el pedido (con o sin domicilio según corresponda)
-      await this.finalizeOrder(methodId, domicilioId);
-    } catch (err) {
-      this.handleError(err, 'No se pudo completar el checkout');
+      await this.enviarCheckout(methodId, domicilio);
+    } finally {
+      this.enviando = false;
     }
   }
 
-  private async fetchCliente(clienteId: number): Promise<Cliente> {
+  /** Devuelve el cliente de la sesión o `null` (tras avisar al usuario) si no se pudo obtener. */
+  private async fetchCliente(clienteId: number): Promise<Cliente | null> {
     try {
       const res = await firstValueFrom(
         this.clienteService.getClienteId(clienteId).pipe(takeUntil(this.destroy$)),
@@ -181,22 +174,16 @@ export class CarritoComponent implements OnInit, OnDestroy {
       return res.data;
     } catch (err) {
       this.handleError(err, 'Error al obtener datos del cliente');
-      throw err;
+      return null;
     }
   }
 
-  private async crearDomicilio(
+  /** Domicilio del checkout: dirección y teléfono del cliente más las observaciones del pedido. */
+  private construirDomicilio(
     cliente: Cliente,
-    clienteId: number,
     metodoLabel: string,
     observacion: string,
-  ): Promise<number> {
-    const hoy = new Date();
-    const yyyy = hoy.getFullYear();
-    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dd = String(hoy.getDate()).padStart(2, '0');
-    const fechaHoy = `${yyyy}-${mm}-${dd}`;
-
+  ): CheckoutDomicilio {
     // Construir observaciones incluyendo las de cada producto
     let obsCompleta = `Método pago: ${metodoLabel}`;
 
@@ -218,87 +205,30 @@ export class CarritoComponent implements OnInit, OnDestroy {
       obsCompleta += ' - Sin observaciones';
     }
 
-    const nuevoDomicilio: DomicilioCreate = {
-      direccion: cliente.direccion,
-      telefono: cliente.telefono,
-      estadoDomicilio: estadoDomicilio.PENDIENTE,
-      fechaDomicilio: fechaHoy,
-      observaciones: obsCompleta,
-      createdBy: `Usuario ${clienteId}`,
-    };
-
-    try {
-      const resp = await firstValueFrom(
-        this.domicilioService.createDomicilio(nuevoDomicilio).pipe(takeUntil(this.destroy$)),
-      );
-      return resp.data.domicilioId;
-    } catch (err) {
-      this.handleError(err, 'Error al crear domicilio');
-      throw err;
-    }
+    // La fecha del domicilio y el estado (PENDIENTE) los fija el servidor.
+    return { direccion: cliente.direccion, telefono: cliente.telefono, observaciones: obsCompleta };
   }
 
-  private async finalizeOrder(methodId: number, domicilioId: number | null): Promise<void> {
+  /**
+   * Una sola llamada atómica: el back crea domicilio, pedido, productos (descontando inventario) y
+   * pago en una transacción; si falla no queda nada guardado y el usuario puede reintentar. El
+   * cliente sale del token y el monto lo calcula el servidor (el `subtotal` local es solo una
+   * vista previa).
+   */
+  private async enviarCheckout(methodId: number, domicilio?: CheckoutDomicilio): Promise<void> {
     try {
       const documentoCliente = this.userService.getUserId();
-
-      // PASO 1: Crear pedido base (con pk_id_domicilio si se requiere). El cliente sale del token
-      // en el back: un `documentoCliente` distinto al de la sesión respondería 403, así que no se envía.
-      const pedidoPayload: PedidoCreate = {
-        delivery: domicilioId !== null,
+      const request: CheckoutRequest = {
         restauranteId: 1,
-        ...(domicilioId !== null && { pk_id_domicilio: domicilioId }),
+        ...(domicilio && { domicilio }),
+        productos: this.carrito.map((p) => ({ productoId: p.productoId!, cantidad: p.cantidad! })),
+        pago: { metodoPagoId: methodId },
       };
 
-      const pedidoRes = await firstValueFrom(
-        this.pedidoService.createPedido(pedidoPayload).pipe(takeUntil(this.destroy$)),
+      const res = await firstValueFrom(
+        this.pedidoService.checkout(request).pipe(takeUntil(this.destroy$)),
       );
-      const pedidoId = pedidoRes.data.pedidoId;
-
-      // PASO 2: Asociar productos al pedido
-      const detalles = this.carrito.map((p) => ({
-        productoId: p.productoId!,
-        cantidad: p.cantidad!,
-      }));
-
-      await firstValueFrom(
-        this.productoPedidoService.create(pedidoId, detalles).pipe(takeUntil(this.destroy$)),
-      );
-
-      // PASO 3: Crear registro de pago
-      const now = new Date();
-
-      // Obtener fecha/hora UTC con formato correcto (el backend maneja la conversión a Bogotá)
-      const year = now.getUTCFullYear();
-      const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(now.getUTCDate()).padStart(2, '0');
-      const hour = String(now.getUTCHours()).padStart(2, '0');
-      const minute = String(now.getUTCMinutes()).padStart(2, '0');
-      const second = String(now.getUTCSeconds()).padStart(2, '0');
-
-      const fechaPago = `${year}-${month}-${day}`;
-      const horaPago = `${hour}:${minute}:${second}`;
-
-      // El monto lo calcula el servidor desde los productos del pedido (un `monto` del cliente se
-      // ignora): solo se envía el pedido y el `subtotal` local es una vista previa.
-      const nuevoPago: PagoCreate = {
-        fechaPago,
-        horaPago,
-        pedidoId,
-        estadoPago: estadoPago.PENDIENTE,
-        metodoPagoId: methodId,
-      };
-
-      const pagoRes = await firstValueFrom(
-        this.pagoService.createPago(nuevoPago).pipe(takeUntil(this.destroy$)),
-      );
-      const pagoId = pagoRes.data.pagoId;
-      const total = pagoRes.data.monto; // total real que fijó el servidor
-
-      // PASO 4: Asignar pago al pedido (sin cambiar estados)
-      await firstValueFrom(
-        this.pedidoService.assignPago(pedidoId, pagoId, false).pipe(takeUntil(this.destroy$)),
-      );
+      const total = res.data.monto; // total real que fijó el servidor
 
       // ✅ Telemetría de compra completada
       const itemsSnapshot = this.carrito.map((p) => ({
@@ -314,7 +244,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
         userId: documentoCliente || null,
         paymentMethodId: methodId,
         paymentMethodLabel: methodLabel,
-        requiresDelivery: domicilioId !== null,
+        requiresDelivery: !!domicilio,
         items: itemsSnapshot,
         subtotal: total,
       });
@@ -329,8 +259,8 @@ export class CarritoComponent implements OnInit, OnDestroy {
         'Pedido Exitoso',
       );
       this.router.navigate(['/cliente/mis-pedidos']);
-    } catch (err: any) {
-      // Manejar errores específicos: 409 con el detalle por producto (ProductoPedidoError.data)
+    } catch (err) {
+      // 409 con el detalle por producto (CheckoutError.data): el carrito se conserva para ajustarlo
       const faltantes = this.inventarioInsuficiente(err);
       if (faltantes) {
         this.toastr.error(
@@ -340,16 +270,15 @@ export class CarritoComponent implements OnInit, OnDestroy {
       } else {
         this.handleError(err, 'Error al crear el pedido. Intenta nuevamente.');
       }
-      throw err;
     }
   }
 
   /**
-   * Si el error es el 409 de inventario de /producto_pedido devuelve el texto con los productos
+   * Si el error es el 409 de inventario de /pedidos/checkout devuelve el texto con los productos
    * faltantes (nombre del carrito, requerido y disponible); si no, `null`.
    */
   private inventarioInsuficiente(err: unknown): string | null {
-    const e = err as Partial<ProductoPedidoError> | null;
+    const e = err as Partial<CheckoutError> | null;
     if (e?.code !== 409 || !Array.isArray(e.data)) return null;
     return e.data
       .map((i) => {

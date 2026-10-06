@@ -305,6 +305,7 @@ export function createDomicilioServiceMock() {
 export function createPedidoServiceMock() {
   return {
     createPedido: jest.fn(),
+    checkout: jest.fn(),
     assignPago: jest.fn(),
     assignDomicilio: jest.fn(),
     getMisPedidos: jest.fn(),

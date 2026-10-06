@@ -1,5 +1,6 @@
 import { EstadoPedido } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
+import { CheckoutRequest, CheckoutResultado } from '../models/checkout.model';
 import { Pedido, PedidoCreate, PedidoDetalle } from '../models/pedido.model';
 
 // Formas reales del back: fechaPedido DD-MM-YYYY, horaPedido HH:MM:SS y relaciones como objetos.
@@ -50,6 +51,31 @@ export const mockPedidoBody: PedidoCreate = {
   restauranteId: 1,
   documentoCliente: 1015466495,
   pk_id_domicilio: 2,
+};
+
+export const mockCheckoutBody: CheckoutRequest = {
+  restauranteId: 1,
+  domicilio: { direccion: 'Calle 1 #2-3', telefono: '3001234567', observaciones: 'Timbre' },
+  productos: [{ productoId: 1, cantidad: 2 }],
+  pago: { metodoPagoId: 2 },
+};
+
+export const mockCheckoutResponse: ApiResponse<CheckoutResultado> = {
+  code: 201,
+  message: 'Pedido creado exitosamente',
+  data: {
+    pedidoId: 9,
+    fechaPedido: '31-01-2025',
+    horaPedido: '18:30:00',
+    delivery: true,
+    estadoPedido: EstadoPedido.EstadoPedidoIniciado,
+    domicilioId: { domicilioId: 3 },
+    pagoId: { pagoId: 4 },
+    restauranteId: { restauranteId: 1 },
+    documentoCliente: { documentoCliente: 1015466495 },
+    updatedAt: '31-01-2025 18:30:00',
+    monto: 50000,
+  },
 };
 
 export const mockPedidoDetalle: ApiResponse<PedidoDetalle> = {

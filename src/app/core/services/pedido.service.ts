@@ -1,10 +1,15 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { EstadoPedido } from '../../shared/constants';
 import { ApiResponse } from '../../shared/models/api-response.model';
+import {
+  CheckoutError,
+  CheckoutRequest,
+  CheckoutResultado,
+} from '../../shared/models/checkout.model';
 import {
   Pedido,
   PedidoCreate,
@@ -31,6 +36,37 @@ export class PedidoService {
   ) {}
 
   /**
+   * POST /pedidos/checkout. Crea en UNA transacción el domicilio (si viene), el pedido, sus
+   * productos (descontando inventario) y el pago; si algo falla el back deshace todo, así que
+   * reintentar es seguro. Responde 201 con el pedido completo y el `monto` que fijó el servidor.
+   *
+   * Errores: 400 cuerpo inválido; 403 un Cliente envió otro `documentoCliente` o un estado de pago
+   * distinto de PENDIENTE; 404 restaurante, método de pago, cliente o producto inexistente; 409
+   * inventario insuficiente (el error lleva el detalle por producto en `data`: `CheckoutError`) o
+   * conflicto con datos existentes.
+   */
+  checkout(body: CheckoutRequest): Observable<ApiResponse<CheckoutResultado>> {
+    return this.http
+      .post<ApiResponse<CheckoutResultado>>(`${this.baseUrl}/checkout`, body)
+      .pipe(catchError((err) => this.mapCheckoutError(err)));
+  }
+
+  /** Conserva el detalle de inventario del 409 (HandleErrorService lo descartaría). */
+  private mapCheckoutError(err: HttpErrorResponse): Observable<never> {
+    const data = err.error?.data;
+    if (err.status === 409 && Array.isArray(data)) {
+      const error: CheckoutError = {
+        code: err.status,
+        message: err.error?.message || 'Inventario insuficiente',
+        cause: err.error?.cause || 'No especificado',
+        data,
+      };
+      return throwError(() => error);
+    }
+    return this.handleError.handleError(err);
+  }
+
+  /**
    * POST /pedidos. Responde 201 con el pedido creado (estado INICIADO, fecha y hora del
    * servidor); 404 si `pk_id_domicilio`, `restauranteId` o `documentoCliente` no existen. Un
    * Cliente siempre crea a su nombre (el documento sale del token): enviar otro
@@ -46,7 +82,9 @@ export class PedidoService {
    * POST /pedidos/asignar-pago. Con `cambiarEstado` el back marca el pedido TERMINADO y el pago
    * PAGADO (se envía siempre explícito: el valor por defecto del back es `true`). `data` es el
    * pedido completo actualizado. Un Cliente solo puede usarlo con `cambiarEstado=false` (403 si
-   * no) sobre su propio pedido (404 si es ajeno) y mientras el pedido no tenga ya un pago (409).
+   * no) sobre su propio pedido (404 si es ajeno) y es idempotente: únicamente confirma (y el back
+   * recalcula el monto de) un pago ya ligado a ESE pedido (como el que crea `checkout`); un pago
+   * huérfano o de otro pedido responde 404, nunca se vincula.
    */
   assignPago(
     pedidoId: number,

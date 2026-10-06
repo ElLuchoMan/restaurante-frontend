@@ -25,10 +25,11 @@ export interface Pago {
  *
  * El servidor manda el monto: `MAX(0, SUM(precio x cantidad del detalle) - descuentos aplicados)`
  * (no hay costo de domicilio ni propina). Un Cliente debe enviar `pedidoId` (su pedido, con
- * productos; 404 si es ajeno, 409 si no tiene productos o ya tiene pago) y su `monto` se ignora:
+ * productos; 404 si es ajeno, 409 si no tiene productos o ya tiene pago), solo en estado PENDIENTE
+ * (403 si no), y su `monto` se ignora: el back crea el pago y lo liga al pedido en una transacción y
  * el monto real viene en la respuesta (`Pago.monto`). El personal puede enviar `pedidoId` con
- * `monto` 0/omitido (usa el calculado) o fijar un `monto` manual > 0; sin `pedidoId` el `monto`
- * es obligatorio.
+ * `monto` 0/omitido (usa el calculado, sin ligarlo) o fijar un `monto` manual > 0; sin `pedidoId`
+ * el `monto` es obligatorio.
  */
 export interface PagoCreate {
   estadoPago: estadoPago;

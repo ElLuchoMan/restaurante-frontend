@@ -13,9 +13,10 @@ import { HandleErrorService } from './handle-error.service';
  * `data: []`.
  *
  * Permisos: el personal ve y gestiona todos los pagos; un Cliente solo ve los de sus pedidos
- * (otro pago responde 404), puede crear pagos únicamente en estado PENDIENTE (403 si no) y no
- * puede modificar ni eliminar (403). El monto de un pago de Cliente lo calcula el servidor desde
- * el pedido (ver `PagoCreate`).
+ * (otro pago responde 404), puede crear pagos únicamente en estado PENDIENTE y con `pedidoId`
+ * (403 si no; el back crea el pago y lo liga al pedido en una transacción) y no puede modificar ni
+ * eliminar (403). El monto lo calcula el servidor desde el pedido (ver `PagoCreate`). Para
+ * comprar, el carrito usa `PedidoService.checkout` (una sola llamada atómica).
  */
 @Injectable({ providedIn: 'root' })
 export class PagoService {

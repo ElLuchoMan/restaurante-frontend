@@ -4,6 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { EstadoPedido } from '../../shared/constants';
 import {
+  mockCheckoutBody,
+  mockCheckoutResponse,
   mockPedidoBody,
   mockPedidoDetalle,
   mockPedidosFiltroResponse,
@@ -53,6 +55,63 @@ describe('PedidoService', () => {
     req.error(new ErrorEvent('Network error'));
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });
+
+  it('checks out in a single POST and returns the order with the server amount', () => {
+    service.checkout(mockCheckoutBody).subscribe((res) => {
+      expect(res).toEqual(mockCheckoutResponse);
+      expect(res.data.monto).toBe(50000);
+    });
+    const req = http.expectOne(`${baseUrl}/checkout`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(mockCheckoutBody);
+    req.flush(mockCheckoutResponse);
+  });
+
+  it('keeps the per-product detail of a 409 inventory error on checkout', () => {
+    const data = [{ productoId: 1, requerido: 5, disponible: 2 }];
+    let error: unknown;
+    service.checkout(mockCheckoutBody).subscribe({ error: (e) => (error = e) });
+    http
+      .expectOne(`${baseUrl}/checkout`)
+      .flush(
+        { code: 409, message: 'Inventario insuficiente para uno o más productos', data },
+        { status: 409, statusText: 'Conflict' },
+      );
+    expect(error).toEqual({
+      code: 409,
+      message: 'Inventario insuficiente para uno o más productos',
+      cause: 'No especificado',
+      data,
+    });
+    expect(mockHandleErrorService.handleError).not.toHaveBeenCalled();
+  });
+
+  it('uses default message and cause for a 409 inventory error without them', () => {
+    let error: any;
+    service.checkout(mockCheckoutBody).subscribe({ error: (e) => (error = e) });
+    http
+      .expectOne(`${baseUrl}/checkout`)
+      .flush({ data: [] }, { status: 409, statusText: 'Conflict' });
+    expect(error).toEqual({
+      code: 409,
+      message: 'Inventario insuficiente',
+      cause: 'No especificado',
+      data: [],
+    });
+  });
+
+  it.each([
+    [409, { message: 'conflicto' }],
+    [403, { message: 'otro cliente', data: [] }],
+    [500, null],
+  ])(
+    'delegates a %s without inventory detail to HandleErrorService on checkout',
+    (status, body) => {
+      service.checkout(mockCheckoutBody).subscribe({ error: (err) => expect(err).toBeTruthy() });
+      http.expectOne(`${baseUrl}/checkout`).flush(body, { status, statusText: 'Error' });
+      expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+    },
+  );
 
   it('assigns pago with default cambiar_estado=false', () => {
     const mock = { code: 200, message: 'ok' };
