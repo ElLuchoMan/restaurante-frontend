@@ -242,11 +242,11 @@ export class CarritoComponent implements OnInit, OnDestroy {
     try {
       const documentoCliente = this.userService.getUserId();
 
-      // PASO 1: Crear pedido base (con pk_id_domicilio si se requiere)
+      // PASO 1: Crear pedido base (con pk_id_domicilio si se requiere). El cliente sale del token
+      // en el back: un `documentoCliente` distinto al de la sesión respondería 403, así que no se envía.
       const pedidoPayload: PedidoCreate = {
         delivery: domicilioId !== null,
         restauranteId: 1,
-        ...(documentoCliente && { documentoCliente }),
         ...(domicilioId !== null && { pk_id_domicilio: domicilioId }),
       };
 
@@ -360,6 +360,9 @@ export class CarritoComponent implements OnInit, OnDestroy {
 
   private handleError(error: unknown, message: string): void {
     console.error(message, error);
-    this.toastr.error(message, 'Error');
+    // 403/404/409 traen un motivo claro del back (p. ej. "El pedido ya tiene un pago asignado").
+    const api = error as Partial<{ code: number; message: string }> | null;
+    const motivo = api?.code && [403, 404, 409].includes(api.code) ? api.message : undefined;
+    this.toastr.error(motivo ? `${message} ${motivo}` : message, 'Error');
   }
 }

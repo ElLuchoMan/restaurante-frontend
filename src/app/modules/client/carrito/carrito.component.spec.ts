@@ -325,7 +325,6 @@ describe('CarritoComponent', () => {
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: false,
       restauranteId: 1,
-      documentoCliente: 5,
     });
     expect(productoPedidoServiceMock.create).toHaveBeenCalledWith(99, [
       { productoId: 1, cantidad: 2 },
@@ -356,7 +355,6 @@ describe('CarritoComponent', () => {
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: true,
       restauranteId: 1,
-      documentoCliente: 5,
       pk_id_domicilio: 7,
     });
     expect(pagoServiceMock.createPago).toHaveBeenCalled();
@@ -376,7 +374,6 @@ describe('CarritoComponent', () => {
     expect(pedidoServiceMock.createPedido).toHaveBeenCalledWith({
       delivery: true,
       restauranteId: 1,
-      documentoCliente: 6,
       pk_id_domicilio: 8,
     });
     expect(pagoServiceMock.createPago).toHaveBeenCalled();
@@ -462,7 +459,7 @@ describe('CarritoComponent', () => {
     expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
   });
 
-  it('should show the generic error for a 409 without inventory detail (producto ya presente)', async () => {
+  it('should show the back reason for a 409 without inventory detail (producto ya presente)', async () => {
     await setup();
     (component as any).carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
     pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 77 } }));
@@ -475,10 +472,52 @@ describe('CarritoComponent', () => {
       .catch(() => {})
       .finally(() => errorSpy.mockRestore());
     expect(toastrServiceMock.error).toHaveBeenCalledWith(
-      'Error al crear el pedido. Intenta nuevamente.',
+      'Error al crear el pedido. Intenta nuevamente. ya existe',
       'Error',
     );
     expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
+  });
+
+  it.each([403, 404, 409])(
+    'should append the reason of a %i when assigning the pago fails',
+    async (code) => {
+      await setup();
+      (component as any).carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
+      userServiceMock.getUserId.mockReturnValue(5);
+      pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 77 } }));
+      productoPedidoServiceMock.create.mockReturnValue(of({}));
+      pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301 } }));
+      pedidoServiceMock.assignPago.mockReturnValue(
+        throwError(() => ({ code, message: 'El pedido ya tiene un pago asignado' })),
+      );
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+      await (component as any)
+        .finalizeOrder(1, null)
+        .catch(() => {})
+        .finally(() => errorSpy.mockRestore());
+      expect(toastrServiceMock.error).toHaveBeenCalledWith(
+        'Error al crear el pedido. Intenta nuevamente. El pedido ya tiene un pago asignado',
+        'Error',
+      );
+      expect(cartServiceMock.clearCart).not.toHaveBeenCalled();
+    },
+  );
+
+  it('should not append the reason of other statuses such as 500', async () => {
+    await setup();
+    (component as any).carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
+    pedidoServiceMock.createPedido.mockReturnValue(
+      throwError(() => ({ code: 500, message: 'detalle interno' })),
+    );
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+    await (component as any)
+      .finalizeOrder(1, null)
+      .catch(() => {})
+      .finally(() => errorSpy.mockRestore());
+    expect(toastrServiceMock.error).toHaveBeenCalledWith(
+      'Error al crear el pedido. Intenta nuevamente.',
+      'Error',
+    );
   });
 
   it('should abort before creating the pago when producto_pedido rejects for inventory', async () => {
@@ -548,6 +587,22 @@ describe('CarritoComponent', () => {
       'Error al crear el pedido. Intenta nuevamente.',
       'Error',
     );
+  });
+
+  it('should never send documentoCliente (it comes from the token) even with a session user', async () => {
+    await setup();
+    component.carrito = [{ productoId: 1, nombre: 'P1', cantidad: 1, precio: 10 }];
+    component.subtotal = 10;
+    userServiceMock.getUserId.mockReturnValue(5);
+    pedidoServiceMock.createPedido.mockReturnValue(of({ data: { pedidoId: 99 } }));
+    productoPedidoServiceMock.create.mockReturnValue(of({}));
+    pagoServiceMock.createPago.mockReturnValue(of({ data: { pagoId: 301 } }));
+    pedidoServiceMock.assignPago.mockReturnValue(of({}));
+
+    await (component as any).finalizeOrder(1, null);
+
+    expect(pedidoServiceMock.createPedido.mock.calls[0][0]).not.toHaveProperty('documentoCliente');
+    expect(telemetryMock.logPurchase).toHaveBeenCalledWith(expect.objectContaining({ userId: 5 }));
   });
 
   it('should create the order without documentoCliente when there is no session user', async () => {

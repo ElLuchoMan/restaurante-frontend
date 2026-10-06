@@ -177,7 +177,7 @@ export class RutaDomicilioComponent implements OnInit {
           this.logger.log(LogLevel.INFO, 'Domicilio marcado como finalizado', response);
         },
         error: (err) => {
-          this.toastrService.error('Error al marcar como finalizado');
+          this.toastrService.error(err?.message || 'Error al marcar como finalizado');
           console.error('Error al marcar finalizado', err);
         },
       });
@@ -229,12 +229,19 @@ export class RutaDomicilioComponent implements OnInit {
                     if (pagoId) {
                       this.pedidoService.assignPago(this.pedidoId, pagoId).subscribe({
                         next: () => this.toastrService.success('Pago asignado al domicilio'),
-                        error: (err) =>
-                          this.logger.log(LogLevel.ERROR, 'Error al asignar pago:', err),
+                        error: (err) => {
+                          this.logger.log(LogLevel.ERROR, 'Error al asignar pago:', err);
+                          this.toastrService.error(
+                            err?.message || 'Error al asignar el pago al domicilio',
+                          );
+                        },
                       });
                     }
                   },
-                  error: (err) => this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err),
+                  error: (err) => {
+                    this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err);
+                    this.toastrService.error(err?.message || 'Error al crear el pago');
+                  },
                 });
             } catch (error) {
               this.logger.log(LogLevel.ERROR, 'Error al crear pago:', error);
@@ -246,7 +253,7 @@ export class RutaDomicilioComponent implements OnInit {
               })
               .subscribe(
                 () => this.toastrService.success('Domicilio marcado como pagado'),
-                () => this.toastrService.error('Error al marcar como pagado'),
+                (err) => this.toastrService.error(err?.message || 'Error al marcar como pagado'),
               );
 
             this.modalService.closeModal();

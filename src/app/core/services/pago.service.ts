@@ -9,7 +9,12 @@ import { HandleErrorService } from './handle-error.service';
 
 /**
  * Cliente de `/pagos` (requiere token). El back usa el status HTTP real (400 datos inválidos,
- * 404 inexistente) y un listado sin resultados responde 200 con `data: []`.
+ * 403 sin permiso, 404 inexistente, 409 conflicto) y un listado sin resultados responde 200 con
+ * `data: []`.
+ *
+ * Permisos: el personal ve y gestiona todos los pagos; un Cliente solo ve los de sus pedidos
+ * (otro pago responde 404), puede crear pagos únicamente en estado PENDIENTE (403 si no) y no
+ * puede modificar ni eliminar (403).
  */
 @Injectable({ providedIn: 'root' })
 export class PagoService {
@@ -45,7 +50,11 @@ export class PagoService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** PUT /pagos?id=: merge, el cuerpo puede ser parcial. Responde el pago actualizado. */
+  /**
+   * PUT /pagos?id=: solo personal; merge, el cuerpo puede ser parcial. Responde el pago
+   * actualizado. 409 si se cambia `monto` de un pago ya PAGADO o de uno cuyo pedido tiene
+   * descuentos aplicados (el monto ya refleja el descuento).
+   */
   updatePago(id: number, payload: PagoUpdate): Observable<ApiResponse<Pago>> {
     return this.http
       .put<ApiResponse<Pago>>(`${this.baseUrl}?id=${id}`, payload)

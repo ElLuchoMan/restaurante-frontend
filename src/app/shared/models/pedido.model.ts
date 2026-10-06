@@ -35,6 +35,10 @@ export interface Pedido {
 export interface PedidoCreate {
   delivery: boolean;
   restauranteId?: number;
+  /**
+   * Solo para personal que crea el pedido a nombre de un cliente (sin él, pedido de mostrador).
+   * Un Cliente NO lo envía: el back toma el documento del token y uno distinto responde 403.
+   */
   documentoCliente?: number;
   pk_id_domicilio?: number;
 }

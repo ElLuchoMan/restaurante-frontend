@@ -15,8 +15,12 @@ import { HandleErrorService } from './handle-error.service';
 
 /**
  * Cliente de `/domicilios` (requiere token). El back usa el status HTTP real (400 filtros o body
- * inválidos, 404 inexistente, 409 conflicto) y un listado sin resultados responde 200 con
- * `data: []`.
+ * inválidos, 403 sin permiso, 404 inexistente, 409 conflicto) y un listado sin resultados
+ * responde 200 con `data: []`.
+ *
+ * Permisos: listar, actualizar, eliminar y asignar domiciliario son solo de personal (un
+ * Domiciliario únicamente puede asignarse a sí mismo); un Cliente puede crear un domicilio
+ * PENDIENTE sin trabajador y consultar solo el de su propio pedido (otro responde 404).
  */
 @Injectable({
   providedIn: 'root',

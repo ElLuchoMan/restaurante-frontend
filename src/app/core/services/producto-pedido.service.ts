@@ -18,8 +18,9 @@ import { HandleErrorService } from './handle-error.service';
  * El back usa el status HTTP real. Un 409 por inventario insuficiente trae en `data` la lista
  * `{ productoId, requerido, disponible }`; `HandleErrorService` la descarta, así que aquí se
  * conserva en el error (`ProductoPedidoError.data`). El resto de errores (400 línea inválida,
- * 404 pedido/producto inexistente, 409 producto ya presente en el pedido) pasan por
- * `HandleErrorService`.
+ * 404 pedido/producto inexistente o, para un Cliente, de otro cliente, 409 producto ya presente
+ * en el pedido) pasan por `HandleErrorService`. Un Cliente solo lee y modifica los productos de
+ * su propio pedido.
  */
 @Injectable({ providedIn: 'root' })
 export class ProductoPedidoService {

@@ -15,7 +15,11 @@ import { HandleErrorService } from './handle-error.service';
 
 /**
  * Cliente de `/pedidos`. Todos los endpoints requieren token. El back usa el status HTTP real
- * (400 parámetros inválidos, 404 inexistente) y los listados vacíos responden 200 con `data: []`.
+ * (400 parámetros inválidos, 403 sin permiso, 404 inexistente, 409 conflicto) y los listados
+ * vacíos responden 200 con `data: []`.
+ *
+ * Permisos: un Cliente solo lee y crea lo suyo (un pedido ajeno responde 404, igual que si no
+ * existiera); cambiar el estado de un pedido es solo de personal (403 a un Cliente).
  */
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
@@ -28,7 +32,9 @@ export class PedidoService {
 
   /**
    * POST /pedidos. Responde 201 con el pedido creado (estado INICIADO, fecha y hora del
-   * servidor); 404 si `pk_id_domicilio`, `restauranteId` o `documentoCliente` no existen.
+   * servidor); 404 si `pk_id_domicilio`, `restauranteId` o `documentoCliente` no existen. Un
+   * Cliente siempre crea a su nombre (el documento sale del token): enviar otro
+   * `documentoCliente` responde 403.
    */
   createPedido(pedido: PedidoCreate): Observable<ApiResponse<Pedido>> {
     return this.http
@@ -39,7 +45,8 @@ export class PedidoService {
   /**
    * POST /pedidos/asignar-pago. Con `cambiarEstado` el back marca el pedido TERMINADO y el pago
    * PAGADO (se envía siempre explícito: el valor por defecto del back es `true`). `data` es el
-   * pedido completo actualizado.
+   * pedido completo actualizado. Un Cliente solo puede usarlo con `cambiarEstado=false` (403 si
+   * no) sobre su propio pedido (404 si es ajeno) y mientras el pedido no tenga ya un pago (409).
    */
   assignPago(
     pedidoId: number,
@@ -65,7 +72,10 @@ export class PedidoService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  /** GET /pedidos?cliente=. Sin pedidos responde 200 con `data: []`. */
+  /**
+   * GET /pedidos?cliente=. Sin pedidos responde 200 con `data: []`. Un Cliente solo puede pedir
+   * su propio documento (otro responde 403).
+   */
   getMisPedidos(clienteId: number): Observable<ApiResponse<Pedido[]>> {
     const params = new HttpParams().set('cliente', clienteId.toString());
     return this.http
@@ -101,8 +111,8 @@ export class PedidoService {
   }
 
   /**
-   * PUT /pedidos/actualizar-estado. Responde el pedido completo; 400 si el estado no es uno de
-   * `EstadoPedido`.
+   * PUT /pedidos/actualizar-estado. Solo personal (403 a un Cliente). Responde el pedido
+   * completo; 400 si el estado no es uno de `EstadoPedido`.
    */
   updateEstado(pedidoId: number, estado: EstadoPedido): Observable<ApiResponse<Pedido>> {
     const params = new HttpParams().set('pedido_id', String(pedidoId)).set('estado', estado);

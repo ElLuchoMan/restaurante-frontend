@@ -35,7 +35,9 @@ export interface PagoCreate {
 /**
  * Cuerpo de PUT /pagos?id=: actualización parcial (merge), ningún campo es obligatorio y `{}`
  * es válido. `fecha`/`hora` son alias de `fechaPago`/`horaPago`. Solo `updatedBy` es anulable
- * (`null` lo limpia); `null` en cualquier otro campo responde 400.
+ * (`null` lo limpia); `null` en cualquier otro campo responde 400. Solo personal (403 a un
+ * Cliente). `monto` no se puede cambiar si el pago ya está PAGADO o si su pedido tiene descuentos
+ * aplicados (409): el monto ya refleja el descuento.
  */
 export interface PagoUpdate {
   /** YYYY-MM-DD */

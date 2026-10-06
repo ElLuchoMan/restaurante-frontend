@@ -12,8 +12,10 @@ import {
 import { HandleErrorService } from './handle-error.service';
 
 /**
- * Cliente de `/metodos_pago` (requiere token). El back usa el status HTTP real (404 si el método
- * no existe, 409 al eliminar uno referenciado por pagos) y la lista vacía responde `data: []`.
+ * Cliente de `/metodos_pago` (requiere token). El back usa el status HTTP real (403 si quien
+ * crea, edita o elimina no es Administrador, 404 si el método no existe, 409 al eliminar uno
+ * referenciado por pagos) y la lista vacía responde `data: []`. Leer está abierto a cualquier
+ * sesión (el carrito del cliente lista los métodos).
  */
 @Injectable({
   providedIn: 'root',
