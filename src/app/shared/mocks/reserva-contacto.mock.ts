@@ -1,15 +1,16 @@
 import { ApiResponse } from '../models/api-response.model';
 import { ReservaContacto } from '../models/reserva-contacto.model';
 
+// `documentoCliente` llega como objeto embebido (no como número).
 export const mockReservaContactosByDocumentoCliente: ApiResponse<ReservaContacto[]> = {
   code: 200,
-  message: 'Contactos encontrados',
+  message: 'Contactos obtenidos',
   data: [
     {
       contactoId: 1,
       nombreCompleto: 'Carlos Perez',
       telefono: '3216549870',
-      documentoCliente: 1015466495,
+      documentoCliente: { documentoCliente: 1015466495 },
     },
   ],
 };

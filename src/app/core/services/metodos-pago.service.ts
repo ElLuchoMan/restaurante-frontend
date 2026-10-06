@@ -4,9 +4,19 @@ import { catchError, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { MetodosPago } from '../../shared/models/metodo-pago.model';
+import {
+  MetodoPagoCreate,
+  MetodoPagoUpdate,
+  MetodosPago,
+} from '../../shared/models/metodo-pago.model';
 import { HandleErrorService } from './handle-error.service';
 
+/**
+ * Cliente de `/metodos_pago` (requiere token). El back usa el status HTTP real (403 si quien
+ * crea, edita o elimina no es Administrador, 404 si el método no existe, 409 al eliminar uno
+ * referenciado por pagos) y la lista vacía responde `data: []`. Leer está abierto a cualquier
+ * sesión (el carrito del cliente lista los métodos).
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -28,7 +38,7 @@ export class MetodosPagoService {
   }
 
   /**
-   * (Opcional) Obtener un método de pago por ID
+   * Obtiene un método de pago por ID
    */
   getById(id: number): Observable<ApiResponse<MetodosPago>> {
     return this.http
@@ -41,27 +51,27 @@ export class MetodosPagoService {
   /**
    * Crea un método de pago
    */
-  create(body: MetodosPago): Observable<ApiResponse<MetodosPago>> {
+  create(body: MetodoPagoCreate): Observable<ApiResponse<MetodosPago>> {
     return this.http
       .post<ApiResponse<MetodosPago>>(this.baseUrl, body)
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * Actualiza un método de pago por ID
+   * Actualiza un método de pago por ID con merge (se puede enviar solo `tipo` o solo `detalle`)
    */
-  update(id: number, body: Partial<MetodosPago>): Observable<ApiResponse<MetodosPago>> {
+  update(id: number, body: MetodoPagoUpdate): Observable<ApiResponse<MetodosPago>> {
     return this.http
       .put<ApiResponse<MetodosPago>>(`${this.baseUrl}?id=${id}`, body)
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * Elimina un método de pago por ID
+   * Elimina un método de pago por ID (409 si lo referencian pagos)
    */
-  delete(id: number): Observable<ApiResponse<unknown>> {
+  delete(id: number): Observable<ApiResponse<undefined>> {
     return this.http
-      .delete<ApiResponse<unknown>>(`${this.baseUrl}?id=${id}`)
+      .delete<ApiResponse<undefined>>(`${this.baseUrl}?id=${id}`)
       .pipe(catchError(this.handleError.handleError));
   }
 }

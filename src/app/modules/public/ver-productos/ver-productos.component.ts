@@ -641,7 +641,7 @@ export class VerProductosComponent implements OnInit, OnDestroy, AfterViewInit {
         typeof producto.imagen === 'string' ? producto.imagen : '../../../../assets/img/logo2.webp',
       details: {
         precio: producto.precio,
-        calorias: producto.calorias,
+        calorias: producto.calorias ?? undefined,
         categoria: producto.categoria,
         subcategoria: producto.subcategoria,
         descripcion: producto.descripcion,

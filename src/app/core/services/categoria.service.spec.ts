@@ -38,6 +38,11 @@ describe('CategoriaService', () => {
     req.flush(mockCategoriasResponse);
   });
 
+  it('list devuelve [] cuando el back responde data null', () => {
+    service.list().subscribe((res) => expect(res).toEqual([]));
+    http.expectOne(baseUrl).flush({ code: 200, message: 'ok', data: null });
+  });
+
   it('gets by id', () => {
     service.getById(1).subscribe((res) => expect(res).toEqual(mockCategoriaByIdResponse.data));
     const req = http.expectOne(`${environment.apiUrl}/categorias/search?id=1`);

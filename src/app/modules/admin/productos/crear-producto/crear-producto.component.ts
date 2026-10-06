@@ -150,9 +150,8 @@ export class CrearProductoComponent implements OnInit {
 
               // Buscar y asignar nombre de categoría
               const categoriaId =
-                typeof subcategoria.categoriaId === 'object' &&
-                'categoriaId' in subcategoria.categoriaId
-                  ? (subcategoria.categoriaId as any).categoriaId
+                typeof subcategoria.categoriaId === 'object'
+                  ? subcategoria.categoriaId.categoriaId
                   : subcategoria.categoriaId;
 
               const categoria = this.categorias.find((cat) => cat.categoriaId === categoriaId);
@@ -189,9 +188,7 @@ export class CrearProductoComponent implements OnInit {
       if (categoria?.categoriaId) {
         this.subcategoriasFiltradas = this.subcategorias.filter((sub) => {
           const subCatId =
-            typeof sub.categoriaId === 'object' && 'categoriaId' in sub.categoriaId
-              ? (sub.categoriaId as any).categoriaId
-              : sub.categoriaId;
+            typeof sub.categoriaId === 'object' ? sub.categoriaId.categoriaId : sub.categoriaId;
           return subCatId === categoria.categoriaId;
         });
       }
@@ -362,7 +359,7 @@ export class CrearProductoComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al crear producto:', err);
-          this.toastr.error('Error al crear el producto', 'Error');
+          this.toastr.error(this.mensajeError(err, 'Error al crear el producto'), 'Error');
           this.guardando = false;
         },
       });
@@ -440,10 +437,15 @@ export class CrearProductoComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al actualizar producto:', err);
-          this.toastr.error('Error al actualizar el producto', 'Error');
+          this.toastr.error(this.mensajeError(err, 'Error al actualizar el producto'), 'Error');
           this.guardando = false;
         },
       });
+  }
+
+  /** Mensaje del back (400 validación/FK, 409 duplicado) con texto por defecto. */
+  private mensajeError(err: { message?: string } | null, porDefecto: string): string {
+    return err?.message || porDefecto;
   }
 
   cancelar(): void {

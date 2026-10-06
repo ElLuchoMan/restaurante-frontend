@@ -28,7 +28,7 @@
 
               <button
                 class="btn btn-primary"
-                *ngIf="domicilio.trabajadorAsignado === trabajadorId"
+                *ngIf="domicilio.trabajadorAsignado?.documentoTrabajador === trabajadorId"
                 (click)="irARuta(domicilio)"
               >
                 Ir a <i class="fas fa-map-marker-alt"></i>

@@ -4,13 +4,24 @@ export type TipoRemitente = 'TRABAJADOR' | 'SISTEMA';
 export type TipoDestinatario =
   'TODOS' | 'CLIENTE' | 'TRABAJADOR' | 'TOPIC' | 'CLIENTES' | 'TRABAJADORES';
 
+/** Envoltorio de listados paginados de /push (models.PaginatedResponse), dentro de ApiResponse.data. */
+export interface PushPaginatedData<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+/**
+ * Dispositivo push tal como lo expone el backend: `documentoCliente`/`documentoTrabajador` son el
+ * número de documento (no el struct), `subscribedTopics` siempre es una lista y las fechas llegan como
+ * `DD-MM-YYYY HH:MM:SS` en hora de Bogotá. El backend nunca devuelve las credenciales del dispositivo
+ * (`endpoint`, `p256dh`, `auth`, `fcmToken`): solo se envían al registrarlo.
+ */
 export interface PushDispositivo {
   pushDispositivoId: number;
   plataforma: PlataformaNotificacion;
-  endpoint?: string | null;
-  p256dh?: string | null;
-  auth?: string | null;
-  fcmToken?: string | null;
   enabled: boolean;
   locale?: string | null;
   timeZone?: string | null;
@@ -19,10 +30,17 @@ export interface PushDispositivo {
   subscribedTopics: string[];
   documentoCliente?: number | null;
   documentoTrabajador?: number | null;
+  /** `DD-MM-YYYY HH:MM:SS` (hora de Bogotá). */
   createdAt: string;
+  /** `DD-MM-YYYY HH:MM:SS` (hora de Bogotá). */
   lastSeenAt?: string | null;
 }
 
+/**
+ * POST /push/dispositivos: upsert por `fcmToken`/`endpoint`. Responde 201 si el dispositivo es nuevo y
+ * 200 si ya existía (se reactiva y se reasigna al usuario de la sesión). El dueño (cliente o trabajador)
+ * lo fija el backend a partir del token: no se envía documento en el cuerpo (403 si no coincide con el token).
+ */
 export interface RegistrarDispositivoRequest {
   plataforma: PlataformaNotificacion;
   endpoint?: string;
@@ -34,8 +52,6 @@ export interface RegistrarDispositivoRequest {
   appVersion?: string;
   userAgent?: string;
   subscribedTopics?: string[];
-  documentoCliente?: number;
-  documentoTrabajador?: number;
 }
 
 export interface RemitenteNotificacion {
@@ -88,11 +104,76 @@ export interface EnviarNotificacionResponse {
   resumenDestinatarios: ResumenDestinatarios;
 }
 
+/**
+ * Body de PUT /push/dispositivos (merge): los campos ausentes se conservan. `locale`, `timeZone`,
+ * `appVersion` y `userAgent` admiten `null` para limpiarse; `enabled` y `subscribedTopics` NO admiten
+ * `null` (400).
+ */
+export interface ActualizarDispositivoRequest {
+  enabled?: boolean;
+  locale?: string | null;
+  timeZone?: string | null;
+  appVersion?: string | null;
+  userAgent?: string | null;
+  subscribedTopics?: string[];
+}
+
+/**
+ * Query params de GET /push/dispositivos (el backend no filtra por `enabled`).
+ * `limit` 1-100 (por defecto 20; >100 se reduce a 100) y `offset` >= 0; valores inválidos responden 400.
+ */
 export interface PushParams {
   limit?: number;
   offset?: number;
   plataforma?: PlataformaNotificacion;
-  enabled?: boolean;
   cliente_id?: number;
   trabajador_id?: number;
+}
+
+/** Query params de GET /push/envios (fechas YYYY-MM-DD). */
+export interface PushEnviosParams {
+  dispositivo_id?: number;
+  fecha_desde?: string;
+  fecha_hasta?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RegistrarEnvioRequest {
+  pushDispositivoId: number;
+  proveedor: ProveedorPush;
+  data?: Record<string, unknown>;
+  exito: boolean;
+  statusCode?: number;
+  errorCode?: string;
+}
+
+/** `pushDispositivoId` es el id numérico del dispositivo; `sentAt` llega como `DD-MM-YYYY HH:MM:SS` (Bogotá). */
+export interface PushEnviosParams {
+  dispositivo_id?: number;
+  fecha_desde?: string;
+  fecha_hasta?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RegistrarEnvioRequest {
+  pushDispositivoId: number;
+  proveedor: ProveedorPush;
+  data?: Record<string, unknown>;
+  exito: boolean;
+  statusCode?: number;
+  errorCode?: string;
+}
+
+/** El backend serializa `pushDispositivoId` con el dispositivo (FK) completo, no con el id. */
+export interface PushEnvio {
+  pushEnvioId: number;
+  pushDispositivoId: number;
+  proveedor: ProveedorPush;
+  data?: Record<string, unknown>;
+  exito: boolean;
+  statusCode?: number;
+  errorCode?: string;
+  sentAt: string;
 }

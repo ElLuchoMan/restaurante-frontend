@@ -3,14 +3,9 @@ import { TestBed } from '@angular/core/testing';
 
 import { mockCambioHorarioResponse } from '../../shared/mocks/cambios-horario.mock';
 import {
-  mockRestauranteCreateBody,
-  mockRestauranteDeleteResponse,
   mockRestauranteResponse,
   mockRestaurantesResponse,
 } from '../../shared/mocks/restaurante.mock';
-import { ApiResponse } from '../../shared/models/api-response.model';
-import { CambioHorario } from '../../shared/models/cambio-horario.model';
-import { Restaurante } from '../../shared/models/restaurante.model';
 import { RestauranteService } from './restaurante.service';
 
 describe('RestauranteService', () => {
@@ -36,23 +31,54 @@ describe('RestauranteService', () => {
   });
 
   it('should return restaurante data from getRestauranteInfo', () => {
-    service.getRestauranteInfo().subscribe((response: ApiResponse<Restaurante>) => {
-      expect(response).toEqual(mockRestaurantesResponse);
+    service.getRestauranteInfo().subscribe((response) => {
+      expect(response).toEqual(mockRestauranteResponse);
     });
 
     const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes/search?id=1`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockRestaurantesResponse);
+    req.flush(mockRestauranteResponse);
   });
 
   it('should return cambios horario data from getCambiosHorario', () => {
-    service.getCambiosHorario().subscribe((response: ApiResponse<CambioHorario>) => {
+    service.getCambiosHorario().subscribe((response) => {
       expect(response).toEqual(mockCambioHorarioResponse);
     });
 
     const req = httpTestingController.expectOne(`${service['baseUrl']}/cambios_horario/actual`);
     expect(req.request.method).toBe('GET');
     req.flush(mockCambioHorarioResponse);
+  });
+
+  it('should expose HTTP 404 of cambios_horario/actual as "sin cambio" (not an error)', () => {
+    let result: { code: number; data?: unknown } | undefined;
+    let failed = false;
+    service.getCambiosHorario().subscribe({
+      next: (response) => (result = response),
+      error: () => (failed = true),
+    });
+
+    httpTestingController
+      .expectOne(`${service['baseUrl']}/cambios_horario/actual`)
+      .flush(
+        { code: 404, message: 'No hay cambios de horario para la fecha actual' },
+        { status: 404, statusText: 'Not Found' },
+      );
+
+    expect(failed).toBe(false);
+    expect(result?.code).toBe(404);
+    expect(result?.data).toBeUndefined();
+  });
+
+  it('should propagate other errors of cambios_horario/actual', () => {
+    let failed = false;
+    service.getCambiosHorario().subscribe({ error: () => (failed = true) });
+
+    httpTestingController
+      .expectOne(`${service['baseUrl']}/cambios_horario/actual`)
+      .flush({ code: 500 }, { status: 500, statusText: 'Server Error' });
+
+    expect(failed).toBe(true);
   });
 
   it('should list restaurantes', () => {
@@ -63,49 +89,5 @@ describe('RestauranteService', () => {
     const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes`);
     expect(req.request.method).toBe('GET');
     req.flush(mockRestaurantesResponse);
-  });
-
-  it('should create a restaurante', () => {
-    const payload: Partial<Restaurante> = { ...mockRestauranteCreateBody };
-    const mockResponse = {
-      ...mockRestauranteResponse,
-      data: { ...mockRestauranteResponse.data, ...payload },
-    };
-
-    service.createRestaurante(payload).subscribe((response) => {
-      expect(response).toEqual(mockResponse);
-    });
-
-    const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(payload);
-    req.flush(mockResponse);
-  });
-
-  it('should update a restaurante', () => {
-    const payload: Partial<Restaurante> = { nombreRestaurante: 'Actualizado' };
-    const mockResponse = {
-      ...mockRestauranteResponse,
-      data: { ...mockRestauranteResponse.data, ...payload },
-    };
-
-    service.updateRestaurante(5, payload).subscribe((response) => {
-      expect(response).toEqual(mockResponse);
-    });
-
-    const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes?id=5`);
-    expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual(payload);
-    req.flush(mockResponse);
-  });
-
-  it('should delete a restaurante', () => {
-    service.deleteRestaurante(5).subscribe((response) => {
-      expect(response).toEqual(mockRestauranteDeleteResponse);
-    });
-
-    const req = httpTestingController.expectOne(`${service['baseUrl']}/restaurantes?id=5`);
-    expect(req.request.method).toBe('DELETE');
-    req.flush(mockRestauranteDeleteResponse);
   });
 });

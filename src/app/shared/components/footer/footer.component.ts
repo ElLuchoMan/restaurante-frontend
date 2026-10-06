@@ -17,8 +17,8 @@ import { Restaurante } from '../../models/restaurante.model';
   styleUrl: './footer.component.scss',
 })
 export class FooterComponent {
-  restaurante!: ApiResponse<Restaurante>;
-  cambioHorario!: ApiResponse<CambioHorario>;
+  restaurante!: ApiResponse<Restaurante | undefined>;
+  cambioHorario!: ApiResponse<CambioHorario | undefined>;
   horaApertura: string = '08:00';
   horaCierre: string = '20:00';
   estado: string = 'Abierto';
@@ -44,9 +44,11 @@ export class FooterComponent {
       );
     }
 
-    this.restauranteService.getRestauranteInfo().subscribe((response: ApiResponse<Restaurante>) => {
-      this.restaurante = response;
-    });
+    this.restauranteService
+      .getRestauranteInfo()
+      .subscribe((response: ApiResponse<Restaurante | undefined>) => {
+        this.restaurante = response;
+      });
 
     if (this.horaCierre && this.horaApertura) {
       const horaActual = new Date().toLocaleTimeString('en-GB', { hour12: false });
@@ -55,7 +57,7 @@ export class FooterComponent {
     }
 
     this.restauranteService.getCambiosHorario().subscribe({
-      next: (response: ApiResponse<CambioHorario>) => {
+      next: (response: ApiResponse<CambioHorario | undefined>) => {
         if (response.data != undefined) {
           this.horaApertura = response.data?.horaApertura ?? this.horaApertura;
           this.horaCierre = response.data?.horaCierre ?? this.horaCierre;

@@ -5,7 +5,14 @@ export type TimePeriod =
   | 'ultimos_3_meses'
   | 'ultimos_6_meses'
   | 'ultimo_año'
-  | 'historico';
+  | 'historico'
+  | 'mes_año'
+  | 'rango_fechas';
+
+// NOTA: el backend devuelve siempre `[]` (nunca `null`) en las listas cuando la consulta no trae filas.
+// Semántica de `periodo` (Swagger): `mes`/`año` pisan a `fecha_inicio`/`fecha_fin`, que a su vez pisan
+// a `periodo`. `mes_año` sin mes/año equivale al mes en curso; `rango_fechas` sin fechas, al último mes;
+// un valor desconocido se trata como `ultimo_mes`. `/productos-populares` solo admite hasta `historico`.
 
 // Dashboard Types
 export interface DashboardData {
@@ -303,152 +310,24 @@ export interface PedidosAnalisisData {
   estadisticasPedidos: EstadisticasPedidos;
 }
 
-// **🆕 NUEVOS TIPOS PARA LOS 5 DASHBOARDS FALTANTES**
+// Endpoints públicos (sin token)
+/** GET /estados-pedidos: conteo por estado + clave sintética NO_FINALIZADOS. */
+export type EstadosPedidosData = Record<string, number>;
 
-// Rentabilidad Types
-export interface ProductoRentabilidad {
+/** GET /productos-disponibles: `data` es un array (`[]` si no hay productos). */
+export interface ProductoDisponible {
   productoId: number;
   nombreProducto: string;
-  precioVenta: number;
-  cantidadVendida: number;
-  ingresoTotal: number;
-  margenGanancia: number;
-  gananciaTotal: number;
-}
-
-export interface EstadisticasRentabilidad {
-  margenPromedioGeneral: number;
-  productoMasRentable: string;
-  productoMenosRentable: string;
-  totalGanancias: number;
-  totalIngresos: number;
-}
-
-export interface RentabilidadData {
-  productosRentables: ProductoRentabilidad[];
-  productosMenosRentables: ProductoRentabilidad[];
-  estadisticasRentabilidad: EstadisticasRentabilidad;
-}
-
-// Segmentación Types
-export interface ClienteSegmento {
-  documentoCliente: number;
-  nombreCompleto: string;
-  totalPedidos: number;
-  totalGastado: number;
-  promedioGasto: number;
-  ultimoPedido: string;
-  diasSinPedir: number;
-  segmento: string;
-  valorVida: number;
-}
-
-export interface EstadisticasSegmentacion {
-  totalClientesVIP: number;
-  totalClientesRegulares: number;
-  totalClientesOcasionales: number;
-  totalClientesNuevos: number;
-  promedioGastoVIP: number;
-  promedioGastoRegular: number;
-  porcentajeVIP: number;
-}
-
-export interface SegmentacionData {
-  clientesVIP: ClienteSegmento[];
-  clientesRegulares: ClienteSegmento[];
-  clientesOcasionales: ClienteSegmento[];
-  clientesNuevos: ClienteSegmento[];
-  estadisticasSegmentacion: EstadisticasSegmentacion;
-}
-
-// Eficiencia Types
-export interface TiempoEntrega {
-  pedidoId: number;
-  cliente: string;
-  fechaPedido: string;
-  horaPedido: string;
-  tiempoPreparacion: number;
-  estadoPedido: string;
-  trabajadorAsignado: string;
-}
-
-export interface RendimientoTrabajador {
-  documentoTrabajador: number;
-  nombreTrabajador: string;
-  pedidosAtendidos: number;
-  tiempoPromedioAtencion: number;
-  eficienciaScore: number;
-  horasTrabajadas: number;
-}
-
-export interface AnalisisPorHora {
-  hora: string;
-  pedidosRecibidos: number;
-  tiempoPromedioPrep: number;
-  capacidadUtilizada: number;
-  nivelEficiencia: string;
-}
-
-export interface EstadisticasEficiencia {
-  tiempoPromedioGeneral: number;
-  horaMasEficiente: string;
-  horaMenosEficiente: string;
-  trabajadorMasEficiente: string;
-  capacidadPromedioUso: number;
-  pedidosPendientes: number;
-}
-
-export interface EficienciaData {
-  tiemposEntrega: TiempoEntrega[];
-  rendimientoTrabajadores: RendimientoTrabajador[];
-  analisisPorHora: AnalisisPorHora[];
-  estadisticasEficiencia: EstadisticasEficiencia;
-}
-
-// Reservas Analysis Types
-export interface ReservaPorDia {
-  fecha: string;
-  totalReservas: number;
-  reservasCompletadas: number;
-  totalPersonas: number;
-  porcentajeCompletado: number;
-}
-
-export interface ReservaPorHora {
-  hora: string;
-  totalReservas: number;
-  reservasCompletadas: number;
-  totalPersonas: number;
-  porcentajeCompletado: number;
-}
-
-export interface ReservaPorDiaSemana {
-  diaSemana: string;
-  totalReservas: number;
-  reservasCompletadas: number;
-  totalPersonas: number;
-  porcentajeCompletado: number;
-}
-
-export interface EstadisticasReservas {
-  totalReservasCompletadas: number;
-  diaMasReservas: string;
-  horaMasReservas: string;
-  promedioPersonasPorReserva: number;
-  tasaCompletamiento: number;
-}
-
-export interface ReservasAnalisisData {
-  reservasPorDia: ReservaPorDia[];
-  reservasPorHora: ReservaPorHora[];
-  reservasPorDiaSemana: ReservaPorDiaSemana[];
-  estadisticasReservas: EstadisticasReservas;
+  precio: number;
+  estado: string;
+  totalVendido: number;
 }
 
 // Service Parameters - Filtros Temporales Avanzados
 export interface TelemetryParams {
   // Filtros predefinidos
   periodo?: TimePeriod;
+  /** Máximo de filas por lista (1-100; el backend reduce los valores > 100 a 100). */
   limit?: number;
 
   // Filtros por mes y año

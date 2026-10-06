@@ -5,11 +5,16 @@ import { catchError, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
 import {
+  ActualizarDispositivoRequest,
   EnviarNotificacionRequest,
   EnviarNotificacionResponse,
   PushDispositivo,
+  PushEnvio,
+  PushEnviosParams,
+  PushPaginatedData,
   PushParams,
   RegistrarDispositivoRequest,
+  RegistrarEnvioRequest,
 } from '../../shared/models/push.model';
 import { HandleErrorService } from './handle-error.service';
 
@@ -30,42 +35,97 @@ export class PushService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  listarDispositivos(params?: PushParams): Observable<ApiResponse<PushDispositivo[]>> {
+  listarDispositivos(
+    params?: PushParams,
+  ): Observable<ApiResponse<PushPaginatedData<PushDispositivo>>> {
+    return this.http
+      .get<ApiResponse<PushPaginatedData<PushDispositivo>>>(`${this.baseUrl}/dispositivos`, {
+        params: this.toHttpParams(params),
+      })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  private toHttpParams(params?: object): HttpParams {
     let hp = new HttpParams();
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         if (v !== undefined && v !== null) hp = hp.set(k, String(v));
       });
     }
-    return this.http
-      .get<ApiResponse<PushDispositivo[]>>(`${this.baseUrl}/dispositivos`, { params: hp })
-      .pipe(catchError(this.handleError.handleError));
+    return hp;
   }
 
-  actualizarUltimaVista(id: number): Observable<ApiResponse<unknown>> {
+  obtenerDispositivo(id: number): Observable<ApiResponse<PushDispositivo>> {
     return this.http
-      .patch<ApiResponse<unknown>>(`${this.baseUrl}/dispositivos/${id}/visto`, null)
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  actualizarEstado(id: number, enabled: boolean): Observable<ApiResponse<unknown>> {
-    return this.http
-      .patch<ApiResponse<unknown>>(`${this.baseUrl}/dispositivos/${id}/estado`, { enabled })
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  actualizarTopics(id: number, subscribedTopics: string[]): Observable<ApiResponse<unknown>> {
-    return this.http
-      .patch<ApiResponse<unknown>>(`${this.baseUrl}/dispositivos/${id}/topics`, {
-        subscribedTopics,
+      .get<ApiResponse<PushDispositivo>>(`${this.baseUrl}/dispositivos/search`, {
+        params: new HttpParams().set('id', String(id)),
       })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  eliminarDispositivo(id: number): Observable<ApiResponse<null>> {
+    return this.http
+      .delete<ApiResponse<null>>(`${this.baseUrl}/dispositivos`, {
+        params: new HttpParams().set('id', String(id)),
+      })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  actualizarUltimaVista(id: number): Observable<ApiResponse<null>> {
+    return this.http
+      .patch<ApiResponse<null>>(`${this.baseUrl}/dispositivos/visto`, null, {
+        params: new HttpParams().set('id', String(id)),
+      })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /**
+   * PUT /push/dispositivos?id=<id>: merge parcial (los campos ausentes se conservan). Devuelve el
+   * dispositivo actualizado. 400: id/JSON inválido o `null` en `enabled`/`subscribedTopics`; 404: no existe.
+   */
+  actualizarDispositivo(
+    id: number,
+    body: ActualizarDispositivoRequest,
+  ): Observable<ApiResponse<PushDispositivo>> {
+    return this.http
+      .put<ApiResponse<PushDispositivo>>(`${this.baseUrl}/dispositivos`, body, {
+        params: new HttpParams().set('id', String(id)),
+      })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /** Activa/desactiva un dispositivo (PUT parcial con solo `enabled`). */
+  actualizarEstado(id: number, enabled: boolean): Observable<ApiResponse<PushDispositivo>> {
+    return this.actualizarDispositivo(id, { enabled });
+  }
+
+  actualizarTopics(id: number, subscribedTopics: string[]): Observable<ApiResponse<null>> {
+    return this.http
+      .patch<ApiResponse<null>>(
+        `${this.baseUrl}/dispositivos/topics`,
+        { subscribedTopics },
+        { params: new HttpParams().set('id', String(id)) },
+      )
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  listarEnvios(params?: PushEnviosParams): Observable<ApiResponse<PushPaginatedData<PushEnvio>>> {
+    return this.http
+      .get<ApiResponse<PushPaginatedData<PushEnvio>>>(`${this.baseUrl}/envios`, {
+        params: this.toHttpParams(params),
+      })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  registrarEnvio(body: RegistrarEnvioRequest): Observable<ApiResponse<PushEnvio>> {
+    return this.http
+      .post<ApiResponse<PushEnvio>>(`${this.baseUrl}/envios`, body)
       .pipe(catchError(this.handleError.handleError));
   }
 
   enviarNotificacion(
     body: EnviarNotificacionRequest,
   ): Observable<ApiResponse<EnviarNotificacionResponse>> {
-    console.log('[Push] Enviando notificación:', body);
     return this.http
       .post<ApiResponse<EnviarNotificacionResponse>>(`${this.baseUrl}/enviar`, body)
       .pipe(catchError(this.handleError.handleError));

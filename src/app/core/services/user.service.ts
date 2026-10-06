@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
-import { BehaviorSubject, catchError, map, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
@@ -9,12 +9,23 @@ import { Login, LoginResponse } from '../../shared/models/login.model';
 import { HandleErrorService } from './handle-error.service';
 import { LoggingService, LogLevel } from './logging.service';
 
+/** Claims del JWT de acceso emitido por el back (Claims en controllers/login). */
 export interface DecodedToken {
   rol: string;
   documento: number;
+  nombre?: string;
   exp: number;
+  iat?: number;
   [key: string]: unknown;
 }
+
+/**
+ * Cada cuánto se renueva el access token en segundo plano. El back emite access tokens de
+ * 120 min (`expires_in: "7200"`); se renueva a los 25 min, con un margen muy amplio frente a la
+ * expiración, de modo que una pestaña abierta nunca llega a usar un token vencido y el
+ * refresh token (más largo) se rota con frecuencia.
+ */
+export const TOKEN_REFRESH_INTERVAL_MS = 25 * 60 * 1000;
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +35,7 @@ export class UserService {
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'refresh_token';
   private useSession = false;
-  private refreshTimer: any = null;
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
   private authState = new BehaviorSubject<boolean>(this.isLoggedIn());
 
@@ -73,7 +84,7 @@ export class UserService {
     storage.setItem(this.refreshTokenKey, refreshToken);
     this.authState.next(true);
 
-    // Programar refresh automático para 25 minutos (5 min antes de que expire)
+    // Programar el refresh automático (ver TOKEN_REFRESH_INTERVAL_MS)
     this.scheduleTokenRefresh();
   }
 
@@ -163,7 +174,7 @@ export class UserService {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
       this.logout();
-      throw new Error('No refresh token available');
+      return throwError(() => new Error('No refresh token available'));
     }
 
     return this.http
@@ -175,7 +186,7 @@ export class UserService {
         },
       )
       .pipe(
-        catchError((error) => {
+        catchError((error: HttpErrorResponse) => {
           this.logger.log(LogLevel.ERROR, 'Error al refrescar token', error);
           this.logout(); // Si falla el refresh, hacer logout
           return this.handleError.handleError(error);
@@ -189,22 +200,18 @@ export class UserService {
       clearTimeout(this.refreshTimer);
     }
 
-    // Programar refresh para 25 minutos (1500000 ms)
-    this.refreshTimer = setTimeout(
-      () => {
-        this.refreshTokens().subscribe({
-          next: (response) => {
-            this.saveTokens(response.data.access_token, response.data.refresh_token);
-            this.logger.log(LogLevel.INFO, 'Tokens refrescados automáticamente');
-          },
-          error: (error) => {
-            this.logger.log(LogLevel.ERROR, 'Error en refresh automático', error);
-            // El logout ya se maneja en refreshTokens()
-          },
-        });
-      },
-      25 * 60 * 1000,
-    ); // 25 minutos
+    this.refreshTimer = setTimeout(() => {
+      this.refreshTokens().subscribe({
+        next: (response) => {
+          this.saveTokens(response.data.access_token, response.data.refresh_token);
+          this.logger.log(LogLevel.INFO, 'Tokens refrescados automáticamente');
+        },
+        error: (error) => {
+          this.logger.log(LogLevel.ERROR, 'Error en refresh automático', error);
+          // El logout ya se maneja en refreshTokens()
+        },
+      });
+    }, TOKEN_REFRESH_INTERVAL_MS);
   }
 
   // Método para intentar refresh manual cuando una API call falla con 401
@@ -214,12 +221,7 @@ export class UserService {
         this.saveTokens(response.data.access_token, response.data.refresh_token);
         return true;
       }),
-      catchError(() => {
-        return new Observable<boolean>((observer) => {
-          observer.next(false);
-          observer.complete();
-        });
-      }),
+      catchError(() => of(false)),
     );
   }
 }

@@ -43,4 +43,18 @@ describe('authInterceptor', () => {
 
     expect(next).toHaveBeenCalledWith(request);
   });
+
+  it('should keep an explicit Authorization header (refresh token en /auth/refresh)', () => {
+    userService.validateTokenAndLogout.mockReturnValue('access-token');
+
+    const request = new HttpRequest('POST', '/restaurante/v1/auth/refresh', {}).clone({
+      setHeaders: { Authorization: 'Bearer refresh-token' },
+    });
+    const next = createNextHandlerMock();
+
+    interceptor(request, next);
+
+    expect(next).toHaveBeenCalledWith(request);
+    expect(next.mock.calls[0][0].headers.get('Authorization')).toBe('Bearer refresh-token');
+  });
 });

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -15,16 +15,15 @@ import { HorarioTrabajadorService } from '../../../core/services/horario-trabaja
 import { TrabajadorService } from '../../../core/services/trabajador.service';
 import { UserService } from '../../../core/services/user.service';
 import { DiaSemana, RolTrabajador } from '../../../shared/constants';
-import { Cliente } from '../../../shared/models/cliente.model';
-import { HorarioTrabajador } from '../../../shared/models/horario-trabajador.model';
-import { Trabajador } from '../../../shared/models/trabajador.model';
-import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
+import { ClienteCreate } from '../../../shared/models/cliente.model';
+import { HorarioTrabajadorCreate } from '../../../shared/models/horario-trabajador.model';
+import { TrabajadorCreate } from '../../../shared/models/trabajador.model';
+import { fechaYYYYMMDD_Bogota } from '../../../shared/utils/dateHelper';
 import { ClienteService } from './../../../core/services/cliente.service';
 
 @Component({
   selector: 'app-register',
   imports: [CommonModule, ReactiveFormsModule],
-  providers: [FormatDatePipe],
   standalone: true,
   templateUrl: './register.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -137,7 +136,6 @@ export class RegisterComponent implements OnInit {
     private clienteService: ClienteService,
     private toastr: ToastrService,
     private router: Router,
-    private formatDatePipe: FormatDatePipe,
   ) {}
 
   ngOnInit(): void {
@@ -208,29 +206,44 @@ export class RegisterComponent implements OnInit {
   onSubmit(): void {
     if (this.registerForm.invalid || this.isSubmitting) return;
 
+    // /trabajadores exige token de Administrador: un no-admin solo puede registrar clientes
+    if (this.esTrabajador && !this.isAdmin()) {
+      this.toastr.error('Solo un administrador puede registrar trabajadores', 'Acceso denegado');
+      return;
+    }
+
+    // El back exige horaFin > horaInicio: se valida antes de crear al trabajador
+    if (this.esTrabajador) {
+      const invalido = this.construirHorarios(0).find((h) => h.horaFin <= h.horaInicio);
+      if (invalido) {
+        this.toastr.error(
+          `La hora de fin debe ser mayor que la de inicio (${invalido.dia})`,
+          'Horario inválido',
+        );
+        return;
+      }
+    }
+
     this.isSubmitting = true;
     this.progress = 30; // Progreso inicial
 
     const values = this.registerForm.getRawValue();
-    const formattedFechaIngreso = this.formatDatePipe.transform(new Date());
+    // El back exige fechas en formato YYYY-MM-DD (DD-MM-YYYY responde 400)
+    const fechaIngreso = fechaYYYYMMDD_Bogota();
 
     if (values.esTrabajador) {
-      const formattedFechaNacimiento = this.formatDatePipe.transform(
-        new Date(values.fechaNacimiento),
-      );
-      const trabajador: Trabajador = {
+      const trabajador: TrabajadorCreate = {
         documentoTrabajador: Number(values.documento),
         nombre: values.nombre,
         apellido: values.apellido,
         password: values.password,
         restauranteId: 1,
         rol: (values.rol as unknown as RolTrabajador) || RolTrabajador.RolMesero,
-        nuevo: values.nuevo,
-        horario: 'Definido por días', // Los horarios se manejan por separado
         sueldo: Number(values.sueldo),
         telefono: values.telefono,
-        fechaIngreso: formattedFechaIngreso,
-        fechaNacimiento: formattedFechaNacimiento,
+        fechaIngreso,
+        fechaNacimiento: values.fechaNacimiento,
+        nuevo: values.nuevo,
       };
       this.progress = 70; // Progreso medio
 
@@ -250,7 +263,14 @@ export class RegisterComponent implements OnInit {
             } catch (error) {
               this.progress = 0;
               this.isSubmitting = false;
-              this.toastr.error('Trabajador creado, pero error al crear horarios', 'Error');
+              // 400/409 del back (p. ej. horaFin <= horaInicio) traen un mensaje útil en `message`
+              const detalle = (error as { message?: string } | null)?.message;
+              this.toastr.error(
+                detalle
+                  ? `Trabajador creado, pero error al crear horarios: ${detalle}`
+                  : 'Trabajador creado, pero error al crear horarios',
+                'Error',
+              );
             }
           } else {
             this.progress = 0; // Reset en error
@@ -265,7 +285,7 @@ export class RegisterComponent implements OnInit {
         },
       });
     } else {
-      const cliente: Cliente = {
+      const cliente: ClienteCreate = {
         documentoCliente: Number(values.documento),
         nombre: values.nombre,
         apellido: values.apellido,
@@ -485,8 +505,9 @@ export class RegisterComponent implements OnInit {
     this.updateFormProgress();
   }
 
-  private async crearHorariosTrabajador(documentoTrabajador: number): Promise<void> {
-    const horariosParaCrear: HorarioTrabajador[] = [];
+  /** Horarios a crear según la configuración del formulario (omite los días libres). */
+  private construirHorarios(documentoTrabajador: number): HorarioTrabajadorCreate[] {
+    const horariosParaCrear: HorarioTrabajadorCreate[] = [];
 
     for (const dia of this.diasSemana) {
       let horario;
@@ -513,6 +534,12 @@ export class RegisterComponent implements OnInit {
         });
       }
     }
+
+    return horariosParaCrear;
+  }
+
+  private async crearHorariosTrabajador(documentoTrabajador: number): Promise<void> {
+    const horariosParaCrear = this.construirHorarios(documentoTrabajador);
 
     // Crear todos los horarios
     for (const horarioData of horariosParaCrear) {

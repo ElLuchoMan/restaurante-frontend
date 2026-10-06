@@ -24,6 +24,7 @@ export class PrecioProductoHistService {
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /** 404 si el registro no existe; devuelve `precioHistId` y `productoId`. */
   getById(id: number): Observable<ApiResponse<PrecioProductoHist>> {
     const params = new HttpParams().set('id', String(id));
     return this.http

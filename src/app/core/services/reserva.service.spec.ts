@@ -4,14 +4,16 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { HandleErrorService } from '../../core/services/handle-error.service';
 import { UserService } from '../../core/services/user.service';
+import { estadoReserva } from '../../shared/constants';
 import {
   mockReserva,
   mockReservaBody,
+  mockReservaConsulta,
   mockReservaResponse,
 } from '../../shared/mocks/reserva.mocks';
 import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Reserva } from '../../shared/models/reserva.model';
+import { ReservaBase, ReservaConsulta } from '../../shared/models/reserva.model';
 import { ReservaService } from './reserva.service';
 
 describe('ReservaService', () => {
@@ -55,86 +57,47 @@ describe('ReservaService', () => {
     req.flush(mockReservaResponse);
   });
 
-  it('cliente autenticado: usa contactoId si existe, fallback documentoCliente', () => {
+  it('cliente autenticado sin documento explícito: envía documentoCliente del token y nunca contactoId', () => {
     TestBed.resetTestingModule();
-    const handleErrorMock = createHandleErrorServiceMock() as any;
     const user = { getUserId: () => 101, getUserRole: () => 'Cliente' };
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         ReservaService,
-        { provide: HandleErrorService, useValue: handleErrorMock },
+        { provide: HandleErrorService, useValue: createHandleErrorServiceMock() },
         { provide: UserService, useValue: user },
       ],
     });
     const svc = TestBed.inject(ReservaService);
     const http = TestBed.inject(HttpTestingController);
+    const { documentoCliente: _omit, ...sinDocumento } = mockReservaBody;
 
-    // Caso: encuentra contactoId
-    svc.crearReserva(mockReservaBody).subscribe((r) => expect(r).toEqual(mockReservaResponse));
-    const r1 = http.expectOne(`${environment.apiUrl}/reserva_contacto?documento_cliente=101`);
-    r1.flush({ code: 200, message: 'ok', data: [{ contactoId: 5 }] });
-    const r2 = http.expectOne(`${environment.apiUrl}/reservas`);
-    expect(r2.request.body.contactoId).toBe(5);
-    expect(r2.request.body.documentoCliente).toBeUndefined();
-    r2.flush(mockReservaResponse);
-
-    // Caso: no encuentra contactoId -> fallback documentoCliente
-    svc.crearReserva(mockReservaBody).subscribe((r) => expect(r).toEqual(mockReservaResponse));
-    const r3 = http.expectOne(`${environment.apiUrl}/reserva_contacto?documento_cliente=101`);
-    r3.flush({ code: 200, message: 'ok', data: [] });
-    const r4 = http.expectOne(`${environment.apiUrl}/reservas`);
-    expect(r4.request.body.documentoCliente).toBe(101);
-    expect(r4.request.body.contactoId).toBeUndefined();
-    r4.flush(mockReservaResponse);
+    svc.crearReserva(sinDocumento).subscribe((r) => expect(r).toEqual(mockReservaResponse));
+    const req = http.expectOne(`${environment.apiUrl}/reservas`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body.documentoCliente).toBe(101);
+    expect(req.request.body.contactoId).toBeUndefined();
+    req.flush(mockReservaResponse);
 
     http.verify();
   });
 
-  it('cliente autenticado: si falla consulta de contacto, hace POST directo (fallback catchError)', () => {
-    TestBed.resetTestingModule();
-    const handleErrorMock = createHandleErrorServiceMock() as any;
-    const user = { getUserId: () => 101, getUserRole: () => 'Cliente' };
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [
-        ReservaService,
-        { provide: HandleErrorService, useValue: handleErrorMock },
-        { provide: UserService, useValue: user },
-      ],
-    });
-    const svc = TestBed.inject(ReservaService);
-    const http = TestBed.inject(HttpTestingController);
-
-    svc.crearReserva(mockReservaBody).subscribe((r) => expect(r).toEqual(mockReservaResponse));
-    const r1 = http.expectOne(`${environment.apiUrl}/reserva_contacto?documento_cliente=101`);
-    // fuerza error en la búsqueda de contacto
-    r1.error(new ErrorEvent('network'));
-    // debe hacer POST con el payload original
-    const r2 = http.expectOne(`${environment.apiUrl}/reservas`);
-    expect(r2.request.method).toBe('POST');
-    r2.flush(mockReservaResponse);
-
-    http.verify();
-  });
-
-  it('creates reserva for admin/anónimo removiendo contactoId inválido y documentoCliente vacío', () => {
-    const body: any = { ...mockReservaBody, contactoId: undefined, documentoCliente: undefined };
+  it('creates reserva for admin/anónimo sin documentos: envía el body tal cual (el backend valida)', () => {
+    const { documentoCliente: _omit, ...body } = mockReservaBody;
     service.crearReserva(body).subscribe((response) => {
       expect(response).toEqual(mockReservaResponse);
     });
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body.contactoId).toBeUndefined();
-    expect(req.request.body.documentoCliente).toBeUndefined();
+    expect(req.request.body).toEqual(body);
     req.flush(mockReservaResponse);
   });
 
   it('should get reservas successfully', () => {
-    const mockResponse: ApiResponse<Reserva[]> = {
+    const mockResponse: ApiResponse<ReservaBase[]> = {
       code: 200,
       message: 'Reservas obtenidas',
-      data: [mockReservaBody],
+      data: [mockReserva],
     };
 
     service.obtenerReservas().subscribe((response) => {
@@ -147,21 +110,22 @@ describe('ReservaService', () => {
   });
 
   it('should update a reserva successfully', () => {
-    service.actualizarReserva(mockReserva.reservaId!, mockReservaBody).subscribe((response) => {
+    const cambios = { estadoReserva: estadoReserva.CONFIRMADA, personas: 5 };
+    service.actualizarReserva(mockReserva.reservaId, cambios).subscribe((response) => {
       expect(response).toEqual(mockReservaResponse);
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas?id=${mockReserva.reservaId}`);
     expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual(mockReservaBody);
+    expect(req.request.body).toEqual(cambios);
     req.flush(mockReservaResponse);
   });
 
   it('should get reserva by parameters (contactoId)', () => {
-    const mockResponse: ApiResponse<Reserva[]> = {
+    const mockResponse: ApiResponse<ReservaBase[]> = {
       code: 200,
       message: 'Reserva encontrada',
-      data: [mockReservaBody],
+      data: [mockReserva],
     };
 
     service.getReservaByParameter(1).subscribe((response) => {
@@ -174,10 +138,10 @@ describe('ReservaService', () => {
   });
 
   it('should get reserva by parameters (fecha)', () => {
-    const mockResponse: ApiResponse<Reserva[]> = {
+    const mockResponse: ApiResponse<ReservaBase[]> = {
       code: 200,
       message: 'Reservas encontradas por fecha',
-      data: [mockReservaBody],
+      data: [mockReserva],
     };
 
     service.getReservaByParameter(undefined, '2025-02-06').subscribe((response) => {
@@ -189,49 +153,15 @@ describe('ReservaService', () => {
     req.flush(mockResponse);
   });
 
-  it('should get reserva by parameters (restauranteId)', () => {
-    const mockResponse: ApiResponse<Reserva[]> = {
-      code: 200,
-      message: 'Reservas encontradas por restaurante',
-      data: [mockReservaBody],
-    };
-
-    service.getReservaByParameter(undefined, undefined, 7).subscribe((response) => {
-      expect(response).toEqual(mockResponse);
-    });
-
-    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter?restaurante_id=7`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockResponse);
-  });
-
-  it('should get reserva by parameters (día)', () => {
-    const mockResponse: ApiResponse<Reserva[]> = {
-      code: 200,
-      message: 'Reservas encontradas por día',
-      data: [mockReservaBody],
-    };
-
-    service
-      .getReservaByParameter(undefined, undefined, undefined, 'Lunes')
-      .subscribe((response) => {
-        expect(response).toEqual(mockResponse);
-      });
-
-    const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter?dia=Lunes`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockResponse);
-  });
-
   it('should get reserva by id successfully', () => {
-    const mockResponse: ApiResponse<Reserva> = {
+    const mockResponse: ApiResponse<ReservaBase> = {
       code: 200,
       message: 'Reserva encontrada',
       data: mockReserva,
     };
 
     service.getReservaById(3).subscribe((response) => {
-      expect(response).toEqual(mockResponse);
+      expect(response).toEqual(mockReserva);
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas/search?id=3`);
@@ -239,11 +169,52 @@ describe('ReservaService', () => {
     req.flush(mockResponse);
   });
 
+  it('getReservaById devuelve null cuando el backend responde 404', () => {
+    let resultado: ReservaBase | null | undefined;
+    service.getReservaById(99).subscribe((response) => (resultado = response));
+
+    httpMock
+      .expectOne(`${environment.apiUrl}/reservas/search?id=99`)
+      .flush(
+        { code: 404, message: 'Reserva no encontrada' },
+        { status: 404, statusText: 'Not Found' },
+      );
+    expect(resultado).toBeNull();
+    expect(handleErrorService.handleError).not.toHaveBeenCalled();
+  });
+
+  it('getReservaById propaga un 400 (id inválido) por HandleErrorService', () => {
+    service.getReservaById(0).subscribe({ error: () => undefined });
+    httpMock
+      .expectOne(`${environment.apiUrl}/reservas/search?id=0`)
+      .flush({ code: 400, message: 'id inválido' }, { status: 400, statusText: 'Bad Request' });
+    expect(handleErrorService.handleError).toHaveBeenCalled();
+  });
+
+  it('deleteReserva propaga 404 y 409 por HandleErrorService', () => {
+    const errores: number[] = [];
+    service.deleteReserva(8).subscribe({ error: (e) => errores.push(e.status) });
+    service.deleteReserva(9).subscribe({ error: (e) => errores.push(e.status) });
+    httpMock
+      .expectOne(`${environment.apiUrl}/reservas?id=8`)
+      .flush({ code: 404, message: 'no existe' }, { status: 404, statusText: 'Not Found' });
+    httpMock
+      .expectOne(`${environment.apiUrl}/reservas?id=9`)
+      .flush({ code: 409, message: 'ya cancelada' }, { status: 409, statusText: 'Conflict' });
+    expect(errores).toEqual([404, 409]);
+  });
+
+  it('listados vacíos llegan como data []', () => {
+    const vacio = { code: 200, message: 'Sin reservas', data: [] };
+    service.obtenerReservas().subscribe((r) => expect(r.data).toEqual([]));
+    httpMock.expectOne(`${environment.apiUrl}/reservas`).flush(vacio);
+  });
+
   it('should delete reserva successfully', () => {
-    const mockResponse: ApiResponse<unknown> = {
+    const mockResponse: ApiResponse<ReservaBase> = {
       code: 200,
-      message: 'Reserva eliminada',
-      data: null,
+      message: 'Reserva cancelada correctamente',
+      data: { ...mockReserva, estadoReserva: estadoReserva.CANCELADA },
     };
 
     service.deleteReserva(4).subscribe((response) => {
@@ -268,10 +239,10 @@ describe('ReservaService', () => {
   });
 
   it('getReservaByParameter combina contactoId y fecha', () => {
-    const mockResponse: ApiResponse<Reserva[]> = {
+    const mockResponse: ApiResponse<ReservaBase[]> = {
       code: 200,
       message: 'ok',
-      data: [mockReservaBody],
+      data: [mockReserva],
     };
     service
       .getReservaByParameter(5, '2025-01-01')
@@ -296,7 +267,7 @@ describe('ReservaService', () => {
   });
 
   it('should handle API error when updating a reserva', () => {
-    service.actualizarReserva(mockReserva.reservaId!, mockReservaBody).subscribe({
+    service.actualizarReserva(mockReserva.reservaId, {}).subscribe({
       error: (error) => {
         expect(error).toBeTruthy();
       },
@@ -344,7 +315,7 @@ describe('ReservaService', () => {
   });
 
   it('should get reservas by cliente with fecha', () => {
-    const mockResponse: ApiResponse<Reserva[]> = {
+    const mockResponse: ApiResponse<ReservaBase[]> = {
       code: 200,
       message: 'Reservas encontradas',
       data: [mockReserva],
@@ -362,7 +333,7 @@ describe('ReservaService', () => {
   });
 
   it('should get reservas by documento without fecha', () => {
-    const mockResponse: ApiResponse<Reserva[]> = {
+    const mockResponse: ApiResponse<ReservaBase[]> = {
       code: 200,
       message: 'Reservas encontradas',
       data: [mockReserva],
@@ -378,7 +349,7 @@ describe('ReservaService', () => {
   });
 
   it('should get reservas by documento with fecha', () => {
-    const mockResponse: ApiResponse<Reserva[]> = {
+    const mockResponse: ApiResponse<ReservaBase[]> = {
       code: 200,
       message: 'Reservas encontradas',
       data: [mockReserva],
@@ -402,7 +373,7 @@ describe('ReservaService', () => {
         imports: [HttpClientTestingModule],
         providers: [
           ReservaService,
-          { provide: HandleErrorService, useValue: createHandleErrorServiceMock() as any },
+          { provide: HandleErrorService, useValue: createHandleErrorServiceMock() },
           { provide: UserService, useValue: user },
         ],
       });
@@ -412,78 +383,80 @@ describe('ReservaService', () => {
       };
     };
 
-    it('respeta documentoCliente explícito y no consulta contactos', () => {
+    it('respeta documentoCliente explícito y no lo reemplaza por el del token', () => {
       const { svc, http } = setup({ getUserId: () => 101, getUserRole: () => 'Cliente' });
-      const body: any = { ...mockReservaBody, documentoCliente: 777 };
-      svc.crearReserva(body).subscribe((r) => expect(r).toEqual(mockReservaResponse));
+      svc
+        .crearReserva({ ...mockReservaBody, documentoCliente: 777 })
+        .subscribe((r) => expect(r).toEqual(mockReservaResponse));
       const req = http.expectOne(`${environment.apiUrl}/reservas`);
       expect(req.request.body.documentoCliente).toBe(777);
       req.flush(mockReservaResponse);
       http.verify();
     });
 
-    it('respeta documentoContacto explícito (documentoCliente no numérico)', () => {
-      const { svc, http } = setup({ getUserId: () => undefined, getUserRole: () => undefined });
-      const body: any = { ...mockReservaBody, documentoCliente: 'abc', documentoContacto: 555 };
-      svc.crearReserva(body).subscribe();
+    it('respeta documentoContacto explícito (invitado) aunque el usuario sea Cliente', () => {
+      const { svc, http } = setup({ getUserId: () => 101, getUserRole: () => 'Cliente' });
+      const { documentoCliente: _omit, ...base } = mockReservaBody;
+      svc.crearReserva({ ...base, documentoContacto: 555, nombreCompleto: 'Invitado' }).subscribe();
       const req = http.expectOne(`${environment.apiUrl}/reservas`);
       expect(req.request.body.documentoContacto).toBe(555);
+      expect(req.request.body.documentoCliente).toBeUndefined();
       req.flush(mockReservaResponse);
       http.verify();
     });
 
-    it('documentos no numéricos se ignoran y se envía tal cual', () => {
+    it('documentoContacto null y rol distinto de Cliente se envía tal cual', () => {
       const { svc, http } = setup({ getUserId: () => undefined, getUserRole: () => 'Admin' });
-      const body: any = { ...mockReservaBody, documentoCliente: 'abc', documentoContacto: 'x' };
+      const { documentoCliente: _omit, ...base } = mockReservaBody;
+      svc.crearReserva({ ...base, documentoContacto: null }).subscribe();
+      const req = http.expectOne(`${environment.apiUrl}/reservas`);
+      expect(req.request.body.documentoContacto).toBeNull();
+      expect(req.request.body.documentoCliente).toBeUndefined();
+      req.flush(mockReservaResponse);
+      http.verify();
+    });
+
+    it('documentos no numéricos (NaN) no cuentan como documento: Cliente usa el del token', () => {
+      const { svc, http } = setup({ getUserId: () => 101, getUserRole: () => 'Cliente' });
+      svc
+        .crearReserva({
+          ...mockReservaBody,
+          documentoCliente: NaN,
+          documentoContacto: NaN,
+        })
+        .subscribe();
+      const req = http.expectOne(`${environment.apiUrl}/reservas`);
+      expect(req.request.body.documentoCliente).toBe(101);
+      req.flush(mockReservaResponse);
+      http.verify();
+    });
+
+    it('Cliente con userId no numérico no inventa documento', () => {
+      const { svc, http } = setup({ getUserId: () => 'abc', getUserRole: () => 'Cliente' });
+      const { documentoCliente: _omit, ...body } = mockReservaBody;
       svc.crearReserva(body).subscribe();
       const req = http.expectOne(`${environment.apiUrl}/reservas`);
-      expect(req.request.body.documentoCliente).toBe('abc');
+      expect(req.request.body).toEqual(body);
       req.flush(mockReservaResponse);
       http.verify();
     });
 
-    it('Cliente con userId no numérico no consulta contactos', () => {
-      const { svc, http } = setup({ getUserId: () => 'abc', getUserRole: () => 'Cliente' });
-      svc.crearReserva(mockReservaBody).subscribe();
-      const req = http.expectOne(`${environment.apiUrl}/reservas`);
-      req.flush(mockReservaResponse);
-      http.verify();
-    });
-
-    it('Cliente con userId NaN no consulta contactos', () => {
+    it('Cliente con userId NaN no inventa documento', () => {
       const { svc, http } = setup({ getUserId: () => NaN, getUserRole: () => 'Cliente' });
-      svc.crearReserva(mockReservaBody).subscribe();
-      http.expectOne(`${environment.apiUrl}/reservas`).flush(mockReservaResponse);
+      const { documentoCliente: _omit, ...body } = mockReservaBody;
+      svc.crearReserva(body).subscribe();
+      const req = http.expectOne(`${environment.apiUrl}/reservas`);
+      expect(req.request.body).toEqual(body);
+      req.flush(mockReservaResponse);
       http.verify();
     });
 
     it('UserService sin getUserId/getUserRole envía tal cual', () => {
       const { svc, http } = setup({});
-      svc.crearReserva(mockReservaBody).subscribe();
-      http.expectOne(`${environment.apiUrl}/reservas`).flush(mockReservaResponse);
-      http.verify();
-    });
-
-    it('Cliente: respuesta de contactos sin data usa fallback documentoCliente', () => {
-      const { svc, http } = setup({ getUserId: () => 101, getUserRole: () => 'Cliente' });
-      svc.crearReserva(mockReservaBody).subscribe();
-      http
-        .expectOne(`${environment.apiUrl}/reserva_contacto?documento_cliente=101`)
-        .flush({ code: 200, message: 'ok', data: null });
+      const { documentoCliente: _omit, ...body } = mockReservaBody;
+      svc.crearReserva(body).subscribe();
       const req = http.expectOne(`${environment.apiUrl}/reservas`);
-      expect(req.request.body.documentoCliente).toBe(101);
-      req.flush(mockReservaResponse);
-      http.verify();
-    });
-
-    it('Cliente: primer contacto sin contactoId usa fallback documentoCliente', () => {
-      const { svc, http } = setup({ getUserId: () => 101, getUserRole: () => 'Cliente' });
-      svc.crearReserva(mockReservaBody).subscribe();
-      http
-        .expectOne(`${environment.apiUrl}/reserva_contacto?documento_cliente=101`)
-        .flush({ code: 200, message: 'ok', data: [null] });
-      const req = http.expectOne(`${environment.apiUrl}/reservas`);
-      expect(req.request.body.documentoCliente).toBe(101);
+      expect(req.request.body).toEqual(body);
       req.flush(mockReservaResponse);
       http.verify();
     });
@@ -496,10 +469,19 @@ describe('ReservaService', () => {
     req.flush({ code: 200, message: 'ok', data: [] });
   });
 
-  it('getReservaByParameter ignora contactoId/restauranteId NaN y sin parámetros', () => {
-    service.getReservaByParameter(NaN, undefined, NaN, undefined).subscribe();
+  it('getReservaByParameter ignora contactoId NaN y sin parámetros', () => {
+    service.getReservaByParameter(NaN).subscribe();
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter`);
     expect(req.request.params.keys().length).toBe(0);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('getReservaByParameter no envía restaurante_id ni dia (el backend solo filtra contactoId y fecha)', () => {
+    service.getReservaByParameter(2, '2025-02-06').subscribe();
+    const req = httpMock.expectOne(
+      `${environment.apiUrl}/reservas/parameter?contactoId=2&fecha=2025-02-06`,
+    );
+    expect(req.request.params.keys()).toEqual(['contactoId', 'fecha']);
     req.flush({ code: 200, message: 'ok', data: [] });
   });
 
@@ -508,5 +490,70 @@ describe('ReservaService', () => {
     const req = httpMock.expectOne(`${environment.apiUrl}/reservas/parameter`);
     expect(req.request.params.keys().length).toBe(0);
     req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  describe('consulta de invitado y reservas propias', () => {
+    it('consultarReserva envía reservaId y contacto y devuelve solo la vista mínima', () => {
+      let resultado: ReservaConsulta | null | undefined;
+      service.consultarReserva(12, '300 123 4567').subscribe((r) => (resultado = r));
+
+      const req = httpMock.expectOne((r) => r.url === `${environment.apiUrl}/reservas/consulta`);
+      expect(req.request.method).toBe('GET');
+      expect(req.request.params.get('reservaId')).toBe('12');
+      expect(req.request.params.get('contacto')).toBe('300 123 4567');
+      req.flush({ code: 200, message: 'Reserva encontrada', data: mockReservaConsulta });
+      expect(resultado).toEqual(mockReservaConsulta);
+    });
+
+    it('consultarReserva devuelve null en el 404 genérico (id inexistente o contacto distinto)', () => {
+      let resultado: ReservaConsulta | null | undefined;
+      service.consultarReserva(99, '1').subscribe((r) => (resultado = r));
+      httpMock
+        .expectOne((r) => r.url === `${environment.apiUrl}/reservas/consulta`)
+        .flush(
+          { code: 404, message: 'Reserva no encontrada' },
+          { status: 404, statusText: 'Not Found' },
+        );
+      expect(resultado).toBeNull();
+      expect(handleErrorService.handleError).not.toHaveBeenCalled();
+    });
+
+    it('consultarReserva propaga el 429 por HandleErrorService', () => {
+      service.consultarReserva(1, '1').subscribe({ error: () => undefined });
+      httpMock
+        .expectOne((r) => r.url === `${environment.apiUrl}/reservas/consulta`)
+        .flush({ code: 429, message: 'Demasiadas' }, { status: 429, statusText: 'Too Many' });
+      expect(handleErrorService.handleError).toHaveBeenCalled();
+    });
+
+    it('consultarReserva propaga un error de red sin respuesta', () => {
+      service.consultarReserva(1, '1').subscribe({ error: () => undefined });
+      httpMock
+        .expectOne((r) => r.url === `${environment.apiUrl}/reservas/consulta`)
+        .error(new ErrorEvent('red'));
+      expect(handleErrorService.handleError).toHaveBeenCalled();
+    });
+
+    it('getMisReservas no envía documento (sale del token) y admite fecha', () => {
+      service.getMisReservas().subscribe();
+      const sinFecha = httpMock.expectOne(`${environment.apiUrl}/reservas/cliente`);
+      expect(sinFecha.request.params.keys().length).toBe(0);
+      sinFecha.flush({ code: 200, message: 'ok', data: [] });
+
+      service.getMisReservas('2025-02-06').subscribe();
+      const conFecha = httpMock.expectOne(
+        `${environment.apiUrl}/reservas/cliente?fecha=2025-02-06`,
+      );
+      expect(conFecha.request.params.has('documentoCliente')).toBe(false);
+      conFecha.flush({ code: 200, message: 'ok', data: [] });
+    });
+
+    it('getMisReservas propaga errores por HandleErrorService', () => {
+      service.getMisReservas().subscribe({ error: () => undefined });
+      httpMock
+        .expectOne(`${environment.apiUrl}/reservas/cliente`)
+        .flush({ code: 401, message: 'x' }, { status: 401, statusText: 'Unauthorized' });
+      expect(handleErrorService.handleError).toHaveBeenCalled();
+    });
   });
 });

@@ -96,4 +96,11 @@ describe('ProductoFiltroPipe', () => {
   it('should filter by calorias range', () => {
     expect(pipe.transform(productos, '', '', '', 100, 300)).toEqual([productos[1], productos[2]]);
   });
+
+  it('trata calorias null (valor del back sin dato) como 0 en el rango', () => {
+    const sinDato: Producto = { nombre: 'Agua', precio: 1, cantidad: 1, calorias: null };
+    expect(pipe.transform([sinDato], '', '', '')).toEqual([sinDato]);
+    expect(pipe.transform([sinDato], '', '', '', 0, 100)).toEqual([sinDato]);
+    expect(pipe.transform([sinDato], '', '', '', 50, 100)).toEqual([]);
+  });
 });

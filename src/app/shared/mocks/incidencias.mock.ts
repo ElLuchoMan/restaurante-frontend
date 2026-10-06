@@ -8,7 +8,7 @@ export const mockIncidenciasList: ApiResponse<Incidencia[]> = {
     {
       incidenciaId: 1,
       documentoTrabajador: 1015466494,
-      fechaIncidencia: '2024-12-20',
+      fechaIncidencia: '20-12-2024',
       monto: 100000,
       motivo: 'Bonificación de fin de año',
       resta: false,
@@ -16,7 +16,7 @@ export const mockIncidenciasList: ApiResponse<Incidencia[]> = {
     {
       incidenciaId: 2,
       documentoTrabajador: 1000000542,
-      fechaIncidencia: '2025-01-15',
+      fechaIncidencia: '15-01-2025',
       monto: 100000,
       motivo: 'Deducción por falta',
       resta: true,
@@ -31,7 +31,7 @@ export const mockIncidenciasSearchResponse: ApiResponse<Incidencia[]> = {
     {
       incidenciaId: 3,
       documentoTrabajador: 1015466494,
-      fechaIncidencia: '2024-12-10',
+      fechaIncidencia: '10-12-2024',
       monto: 80000,
       motivo: 'Bono productividad',
       resta: false,
@@ -53,6 +53,7 @@ export const mockIncidenciaCreateResponse: ApiResponse<Incidencia> = {
   data: {
     incidenciaId: 4,
     ...mockIncidenciaCreateBody,
+    fechaIncidencia: '31-01-2025', // el back responde DD-MM-YYYY
   },
 };
 
@@ -66,7 +67,7 @@ export const mockIncidenciaUpdateResponse: ApiResponse<Incidencia> = {
   data: {
     incidenciaId: 1,
     documentoTrabajador: 1015466494,
-    fechaIncidencia: '2024-12-20',
+    fechaIncidencia: '20-12-2024',
     monto: 75000,
     motivo: 'Bonificación de fin de año',
     resta: false,

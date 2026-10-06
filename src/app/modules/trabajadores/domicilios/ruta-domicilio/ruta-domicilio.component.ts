@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, Inject, OnInit, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -11,7 +11,7 @@ import { ModalService } from '../../../../core/services/modal.service';
 import { PagoService } from '../../../../core/services/pago.service';
 import { PedidoService } from '../../../../core/services/pedido.service';
 import { UserService } from '../../../../core/services/user.service';
-import { estadoPago, metodoPago } from '../../../../shared/constants';
+import { estadoDomicilio, estadoPago, metodoPago } from '../../../../shared/constants';
 import { getGoogleMapsApiKey } from '../../../../shared/utils/config';
 import { fechaYYYYMMDD_Bogota, horaHHMMSS_Bogota } from '../../../../shared/utils/dateHelper';
 import {
@@ -53,6 +53,8 @@ export class RutaDomicilioComponent implements OnInit {
 
   googleMapsUrl: string = '';
   domicilioId: number = 0;
+  /** Refleja `entregado` del domicilio (lo calcula el back al marcar ENTREGADO). */
+  entregado: boolean = false;
   nombreCliente: string = '';
   totalPedido: number = 0;
   productos: ProductoDetalleVM[] = [];
@@ -85,6 +87,8 @@ export class RutaDomicilioComponent implements OnInit {
 
       this.domicilioService.getDomicilioById(this.domicilioId).subscribe((response) => {
         if (!response?.data) return;
+
+        this.entregado = !!response.data.domicilio?.entregado;
 
         // Nombre cliente
         this.nombreCliente = buildNombreCliente(response.data?.cliente);
@@ -161,13 +165,22 @@ export class RutaDomicilioComponent implements OnInit {
       console.error('No se encontró el ID del domicilio.');
       return;
     }
-    this.domicilioService.updateDomicilio(this.domicilioId, {}).subscribe({
-      next: (response) => {
-        this.toastrService.success('Domicilio marcado como finalizado');
-        this.logger.log(LogLevel.INFO, 'Domicilio marcado como finalizado', response);
-      },
-      error: (err) => console.error('Error al marcar finalizado', err),
-    });
+    this.domicilioService
+      .updateDomicilio(this.domicilioId, {
+        estado: estadoDomicilio.ENTREGADO,
+        updatedBy: `Usuario ${this.userService.getUserId()}`,
+      })
+      .subscribe({
+        next: (response) => {
+          this.entregado = response.data.entregado;
+          this.toastrService.success('Domicilio marcado como finalizado');
+          this.logger.log(LogLevel.INFO, 'Domicilio marcado como finalizado', response);
+        },
+        error: (err) => {
+          this.toastrService.error(err?.message || 'Error al marcar como finalizado');
+          console.error('Error al marcar finalizado', err);
+        },
+      });
   }
 
   marcarPago(): void {
@@ -216,12 +229,19 @@ export class RutaDomicilioComponent implements OnInit {
                     if (pagoId) {
                       this.pedidoService.assignPago(this.pedidoId, pagoId).subscribe({
                         next: () => this.toastrService.success('Pago asignado al domicilio'),
-                        error: (err) =>
-                          this.logger.log(LogLevel.ERROR, 'Error al asignar pago:', err),
+                        error: (err) => {
+                          this.logger.log(LogLevel.ERROR, 'Error al asignar pago:', err);
+                          this.toastrService.error(
+                            err?.message || 'Error al asignar el pago al domicilio',
+                          );
+                        },
                       });
                     }
                   },
-                  error: (err) => this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err),
+                  error: (err) => {
+                    this.logger.log(LogLevel.ERROR, 'Error al crear pago:', err);
+                    this.toastrService.error(err?.message || 'Error al crear el pago');
+                  },
                 });
             } catch (error) {
               this.logger.log(LogLevel.ERROR, 'Error al crear pago:', error);
@@ -233,7 +253,7 @@ export class RutaDomicilioComponent implements OnInit {
               })
               .subscribe(
                 () => this.toastrService.success('Domicilio marcado como pagado'),
-                () => this.toastrService.error('Error al marcar como pagado'),
+                (err) => this.toastrService.error(err?.message || 'Error al marcar como pagado'),
               );
 
             this.modalService.closeModal();

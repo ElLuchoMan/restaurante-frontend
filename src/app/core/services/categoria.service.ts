@@ -20,7 +20,8 @@ export class CategoriaService {
 
   list(): Observable<Categoria[]> {
     return this.http.get<ApiResponse<Categoria[]>>(this.baseUrl).pipe(
-      map((res) => res.data),
+      // El back serializa `data: null` cuando no hay filas
+      map((res) => res.data ?? []),
       catchError(this.handleError.handleError),
     );
   }

@@ -4,8 +4,13 @@ import { catchError, map, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { Trabajador } from '../../shared/models/trabajador.model';
+import {
+  Trabajador,
+  TrabajadorCreate,
+  TrabajadorUpdate,
+} from '../../shared/models/trabajador.model';
 import { HandleErrorService } from './handle-error.service';
+import { notFoundAsEmpty } from './not-found.operator';
 
 @Injectable({
   providedIn: 'root',
@@ -17,19 +22,34 @@ export class TrabajadorService {
     private handleError: HandleErrorService,
   ) {}
 
-  registroTrabajador(trabajador: Trabajador): Observable<ApiResponse<Trabajador>> {
+  /**
+   * POST /trabajadores. Todo /trabajadores exige token de Administrador (401/403 si no).
+   * Errores: 400 validación, 409 documento o teléfono repetido.
+   */
+  registroTrabajador(trabajador: TrabajadorCreate): Observable<ApiResponse<Trabajador>> {
     return this.http
       .post<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores`, trabajador)
       .pipe(catchError(this.handleError.handleError));
   }
-  searchTrabajador(documento_trabajador: number): Observable<ApiResponse<Trabajador>> {
+
+  /**
+   * GET /trabajadores/search?id= (solo Administrador). Si no existe el back responde 404 HTTP;
+   * aquí se expone como `{ code: 404, data: undefined }`. 401/403 se propagan como error.
+   */
+  searchTrabajador(documento_trabajador: number): Observable<ApiResponse<Trabajador | undefined>> {
     return this.http
       .get<ApiResponse<Trabajador>>(
         `${this.baseUrl}/trabajadores/search?id=${documento_trabajador}`,
       )
-      .pipe(catchError(this.handleError.handleError));
+      .pipe(
+        notFoundAsEmpty<Trabajador>('Trabajador no encontrado'),
+        catchError(this.handleError.handleError),
+      );
   }
 
+  /**
+   * GET /trabajadores. Por defecto excluye retirados; `fecha_ingreso` va como YYYY-MM-DD.
+   */
   getTrabajadores(params?: {
     fecha_ingreso?: string;
     rol?: string;
@@ -49,32 +69,37 @@ export class TrabajadorService {
     }
 
     return this.http
-      .get<ApiResponse<Trabajador[]>>(`${this.baseUrl}/trabajadores`, { params: httpParams })
+      .get<ApiResponse<Trabajador[] | null>>(`${this.baseUrl}/trabajadores`, {
+        params: httpParams,
+      })
       .pipe(
-        map((res: ApiResponse<Trabajador[]>) => res.data),
+        map((res) => res.data ?? []),
         catchError(this.handleError.handleError),
       );
   }
 
-  getTrabajadorId(documento: number): Observable<ApiResponse<Trabajador>> {
-    return this.http
-      .get<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores/search?id=${documento}`)
-      .pipe(catchError(this.handleError.handleError));
+  getTrabajadorId(documento: number): Observable<ApiResponse<Trabajador | undefined>> {
+    return this.searchTrabajador(documento);
   }
 
+  /** PUT /trabajadores?id= con merge. Errores: 400, 404 (no existe), 409 (teléfono repetido). */
   updateTrabajador(
     documento: number,
-    partial: Partial<Trabajador>,
+    partial: TrabajadorUpdate,
   ): Observable<ApiResponse<Trabajador>> {
     return this.http
       .put<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores?id=${documento}`, partial)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  deleteTrabajador(documento: number): Observable<ApiResponse<unknown>> {
+  /**
+   * DELETE /trabajadores: baja lógica (el back fija fechaRetiro = hoy y devuelve el trabajador).
+   * Errores: 404 (no existe), 409 (ya estaba retirado).
+   */
+  deleteTrabajador(documento: number): Observable<ApiResponse<Trabajador>> {
     const params = new HttpParams().set('id', String(documento));
     return this.http
-      .delete<ApiResponse<unknown>>(`${this.baseUrl}/trabajadores`, { params })
+      .delete<ApiResponse<Trabajador>>(`${this.baseUrl}/trabajadores`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

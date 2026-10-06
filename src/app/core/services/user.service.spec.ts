@@ -324,11 +324,23 @@ describe('UserService', () => {
       req.flush(mockLoginResponse);
     });
 
-    it('should logout and throw error if no refresh token available', () => {
+    it('should logout and emit error if no refresh token available', () => {
       const logoutSpy = jest.spyOn(service, 'logout');
+      let received: Error | undefined;
 
-      expect(() => service.refreshTokens()).toThrow('No refresh token available');
+      service.refreshTokens().subscribe({ error: (e: Error) => (received = e) });
+
+      expect(received?.message).toBe('No refresh token available');
       expect(logoutSpy).toHaveBeenCalled();
+      httpTestingController.expectNone(`${environment.apiUrl}/auth/refresh`);
+    });
+
+    it('attemptTokenRefresh should return false (not throw) without refresh token', () => {
+      let result: boolean | undefined;
+
+      service.attemptTokenRefresh().subscribe((success) => (result = success));
+
+      expect(result).toBe(false);
     });
 
     it('should handle refresh token error and logout', () => {

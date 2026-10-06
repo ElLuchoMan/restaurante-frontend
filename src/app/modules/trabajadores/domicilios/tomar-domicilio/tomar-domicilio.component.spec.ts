@@ -2,7 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { UserService } from '../../../../core/services/user.service';
@@ -79,7 +79,7 @@ describe('TomarDomicilioComponent', () => {
             entregado: false,
             observaciones: '',
             createdBy: '',
-            trabajadorAsignado: 99,
+            trabajadorAsignado: { documentoTrabajador: 99 },
           },
           {
             domicilioId: 4,
@@ -90,7 +90,7 @@ describe('TomarDomicilioComponent', () => {
             entregado: false,
             observaciones: '',
             createdBy: '',
-            trabajadorAsignado: 1,
+            trabajadorAsignado: { documentoTrabajador: 1 },
           },
         ] as Domicilio[],
       }),
@@ -106,9 +106,11 @@ describe('TomarDomicilioComponent', () => {
     expect(component.mostrarMensaje).toBe(false);
   });
 
-  it('obtenerDomiciliosDisponibles should handle error response', () => {
+  it('obtenerDomiciliosDisponibles should show the error message on HTTP error', () => {
     userService.getUserId.mockReturnValue(1);
-    domicilioService.getDomicilios.mockReturnValue(of({ code: 400, message: 'error', data: [] }));
+    domicilioService.getDomicilios.mockReturnValue(
+      throwError(() => ({ code: 400, message: 'error' })),
+    );
 
     createComponent();
     component.trabajadorId = 1;
@@ -116,6 +118,41 @@ describe('TomarDomicilioComponent', () => {
 
     expect(component.mostrarMensaje).toBe(true);
     expect(component.mensaje).toBe('error');
+  });
+
+  it('obtenerDomiciliosDisponibles should use a default message when the error has none', () => {
+    domicilioService.getDomicilios.mockReturnValue(throwError(() => undefined));
+
+    createComponent();
+    component.trabajadorId = 1;
+    component.obtenerDomiciliosDisponibles();
+
+    expect(component.mensaje).toBe('No se pudieron cargar los domicilios');
+  });
+
+  it('obtenerDomiciliosDisponibles should leave the list empty when data is []', () => {
+    domicilioService.getDomicilios.mockReturnValue(of({ code: 200, message: 'ok', data: [] }));
+
+    createComponent();
+    component.trabajadorId = 1;
+    component.obtenerDomiciliosDisponibles();
+    fixture.detectChanges();
+
+    expect(component.domicilios).toEqual([]);
+    expect(fixture.nativeElement.textContent).toContain('No se encontraron domicilios disponibles');
+  });
+
+  it('obtenerDomiciliosDisponibles should filter by today in Bogota time (YYYY-MM-DD)', () => {
+    domicilioService.getDomicilios.mockReturnValue(of({ code: 200, message: 'ok', data: [] }));
+
+    createComponent();
+    component.trabajadorId = 1;
+    component.obtenerDomiciliosDisponibles();
+
+    expect(domicilioService.getDomicilios).toHaveBeenCalledWith({
+      trabajador: 1,
+      fecha: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+    });
   });
 
   it('obtenerDomiciliosDisponibles should return early when no trabajadorId', () => {
@@ -139,7 +176,15 @@ describe('TomarDomicilioComponent', () => {
     };
 
     domicilioService.asignarDomiciliario.mockReturnValue(
-      of({ code: 200, message: 'ok', data: domicilio }),
+      of({
+        code: 200,
+        message: 'ok',
+        data: {
+          ...domicilio,
+          estadoDomicilio: estadoDomicilio.EN_CAMINO,
+          trabajadorAsignado: { documentoTrabajador: 1 },
+        },
+      }),
     );
 
     createComponent();
@@ -147,10 +192,39 @@ describe('TomarDomicilioComponent', () => {
     component.tomarDomicilio(domicilio);
 
     expect(domicilioService.asignarDomiciliario).toHaveBeenCalledWith(1, 1);
-    expect(domicilio.trabajadorAsignado).toBe(1);
+    expect(domicilio.trabajadorAsignado).toEqual({ documentoTrabajador: 1 });
+    expect(domicilio.estadoDomicilio).toBe(estadoDomicilio.EN_CAMINO);
   });
 
-  it('tomarDomicilio should not assign when trabajadorId is cleared before the response', () => {
+  it('tomarDomicilio should show the message and reload the list when it fails (409)', () => {
+    const domicilio = { domicilioId: 1 } as Domicilio;
+    domicilioService.asignarDomiciliario.mockReturnValue(
+      throwError(() => ({ code: 409, message: 'Ya asignado' })),
+    );
+    domicilioService.getDomicilios.mockReturnValue(of({ code: 200, message: 'ok', data: [] }));
+
+    createComponent();
+    component.trabajadorId = 1;
+    component.tomarDomicilio(domicilio);
+
+    expect(component.mostrarMensaje).toBe(true);
+    expect(component.mensaje).toBe('Ya asignado');
+    expect(domicilioService.getDomicilios).toHaveBeenCalled();
+    expect(domicilio.trabajadorAsignado).toBeUndefined();
+  });
+
+  it('tomarDomicilio should use a default message when the failure has none', () => {
+    domicilioService.asignarDomiciliario.mockReturnValue(throwError(() => undefined));
+    domicilioService.getDomicilios.mockReturnValue(of({ code: 200, message: 'ok', data: [] }));
+
+    createComponent();
+    component.trabajadorId = 1;
+    component.tomarDomicilio({ domicilioId: 1 } as Domicilio);
+
+    expect(component.mensaje).toBe('No se pudo tomar el domicilio');
+  });
+
+  it('tomarDomicilio should keep the domicilio untouched when the response has no changes', () => {
     const domicilio: Domicilio = {
       domicilioId: 1,
       fechaDomicilio: '2024-01-01',

@@ -43,7 +43,9 @@
   </div>
 
   <div class="text-center mt-3">
-    <button (click)="marcarFinalizado()" class="btn btn-success">Marcar finalizado</button>
+    <button (click)="marcarFinalizado()" class="btn btn-success" [disabled]="entregado">
+      {{ entregado ? 'Finalizado' : 'Marcar finalizado' }}
+    </button>
     <button (click)="marcarPago()" class="btn btn-warning ml-2">Marcar pago</button>
   </div>
 

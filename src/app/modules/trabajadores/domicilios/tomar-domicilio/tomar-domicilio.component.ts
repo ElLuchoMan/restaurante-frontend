@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { UserService } from '../../../../core/services/user.service';
 import { Domicilio } from '../../../../shared/models/domicilio.model';
+import { fechaYYYYMMDD_Bogota } from '../../../../shared/utils/dateHelper';
 
 @Component({
   selector: 'app-tomar-domicilio',
@@ -35,34 +36,38 @@ export class TomarDomicilioComponent implements OnInit {
   obtenerDomiciliosDisponibles(): void {
     if (!this.trabajadorId) return;
 
-    const today = new Date().toISOString().split('T')[0];
+    const params = { trabajador: this.trabajadorId, fecha: fechaYYYYMMDD_Bogota() };
 
-    const params = { trabajador: this.trabajadorId, fecha: today };
-
-    this.domicilioService.getDomicilios(params).subscribe((response) => {
-      if (response.code === 200) {
+    // Sin domicilios el back responde 200 con `data: []` (el aviso por defecto ya se muestra).
+    this.domicilioService.getDomicilios(params).subscribe({
+      next: (response) => {
         this.domicilios = response.data.filter(
           (domicilio) =>
             !domicilio.entregado &&
-            (!domicilio.trabajadorAsignado || domicilio.trabajadorAsignado === this.trabajadorId),
+            (!domicilio.trabajadorAsignado ||
+              domicilio.trabajadorAsignado.documentoTrabajador === this.trabajadorId),
         );
-      } else {
+      },
+      error: (err) => {
         this.mostrarMensaje = true;
-        this.mensaje = response.message;
-      }
+        this.mensaje = err?.message || 'No se pudieron cargar los domicilios';
+      },
     });
   }
 
   tomarDomicilio(domicilio: Domicilio): void {
     if (!this.trabajadorId) return;
 
-    this.domicilioService
-      .asignarDomiciliario(domicilio.domicilioId!, this.trabajadorId)
-      .subscribe((response) => {
-        if (response.code === 200 && this.trabajadorId !== null) {
-          domicilio.trabajadorAsignado = this.trabajadorId;
-        }
-      });
+    this.domicilioService.asignarDomiciliario(domicilio.domicilioId!, this.trabajadorId).subscribe({
+      // `data` es el domicilio completo ya asignado y EN_CAMINO.
+      next: (response) => Object.assign(domicilio, response.data),
+      // 409 (ya tomado por otro) o 404: se vuelve a consultar para mostrar el estado real.
+      error: (err) => {
+        this.mostrarMensaje = true;
+        this.mensaje = err?.message || 'No se pudo tomar el domicilio';
+        this.obtenerDomiciliosDisponibles();
+      },
+    });
   }
 
   irARuta(domicilio: Domicilio): void {

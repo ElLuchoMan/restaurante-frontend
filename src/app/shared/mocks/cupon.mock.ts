@@ -1,5 +1,9 @@
 import { ApiResponse } from '../models/api-response.model';
 import { Cupon, CuponRedencion, ValidarCuponResponse } from '../models/cupon.model';
+import { PaginatedData } from '../models/descuento-types.model';
+
+// Los mocks reflejan el JSON real del back: fechas `DD-MM-YYYY`, opcionales ausentes (no null)
+// y las FK (productoId, categoriaId, documentoCliente) serializadas como objeto relacionado.
 
 export const mockCuponBienvenida: ApiResponse<Cupon> = {
   code: 200,
@@ -10,15 +14,9 @@ export const mockCuponBienvenida: ApiResponse<Cupon> = {
     scope: 'GLOBAL',
     tipoDescuento: 'PORCENTAJE',
     valorDescuento: 10,
-    fechaInicio: '2025-01-01',
-    fechaFin: '2025-12-31',
-    montoMinimo: null,
-    maxUsos: null,
-    limitePorCliente: null,
+    fechaInicio: '01-01-2025',
+    fechaFin: '31-12-2025',
     activo: true,
-    productoId: null,
-    categoriaId: null,
-    clienteId: null,
   },
 };
 
@@ -31,15 +29,11 @@ export const mockCuponHamburguesa: ApiResponse<Cupon> = {
     scope: 'PRODUCTO',
     tipoDescuento: 'MONTO',
     valorDescuento: 5000,
-    fechaInicio: '2025-01-01',
-    fechaFin: '2025-12-31',
+    fechaInicio: '01-01-2025',
+    fechaFin: '31-12-2025',
     montoMinimo: 10000,
-    maxUsos: null,
-    limitePorCliente: null,
     activo: true,
-    productoId: 3,
-    categoriaId: null,
-    clienteId: null,
+    productoId: { productoId: 3 },
   },
 };
 
@@ -52,22 +46,23 @@ export const mockCuponClienteVIP: ApiResponse<Cupon> = {
     scope: 'CLIENTE',
     tipoDescuento: 'PORCENTAJE',
     valorDescuento: 20,
-    fechaInicio: '2025-01-01',
-    fechaFin: '2025-12-31',
-    montoMinimo: null,
-    maxUsos: null,
-    limitePorCliente: null,
+    fechaInicio: '01-01-2025',
+    fechaFin: '31-12-2025',
     activo: true,
-    productoId: null,
-    categoriaId: null,
-    clienteId: 1015466495,
+    documentoCliente: { documentoCliente: 1015466495 },
   },
 };
 
-export const mockListaCupones: ApiResponse<Cupon[]> = {
+export const mockListaCupones: ApiResponse<PaginatedData<Cupon>> = {
   code: 200,
   message: 'Cupones obtenidos exitosamente',
-  data: [mockCuponBienvenida.data, mockCuponHamburguesa.data, mockCuponClienteVIP.data],
+  data: {
+    data: [mockCuponBienvenida.data, mockCuponHamburguesa.data, mockCuponClienteVIP.data],
+    total: 3,
+    page: 1,
+    pageSize: 20,
+    totalPages: 1,
+  },
 };
 
 export const mockValidarCuponExitoso: ApiResponse<ValidarCuponResponse> = {
@@ -76,7 +71,6 @@ export const mockValidarCuponExitoso: ApiResponse<ValidarCuponResponse> = {
   data: {
     aplicable: true,
     montoDescuento: 2000,
-    motivo: null,
   },
 };
 
@@ -91,15 +85,14 @@ export const mockValidarCuponFallido: ApiResponse<ValidarCuponResponse> = {
 };
 
 export const mockRedencionCupon: ApiResponse<CuponRedencion> = {
-  code: 200,
+  code: 201,
   message: 'Cupón redimido exitosamente',
   data: {
-    redencionId: 1,
-    cuponId: 1,
-    codigo: 'BIENVENIDA10',
-    clienteId: 1015466495,
-    pedidoId: 1,
+    cuponRedencionId: 1,
+    cuponId: { cuponId: 1 },
+    documentoCliente: { documentoCliente: 1015466495 },
+    pedidoId: { pedidoId: 1 },
     montoDescuento: 2000,
-    fechaRedencion: '2025-01-15T14:30:00Z',
+    createdAt: '15-01-2025 14:30:00',
   },
 };

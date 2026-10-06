@@ -4,11 +4,16 @@ import { catchError, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
-import { CambioHorario } from '../../shared/models/cambio-horario.model';
+import {
+  CambioHorario,
+  CambioHorarioCreate,
+  CambioHorarioUpdate,
+} from '../../shared/models/cambio-horario.model';
 import { HandleErrorService } from './handle-error.service';
+import { notFoundAsEmpty } from './not-found.operator';
 
-export type CambiosHorarioCreate = Omit<CambioHorario, 'cambioHorarioId'>;
-export type CambiosHorarioUpdate = Partial<CambiosHorarioCreate>;
+export type CambiosHorarioCreate = CambioHorarioCreate;
+export type CambiosHorarioUpdate = CambioHorarioUpdate;
 
 @Injectable({ providedIn: 'root' })
 export class CambiosHorarioService {
@@ -18,55 +23,45 @@ export class CambiosHorarioService {
     private handleError: HandleErrorService,
   ) {}
 
-  private mapCreateToSwagger(body: CambiosHorarioCreate) {
-    const mapped: Record<string, unknown> = {};
-    if (body.fecha) mapped['fechaCambioHorario'] = body.fecha;
-    if (body.horaApertura != null) mapped['horaApertura'] = body.horaApertura;
-    if (body.horaCierre != null) mapped['horaCierre'] = body.horaCierre;
-    if ((body as any).abierto !== undefined) mapped['abierto'] = (body as any).abierto;
-    return mapped;
-  }
-
-  private mapUpdateToSwagger(body: CambiosHorarioUpdate) {
-    const mapped: Record<string, unknown> = {};
-    if (body.fecha) mapped['fechaCambioHorario'] = body.fecha;
-    if (body.horaApertura != null) mapped['horaApertura'] = body.horaApertura;
-    if (body.horaCierre != null) mapped['horaCierre'] = body.horaCierre;
-    if ((body as any).abierto !== undefined) mapped['abierto'] = (body as any).abierto;
-    return mapped;
-  }
-
-  list(): Observable<ApiResponse<Record<string, unknown>[]>> {
+  list(): Observable<ApiResponse<CambioHorario[]>> {
     return this.http
-      .get<ApiResponse<Record<string, unknown>[]>>(this.baseUrl)
+      .get<ApiResponse<CambioHorario[]>>(this.baseUrl)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  getActual(): Observable<ApiResponse<Record<string, unknown>>> {
+  /**
+   * GET /cambios_horario/actual (público). Sin cambio hoy el back responde 404 HTTP; aquí se
+   * expone como `{ code: 404, data: undefined }` (es "sin cambio", no un error).
+   */
+  getActual(): Observable<ApiResponse<CambioHorario | undefined>> {
     return this.http
-      .get<ApiResponse<Record<string, unknown>>>(`${this.baseUrl}/actual`)
+      .get<ApiResponse<CambioHorario>>(`${this.baseUrl}/actual`)
+      .pipe(
+        notFoundAsEmpty<CambioHorario>('No hay cambios de horario para la fecha actual'),
+        catchError(this.handleError.handleError),
+      );
+  }
+
+  /** POST /cambios_horario. Errores: 400 (fecha/horas), 409 (ya hay un cambio para esa fecha). */
+  create(body: CambiosHorarioCreate): Observable<ApiResponse<CambioHorario>> {
+    return this.http
+      .post<ApiResponse<CambioHorario>>(this.baseUrl, body)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  create(body: CambiosHorarioCreate): Observable<ApiResponse<Record<string, unknown>>> {
-    const payload = this.mapCreateToSwagger(body);
-    return this.http
-      .post<ApiResponse<Record<string, unknown>>>(this.baseUrl, payload)
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  update(id: number, body: CambiosHorarioUpdate): Observable<ApiResponse<Record<string, unknown>>> {
-    const params = new HttpParams().set('id', String(id));
-    const payload = this.mapUpdateToSwagger(body);
-    return this.http
-      .put<ApiResponse<Record<string, unknown>>>(this.baseUrl, payload, { params })
-      .pipe(catchError(this.handleError.handleError));
-  }
-
-  delete(id: number): Observable<ApiResponse<Record<string, unknown>>> {
+  /** PUT /cambios_horario?id= con merge. Errores: 400, 404 (no existe), 409 (fecha repetida). */
+  update(id: number, body: CambiosHorarioUpdate): Observable<ApiResponse<CambioHorario>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .delete<ApiResponse<Record<string, unknown>>>(this.baseUrl, { params })
+      .put<ApiResponse<CambioHorario>>(this.baseUrl, body, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  /** DELETE /cambios_horario?id=. Errores: 404 (no existe), 409 (en uso por un restaurante). */
+  delete(id: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<unknown>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 }

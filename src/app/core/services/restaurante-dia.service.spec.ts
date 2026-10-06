@@ -2,6 +2,8 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
+import { DiaSemana } from '../../shared/constants';
+import { mockRestauranteDiaById } from '../../shared/mocks/restaurante-dia.mock';
 import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { HandleErrorService } from './handle-error.service';
 import { RestauranteDiaService } from './restaurante-dia.service';
@@ -34,17 +36,16 @@ describe('RestauranteDiaService', () => {
 
   it('lists con filtros', () => {
     const mock = { code: 200, message: 'ok', data: [] };
-    service.list(1, 'Lunes').subscribe((res) => expect(res).toEqual(mock));
+    service.list(1, DiaSemana.DiaLunes).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(`${baseUrl}?restaurante_id=1&dia=Lunes`);
     expect(req.request.method).toBe('GET');
     req.flush(mock);
   });
 
   it('get by id', () => {
-    const mock = { code: 200, message: 'ok', data: { restauranteId: 1 } } as any;
-    service.getById(9).subscribe((res) => expect(res).toEqual(mock));
+    service.getById(9).subscribe((res) => expect(res).toEqual(mockRestauranteDiaById));
     const req = http.expectOne(`${baseUrl}/search?id=9`);
     expect(req.request.method).toBe('GET');
-    req.flush(mock);
+    req.flush(mockRestauranteDiaById);
   });
 });

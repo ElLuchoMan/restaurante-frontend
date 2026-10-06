@@ -18,8 +18,8 @@
             </div>
           </div>
           <div class="reserva-center">
-            <div class="reserva-cliente">{{ r.nombreCompleto }}</div>
-            <div class="reserva-telefono">{{ r.telefono }}</div>
+            <div class="reserva-cliente">{{ r.contactoId.nombreCompleto }}</div>
+            <div class="reserva-telefono">{{ r.contactoId.telefono }}</div>
             <div class="reserva-indicaciones" *ngIf="r.indicaciones">{{ r.indicaciones }}</div>
           </div>
           <div class="reserva-right">

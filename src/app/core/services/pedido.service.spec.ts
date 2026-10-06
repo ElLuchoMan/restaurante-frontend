@@ -2,7 +2,15 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
-import { mockPedidosFiltroResponse } from '../../shared/mocks/pedido.mock';
+import { EstadoPedido } from '../../shared/constants';
+import {
+  mockCheckoutBody,
+  mockCheckoutResponse,
+  mockPedidoBody,
+  mockPedidoDetalle,
+  mockPedidosFiltroResponse,
+  mockPedidosResponse,
+} from '../../shared/mocks/pedido.mock';
 import { createHandleErrorServiceMock } from '../../shared/mocks/test-doubles';
 import { HandleErrorService } from './handle-error.service';
 import { PedidoService } from './pedido.service';
@@ -30,18 +38,16 @@ describe('PedidoService', () => {
   });
 
   it('creates pedido', () => {
-    const pedido = { delivery: true } as any;
-    const mock = { code: 200, message: 'ok', data: {} };
-    service.createPedido(pedido).subscribe((res) => expect(res).toEqual(mock));
+    const mock = { ...mockPedidosResponse, data: mockPedidosResponse.data[0] };
+    service.createPedido(mockPedidoBody).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(baseUrl);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(pedido);
+    expect(req.request.body).toEqual(mockPedidoBody);
     req.flush(mock);
   });
 
   it('handles error on createPedido', () => {
-    const pedido = { delivery: true } as any;
-    service.createPedido(pedido).subscribe({
+    service.createPedido({ delivery: false }).subscribe({
       next: () => fail('should have failed'),
       error: (err) => expect(err).toBeTruthy(),
     });
@@ -49,6 +55,63 @@ describe('PedidoService', () => {
     req.error(new ErrorEvent('Network error'));
     expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });
+
+  it('checks out in a single POST and returns the order with the server amount', () => {
+    service.checkout(mockCheckoutBody).subscribe((res) => {
+      expect(res).toEqual(mockCheckoutResponse);
+      expect(res.data.monto).toBe(50000);
+    });
+    const req = http.expectOne(`${baseUrl}/checkout`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(mockCheckoutBody);
+    req.flush(mockCheckoutResponse);
+  });
+
+  it('keeps the per-product detail of a 409 inventory error on checkout', () => {
+    const data = [{ productoId: 1, requerido: 5, disponible: 2 }];
+    let error: unknown;
+    service.checkout(mockCheckoutBody).subscribe({ error: (e) => (error = e) });
+    http
+      .expectOne(`${baseUrl}/checkout`)
+      .flush(
+        { code: 409, message: 'Inventario insuficiente para uno o más productos', data },
+        { status: 409, statusText: 'Conflict' },
+      );
+    expect(error).toEqual({
+      code: 409,
+      message: 'Inventario insuficiente para uno o más productos',
+      cause: 'No especificado',
+      data,
+    });
+    expect(mockHandleErrorService.handleError).not.toHaveBeenCalled();
+  });
+
+  it('uses default message and cause for a 409 inventory error without them', () => {
+    let error: any;
+    service.checkout(mockCheckoutBody).subscribe({ error: (e) => (error = e) });
+    http
+      .expectOne(`${baseUrl}/checkout`)
+      .flush({ data: [] }, { status: 409, statusText: 'Conflict' });
+    expect(error).toEqual({
+      code: 409,
+      message: 'Inventario insuficiente',
+      cause: 'No especificado',
+      data: [],
+    });
+  });
+
+  it.each([
+    [409, { message: 'conflicto' }],
+    [403, { message: 'otro cliente', data: [] }],
+    [500, null],
+  ])(
+    'delegates a %s without inventory detail to HandleErrorService on checkout',
+    (status, body) => {
+      service.checkout(mockCheckoutBody).subscribe({ error: (err) => expect(err).toBeTruthy() });
+      http.expectOne(`${baseUrl}/checkout`).flush(body, { status, statusText: 'Error' });
+      expect(mockHandleErrorService.handleError).toHaveBeenCalled();
+    },
+  );
 
   it('assigns pago with default cambiar_estado=false', () => {
     const mock = { code: 200, message: 'ok' };
@@ -119,11 +182,10 @@ describe('PedidoService', () => {
   });
 
   it('gets pedido detalles', () => {
-    const mock = { code: 200, message: 'ok', data: {} };
-    service.getPedidoDetalles(7).subscribe((res) => expect(res).toEqual(mock));
+    service.getPedidoDetalles(7).subscribe((res) => expect(res).toEqual(mockPedidoDetalle));
     const req = http.expectOne(`${baseUrl}/detalles?pedido_id=7`);
     expect(req.request.method).toBe('GET');
-    req.flush(mock);
+    req.flush(mockPedidoDetalle);
   });
 
   it('handles error on getPedidoDetalles', () => {
@@ -172,28 +234,34 @@ describe('PedidoService', () => {
   });
 
   it('updates estado of pedido', () => {
-    service.updateEstado(77, 'TERMINADO').subscribe((res) => expect(res).toEqual({ code: 200 }));
+    service
+      .updateEstado(77, EstadoPedido.EstadoPedidoTerminado)
+      .subscribe((res) => expect(res).toEqual({ code: 200 }));
     const req = http.expectOne(`${baseUrl}/actualizar-estado?pedido_id=77&estado=TERMINADO`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toBeNull();
     req.flush({ code: 200 });
   });
 
-  it('updatePedido envía body parcial con id en query', () => {
-    const body = { estadoPedido: 'EN_CURSO' } as any;
-    const mock = { code: 200, message: 'ok', data: {} };
-    service.updatePedido(5, body).subscribe((res) => expect(res).toEqual(mock));
-    const req = http.expectOne(`${baseUrl}?id=5`);
-    expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual(body);
-    req.flush(mock);
+  it('handles error on updateEstado', () => {
+    service.updateEstado(77, EstadoPedido.EstadoPedidoCancelado).subscribe({
+      next: () => fail('should have failed'),
+      error: (err) => expect(err).toBeTruthy(),
+    });
+    const req = http.expectOne(`${baseUrl}/actualizar-estado?pedido_id=77&estado=CANCELADO`);
+    req.error(new ErrorEvent('Network error'));
+    expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });
 
-  it('deletePedido envía id como query', () => {
-    const mock = { code: 200, message: 'ok', data: {} };
-    service.deletePedido(9).subscribe((res) => expect(res).toEqual(mock));
-    const req = http.expectOne(`${baseUrl}?id=9`);
-    expect(req.request.method).toBe('DELETE');
-    req.flush(mock);
+  it('handles error on getPedidos', () => {
+    service.getPedidos({ mes: 3, anio: 2025 }).subscribe({
+      next: () => fail('should have failed'),
+      error: (err) => expect(err).toBeTruthy(),
+    });
+    const req = http.expectOne((r) => r.url === baseUrl);
+    expect(req.request.params.get('mes')).toBe('3');
+    expect(req.request.params.get('anio')).toBe('2025');
+    req.error(new ErrorEvent('Network error'));
+    expect(mockHandleErrorService.handleError).toHaveBeenCalled();
   });
 });

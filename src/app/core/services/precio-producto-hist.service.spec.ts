@@ -41,7 +41,18 @@ describe('PrecioProductoHistService', () => {
   });
 
   it('gets by id', () => {
-    const mock = { code: 200, message: 'ok', data: { productoId: 1 } } as any;
+    const mock = {
+      code: 200,
+      message: 'ok',
+      data: {
+        precioHistId: 9,
+        productoId: 1,
+        nombre: 'p',
+        precio: 100,
+        fechaVigencia: '31-01-2025',
+        estadoProducto: 'DISPONIBLE',
+      },
+    };
     service.getById(9).subscribe((res) => expect(res).toEqual(mock));
     const req = http.expectOne(`${baseUrl}/precio_producto_hist/search?id=9`);
     expect(req.request.method).toBe('GET');

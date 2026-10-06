@@ -4,8 +4,11 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import {
   mockTrabajadorBody,
+  mockTrabajadorDeleteResponse,
   mockTrabajadorRegisterResponse,
   mockTrabajadorResponse,
+  mockTrabajadorUpdateBody,
+  mockTrabajadorUpdateNullBody,
 } from '../../shared/mocks/trabajador.mock';
 import { HandleErrorService } from './handle-error.service';
 import { TrabajadorService } from './trabajador.service';
@@ -131,9 +134,9 @@ describe('TrabajadorService', () => {
   describe('updateTrabajador', () => {
     it('should PUT partial trabajador', () => {
       const documento = mockTrabajadorResponse.data.documentoTrabajador;
-      const partial = { telefono: '3000000000' } as any;
+      const partial = mockTrabajadorUpdateBody;
       service.updateTrabajador(documento, partial).subscribe((res) => {
-        expect(res).toBeTruthy();
+        expect(res.data?.documentoTrabajador).toBe(documento);
       });
       const req = httpMock.expectOne(`${baseUrl}/trabajadores?id=${documento}`);
       expect(req.request.method).toBe('PUT');
@@ -145,13 +148,62 @@ describe('TrabajadorService', () => {
   describe('deleteTrabajador', () => {
     it('should DELETE a trabajador by documento', () => {
       const documento = mockTrabajadorResponse.data.documentoTrabajador;
-      const mockResponse = { code: 200, message: 'ok', data: {} } as any;
       service.deleteTrabajador(documento).subscribe((res) => {
-        expect(res).toEqual(mockResponse);
+        expect(res).toEqual(mockTrabajadorDeleteResponse);
       });
       const req = httpMock.expectOne(`${baseUrl}/trabajadores?id=${documento}`);
       expect(req.request.method).toBe('DELETE');
-      req.flush(mockResponse);
+      req.flush(mockTrabajadorDeleteResponse);
+    });
+  });
+
+  describe('respuestas sin data', () => {
+    it('searchTrabajador expone el 404 HTTP como respuesta sin data', () => {
+      let result: { code: number; data?: unknown } | undefined;
+      service.searchTrabajador(1).subscribe((res) => (result = res));
+      httpMock
+        .expectOne(`${baseUrl}/trabajadores/search?id=1`)
+        .flush(
+          { code: 404, message: 'Trabajador no encontrado' },
+          { status: 404, statusText: 'Not Found' },
+        );
+      expect(result?.code).toBe(404);
+      expect(result?.data).toBeUndefined();
+    });
+
+    it.each([401, 403])('searchTrabajador propaga el %i (solo Administrador)', (status) => {
+      let failure: { status: number } | undefined;
+      service.searchTrabajador(1).subscribe({ error: (e) => (failure = e) });
+      httpMock
+        .expectOne(`${baseUrl}/trabajadores/search?id=1`)
+        .flush({ code: status, message: 'no autorizado' }, { status, statusText: 'Error' });
+      expect(failure?.status).toBe(status);
+    });
+
+    it('registroTrabajador propaga el 409 con su mensaje', () => {
+      let failure: { error: { message: string } } | undefined;
+      service.registroTrabajador(mockTrabajadorBody).subscribe({ error: (e) => (failure = e) });
+      httpMock
+        .expectOne(`${baseUrl}/trabajadores`)
+        .flush(
+          { code: 409, message: 'El teléfono ya está registrado por otro trabajador' },
+          { status: 409, statusText: 'Conflict' },
+        );
+      expect(failure?.error.message).toBe('El teléfono ya está registrado por otro trabajador');
+    });
+
+    it('updateTrabajador envía null para limpiar campos anulables', () => {
+      service.updateTrabajador(1, mockTrabajadorUpdateNullBody).subscribe();
+      const req = httpMock.expectOne(`${baseUrl}/trabajadores?id=1`);
+      expect(req.request.body).toEqual({ telefono: null, fechaRetiro: null, restauranteId: null });
+      req.flush(mockTrabajadorResponse);
+    });
+
+    it('getTrabajadores devuelve [] cuando data llega null', () => {
+      let result: unknown;
+      service.getTrabajadores().subscribe((res) => (result = res));
+      httpMock.expectOne(`${baseUrl}/trabajadores`).flush({ code: 200, message: 'ok', data: null });
+      expect(result).toEqual([]);
     });
   });
 

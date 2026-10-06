@@ -31,8 +31,10 @@ describe('ProductoService', () => {
 
   it('gets productos', () => {
     const mock = { code: 200, message: 'ok', data: [] };
-    service.getProductos({ categoria: '1' }).subscribe((res) => expect(res).toEqual(mock));
-    const req = http.expectOne(`${baseUrl}?categoria=1`);
+    service
+      .getProductos({ onlyActive: true, includeImage: false })
+      .subscribe((res) => expect(res).toEqual(mock));
+    const req = http.expectOne(`${baseUrl}?includeImage=false&onlyActive=true`);
     expect(req.request.method).toBe('GET');
     req.flush(mock);
   });
@@ -66,7 +68,7 @@ describe('ProductoService', () => {
       cantidad: 3,
       calorias: 500,
       descripcion: 'rico',
-      estadoProducto: 'ACTIVO',
+      estadoProducto: 'DISPONIBLE',
       subcategoriaId: 9,
     } as any;
     const file = new Blob(['x'], { type: 'image/jpeg' }) as any as File;
@@ -106,7 +108,7 @@ describe('ProductoService', () => {
       ],
     } as any;
     service.getProductos().subscribe((res) => {
-      expect(res.data[0].imagen.startsWith('data:image/jpeg;base64,')).toBe(true);
+      expect(res.data[0].imagen?.startsWith('data:image/jpeg;base64,')).toBe(true);
       expect(res.data[1].imagen).toBe('http://example.com/x.jpg');
     });
     const req = http.expectOne(`${baseUrl}`);
@@ -173,10 +175,45 @@ describe('ProductoService', () => {
       data: { productoId: 1, imagen: 'RAWBASE64' },
     } as any;
     service.getProductoById(1).subscribe((res) => {
-      expect(res.data.imagen.startsWith('data:image/jpeg;base64,')).toBe(true);
+      expect(res.data.imagen?.startsWith('data:image/jpeg;base64,')).toBe(true);
     });
     const req = http.expectOne(`${baseUrl}/search?id=1`);
     req.flush(mock);
+  });
+
+  it('propaga 404 de getProductoById como error HTTP (ya no llega como 200)', () => {
+    service.getProductoById(1).subscribe({ error: (err) => expect(err).toBeTruthy() });
+    http
+      .expectOne(`${baseUrl}/search?id=1`)
+      .flush({ code: 404, message: 'no existe' }, { status: 404, statusText: 'Not Found' });
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 404 });
+  });
+
+  it('deleteProducto propaga 400 (producto ya desactivado) como error HTTP', () => {
+    service.deleteProducto(1).subscribe({ error: (err) => expect(err).toBeTruthy() });
+    http
+      .expectOne(`${baseUrl}?id=1`)
+      .flush({ code: 400, message: 'ya desactivado' }, { status: 400, statusText: 'Bad Request' });
+    expect(mockHandleErrorService.handleError.mock.calls[0][0]).toMatchObject({ status: 400 });
+  });
+
+  it('updateProducto JSON con merge envía sólo lo presente y null para limpiar anulables', () => {
+    const body = { precio: 5, calorias: null, descripcion: null, subcategoriaId: null };
+    service.updateProducto(3, body).subscribe();
+    const req = http.expectOne(`${baseUrl}?id=3`);
+    expect(req.request.body).toEqual(body);
+    req.flush({ code: 200, message: 'ok', data: {} });
+  });
+
+  it('updateProducto multipart parcial no envía nombre ni precio ausentes', () => {
+    const file = new Blob(['x'], { type: 'image/jpeg' }) as any as File;
+    service.updateProducto(3, { cantidad: 2 }, file).subscribe();
+    const req = http.expectOne(`${baseUrl}?id=3`);
+    const fd = req.request.body as FormData;
+    expect(fd.has('nombre')).toBe(false);
+    expect(fd.has('precio')).toBe(false);
+    expect(fd.get('cantidad')).toBe('2');
+    req.flush({ code: 200, message: 'ok', data: {} });
   });
 
   it('passes through null data in getById', () => {
@@ -188,22 +225,33 @@ describe('ProductoService', () => {
     req.flush(mock);
   });
 
-  it('supports array params using HttpParams append', () => {
-    service.getProductos({ tags: [1, 2] as any }).subscribe();
-    const req = http.expectOne(
-      (r) => r.url === baseUrl && (r.params.getAll('tags') || []).length === 2,
-    );
-    expect(req.request.method).toBe('GET');
+  it('getProductos sin params no agrega query params', () => {
+    service.getProductos().subscribe();
+    const req = http.expectOne(baseUrl);
+    expect(req.request.params.keys().length).toBe(0);
     req.flush({ code: 200, message: 'ok', data: [] });
   });
 
-  it('supports boolean/number params in HttpParams', () => {
-    service.getProductos({ disponible: true, min: 5 } as any).subscribe();
-    const req = http.expectOne(
-      (r) =>
-        r.url === baseUrl && r.params.get('disponible') === 'true' && r.params.get('min') === '5',
-    );
-    expect(req.request.method).toBe('GET');
+  it('getProductos sólo envía includeImage', () => {
+    service.getProductos({ includeImage: true }).subscribe();
+    const req = http.expectOne((r) => r.url === baseUrl);
+    expect(req.request.params.get('includeImage')).toBe('true');
+    expect(req.request.params.has('onlyActive')).toBe(false);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('getProductos sólo envía onlyActive', () => {
+    service.getProductos({ onlyActive: true }).subscribe();
+    const req = http.expectOne((r) => r.url === baseUrl);
+    expect(req.request.params.get('onlyActive')).toBe('true');
+    expect(req.request.params.has('includeImage')).toBe(false);
+    req.flush({ code: 200, message: 'ok', data: [] });
+  });
+
+  it('getProductos con objeto vacío no agrega query params', () => {
+    service.getProductos({}).subscribe();
+    const req = http.expectOne(baseUrl);
+    expect(req.request.params.keys().length).toBe(0);
     req.flush({ code: 200, message: 'ok', data: [] });
   });
 
@@ -236,7 +284,7 @@ describe('ProductoService', () => {
       cantidad: 4,
       calorias: 300,
       descripcion: 'desc',
-      estadoProducto: 'INACTIVO',
+      estadoProducto: 'NO_DISPONIBLE',
       subcategoriaId: 4,
     } as any;
     const file = new Blob(['x'], { type: 'image/jpeg' }) as any as File;
@@ -308,16 +356,6 @@ describe('ProductoService', () => {
     req.flush(mock);
   });
 
-  it('getProductos omite params con valor undefined', () => {
-    service
-      .getProductos({ categoria: '1', otro: undefined as any })
-      .subscribe((res) => expect(res.data).toEqual([]));
-    const req = http.expectOne((r) => r.url === baseUrl);
-    expect(req.request.params.get('categoria')).toBe('1');
-    expect(req.request.params.has('otro')).toBe(false);
-    req.flush({ code: 200, message: 'ok', data: [] });
-  });
-
   it('createProducto con File omite campos opcionales ausentes (cantidad)', () => {
     const producto = { nombre: 'min', precio: 1 } as any;
     const file = new Blob(['x'], { type: 'image/jpeg' }) as any as File;
@@ -344,5 +382,48 @@ describe('ProductoService', () => {
     expect(fd.has('estadoProducto')).toBe(false);
     expect(fd.get('nombre')).toBe('min');
     req.flush({ code: 200, message: 'ok', data: {} });
+  });
+
+  it('createProducto JSON quita el prefijo data URL de imagen (el back espera Base64 puro)', () => {
+    const producto = {
+      nombre: 'p',
+      precio: 1,
+      cantidad: 1,
+      imagen: 'data:image/jpeg;base64,QUJD',
+    } as any;
+    service.createProducto(producto).subscribe();
+    const req = http.expectOne(baseUrl);
+    expect(req.request.body).toEqual({ ...producto, imagen: 'QUJD' });
+    req.flush({ code: 201, message: 'ok', data: {} });
+  });
+
+  it('updateProducto JSON conserva imagen Base64 pura y calorias null', () => {
+    const producto = { nombre: 'p', precio: 1, cantidad: 1, imagen: 'QUJD', calorias: null } as any;
+    service.updateProducto(4, producto).subscribe();
+    const req = http.expectOne(`${baseUrl}?id=4`);
+    expect(req.request.body).toEqual(producto);
+    req.flush({ code: 200, message: 'ok', data: {} });
+  });
+
+  it('FormData sólo contiene los campos que lee el back (no categoria/subcategoria/observaciones)', () => {
+    const producto = {
+      nombre: 'p',
+      precio: 7,
+      cantidad: 2,
+      estadoProducto: 'DISPONIBLE',
+      categoria: 'Bebidas',
+      subcategoria: 'Gaseosas',
+      observaciones: 'sin hielo',
+      imagenBase64: 'XYZ',
+    } as any;
+    const file = new Blob(['x'], { type: 'image/jpeg' }) as any as File;
+    service.createProducto(producto, file).subscribe();
+    const req = http.expectOne(baseUrl);
+    const fd = req.request.body as FormData;
+    expect(Array.from(fd.keys()).sort()).toEqual(
+      ['cantidad', 'estadoProducto', 'imagen', 'nombre', 'precio'].sort(),
+    );
+    expect(fd.get('precio')).toBe('7');
+    req.flush({ code: 201, message: 'ok', data: {} });
   });
 });

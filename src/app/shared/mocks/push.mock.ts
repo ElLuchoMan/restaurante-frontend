@@ -1,5 +1,9 @@
 import { ApiResponse } from '../models/api-response.model';
-import { EnviarNotificacionResponse, PushDispositivo } from '../models/push.model';
+import {
+  EnviarNotificacionResponse,
+  PushDispositivo,
+  PushPaginatedData,
+} from '../models/push.model';
 
 export const mockPushDispositivoWeb: ApiResponse<PushDispositivo> = {
   code: 200,
@@ -7,10 +11,6 @@ export const mockPushDispositivoWeb: ApiResponse<PushDispositivo> = {
   data: {
     pushDispositivoId: 1,
     plataforma: 'WEB',
-    endpoint: 'https://push.example.com/subscription/cliente_1015466495',
-    p256dh: 'test_p256dh_1',
-    auth: 'test_auth_1',
-    fcmToken: null,
     enabled: true,
     locale: 'es-CO',
     timeZone: 'America/Bogota',
@@ -19,8 +19,8 @@ export const mockPushDispositivoWeb: ApiResponse<PushDispositivo> = {
     subscribedTopics: ['promos', 'novedades'],
     documentoCliente: 1015466495,
     documentoTrabajador: null,
-    createdAt: '2025-01-01T10:00:00Z',
-    lastSeenAt: '2025-01-15T14:30:00Z',
+    createdAt: '01-01-2025 05:00:00',
+    lastSeenAt: '15-01-2025 09:30:00',
   },
 };
 
@@ -30,10 +30,6 @@ export const mockPushDispositivoAndroid: ApiResponse<PushDispositivo> = {
   data: {
     pushDispositivoId: 2,
     plataforma: 'ANDROID',
-    endpoint: null,
-    p256dh: null,
-    auth: null,
-    fcmToken: 'fcm_token_trabajador_1000000000',
     enabled: true,
     locale: 'es-CO',
     timeZone: 'America/Bogota',
@@ -42,15 +38,21 @@ export const mockPushDispositivoAndroid: ApiResponse<PushDispositivo> = {
     subscribedTopics: ['domicilios'],
     documentoCliente: null,
     documentoTrabajador: 1000000000,
-    createdAt: '2025-01-01T08:00:00Z',
-    lastSeenAt: '2025-01-15T16:45:00Z',
+    createdAt: '01-01-2025 03:00:00',
+    lastSeenAt: '15-01-2025 11:45:00',
   },
 };
 
-export const mockListaDispositivos: ApiResponse<PushDispositivo[]> = {
+export const mockListaDispositivos: ApiResponse<PushPaginatedData<PushDispositivo>> = {
   code: 200,
   message: 'Dispositivos obtenidos exitosamente',
-  data: [mockPushDispositivoWeb.data, mockPushDispositivoAndroid.data],
+  data: {
+    data: [mockPushDispositivoWeb.data, mockPushDispositivoAndroid.data],
+    total: 2,
+    page: 1,
+    pageSize: 20,
+    totalPages: 1,
+  },
 };
 
 export const mockEnvioNotificacionExitoso: ApiResponse<EnviarNotificacionResponse> = {

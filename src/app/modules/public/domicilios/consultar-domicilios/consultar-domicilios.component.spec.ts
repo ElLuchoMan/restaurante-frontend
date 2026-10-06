@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { DomicilioService } from '../../../../core/services/domicilio.service';
 import { ModalService } from '../../../../core/services/modal.service';
@@ -99,7 +99,7 @@ describe('ConsultarDomicilioComponent', () => {
           entregado: false,
           observaciones: '',
           createdBy: '',
-          trabajadorAsignado: 10,
+          trabajadorAsignado: { documentoTrabajador: 10 },
           domicilioId: 1,
         },
         {
@@ -110,7 +110,7 @@ describe('ConsultarDomicilioComponent', () => {
           entregado: false,
           observaciones: '',
           createdBy: '',
-          trabajadorAsignado: 20,
+          trabajadorAsignado: { documentoTrabajador: 20 },
           domicilioId: 2,
         },
         {
@@ -143,22 +143,54 @@ describe('ConsultarDomicilioComponent', () => {
       expect(component.mostrarMensaje).toBe(false);
     });
 
-    it('should show message on error response', () => {
-      component.buscarPorDireccion = false;
-      component.buscarPorTelefono = false;
-      component.buscarPorFecha = false;
-      component.direccion = 'dir';
-      component.telefono = '123';
-      component.fechaDomicilio = '2024-01-01';
-
-      domicilioService.getDomicilios.mockReturnValue(of({ code: 400, message: 'Error' }));
+    it('should show message on HTTP error', () => {
+      domicilioService.getDomicilios.mockReturnValue(
+        throwError(() => ({ code: 400, message: 'Error' })),
+      );
+      component.domicilios = [{ domicilioId: 9 } as Domicilio];
 
       component.buscarDomicilios();
 
       expect(domicilioService.getDomicilios).toHaveBeenCalledWith({});
+      expect(component.domicilios).toEqual([]);
       expect(component.mostrarMensaje).toBe(true);
       expect(component.mensaje).toBe('Error');
       expect(trabajadorService.searchTrabajador).not.toHaveBeenCalled();
+    });
+
+    it('should show "No asignado" when the trabajador lookup fails (403 for non-admins)', () => {
+      domicilioService.getDomicilios.mockReturnValue(
+        of({
+          code: 200,
+          message: 'ok',
+          data: [{ domicilioId: 1, trabajadorAsignado: { documentoTrabajador: 10 } } as Domicilio],
+        }),
+      );
+      trabajadorService.searchTrabajador.mockReturnValue(throwError(() => ({ code: 403 })));
+
+      component.buscarDomicilios();
+
+      expect(component.domicilios[0].trabajadorNombre).toBe('No asignado');
+    });
+
+    it('should show default message when the HTTP error has no message', () => {
+      domicilioService.getDomicilios.mockReturnValue(throwError(() => undefined));
+
+      component.buscarDomicilios();
+
+      expect(component.mensaje).toBe('No se pudieron consultar los domicilios');
+    });
+
+    it('should show message when the list comes empty (200 with data [])', () => {
+      domicilioService.getDomicilios.mockReturnValue(
+        of({ code: 200, message: 'ok', data: [] as Domicilio[] }),
+      );
+
+      component.buscarDomicilios();
+
+      expect(component.domicilios).toEqual([]);
+      expect(component.mostrarMensaje).toBe(true);
+      expect(component.mensaje).toBe('No se encontraron domicilios');
     });
   });
 
@@ -227,7 +259,17 @@ describe('ConsultarDomicilioComponent', () => {
         domicilioId: 1,
       };
 
-      domicilioService.asignarDomiciliario.mockReturnValue(of({ code: 200 }));
+      domicilioService.asignarDomiciliario.mockReturnValue(
+        of({
+          code: 200,
+          message: 'ok',
+          data: {
+            ...domicilio,
+            estadoDomicilio: estadoDomicilio.EN_CAMINO,
+            trabajadorAsignado: { documentoTrabajador: 5 },
+          },
+        }),
+      );
       trabajadorService.searchTrabajador.mockReturnValue(
         of({ data: { nombre: 'Ana', apellido: 'Gómez' } }),
       );
@@ -236,11 +278,12 @@ describe('ConsultarDomicilioComponent', () => {
 
       expect(domicilioService.asignarDomiciliario).toHaveBeenCalledWith(1, 5);
       expect(trabajadorService.searchTrabajador).toHaveBeenCalledWith(5);
-      expect(domicilio.trabajadorAsignado).toBe(5);
+      expect(domicilio.trabajadorAsignado).toEqual({ documentoTrabajador: 5 });
+      expect(domicilio.estadoDomicilio).toBe(estadoDomicilio.EN_CAMINO);
       expect(domicilio.trabajadorNombre).toBe('Ana Gómez');
     });
 
-    it('should not update when service returns error code', () => {
+    it('should show "No asignado" when the trabajador lookup comes without data (code 404)', () => {
       const domicilio: Domicilio = {
         fechaDomicilio: '',
         direccion: 'dir',
@@ -252,13 +295,65 @@ describe('ConsultarDomicilioComponent', () => {
         domicilioId: 1,
       };
 
-      domicilioService.asignarDomiciliario.mockReturnValue(of({ code: 500 }));
+      domicilioService.asignarDomiciliario.mockReturnValue(
+        of({
+          code: 200,
+          message: 'ok',
+          data: { ...domicilio, trabajadorAsignado: { documentoTrabajador: 5 } },
+        }),
+      );
+      trabajadorService.searchTrabajador.mockReturnValue(
+        of({ code: 404, message: 'Trabajador no encontrado' }),
+      );
+
+      component.confirmarAsignacion(domicilio, 5);
+
+      expect(domicilio.trabajadorNombre).toBe('No asignado');
+      expect(domicilio.trabajadorAsignado).toBeTruthy();
+    });
+
+    it('should show "No asignado" when the trabajador lookup fails after asignar', () => {
+      const domicilio = { domicilioId: 1 } as Domicilio;
+      domicilioService.asignarDomiciliario.mockReturnValue(
+        of({ code: 200, message: 'ok', data: domicilio }),
+      );
+      trabajadorService.searchTrabajador.mockReturnValue(throwError(() => ({ code: 403 })));
+
+      component.confirmarAsignacion(domicilio, 5);
+
+      expect(domicilio.trabajadorNombre).toBe('No asignado');
+    });
+
+    it('should show the error message when asignar fails (404/409)', () => {
+      const domicilio: Domicilio = {
+        fechaDomicilio: '',
+        direccion: 'dir',
+        telefono: '123',
+        estadoDomicilio: estadoDomicilio.PENDIENTE,
+        entregado: false,
+        observaciones: '',
+        createdBy: '',
+        domicilioId: 1,
+      };
+
+      domicilioService.asignarDomiciliario.mockReturnValue(
+        throwError(() => ({ code: 409, message: 'Ya asignado' })),
+      );
 
       component.confirmarAsignacion(domicilio, 5);
 
       expect(trabajadorService.searchTrabajador).not.toHaveBeenCalled();
       expect(domicilio.trabajadorAsignado).toBeUndefined();
-      expect(domicilio.trabajadorNombre).toBeUndefined();
+      expect(component.mostrarMensaje).toBe(true);
+      expect(component.mensaje).toBe('Ya asignado');
+    });
+
+    it('should use a default message when asignar fails without message', () => {
+      domicilioService.asignarDomiciliario.mockReturnValue(throwError(() => undefined));
+
+      component.confirmarAsignacion({ domicilioId: 1 } as Domicilio, 5);
+
+      expect(component.mensaje).toBe('No se pudo asignar el domicilio');
     });
   });
 
@@ -293,43 +388,57 @@ describe('ConsultarDomicilioComponent', () => {
   });
 
   describe('marcarEntregado', () => {
-    it('should set entregado when service returns 200', () => {
-      const domicilio: Domicilio = {
-        fechaDomicilio: '',
-        direccion: 'dir',
-        telefono: '123',
-        estadoDomicilio: estadoDomicilio.PENDIENTE,
-        entregado: false,
-        observaciones: '',
-        createdBy: '',
-        domicilioId: 1,
-      };
-
-      domicilioService.updateDomicilio.mockReturnValue(of({ code: 200 }));
-
-      component.marcarEntregado(domicilio);
-
-      expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, {});
-      expect(domicilio.entregado).toBe(true);
+    const domicilio = (): Domicilio => ({
+      fechaDomicilio: '',
+      direccion: 'dir',
+      telefono: '123',
+      estadoDomicilio: estadoDomicilio.EN_CAMINO,
+      entregado: false,
+      observaciones: '',
+      createdBy: '',
+      domicilioId: 1,
     });
 
-    it('should not set entregado when service returns error code', () => {
-      const domicilio: Domicilio = {
-        fechaDomicilio: '',
-        direccion: 'dir',
-        telefono: '123',
-        estadoDomicilio: estadoDomicilio.PENDIENTE,
-        entregado: false,
-        observaciones: '',
-        createdBy: '',
-        domicilioId: 1,
-      };
+    it('should send estado ENTREGADO and reflect the returned domicilio', () => {
+      const d = domicilio();
+      userService.getUserId.mockReturnValue(7);
+      domicilioService.updateDomicilio.mockReturnValue(
+        of({
+          code: 200,
+          message: 'ok',
+          data: { ...d, estadoDomicilio: estadoDomicilio.ENTREGADO, entregado: true },
+        }),
+      );
 
-      domicilioService.updateDomicilio.mockReturnValue(of({ code: 500 }));
+      component.marcarEntregado(d);
 
-      component.marcarEntregado(domicilio);
+      expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, {
+        estado: estadoDomicilio.ENTREGADO,
+        updatedBy: 'Usuario 7',
+      });
+      expect(d.entregado).toBe(true);
+      expect(d.estadoDomicilio).toBe(estadoDomicilio.ENTREGADO);
+    });
 
-      expect(domicilio.entregado).toBe(false);
+    it('should not set entregado and show the message when the service fails', () => {
+      const d = domicilio();
+      domicilioService.updateDomicilio.mockReturnValue(
+        throwError(() => ({ code: 404, message: 'Domicilio no encontrado' })),
+      );
+
+      component.marcarEntregado(d);
+
+      expect(d.entregado).toBe(false);
+      expect(component.mostrarMensaje).toBe(true);
+      expect(component.mensaje).toBe('Domicilio no encontrado');
+    });
+
+    it('should use a default message when the failure has no message', () => {
+      domicilioService.updateDomicilio.mockReturnValue(throwError(() => undefined));
+
+      component.marcarEntregado(domicilio());
+
+      expect(component.mensaje).toBe('No se pudo marcar el domicilio como entregado');
     });
   });
 });

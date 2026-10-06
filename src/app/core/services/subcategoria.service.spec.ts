@@ -38,6 +38,13 @@ describe('SubcategoriaService', () => {
     req.flush(mockSubcategoriasResponse);
   });
 
+  it('list devuelve [] cuando el back responde data null', () => {
+    service.list().subscribe((res) => expect(res).toEqual([]));
+    http
+      .expectOne(environment.apiUrl + '/subcategorias')
+      .flush({ code: 200, message: 'ok', data: null });
+  });
+
   it('lists subcategorias filter by categoria', () => {
     service.list(2).subscribe((res) => expect(res).toEqual(mockSubcategoriasResponse.data));
     const req = http.expectOne(`${baseUrl}?categoria_id=2`);
@@ -54,7 +61,7 @@ describe('SubcategoriaService', () => {
 
   it('creates subcategoria', () => {
     service
-      .create(mockSubcategoriaCreateBody as any)
+      .create(mockSubcategoriaCreateBody)
       .subscribe((res) => expect(res).toEqual(mockSubcategoriaCreateResponse.data));
     const req = http.expectOne(baseUrl);
     expect(req.request.method).toBe('POST');

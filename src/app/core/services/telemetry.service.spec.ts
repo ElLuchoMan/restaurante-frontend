@@ -253,6 +253,33 @@ describe('TelemetryService', () => {
     });
   });
 
+  describe('endpoints públicos de estado y disponibilidad', () => {
+    it('should get estados de pedidos', () => {
+      const body = {
+        code: 200,
+        message: 'ok',
+        data: { PENDIENTE: 2, TERMINADO: 5, NO_FINALIZADOS: 2 },
+      };
+      service.getEstadosPedidos().subscribe((response) => {
+        expect(response.data['NO_FINALIZADOS']).toBe(2);
+      });
+
+      const req = httpTestingController.expectOne(`${environment.apiUrl}/estados-pedidos`);
+      expect(req.request.method).toBe('GET');
+      req.flush(body);
+    });
+
+    it('should get productos disponibles (data puede ser null)', () => {
+      service.getProductosDisponibles().subscribe((response) => {
+        expect(response.data).toBeNull();
+      });
+
+      const req = httpTestingController.expectOne(`${environment.apiUrl}/productos-disponibles`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ code: 200, message: 'ok', data: null });
+    });
+  });
+
   describe('Error handling', () => {
     it('should handle network errors', () => {
       service.getDashboard().subscribe();

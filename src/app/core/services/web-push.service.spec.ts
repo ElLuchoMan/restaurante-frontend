@@ -346,7 +346,7 @@ describe('WebPushService', () => {
       );
     });
 
-    it('debería registrar dispositivo con documentoTrabajador si el rol es diferente a Cliente', async () => {
+    it('debería registrar el dispositivo sin documento de dueño (lo fija el servidor con el token)', async () => {
       jest.spyOn(service, 'isSupported').mockReturnValue(true);
       swPush.isEnabled = true;
       (window.Notification as any).permission = 'granted';
@@ -369,12 +369,49 @@ describe('WebPushService', () => {
       const result = await service.requestPermissionAndSubscribe();
 
       expect(result).toBe(true);
-      expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
-        expect.objectContaining({
-          documentoTrabajador: 456,
-          documentoCliente: undefined,
-        }),
+      const body = pushService.registrarDispositivo.mock.calls[0][0];
+      expect(body).not.toHaveProperty('documentoTrabajador');
+      expect(body).not.toHaveProperty('documentoCliente');
+      expect(body).toEqual(
+        expect.objectContaining({ plataforma: 'WEB', endpoint: expect.any(String) }),
       );
+    });
+
+    it.each([403, 404])(
+      'avisa que la sesión no sirve si el servidor rechaza el registro (%s)',
+      async (code) => {
+        jest.spyOn(service, 'isSupported').mockReturnValue(true);
+        swPush.isEnabled = true;
+        (window.Notification as any).permission = 'granted';
+        (userService.getUserId as jest.Mock).mockReturnValue(456);
+        swPush.requestSubscription.mockResolvedValue({
+          toJSON: () => ({ endpoint: 'https://push.example/x', keys: { p256dh: 'k', auth: 'a' } }),
+        } as any);
+        pushService.registrarDispositivo.mockReturnValue(
+          throwError(() => ({ code, message: 'no' })),
+        );
+
+        const result = await service.requestPermissionAndSubscribe();
+
+        expect(result).toBe(false);
+        expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('con tu sesión actual'));
+      },
+    );
+
+    it('no registra el dispositivo si no hay sesión (documento 0)', async () => {
+      jest.spyOn(service, 'isSupported').mockReturnValue(true);
+      swPush.isEnabled = true;
+      (window.Notification as any).permission = 'granted';
+      (userService.getUserRole as jest.Mock).mockReturnValue(null);
+      (userService.getUserId as jest.Mock).mockReturnValue(0);
+      swPush.requestSubscription.mockResolvedValue({
+        toJSON: () => ({ endpoint: 'https://x', keys: { p256dh: 'a', auth: 'b' } }),
+      } as any);
+
+      const result = await service.requestPermissionAndSubscribe();
+
+      expect(result).toBe(false);
+      expect(pushService.registrarDispositivo).not.toHaveBeenCalled();
     });
   });
 

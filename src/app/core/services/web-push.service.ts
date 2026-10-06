@@ -1,10 +1,18 @@
 import { Injectable } from '@angular/core';
 import { SwPush } from '@angular/service-worker';
+import { firstValueFrom } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { RegistrarDispositivoRequest } from '../../shared/models/push.model';
+import { browserLocation } from '../../shared/utils/browser-location';
 import { PushService } from './push.service';
 import { UserService } from './user.service';
-import { browserLocation } from '../../shared/utils/browser-location';
+
+/** El backend rechazó el registro: 403 (dueño distinto al del token) o 404 (la cuenta ya no existe). */
+function rechazoDeSesion(error: unknown): boolean {
+  const code = (error as { code?: unknown } | null)?.code;
+  return code === 403 || code === 404;
+}
 
 @Injectable({ providedIn: 'root' })
 export class WebPushService {
@@ -19,7 +27,7 @@ export class WebPushService {
    */
   private isWebBrowser(): boolean {
     if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
-    const cap: any = (window as any).Capacitor;
+    const cap = (window as unknown as { Capacitor?: { getPlatform?: unknown } }).Capacitor;
     const isCapacitor = !!(cap && typeof cap.getPlatform === 'function');
     return !isCapacitor;
   }
@@ -120,19 +128,25 @@ export class WebPushService {
       const keys = subscriptionJson.keys;
 
       if (!endpoint || !keys?.['p256dh'] || !keys?.['auth']) {
-        console.error('[WebPush] Suscripción inválida', subscriptionJson);
+        console.error('[WebPush] Suscripción inválida: faltan endpoint o claves');
         alert('❌ Error: Suscripción inválida. Faltan credenciales push.');
         return false;
       }
 
       console.log('[WebPush] Credenciales obtenidas, registrando en backend...');
 
-      // Registrar el dispositivo en el backend
-      const role = this.userService.getUserRole?.();
+      // Registrar el dispositivo en el backend: el dueño lo fija el servidor a partir del token
       const doc = this.userService.getUserId?.();
-      const isCliente = role === 'Cliente';
 
-      const payload = {
+      if (typeof doc !== 'number' || doc <= 0) {
+        // El backend asigna el dispositivo al usuario del token: sin sesión no se registra.
+        console.warn(
+          '[WebPush] Sin sesión: registro del dispositivo diferido hasta iniciar sesión',
+        );
+        return false;
+      }
+
+      const payload: RegistrarDispositivoRequest = {
         plataforma: 'WEB' as const,
         endpoint,
         p256dh: keys['p256dh'],
@@ -142,13 +156,9 @@ export class WebPushService {
         appVersion: '1.0.0',
         userAgent: (typeof navigator !== 'undefined' && navigator.userAgent) || '',
         subscribedTopics: ['promos', 'novedades'],
-        documentoCliente: isCliente && typeof doc === 'number' ? doc : undefined,
-        documentoTrabajador: !isCliente && typeof doc === 'number' ? doc : undefined,
       };
 
-      console.log('[WebPush] Payload a enviar:', { ...payload, endpoint: 'truncado...' });
-
-      await this.pushService.registrarDispositivo(payload).toPromise();
+      await firstValueFrom(this.pushService.registrarDispositivo(payload));
       console.log('[WebPush] ✅ Dispositivo registrado exitosamente en el backend');
 
       // Escuchar mensajes push
@@ -162,8 +172,13 @@ export class WebPushService {
     } catch (error) {
       console.error('[WebPush] Error al suscribirse:', error);
 
-      // Error específico de VAPID
-      if (error instanceof Error && error.message.includes('VAPID')) {
+      if (rechazoDeSesion(error)) {
+        // 403/404 del registro: el servidor no acepta el dispositivo con la sesión actual
+        alert(
+          '❌ No se pudo registrar este dispositivo con tu sesión actual.\nCierra sesión, vuelve a ingresar e intenta de nuevo.',
+        );
+      } else if (error instanceof Error && error.message.includes('VAPID')) {
+        // Error específico de VAPID
         alert(
           '❌ Error de configuración VAPID.\n\nLa clave pública VAPID no es válida.\nContacta al administrador del sistema.',
         );
@@ -184,8 +199,6 @@ export class WebPushService {
    */
   private listenToPushMessages(): void {
     this.swPush.messages.subscribe((message: any) => {
-      console.log('[WebPush] Mensaje recibido:', message);
-
       const { notification, data } = message;
 
       if (notification) {
@@ -199,8 +212,6 @@ export class WebPushService {
 
     // Escuchar clics en notificaciones
     this.swPush.notificationClicks.subscribe(({ action, notification }) => {
-      console.log('[WebPush] Notificación clickeada:', action, notification);
-
       const url = notification.data?.url;
       if (url && typeof window !== 'undefined') {
         browserLocation.assign(url);

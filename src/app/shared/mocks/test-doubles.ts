@@ -305,6 +305,7 @@ export function createDomicilioServiceMock() {
 export function createPedidoServiceMock() {
   return {
     createPedido: jest.fn(),
+    checkout: jest.fn(),
     assignPago: jest.fn(),
     assignDomicilio: jest.fn(),
     getMisPedidos: jest.fn(),
@@ -393,6 +394,8 @@ export function createReservaServiceMock() {
   return {
     getReservaByParameter: jest.fn(),
     getReservasByDocumento: jest.fn(),
+    getMisReservas: jest.fn(),
+    consultarReserva: jest.fn(),
     actualizarReserva: jest.fn(),
     crearReserva: jest.fn(),
     getContactoIdByDocumento: jest.fn(),
@@ -404,12 +407,6 @@ export function createReservaContactoServiceMock() {
   return {
     getContactos: jest.fn(),
     getById: jest.fn(),
-  } as any;
-}
-
-export function createReservaNotificationsServiceMock() {
-  return {
-    notifyEstadoCambio: jest.fn().mockResolvedValue(undefined),
   } as any;
 }
 
@@ -516,6 +513,8 @@ export function createTelemetryServiceMock() {
     getReservasAnalisis: jest.fn(),
     getPedidosAnalisis: jest.fn(),
     getProductosPopulares: jest.fn(),
+    getEstadosPedidos: jest.fn(),
+    getProductosDisponibles: jest.fn(),
     // Métodos de usuario y dispositivo
     setUserDocument: jest.fn(),
     getUserDocument: jest.fn(),
@@ -614,9 +613,14 @@ export function createPushServiceMock() {
   return {
     registrarDispositivo: jest.fn(),
     listarDispositivos: jest.fn(),
+    obtenerDispositivo: jest.fn(),
+    eliminarDispositivo: jest.fn(),
     actualizarUltimaVista: jest.fn(),
+    actualizarDispositivo: jest.fn(),
     actualizarEstado: jest.fn(),
     actualizarTopics: jest.fn(),
+    listarEnvios: jest.fn(),
+    registrarEnvio: jest.fn(),
     enviarNotificacion: jest.fn(),
   } as any;
 }
@@ -648,20 +652,6 @@ export function createSwPushMock() {
     isEnabled: true,
     requestSubscription: jest.fn(),
     unsubscribe: jest.fn(),
-  } as any;
-}
-
-export function createReservaNotificationsServiceMock() {
-  return {
-    notifyEstadoCambio: jest.fn(),
-    notifyCreacion: jest.fn(),
-  } as any;
-}
-
-export function createPedidoNotificationsServiceMock() {
-  return {
-    notifyCreacion: jest.fn().mockResolvedValue(null),
-    notifyAdminDomicilio: jest.fn().mockResolvedValue(null),
   } as any;
 }
 

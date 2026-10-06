@@ -271,7 +271,8 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
       })
       .subscribe({
         next: (response) => {
-          if (response.code === 200 && response.data && response.data.productosPopulares) {
+          if (response.code === 200 && response.data) {
+            // El backend responde `[]` (no null) cuando no hay filas: lista vacía, no error.
             this.productosPopulares = response.data.productosPopulares;
             this.errorProductos = false;
           } else {

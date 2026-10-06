@@ -140,7 +140,7 @@ export class GestionarCategoriasComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.toastr.error('Error al actualizar la categoría', 'Error');
+          this.toastr.error(this.mensajeError(err, 'Error al actualizar la categoría'), 'Error');
           this.cargando = false;
         },
       });
@@ -153,7 +153,7 @@ export class GestionarCategoriasComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.toastr.error('Error al crear la categoría', 'Error');
+          this.toastr.error(this.mensajeError(err, 'Error al crear la categoría'), 'Error');
           this.cargando = false;
         },
       });
@@ -198,7 +198,10 @@ export class GestionarCategoriasComponent implements OnInit {
       error: (err) => {
         console.error(err);
         this.toastr.error(
-          'Error al eliminar la categoría. Puede tener subcategorías o productos asociados.',
+          this.mensajeError(
+            err,
+            'Error al eliminar la categoría. Puede tener subcategorías o productos asociados.',
+          ),
           'Error',
         );
         this.cargando = false;
@@ -285,7 +288,7 @@ export class GestionarCategoriasComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.toastr.error('Error al actualizar la subcategoría', 'Error');
+          this.toastr.error(this.mensajeError(err, 'Error al actualizar la subcategoría'), 'Error');
           this.cargando = false;
         },
       });
@@ -298,7 +301,7 @@ export class GestionarCategoriasComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.toastr.error('Error al crear la subcategoría', 'Error');
+          this.toastr.error(this.mensajeError(err, 'Error al crear la subcategoría'), 'Error');
           this.cargando = false;
         },
       });
@@ -342,7 +345,10 @@ export class GestionarCategoriasComponent implements OnInit {
       error: (err) => {
         console.error(err);
         this.toastr.error(
-          'Error al eliminar la subcategoría. Puede tener productos asociados.',
+          this.mensajeError(
+            err,
+            'Error al eliminar la subcategoría. Puede tener productos asociados.',
+          ),
           'Error',
         );
         this.cargando = false;
@@ -375,6 +381,11 @@ export class GestionarCategoriasComponent implements OnInit {
 
     const categoria = this.categorias.find((c) => c.categoriaId === idReal);
     return categoria ? categoria.nombre : 'Desconocida';
+  }
+
+  /** Mensaje del back (400 FK inválida, 409 duplicado o con dependencias) con texto por defecto. */
+  private mensajeError(err: { message?: string } | null, porDefecto: string): string {
+    return err?.message || porDefecto;
   }
 
   // ===== BÚSQUEDA Y FILTRADO =====

@@ -52,9 +52,9 @@ export function normalizeProductos(raw: unknown): ProductoDetalleVM[] {
   return arr.map((x: any) => ({
     nombre: String(x?.NOMBRE ?? x?.nombre ?? ''),
     cantidad: Number(x?.CANTIDAD ?? x?.cantidad ?? 0),
-    precioUnitario: Number(x?.PRECIO_UNITARIO ?? x?.precioUnitario ?? x?.PRECIO ?? 0),
+    precioUnitario: Number(x?.PRECIO_UNITARIO ?? x?.precioUnitario ?? x?.PRECIO ?? x?.precio ?? 0),
     subtotal: Number(x?.SUBTOTAL ?? x?.subtotal ?? 0),
-    productoId: x?.PK_ID_PRODUCTO ?? x?.productoId,
+    productoId: x?.PK_ID_PRODUCTO ?? x?.productoId ?? x?.pk_id_producto,
   }));
 }
 

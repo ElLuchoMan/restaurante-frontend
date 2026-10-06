@@ -461,6 +461,17 @@ describe('VerProductosComponent (isolated)', () => {
     expect(modalService.closeModal).toHaveBeenCalledTimes(2);
   });
 
+  it('abre detalle sin calorías cuando el back envía calorias null', () => {
+    component.userRole = 'Cliente';
+    component.abrirDetalle({ ...mockProductosVerProductos[0], calorias: null });
+    const modalConfig = (modalService.openModal as any).mock.calls.at(-1)?.[0];
+    expect(modalConfig.details.calorias).toBeUndefined();
+
+    component.abrirDetalle({ ...mockProductosVerProductos[0], calorias: 120 });
+    const conCalorias = (modalService.openModal as any).mock.calls.at(-1)?.[0];
+    expect(conCalorias.details.calorias).toBe(120);
+  });
+
   it('muestra la cantidad disponible solo para usuarios ADMIN', () => {
     // Para verificar si la vista muestra la cantidad correctamente, solo verificamos la lógica del componente
     // El HTML renderiza condicionalmente basándose en userRole === 'Administrador'

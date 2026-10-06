@@ -4,15 +4,27 @@ import { catchError, Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response.model';
+import { PaginatedData } from '../../shared/models/descuento-types.model';
 import {
+  ActualizarOfertaRequest,
   AsociarProductoRequest,
   CrearOfertaRequest,
   Oferta,
   OfertaActiva,
+  OfertaActivasParams,
   OfertaParams,
+  OfertaProductoAsociacion,
 } from '../../shared/models/oferta.model';
 import { HandleErrorService } from './handle-error.service';
 
+/**
+ * Cliente de /ofertas. En el back el id va SIEMPRE como query param `id` (no existen rutas
+ * `/ofertas/{id}`); todas las rutas salvo `/ofertas/activas` requieren token. Crear, actualizar,
+ * desactivar y asociar/desasociar productos es solo del Administrador (403 para otros roles). Los
+ * errores llegan con su status HTTP real (400 validación/FK inválida, 401 sin sesión, 403 sin
+ * permiso, 404 no existe, 409 título duplicado o producto ya asociado, 422 regla de negocio) y
+ * `HandleErrorService` conserva `message`.
+ */
 @Injectable({ providedIn: 'root' })
 export class OfertaService {
   private baseUrl = `${environment.apiUrl}/ofertas`;
@@ -28,56 +40,75 @@ export class OfertaService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  listar(params?: OfertaParams): Observable<ApiResponse<Oferta[]>> {
-    let hp = new HttpParams();
-    if (params)
-      Object.entries(params).forEach(([k, v]) => v != null && (hp = hp.set(k, String(v))));
+  /** El back devuelve un envoltorio paginado (no un array) dentro de `data`. */
+  listar(params?: OfertaParams): Observable<ApiResponse<PaginatedData<Oferta>>> {
     return this.http
-      .get<ApiResponse<Oferta[]>>(`${this.baseUrl}`, { params: hp })
+      .get<ApiResponse<PaginatedData<Oferta>>>(`${this.baseUrl}`, {
+        params: this.toHttpParams(params),
+      })
       .pipe(catchError(this.handleError.handleError));
   }
 
   obtener(id: number): Observable<ApiResponse<Oferta>> {
+    const params = new HttpParams().set('id', String(id));
     return this.http
-      .get<ApiResponse<Oferta>>(`${this.baseUrl}/${id}`)
+      .get<ApiResponse<Oferta>>(`${this.baseUrl}/search`, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  actualizar(id: number, body: Partial<CrearOfertaRequest>): Observable<ApiResponse<Oferta>> {
+  /**
+   * PUT con merge: lo ausente se conserva; `horaInicio`/`horaFin` aceptan `null` para quitar el
+   * horario y `activo: true` reactiva la oferta.
+   */
+  actualizar(id: number, body: ActualizarOfertaRequest): Observable<ApiResponse<Oferta>> {
+    const params = new HttpParams().set('id', String(id));
     return this.http
-      .put<ApiResponse<Oferta>>(`${this.baseUrl}/${id}`, body)
+      .put<ApiResponse<Oferta>>(`${this.baseUrl}`, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  obtenerActivas(params?: {
-    restaurante_id?: number;
-    fecha?: string;
-    hora?: string;
-    producto_id?: number;
-    limit?: number;
-    offset?: number;
-  }): Observable<ApiResponse<OfertaActiva[]>> {
-    let hp = new HttpParams();
-    if (params)
-      Object.entries(params).forEach(([k, v]) => v != null && (hp = hp.set(k, String(v))));
-    // Este endpoint es público según la guía
+  /** Público (sin token). `data` es `[]` cuando no hay ofertas activas. */
+  obtenerActivas(params: OfertaActivasParams): Observable<ApiResponse<OfertaActiva[]>> {
     return this.http
-      .get<ApiResponse<OfertaActiva[]>>(`${this.baseUrl}/activas`, { params: hp })
+      .get<ApiResponse<OfertaActiva[]>>(`${this.baseUrl}/activas`, {
+        params: this.toHttpParams(params),
+      })
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /** 404 si la oferta o el producto no existen; 409 si ya estaba asociado. */
   asociarProducto(
     ofertaId: number,
     body: AsociarProductoRequest,
-  ): Observable<ApiResponse<unknown>> {
+  ): Observable<ApiResponse<OfertaProductoAsociacion>> {
+    const params = new HttpParams().set('id', String(ofertaId));
     return this.http
-      .post<ApiResponse<unknown>>(`${this.baseUrl}/${ofertaId}/productos`, body)
+      .post<ApiResponse<OfertaProductoAsociacion>>(`${this.baseUrl}/productos`, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
+  /** 404 si la oferta o la asociación no existen. */
   desasociarProducto(ofertaId: number, productoId: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams()
+      .set('id', String(ofertaId))
+      .set('producto_id', String(productoId));
     return this.http
-      .delete<ApiResponse<unknown>>(`${this.baseUrl}/${ofertaId}/productos/${productoId}`)
+      .delete<ApiResponse<unknown>>(`${this.baseUrl}/productos`, { params })
       .pipe(catchError(this.handleError.handleError));
+  }
+
+  /** DELETE /ofertas?id= desactiva la oferta (baja lógica); 400 si ya estaba inactiva. */
+  desactivar(id: number): Observable<ApiResponse<unknown>> {
+    const params = new HttpParams().set('id', String(id));
+    return this.http
+      .delete<ApiResponse<unknown>>(this.baseUrl, { params })
+      .pipe(catchError(this.handleError.handleError));
+  }
+
+  private toHttpParams(params?: object): HttpParams {
+    let hp = new HttpParams();
+    if (params)
+      Object.entries(params).forEach(([k, v]) => v != null && (hp = hp.set(k, String(v))));
+    return hp;
   }
 }

@@ -7,7 +7,11 @@ import { ApiResponse } from '../../shared/models/api-response.model';
 import { Subcategoria } from '../../shared/models/subcategoria.model';
 import { HandleErrorService } from './handle-error.service';
 
-export type SubcategoriaCreate = Pick<Subcategoria, 'nombre' | 'categoriaId'>;
+/** Body de POST /subcategorias: ambos campos son obligatorios y `categoriaId` va como número. */
+export interface SubcategoriaCreate {
+  nombre: string;
+  categoriaId: number;
+}
 export type SubcategoriaUpdate = Partial<SubcategoriaCreate>;
 
 @Injectable({ providedIn: 'root' })
@@ -22,7 +26,8 @@ export class SubcategoriaService {
     let params: HttpParams | undefined;
     if (categoria_id) params = new HttpParams().set('categoria_id', String(categoria_id));
     return this.http.get<ApiResponse<Subcategoria[]>>(this.baseUrl, { params }).pipe(
-      map((res) => res.data),
+      // El back serializa `data: null` cuando no hay filas
+      map((res) => res.data ?? []),
       catchError(this.handleError.handleError),
     );
   }

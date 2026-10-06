@@ -1,17 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
-import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { ReservaCreate } from '../../../../shared/models/reserva.model';
 import { ClienteService } from './../../../../core/services/cliente.service';
+
+/** `showPicker` no está en todos los lib.dom ni navegadores (p. ej. iOS). */
+type InputConShowPicker = HTMLInputElement & { showPicker?: () => void };
 
 @Component({
   selector: 'app-reserva',
@@ -49,7 +51,6 @@ export class CrearReservaComponent implements OnInit {
     private toastr: ToastrService,
     private router: Router,
     private logger: LoggingService,
-    private reservaNoti: ReservaNotificationsService,
   ) {}
 
   ngOnInit(): void {
@@ -76,7 +77,9 @@ export class CrearReservaComponent implements OnInit {
     if (userRole === 'Administrador') {
       this.trabajadorService.getTrabajadorId(this.userId).subscribe({
         next: (response) => {
-          this.nombreTrabajador = response.data.nombre + ' ' + response.data.apellido;
+          this.nombreTrabajador = response.data
+            ? response.data.nombre + ' ' + response.data.apellido
+            : 'Administrador Desconocido';
 
           this.crearReserva(timestamp, userRole, userId);
         },
@@ -88,8 +91,12 @@ export class CrearReservaComponent implements OnInit {
     } else if (userRole === 'Cliente') {
       this.clienteService.getClienteId(this.userId).subscribe({
         next: (response) => {
-          this.nombreCompleto = response.data.nombre + ' ' + response.data.apellido;
-          this.telefono = response.data.telefono;
+          if (response.data) {
+            this.nombreCompleto = response.data.nombre + ' ' + response.data.apellido;
+            this.telefono = response.data.telefono;
+          } else {
+            this.nombreCompleto = 'Cliente Desconocido';
+          }
 
           this.crearReserva(timestamp, userRole, userId);
         },
@@ -125,12 +132,7 @@ export class CrearReservaComponent implements OnInit {
     const fechaReservaFormateada = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
 
     // Construir payload de acuerdo a guía actualizada
-    const base: ReservaCreate & {
-      documentoCliente?: number | null;
-      documentoContacto?: number | null;
-      nombreCompleto?: string;
-      telefono?: string;
-    } = {
+    const base: ReservaCreate = {
       estadoReserva: estadoReserva.PENDIENTE,
       fechaReserva: fechaReservaFormateada,
       horaReserva: this.horaReserva,
@@ -153,25 +155,15 @@ export class CrearReservaComponent implements OnInit {
     }
 
     this.reservaService.crearReserva(base).subscribe({
-      next: async (response) => {
-        this.toastr.success('Reserva creada exitosamente', 'Éxito');
-        try {
-          // Solo clientes loggeados: notificar creación
-          const rolActual = this.rol || this.userService.getUserRole() || '';
-          if (rolActual === 'Cliente') {
-            await this.reservaNoti.notifyCreacion({
-              fechaReserva: (response as any)?.data?.fechaReserva || fechaReservaFormateada,
-              horaReserva: (response as any)?.data?.horaReserva || this.horaReserva,
-              documentoCliente:
-                ((response as any)?.data && (response as any).data.documentoCliente) ??
-                base.documentoCliente ??
-                this.userId,
-              reservaId: (response as any)?.data?.reservaId,
-            } as any);
-          }
-        } catch {}
-        // Redirección según rol
+      next: (response) => {
         const rolActual = this.rol || this.userService.getUserRole() || '';
+        // Un invitado recibe solo la vista mínima: el código de la reserva es lo que necesita
+        // (junto con su teléfono o documento) para consultarla después.
+        const codigo = rolActual
+          ? ''
+          : `. Guarda tu código #${response.data.reservaId}: con él y tu teléfono o documento podrás consultarla`;
+        this.toastr.success(`Reserva creada exitosamente${codigo}`, 'Éxito');
+        // Redirección según rol
         if (rolActual === 'Administrador') {
           this.router.navigate(['/admin/reservas']);
         } else if (rolActual === 'Cliente') {
@@ -181,7 +173,7 @@ export class CrearReservaComponent implements OnInit {
           this.router.navigate(['/reservas/crear']);
         }
       },
-      error: (error) => {
+      error: (error: { message?: string }) => {
         this.logger.log(LogLevel.ERROR, 'Error al crear la reserva', error);
         this.toastr.error(error.message, 'Error');
       },
@@ -242,7 +234,7 @@ export class CrearReservaComponent implements OnInit {
       this.horaReserva = normalized;
       // Re-abrir el picker para reflejar la hora corregida (cuando soporte)
       try {
-        (inputEl as any)?.showPicker?.();
+        (inputEl as InputConShowPicker | undefined)?.showPicker?.();
       } catch {}
     }
   }
@@ -250,7 +242,7 @@ export class CrearReservaComponent implements OnInit {
   openTimePicker(inputEl: HTMLInputElement): void {
     try {
       // showPicker está soportado en Chromium/Android; en iOS abrirá el control nativo con el foco/click
-      (inputEl as any).showPicker?.();
+      (inputEl as InputConShowPicker).showPicker?.();
     } catch {
       // Silencioso si no existe
     }

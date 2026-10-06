@@ -10,7 +10,8 @@ import { LoggingService } from '../../../../core/services/logging.service';
 import { ModalService } from '../../../../core/services/modal.service';
 import { PagoService } from '../../../../core/services/pago.service';
 import { PedidoService } from '../../../../core/services/pedido.service';
-import { metodoPago } from '../../../../shared/constants';
+import { UserService } from '../../../../core/services/user.service';
+import { estadoDomicilio, metodoPago } from '../../../../shared/constants';
 import {
   createDomicilioServiceMock,
   createDomSanitizerMock,
@@ -21,6 +22,7 @@ import {
   createPedidoServiceMock,
   createRouterMock,
   createToastrMock,
+  createUserServiceMock,
 } from '../../../../shared/mocks/test-doubles';
 import { mockDomicilioRespone } from './../../../../shared/mocks/domicilio.mock';
 import { RutaDomicilioComponent } from './ruta-domicilio.component';
@@ -34,6 +36,7 @@ describe('RutaDomicilioComponent', () => {
   let modalService: jest.Mocked<ModalService>;
   let toastrService: jest.Mocked<ToastrService>;
   let loggingService: jest.Mocked<LoggingService>;
+  let userService: jest.Mocked<UserService>;
 
   // Simulación de queryParams
   const queryParamsMock = {
@@ -70,6 +73,7 @@ describe('RutaDomicilioComponent', () => {
         { provide: ToastrService, useValue: toastrServiceMock },
         { provide: LoggingService, useValue: loggingServiceMock },
         { provide: Router, useValue: routerMock },
+        { provide: UserService, useValue: createUserServiceMock() },
       ],
     }).compileComponents();
 
@@ -81,6 +85,7 @@ describe('RutaDomicilioComponent', () => {
     toastrService = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
+    userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
 
     component.ngOnInit();
   });
@@ -91,10 +96,36 @@ describe('RutaDomicilioComponent', () => {
   });
 
   it('should mark domicilio as finalizado when marcarFinalizado is called', () => {
+    userService.getUserId.mockReturnValue(7);
     domicilioService.updateDomicilio.mockReturnValue(of(mockDomicilioRespone));
+    expect(component.entregado).toBe(false);
     component.marcarFinalizado();
-    expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, {});
+    expect(domicilioService.updateDomicilio).toHaveBeenCalledWith(1, {
+      estado: estadoDomicilio.ENTREGADO,
+      updatedBy: 'Usuario 7',
+    });
+    expect(component.entregado).toBe(true);
     expect(toastrService.success).toHaveBeenCalledWith('Domicilio marcado como finalizado');
+  });
+
+  it('should reflect entregado from the domicilio detail on init', () => {
+    domicilioService.getDomicilioById.mockReturnValue(
+      of({
+        code: 200,
+        message: 'ok',
+        data: { domicilio: { ...mockDomicilioRespone.data, entregado: true } },
+      }),
+    );
+    component.ngOnInit();
+    expect(component.entregado).toBe(true);
+  });
+
+  it('should keep entregado false when the detail comes without domicilio', () => {
+    domicilioService.getDomicilioById.mockReturnValue(
+      of({ code: 200, message: 'ok', data: {} as any }),
+    );
+    component.ngOnInit();
+    expect(component.entregado).toBe(false);
   });
 
   it('should log error when marking domicilio as finalizado fails', () => {
@@ -103,6 +134,15 @@ describe('RutaDomicilioComponent', () => {
     jest.spyOn(console, 'error').mockImplementation();
     component.marcarFinalizado();
     expect(console.error).toHaveBeenCalledWith('Error al marcar finalizado', errorResponse);
+    expect(toastrService.error).toHaveBeenCalledWith('Error');
+    expect(component.entregado).toBe(false);
+  });
+
+  it('should show a default message when marking finalizado fails without a reason', () => {
+    domicilioService.updateDomicilio.mockReturnValue(throwError(() => ({})));
+    jest.spyOn(console, 'error').mockImplementation();
+    component.marcarFinalizado();
+    expect(toastrService.error).toHaveBeenCalledWith('Error al marcar como finalizado');
   });
 
   it('should log error when domicilioId is missing in marcarFinalizado', () => {
@@ -151,6 +191,14 @@ describe('RutaDomicilioComponent', () => {
       component.marcarPago();
       const config = modalService.openModal.mock.calls[0][0];
       config.buttons[0].action();
+      expect(toastrService.error).toHaveBeenCalledWith('Error');
+    });
+
+    it('should show a default message when marking pagado fails without a reason', () => {
+      modalService.getModalData.mockReturnValue({ select: { selected: 'DAVIPLATA' } });
+      domicilioService.updateDomicilio.mockReturnValue(throwError(() => ({})));
+      component.marcarPago();
+      modalService.openModal.mock.calls[0][0].buttons[0].action();
       expect(toastrService.error).toHaveBeenCalledWith('Error al marcar como pagado');
     });
 
@@ -212,6 +260,20 @@ describe('RutaDomicilioComponent', () => {
       config.buttons[0].action();
 
       expect(logSpy).toHaveBeenCalled();
+      expect(toastrService.error).toHaveBeenCalledWith('create fail');
+    });
+
+    it('should show a default message when createPago fails without a reason', () => {
+      const pago = TestBed.inject(PagoService) as any;
+      pago.createPago.mockReturnValueOnce(throwError(() => ({})));
+      component.domicilioId = 1;
+      modalService.getModalData.mockReturnValue({ select: { selected: 'DAVIPLATA' } });
+      domicilioService.updateDomicilio.mockReturnValue(of({} as any));
+
+      component.marcarPago();
+      modalService.openModal.mock.calls[0][0].buttons[0].action();
+
+      expect(toastrService.error).toHaveBeenCalledWith('Error al crear el pago');
     });
 
     it('should catch sync error from createPago and log it', () => {
@@ -440,6 +502,23 @@ describe('RutaDomicilioComponent', () => {
 
     // Assert
     expect(logSpy).toHaveBeenCalled();
+    expect(toastrService.error).toHaveBeenCalledWith('assign fail');
+  });
+
+  it('debe mostrar un mensaje por defecto si assignPago falla sin motivo', () => {
+    component.domicilioId = 1;
+    (component as any).pedidoId = 77 as any;
+    modalService.getModalData.mockReturnValue({ select: { selected: 'NEQUI' } });
+    const pago = TestBed.inject(PagoService) as any;
+    pago.createPago.mockReturnValueOnce(of({ data: { pagoId: 999 } }));
+    const pedido = TestBed.inject(PedidoService) as any;
+    pedido.assignPago.mockReturnValueOnce(throwError(() => ({})));
+    domicilioService.updateDomicilio.mockReturnValue(of({} as any));
+
+    component.marcarPago();
+    modalService.openModal.mock.calls[0][0].buttons[0].action();
+
+    expect(toastrService.error).toHaveBeenCalledWith('Error al asignar el pago al domicilio');
   });
 
   describe('ramas adicionales', () => {

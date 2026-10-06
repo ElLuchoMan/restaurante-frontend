@@ -17,6 +17,7 @@ import { HorarioTrabajadorService } from '../../../core/services/horario-trabaja
 import { UserService } from '../../../core/services/user.service';
 import { RolTrabajador } from '../../../shared/constants';
 import { mockClienteBody, mockClienteRegisterResponse } from '../../../shared/mocks/cliente.mock';
+import { mockHorarioTrabajadorCreateBody } from '../../../shared/mocks/horario-trabajador.mock';
 import {
   createClienteServiceMock,
   createHorarioTrabajadorServiceMock,
@@ -29,12 +30,20 @@ import {
   mockTrabajadorBody,
   mockTrabajadorRegisterResponse,
 } from '../../../shared/mocks/trabajador.mock';
+import { ApiResponse } from '../../../shared/models/api-response.model';
 import { Cliente } from '../../../shared/models/cliente.model';
+import { HorarioTrabajador } from '../../../shared/models/horario-trabajador.model';
 import { Trabajador } from '../../../shared/models/trabajador.model';
-import { FormatDatePipe } from '../../../shared/pipes/format-date.pipe';
+import { fechaYYYYMMDD_Bogota } from '../../../shared/utils/dateHelper';
 import { ClienteService } from './../../../core/services/cliente.service';
 import { TrabajadorService } from './../../../core/services/trabajador.service';
 import { RegisterComponent } from './register.component';
+
+const mockHorarioCreateResponse: ApiResponse<HorarioTrabajador> = {
+  code: 201,
+  message: 'Horario creado',
+  data: { ...mockHorarioTrabajadorCreateBody },
+};
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
@@ -75,6 +84,9 @@ describe('RegisterComponent', () => {
     horarioTrabajadorService = TestBed.inject(
       HorarioTrabajadorService,
     ) as jest.Mocked<HorarioTrabajadorService>;
+
+    // El alta de trabajadores es solo para Administradores (los tests de cliente no dependen del rol)
+    userService.getUserRole.mockReturnValue('Administrador');
 
     fixture.detectChanges();
   });
@@ -119,11 +131,6 @@ describe('RegisterComponent', () => {
   }));
 
   it('should register a worker successfully', fakeAsync(() => {
-    const formatDatePipe = new FormatDatePipe();
-
-    const formattedFechaIngreso = formatDatePipe.transform(new Date());
-    const formattedFechaNacimiento = formatDatePipe.transform(new Date('1990-01-01'));
-
     trabajadorService.registroTrabajador.mockReturnValue(
       of({ ...mockTrabajadorRegisterResponse, code: 201 }),
     );
@@ -153,11 +160,11 @@ describe('RegisterComponent', () => {
     tick(1000); // Give more time for final operations (toastr and navigation)
     flush(); // Process all pending timers and promises
 
+    // El back exige YYYY-MM-DD y acepta `nuevo` (opcional) en el alta
     expect(trabajadorService.registroTrabajador).toHaveBeenCalledWith({
       ...mockTrabajadorBody,
-      horario: 'Definido por días',
-      fechaIngreso: formattedFechaIngreso,
-      fechaNacimiento: formattedFechaNacimiento,
+      fechaIngreso: fechaYYYYMMDD_Bogota(),
+      fechaNacimiento: '1990-01-01',
     });
 
     // El flujo asíncrono puede no completarse en el test, pero verificamos que se llamó el servicio
@@ -683,9 +690,7 @@ describe('RegisterComponent', () => {
 
   describe('crearHorariosTrabajador', () => {
     it('should create horarios with general schedule', async () => {
-      horarioTrabajadorService.create.mockReturnValue(
-        of({ code: 201, message: 'Horario creado', data: {} }),
-      );
+      horarioTrabajadorService.create.mockReturnValue(of({ ...mockHorarioCreateResponse }));
       component.horarioGeneral = { horaInicio: '08:00', horaFin: '17:00' };
       component.horariosDiferentes = false;
 
@@ -696,9 +701,7 @@ describe('RegisterComponent', () => {
     });
 
     it('should create personalized horarios for specific days', async () => {
-      horarioTrabajadorService.create.mockReturnValue(
-        of({ code: 201, message: 'Horario creado', data: {} }),
-      );
+      horarioTrabajadorService.create.mockReturnValue(of({ ...mockHorarioCreateResponse }));
 
       component.horarioGeneral = { horaInicio: '08:00', horaFin: '17:00' };
       component.horariosDiferentes = true;
@@ -715,9 +718,7 @@ describe('RegisterComponent', () => {
     });
 
     it('should skip days marked as dia libre', async () => {
-      horarioTrabajadorService.create.mockReturnValue(
-        of({ code: 201, message: 'Horario creado', data: {} }),
-      );
+      horarioTrabajadorService.create.mockReturnValue(of({ ...mockHorarioCreateResponse }));
 
       component.horarioGeneral = { horaInicio: '08:00', horaFin: '17:00' };
       component.horariosDiferentes = true;
@@ -744,6 +745,88 @@ describe('RegisterComponent', () => {
 
       await expect(component['crearHorariosTrabajador'](12345)).rejects.toThrow();
       consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('permisos y validaciones del alta de trabajador', () => {
+    const fillWorker = () =>
+      component.registerForm.patchValue({
+        esTrabajador: true,
+        documento: '1234567',
+        nombre: 'Ana',
+        apellido: 'Perez',
+        password: 'pass123',
+        confirmPassword: 'pass123',
+        sueldo: 1000000,
+        telefono: '3001234567',
+        rol: RolTrabajador.RolMesero,
+        fechaNacimiento: '1990-01-01',
+      });
+    const settle = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    it('no permite registrar un trabajador si el usuario no es administrador', () => {
+      userService.getUserRole.mockReturnValue('Cliente');
+      fillWorker();
+
+      component.onSubmit();
+
+      expect(toastr.error).toHaveBeenCalledWith(
+        'Solo un administrador puede registrar trabajadores',
+        'Acceso denegado',
+      );
+      expect(trabajadorService.registroTrabajador).not.toHaveBeenCalled();
+      expect(component.isSubmitting).toBe(false);
+    });
+
+    it('no envía nada si algún horario tiene horaFin menor o igual a horaInicio', () => {
+      fillWorker();
+      component.horarioGeneral = { horaInicio: '17:00', horaFin: '08:00' };
+
+      component.onSubmit();
+
+      expect(toastr.error).toHaveBeenCalledWith(
+        'La hora de fin debe ser mayor que la de inicio (Lunes)',
+        'Horario inválido',
+      );
+      expect(trabajadorService.registroTrabajador).not.toHaveBeenCalled();
+      expect(component.isSubmitting).toBe(false);
+    });
+
+    it('muestra el mensaje del back (409/400) al fallar el alta del trabajador', async () => {
+      trabajadorService.registroTrabajador.mockReturnValue(
+        throwError(() => ({
+          code: 409,
+          message: 'El teléfono ya está registrado por otro trabajador',
+        })),
+      );
+      fillWorker();
+
+      component.onSubmit();
+      await settle();
+
+      expect(toastr.error).toHaveBeenCalledWith(
+        'El teléfono ya está registrado por otro trabajador',
+        'Error',
+      );
+      expect(component.isSubmitting).toBe(false);
+    });
+
+    it('incluye el detalle del back cuando falla la creación de un horario', async () => {
+      trabajadorService.registroTrabajador.mockReturnValue(
+        of({ ...mockTrabajadorRegisterResponse, code: 201 }),
+      );
+      jest
+        .spyOn(component as any, 'crearHorariosTrabajador')
+        .mockRejectedValue({ code: 409, message: 'El trabajador ya tiene horario para ese día' });
+      fillWorker();
+
+      component.onSubmit();
+      await settle();
+
+      expect(toastr.error).toHaveBeenCalledWith(
+        'Trabajador creado, pero error al crear horarios: El trabajador ya tiene horario para ese día',
+        'Error',
+      );
     });
   });
 
@@ -790,9 +873,7 @@ describe('RegisterComponent', () => {
       trabajadorService.registroTrabajador.mockReturnValue(
         of({ ...mockTrabajadorRegisterResponse, code: 201 }),
       );
-      jest
-        .spyOn(component as any, 'crearHorariosTrabajador')
-        .mockRejectedValue(new Error('fallo horarios'));
+      jest.spyOn(component as any, 'crearHorariosTrabajador').mockRejectedValue(null); // sin detalle: mensaje genérico
       fillWorkerForm();
 
       component.onSubmit();

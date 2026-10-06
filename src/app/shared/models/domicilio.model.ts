@@ -1,56 +1,109 @@
 import { estadoDomicilio } from '../constants';
+import { Trabajador } from './trabajador.model';
 
+/**
+ * Domicilio tal como lo devuelve el back (también el `data` completo de POST /domicilios/asignar).
+ * - `fechaDomicilio` llega como DD-MM-YYYY; `createdAt` y `updatedAt` como DD-MM-YYYY HH:mm:ss.
+ * - `trabajadorAsignado` NO llega como número: es el trabajador como objeto (sin contraseña) en
+ *   el que solo `documentoTrabajador` es significativo. Se omite si el domicilio no tiene domiciliario.
+ * - `trabajadorNombre` no lo envía el back: lo rellenan localmente los componentes.
+ */
 export interface Domicilio {
-  fechaDomicilio: string;
-  createdAt?: string;
-  updatedAt?: string;
-  domicilioId?: number;
+  domicilioId: number;
   direccion: string;
   telefono: string;
   estadoDomicilio: estadoDomicilio;
   entregado: boolean;
-  observaciones: string;
-  createdBy: string;
+  fechaDomicilio: string;
+  observaciones?: string;
+  /** El back siempre los envía; son opcionales para poder armar domicilios parciales en el cliente. */
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
   updatedBy?: string;
-  trabajadorAsignado?: number;
+  trabajadorAsignado?: Pick<Trabajador, 'documentoTrabajador'>;
   trabajadorNombre?: string;
 }
 
-export type DomicilioRequest = Omit<
-  Domicilio,
-  | 'entregado'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'domicilioId'
-  | 'trabajadorAsignado'
-  | 'trabajadorNombre'
->;
+/**
+ * Cuerpo de POST /domicilios (responde 201). `direccion`, `telefono` (no vacíos) y
+ * `fechaDomicilio` (YYYY-MM-DD) son obligatorios; `entregado` lo calcula el back.
+ * `trabajadorAsignado` es el documento del trabajador (0 = sin asignar; si se envía debe existir,
+ * 404 si no).
+ */
+export interface DomicilioCreate {
+  direccion: string;
+  telefono: string;
+  fechaDomicilio: string;
+  estadoDomicilio?: estadoDomicilio;
+  observaciones?: string;
+  createdBy?: string;
+  trabajadorAsignado?: number;
+}
 
+/** Alias histórico de `DomicilioCreate`. */
+export type DomicilioRequest = DomicilioCreate;
+
+/**
+ * Cuerpo de PUT /domicilios?id=: actualización parcial (merge); `{}` solo refresca `updatedAt`.
+ * `estado` (alias `estadoDomicilio`) permite marcar el domicilio como ENTREGADO; `entregado` lo
+ * calcula el back. Solo `observaciones` y `updatedBy` son anulables (`null` los limpia).
+ */
+export interface DomicilioUpdate {
+  direccion?: string;
+  telefono?: string;
+  estado?: estadoDomicilio;
+  /** Alias de `estado`. */
+  estadoDomicilio?: estadoDomicilio;
+  observaciones?: string | null;
+  /** YYYY-MM-DD */
+  fechaDomicilio?: string;
+  updatedBy?: string | null;
+}
+
+/** Filtros de GET /domicilios (todos opcionales). */
+export interface DomicilioListParams {
+  /** Coincidencia parcial sin distinguir mayúsculas. */
+  direccion?: string;
+  telefono?: string;
+  /** YYYY-MM-DD */
+  fecha?: string;
+  estado?: estadoDomicilio;
+  updated_by?: string;
+  /**
+   * Documento del domiciliario: devuelve los no entregados que no tienen domiciliario o que
+   * tiene este.
+   */
+  trabajador?: number;
+}
+
+/** Producto del resumen de pedido de `DomicilioDetalle`. */
+export interface DomicilioDetalleProducto {
+  pk_id_producto: number;
+  nombre: string;
+  cantidad: number;
+  /** Precio unitario. */
+  precio: number;
+  subtotal: number;
+}
+
+/**
+ * `data` de GET /domicilios/search. `cliente` y `pedido` solo vienen si hay un pedido asociado
+ * al domicilio (y `pedido.productos` es null si no se pudo leer).
+ */
 export interface DomicilioDetalle {
-  cliente: {
+  domicilio: Domicilio;
+  cliente?: {
     documento: number;
     nombre: string;
     apellido: string;
   };
-  pedido: {
-    montoPago: number;
-    pagoId: number;
+  pedido?: {
     pedidoId: number;
+    pagoId: number | null;
+    montoPago: number;
     subtotalProductos: number;
     total: number;
-    productos: Array<{
-      PK_ID_PRODUCTO?: number;
-      productoId?: number;
-      NOMBRE?: string;
-      nombre?: string;
-      CANTIDAD?: number;
-      cantidad?: number;
-      PRECIO_UNITARIO?: number;
-      precioUnitario?: number;
-      PRECIO?: number;
-      SUBTOTAL?: number;
-      subtotal?: number;
-    }>;
+    productos: DomicilioDetalleProducto[] | null;
   };
-  domicilio: Domicilio;
 }

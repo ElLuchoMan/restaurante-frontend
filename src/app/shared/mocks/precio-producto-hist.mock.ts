@@ -10,7 +10,7 @@ export const mockPrecioProductoHistList: ApiResponse<PrecioProductoHist[]> = {
       productoId: 1,
       nombre: 'Coca Cola 500ml',
       precio: 2000,
-      fechaVigencia: '2024-01-01',
+      fechaVigencia: '01-01-2024',
       estadoProducto: 'DISPONIBLE',
     },
     {
@@ -18,7 +18,7 @@ export const mockPrecioProductoHistList: ApiResponse<PrecioProductoHist[]> = {
       productoId: 1,
       nombre: 'Coca Cola 500ml',
       precio: 2100,
-      fechaVigencia: '2024-02-01',
+      fechaVigencia: '01-02-2024',
       estadoProducto: 'DISPONIBLE',
     },
     {
@@ -26,7 +26,7 @@ export const mockPrecioProductoHistList: ApiResponse<PrecioProductoHist[]> = {
       productoId: 2,
       nombre: 'Pepsi 500ml',
       precio: 1800,
-      fechaVigencia: '2024-01-01',
+      fechaVigencia: '01-01-2024',
       estadoProducto: 'DISPONIBLE',
     },
   ],
@@ -40,7 +40,7 @@ export const mockPrecioProductoHistById: ApiResponse<PrecioProductoHist> = {
     productoId: 1,
     nombre: 'Coca Cola 500ml',
     precio: 2000,
-    fechaVigencia: '2024-01-01',
+    fechaVigencia: '01-01-2024',
     estadoProducto: 'DISPONIBLE',
   },
 };

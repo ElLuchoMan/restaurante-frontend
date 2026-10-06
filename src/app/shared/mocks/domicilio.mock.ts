@@ -1,14 +1,14 @@
 import { estadoDomicilio } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
-import { Domicilio, DomicilioRequest } from '../models/domicilio.model';
+import { Domicilio, DomicilioCreate, DomicilioUpdate } from '../models/domicilio.model';
 
 export const mockDomicilioRespone: ApiResponse<Domicilio> = {
   code: 200,
   message: 'Domicilio encontrado',
   data: {
-    fechaDomicilio: '2024-12-25',
-    createdAt: '2025-01-16 02:15:05',
-    updatedAt: '2025-01-16 02:15:05',
+    fechaDomicilio: '25-12-2024',
+    createdAt: '16-01-2025 02:15:05',
+    updatedAt: '16-01-2025 02:15:05',
     domicilioId: 1,
     direccion: 'Carrera 110 # 75 -16',
     telefono: '3042449339',
@@ -25,9 +25,9 @@ export const mockDomiciliosRespone: ApiResponse<Domicilio[]> = {
   message: 'Domicilios obtenidos exitosamente',
   data: [
     {
-      fechaDomicilio: '2024-12-25',
-      createdAt: '2025-01-16 02:15:05',
-      updatedAt: '2025-01-16 02:15:05',
+      fechaDomicilio: '25-12-2024',
+      createdAt: '16-01-2025 02:15:05',
+      updatedAt: '16-01-2025 02:15:05',
       domicilioId: 1,
       direccion: 'Carrera 110 # 75 -16',
       telefono: '3042449339',
@@ -38,9 +38,9 @@ export const mockDomiciliosRespone: ApiResponse<Domicilio[]> = {
       updatedBy: 'Administrador - Bryan Luis',
     },
     {
-      fechaDomicilio: '2024-12-30',
-      createdAt: '2025-01-16 02:15:05',
-      updatedAt: '2025-01-16 02:15:05',
+      fechaDomicilio: '30-12-2024',
+      createdAt: '16-01-2025 02:15:05',
+      updatedAt: '16-01-2025 02:15:05',
       domicilioId: 2,
       direccion: 'Carrera 45 #10-20',
       telefono: '3006543210',
@@ -49,11 +49,12 @@ export const mockDomiciliosRespone: ApiResponse<Domicilio[]> = {
       observaciones: 'Requiere cambio',
       createdBy: 'Administrador - Bryan Luis',
       updatedBy: 'Administrador - Bryan Luis',
+      trabajadorAsignado: { documentoTrabajador: 1015466495 },
     },
   ],
 };
 
-export const mockDomicilioBody: DomicilioRequest = {
+export const mockDomicilioBody: DomicilioCreate = {
   fechaDomicilio: '2024-12-30',
   direccion: 'Carrera 45 #10-20',
   telefono: '3006543210',
@@ -62,8 +63,13 @@ export const mockDomicilioBody: DomicilioRequest = {
   createdBy: 'Administrador - Bryan Luis',
 };
 
-export const mockDomicilioUpdateBody: Partial<DomicilioRequest> = {
+export const mockDomicilioUpdateBody: DomicilioUpdate = {
   telefono: '3003334455',
+};
+
+export const mockDomicilioEntregadoBody: DomicilioUpdate = {
+  estado: estadoDomicilio.ENTREGADO,
+  updatedBy: 'Usuario 1015466495',
 };
 
 export const mockDomicilioUpdateResponse: ApiResponse<Domicilio> = {

@@ -1,5 +1,11 @@
 import { ApiResponse } from '../models/api-response.model';
-import { Cliente, ClienteListParams, ClienteSlim } from '../models/cliente.model';
+import {
+  Cliente,
+  ClienteCreate,
+  ClienteListParams,
+  ClienteResumen,
+  ClienteUpdate,
+} from '../models/cliente.model';
 
 export const mockResponseCliente: ApiResponse<Cliente> = {
   code: 200,
@@ -11,12 +17,11 @@ export const mockResponseCliente: ApiResponse<Cliente> = {
     direccion: 'Carrera 50 #20-30',
     telefono: '3216549870',
     observaciones: 'Cliente frecuente',
-    password: '12345',
     correo: 'carlos.perez@example.com',
   },
 };
 
-export const mockClienteBody: Cliente = {
+export const mockClienteBody: ClienteCreate = {
   documentoCliente: 1015466495,
   nombre: 'Carlos',
   apellido: 'Perez',
@@ -37,7 +42,7 @@ export const mockClienteRegisterResponse: ApiResponse<Cliente> = {
     direccion: 'Carrera 50 #20-30',
     telefono: '3216549870',
     observaciones: 'Cliente frecuente',
-    password: '12345',
+    correo: 'carlos.perez@example.com',
   },
 };
 
@@ -52,7 +57,6 @@ export const mockClientesResponse: ApiResponse<Cliente[]> = {
       direccion: 'Carrera 50 #20-30',
       telefono: '3216549870',
       observaciones: 'Cliente frecuente',
-      password: '12345',
       correo: 'carlos.perez@example.com',
     },
   ],
@@ -68,7 +72,6 @@ export const mockClienteUpdateResponse: ApiResponse<Cliente> = {
     direccion: 'Carrera 50 #20-30',
     telefono: '3001112233',
     observaciones: 'Cliente frecuente',
-    password: '12345',
     correo: 'carlos.perez@example.com',
   },
 };
@@ -82,7 +85,15 @@ export const mockClienteDeleteResponse: ApiResponse<unknown> = {
 // Paginación y proyección
 export const mockClienteListParamsPage1: ClienteListParams = { limit: 1, offset: 0 };
 export const mockClienteListParamsPage2: ClienteListParams = { limit: 1, offset: 1 };
-export const mockClienteFields: ClienteListParams = { fields: 'documentoCliente,nombre' };
+export const mockClienteFields = {
+  fields: 'nombre_completo_telefono',
+} as const satisfies ClienteListParams;
+
+// PUT con merge: basta con enviar los campos que cambian; observaciones admite null
+export const mockClienteUpdateBody: ClienteUpdate = {
+  telefono: '3001112233',
+  observaciones: null,
+};
 
 export const mockClientesPage1: ApiResponse<Cliente[]> = {
   code: 200,
@@ -101,17 +112,16 @@ export const mockClientesPage2: ApiResponse<Cliente[]> = {
       direccion: 'Avenida Siempreviva 742',
       telefono: '3131234567',
       observaciones: '',
-      password: '12345',
       correo: 'laura.ramirez@example.com',
     },
   ],
 };
 
-export const mockClientesProjected: ApiResponse<ClienteSlim[]> = {
+export const mockClientesProjected: ApiResponse<ClienteResumen[]> = {
   code: 200,
-  message: 'OK',
+  message: 'Clientes obtenidos',
   data: [
-    { documentoCliente: 1015466495, nombre: 'Carlos' },
-    { documentoCliente: 1025467890, nombre: 'Laura' },
+    { documentoCliente: 1015466495, nombre_completo: 'Carlos Perez', telefono: '3216549870' },
+    { documentoCliente: 1025467890, nombre_completo: 'Laura Ramirez', telefono: '3131234567' },
   ],
 };

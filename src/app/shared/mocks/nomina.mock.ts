@@ -1,19 +1,20 @@
 import { estadoNomina } from '../constants';
 import { ApiResponse } from '../models/api-response.model';
-import { Nomina } from '../models/nomina.model';
+import { Nomina, NominaCreate } from '../models/nomina.model';
 
+// Las respuestas del backend usan fechas DD-MM-YYYY; los bodies de creación usan YYYY-MM-DD.
 export const mockNominaResponse: ApiResponse<Nomina[]> = {
   code: 200,
-  message: 'Nóminas encontradas.',
+  message: 'Nóminas obtenidas exitosamente',
   data: [
     {
-      fechaNomina: '2024-12-30',
+      fechaNomina: '30-12-2024',
       monto: 5500000,
       estadoNomina: estadoNomina.PAGO,
       nominaId: 1,
     },
     {
-      fechaNomina: '2025-01-22',
+      fechaNomina: '22-01-2025',
       monto: 3000000,
       estadoNomina: estadoNomina.NO_PAGO,
       nominaId: 4,
@@ -25,25 +26,37 @@ export const mockNominaFecha: ApiResponse<Nomina[]> = {
   message: 'Nóminas obtenidas exitosamente',
   data: [
     {
-      fechaNomina: '2025-01-22',
+      fechaNomina: '22-01-2025',
       monto: 3000000,
       estadoNomina: estadoNomina.NO_PAGO,
       nominaId: 4,
     },
   ],
 };
-export const mockNominaBody: Nomina = {
+export const mockNominaBody: NominaCreate = {
   fechaNomina: '2024-12-30',
   estadoNomina: estadoNomina.NO_PAGO,
 };
 
 export const mockNominaPagaResponse: ApiResponse<Nomina> = {
   code: 200,
-  message: 'Estado de la nómina actualizado a "PAGO" correctamente',
+  message: "Estado de la nómina actualizado a 'PAGO' correctamente",
   data: {
-    fechaNomina: '2025-01-22',
+    fechaNomina: '22-01-2025',
     monto: 3000000,
     estadoNomina: estadoNomina.PAGO,
+    nominaId: 4,
+  },
+};
+
+// DELETE /nominas devuelve la nómina marcada como NO_PAGO en `data`.
+export const mockNominaEliminadaResponse: ApiResponse<Nomina> = {
+  code: 200,
+  message: 'Nómina marcada como NO_PAGO',
+  data: {
+    fechaNomina: '22-01-2025',
+    monto: 3000000,
+    estadoNomina: estadoNomina.NO_PAGO,
     nominaId: 4,
   },
 };

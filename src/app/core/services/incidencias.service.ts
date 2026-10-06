@@ -25,29 +25,32 @@ export class IncidenciasService {
       .pipe(catchError(this.handleError.handleError));
   }
 
-  create(body: IncidenciaCreate): Observable<ApiResponse<Record<string, unknown>>> {
+  create(body: IncidenciaCreate): Observable<ApiResponse<Incidencia>> {
     return this.http
-      .post<ApiResponse<Record<string, unknown>>>(this.baseUrl, body)
+      .post<ApiResponse<Incidencia>>(this.baseUrl, body)
       .pipe(catchError(this.handleError.handleError));
   }
 
-  update(id: number, body: IncidenciaUpdate): Observable<ApiResponse<Record<string, unknown>>> {
+  /** PUT /incidencias?id= con merge. Errores: 400 (validación), 404 (no existe). */
+  update(id: number, body: IncidenciaUpdate): Observable<ApiResponse<Incidencia>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .put<ApiResponse<Record<string, unknown>>>(this.baseUrl, body, { params })
+      .put<ApiResponse<Incidencia>>(this.baseUrl, body, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
-  delete(id: number): Observable<ApiResponse<Record<string, unknown>>> {
+  /** DELETE /incidencias?id= (404 si no existe). */
+  delete(id: number): Observable<ApiResponse<unknown>> {
     const params = new HttpParams().set('id', String(id));
     return this.http
-      .delete<ApiResponse<Record<string, unknown>>>(this.baseUrl, { params })
+      .delete<ApiResponse<unknown>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.handleError));
   }
 
   /**
-   * Busca incidencias por documento y periodo (mes y año)
+   * Busca incidencias por documento y periodo (mes 1-12 y año <= año actual)
    * GET /incidencias/search?documento=...&mes=...&anio=...
+   * Sin resultados: HTTP 200 con `data: []`.
    */
   search(params: {
     documento: number;

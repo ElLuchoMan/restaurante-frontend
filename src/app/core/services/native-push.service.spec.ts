@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { NativePushService } from './native-push.service';
 import { PushService } from './push.service';
@@ -75,6 +75,8 @@ describe('NativePushService', () => {
     service = TestBed.inject(NativePushService);
     pushService = TestBed.inject(PushService) as jest.Mocked<PushService>;
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
+    userService.getUserRole.mockReturnValue('Cliente');
+    userService.getUserId.mockReturnValue(1);
 
     // Reset window.Capacitor
     delete (window as any).Capacitor;
@@ -153,9 +155,6 @@ describe('NativePushService', () => {
       mockPushNotifications.createChannel.mockResolvedValue(undefined);
       mockFirebaseMessaging.requestPermissions.mockResolvedValue(undefined);
       mockFirebaseMessaging.getToken.mockResolvedValue({ token: 'mock-token' });
-
-      userService.getUserRole.mockReturnValue(null);
-      userService.getUserId.mockReturnValue(null);
 
       await service.init();
 
@@ -336,10 +335,7 @@ describe('NativePushService', () => {
 
       expect(mockFirebaseMessaging.getToken).toHaveBeenCalled();
       expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
-        expect.objectContaining({
-          fcmToken: 'fcm-token-123',
-          documentoCliente: 999,
-        }),
+        expect.objectContaining({ fcmToken: 'fcm-token-123' }),
       );
     });
 
@@ -730,58 +726,82 @@ describe('NativePushService', () => {
       mockFirebaseMessaging.getToken.mockResolvedValue({ token: 'test-token' });
     });
 
-    it('should register device with Cliente document', async () => {
+    it.each([
+      ['Cliente', 12345],
+      ['Mesero', 67890],
+    ])(
+      'should register device without owner document (the server uses the token) as %s',
+      async (role, id) => {
+        userService.getUserRole.mockReturnValue(role);
+        userService.getUserId.mockReturnValue(id);
+
+        await service.init();
+
+        expect(pushService.registrarDispositivo).toHaveBeenCalledWith({
+          plataforma: 'ANDROID',
+          fcmToken: 'test-token',
+          locale: expect.any(String),
+          timeZone: expect.any(String),
+          appVersion: '1.0.0',
+          subscribedTopics: ['promos', 'novedades'],
+        });
+      },
+    );
+
+    it.each([403, 404])(
+      'should warn and not fail when the server rejects the device (%s)',
+      async (code) => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+        userService.getUserId.mockReturnValue(12345);
+        pushService.registrarDispositivo.mockReturnValue(
+          throwError(() => ({ code, message: 'no' })),
+        );
+
+        await service.init();
+
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('rechazó el registro'));
+        expect(warnSpy).not.toHaveBeenCalledWith(
+          '[NativePushService] init error',
+          expect.anything(),
+        );
+        warnSpy.mockRestore();
+      },
+    );
+
+    it('should report other registration errors through the generic handler', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+      userService.getUserId.mockReturnValue(12345);
+      pushService.registrarDispositivo.mockReturnValue(throwError(() => ({ code: 500 })));
+
+      await service.init();
+
+      expect(warnSpy).toHaveBeenCalledWith('[NativePushService] init error', { code: 500 });
+      warnSpy.mockRestore();
+    });
+
+    it('should skip registration if user is not logged in (no document)', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+      userService.getUserRole.mockReturnValue(null);
+      userService.getUserId.mockReturnValue(0);
+
+      await service.init();
+
+      expect(pushService.registrarDispositivo).not.toHaveBeenCalled();
+      warnSpy.mockRestore();
+    });
+
+    it('should register with plataforma IOS when Capacitor reports ios', async () => {
+      (window as any).Capacitor = {
+        getPlatform: jest.fn().mockReturnValue('ios'), // eslint-disable-line no-restricted-syntax
+      };
       userService.getUserRole.mockReturnValue('Cliente');
       userService.getUserId.mockReturnValue(12345);
 
       await service.init();
 
-      expect(pushService.registrarDispositivo).toHaveBeenCalledWith({
-        plataforma: 'ANDROID',
-        fcmToken: 'test-token',
-        locale: expect.any(String),
-        timeZone: expect.any(String),
-        appVersion: '1.0.0',
-        subscribedTopics: ['promos', 'novedades'],
-        documentoCliente: 12345,
-        documentoTrabajador: undefined,
-      });
-    });
-
-    it('should register device with Trabajador document', async () => {
-      userService.getUserRole.mockReturnValue('Mesero');
-      userService.getUserId.mockReturnValue(67890);
-
-      await service.init();
-
-      expect(pushService.registrarDispositivo).toHaveBeenCalledWith({
-        plataforma: 'ANDROID',
-        fcmToken: 'test-token',
-        locale: expect.any(String),
-        timeZone: expect.any(String),
-        appVersion: '1.0.0',
-        subscribedTopics: ['promos', 'novedades'],
-        documentoCliente: undefined,
-        documentoTrabajador: 67890,
-      });
-    });
-
-    it('should register device without documents if user not logged in', async () => {
-      userService.getUserRole.mockReturnValue(null);
-      userService.getUserId.mockReturnValue(null);
-
-      await service.init();
-
-      expect(pushService.registrarDispositivo).toHaveBeenCalledWith({
-        plataforma: 'ANDROID',
-        fcmToken: 'test-token',
-        locale: expect.any(String),
-        timeZone: expect.any(String),
-        appVersion: '1.0.0',
-        subscribedTopics: ['promos', 'novedades'],
-        documentoCliente: undefined,
-        documentoTrabajador: undefined,
-      });
+      expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
+        expect.objectContaining({ plataforma: 'IOS', fcmToken: 'test-token' }),
+      );
     });
 
     it('should include navigator.language in payload', async () => {

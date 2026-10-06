@@ -1,7 +1,17 @@
 import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
+import { RegistrarDispositivoRequest } from '../../shared/models/push.model';
 import { PushService } from './push.service';
 import { UserService } from './user.service';
+
+interface CapacitorGlobal {
+  getPlatform?: () => string;
+}
+
+function getCapacitor(): CapacitorGlobal | undefined {
+  return (window as unknown as { Capacitor?: CapacitorGlobal }).Capacitor;
+}
 
 @Injectable({ providedIn: 'root' })
 export class NativePushService {
@@ -15,8 +25,13 @@ export class NativePushService {
   private isNativeWebView(): boolean {
     if (typeof window === 'undefined') return false;
 
-    const cap: any = (window as any).Capacitor;
+    const cap = getCapacitor();
     return !!(cap && typeof cap.getPlatform === 'function' && cap.getPlatform() !== 'web');
+  }
+
+  /** Plataforma que acepta el backend para FCM: IOS o ANDROID (según Capacitor). */
+  private nativePlatform(): 'ANDROID' | 'IOS' {
+    return getCapacitor()?.getPlatform?.() === 'ios' ? 'IOS' : 'ANDROID';
   }
 
   async init(): Promise<void> {
@@ -49,13 +64,7 @@ export class NativePushService {
         // Listener: acción sobre la notificación (tap)
         try {
           PushNotifications.addListener('pushNotificationActionPerformed', async (ev) => {
-            const url = (ev?.notification?.data as any)?.url;
-            console.log(
-              '[Push] Notification tapped. URL:',
-              url,
-              'Full data:',
-              ev?.notification?.data,
-            );
+            const url = (ev?.notification?.data as { url?: unknown } | undefined)?.url;
             if (typeof url === 'string' && url) {
               // Emitir evento para que AppComponent lo maneje
               try {
@@ -89,8 +98,7 @@ export class NativePushService {
           fcmToken = tokenRes?.token || undefined;
         } catch (e: any) {
           // En iOS, si Firebase no está configurado correctamente, usar fallback
-          const cap: any = (window as any).Capacitor;
-          const isIOS = cap?.getPlatform?.() === 'ios';
+          const isIOS = getCapacitor()?.getPlatform?.() === 'ios';
           if (isIOS && (e?.message?.includes('APNS') || e?.message?.includes('Firebase'))) {
             console.warn('[Push] Firebase no configurado en iOS, usando fallback');
             fcmToken = await this.waitForRegistrationToken();
@@ -155,30 +163,33 @@ export class NativePushService {
         } catch {}
         return;
       }
-      try {
-        console.log('[Push] FCM token', fcmToken);
-      } catch {}
 
-      // Resolver identidad actual (cliente o trabajador) si hay sesión
-      const role = this.userService.getUserRole?.();
+      // El dueño (cliente o trabajador) lo fija el backend a partir del token: solo se exige sesión.
       const doc = this.userService.getUserId?.();
-      const isCliente = role === 'Cliente';
-      const documentoCliente = isCliente && typeof doc === 'number' ? doc : undefined;
-      const documentoTrabajador = !isCliente && typeof doc === 'number' ? doc : undefined;
+      if (typeof doc !== 'number' || doc <= 0) {
+        // Sin sesión: no se registra (el backend rechazaría el dispositivo). AppComponent
+        // vuelve a llamar a init() cuando el usuario inicia sesión.
+        console.warn('[Push] Sin sesión: registro del dispositivo diferido hasta iniciar sesión');
+        return;
+      }
 
-      const payload: any = {
-        plataforma: 'ANDROID',
+      const payload: RegistrarDispositivoRequest = {
+        plataforma: this.nativePlatform(),
         fcmToken,
         locale: (typeof navigator !== 'undefined' && navigator.language) || 'es-CO',
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         appVersion: '1.0.0',
-        subscribedTopics: ['promos', 'novedades'] as string[],
-        documentoCliente,
-        documentoTrabajador,
-      } as const;
+        subscribedTopics: ['promos', 'novedades'],
+      };
 
-      // Si no hay documento aún (usuario no logueado), registrar sin documento y dejar token activo
-      await this.pushService.registrarDispositivo(payload).toPromise();
+      try {
+        await firstValueFrom(this.pushService.registrarDispositivo(payload));
+      } catch (e) {
+        const code = (e as { code?: unknown } | null)?.code;
+        if (code !== 403 && code !== 404) throw e;
+        // El servidor no acepta el dispositivo con esta sesión (dueño distinto o cuenta inexistente)
+        console.warn('[Push] El servidor rechazó el registro del dispositivo con la sesión actual');
+      }
     } catch (e) {
       // Silencioso en web o si faltan plugins; logging mínimo en consola para debug manual
       try {

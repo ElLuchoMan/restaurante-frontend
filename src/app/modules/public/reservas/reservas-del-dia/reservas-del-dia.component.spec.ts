@@ -6,96 +6,80 @@ import { of, throwError } from 'rxjs';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
-import { ReservaContactoService } from '../../../../core/services/reserva-contacto.service';
-import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { estadoReserva } from '../../../../shared/constants';
-import {
-  mockReserva,
-  mockReservaResponse,
-  mockReservasDelDiaResponse,
-} from '../../../../shared/mocks/reserva.mocks';
+import { mockReserva, mockReservasDelDiaResponse } from '../../../../shared/mocks/reserva.mocks';
 import {
   createLoggingServiceMock,
-  createReservaContactoServiceMock,
-  createReservaNotificationsServiceMock,
   createReservaServiceMock,
   createToastrMock,
 } from '../../../../shared/mocks/test-doubles';
-import { Reserva } from '../../../../shared/models/reserva.model';
+import { ReservaBase } from '../../../../shared/models/reserva.model';
 import { ReservasDelDiaComponent } from './reservas-del-dia.component';
 
 describe('ReservasDelDiaComponent', () => {
   let component: ReservasDelDiaComponent;
   let fixture: ComponentFixture<ReservasDelDiaComponent>;
   let reservaService: jest.Mocked<ReservaService>;
-  let reservaContactoService: jest.Mocked<ReservaContactoService>;
-  let reservaNotificationsService: jest.Mocked<ReservaNotificationsService>;
   let toastr: jest.Mocked<ToastrService>;
-  let loggingService: jest.Mocked<LoggingService>;
+  let logger: jest.Mocked<LoggingService>;
 
   beforeEach(async () => {
-    const reservaServiceMock = createReservaServiceMock() as jest.Mocked<ReservaService>;
-    const reservaContactoServiceMock =
-      createReservaContactoServiceMock() as jest.Mocked<ReservaContactoService>;
-    const reservaNotificationsServiceMock =
-      createReservaNotificationsServiceMock() as jest.Mocked<ReservaNotificationsService>;
-    const toastrMock = createToastrMock() as jest.Mocked<ToastrService>;
-    const loggingServiceMock = createLoggingServiceMock() as jest.Mocked<LoggingService>;
-
     await TestBed.configureTestingModule({
       imports: [ReservasDelDiaComponent, CommonModule, HttpClientTestingModule],
       providers: [
-        { provide: ReservaService, useValue: reservaServiceMock },
-        { provide: ReservaContactoService, useValue: reservaContactoServiceMock },
-        { provide: ReservaNotificationsService, useValue: reservaNotificationsServiceMock },
-        { provide: ToastrService, useValue: toastrMock },
-        { provide: LoggingService, useValue: loggingServiceMock },
+        { provide: ReservaService, useValue: createReservaServiceMock() },
+        { provide: ToastrService, useValue: createToastrMock() },
+        { provide: LoggingService, useValue: createLoggingServiceMock() },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReservasDelDiaComponent);
     component = fixture.componentInstance;
     reservaService = TestBed.inject(ReservaService) as jest.Mocked<ReservaService>;
-    reservaContactoService = TestBed.inject(
-      ReservaContactoService,
-    ) as jest.Mocked<ReservaContactoService>;
-    reservaNotificationsService = TestBed.inject(
-      ReservaNotificationsService,
-    ) as jest.Mocked<ReservaNotificationsService>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
-    loggingService = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    logger = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
   });
 
   describe('consultarReservasDelDia', () => {
-    it('should call consultarReservasDelDia in ngOnInit', () => {
-      const spy = jest.spyOn(component, 'consultarReservasDelDia');
-      reservaService.getReservaByParameter.mockReturnValue(of(mockReservasDelDiaResponse));
-      component.ngOnInit();
-      expect(spy).toHaveBeenCalled();
-    });
-
-    it('should fetch reservas, sort them by horaReserva, and set fechaHoy in DD-MM-YYYY format', () => {
-      reservaService.getReservaByParameter.mockReturnValue(of(mockReservasDelDiaResponse));
-      component.consultarReservasDelDia();
-
-      expect(component.reservas.length).toBe(mockReservasDelDiaResponse.data.length);
-      expect(component.fechaHoy).toMatch(/^\d{2}-\d{2}-\d{4}$/);
-      if (component.reservas.length > 1) {
-        const primeraHora = new Date(`1970-01-01T${component.reservas[0].horaReserva}`);
-        const segundaHora = new Date(`1970-01-01T${component.reservas[1].horaReserva}`);
-        expect(primeraHora.getTime()).toBeLessThanOrEqual(segundaHora.getTime());
-      }
-    });
-
-    it('should call toastr.error if getReservaByParameter fails', () => {
+    it('consulta la fecha de hoy (YYYY-MM-DD), ordena por hora y fija fechaHoy en DD-MM-YYYY', () => {
+      const desordenadas = [...mockReservasDelDiaResponse.data].reverse();
       reservaService.getReservaByParameter.mockReturnValue(
-        throwError(() => new Error('Error fetching reservas')),
+        of({ ...mockReservasDelDiaResponse, data: desordenadas }),
       );
-      component.consultarReservasDelDia();
+
+      fixture.detectChanges(); // ngOnInit
+
+      const [contacto, fecha] = reservaService.getReservaByParameter.mock.calls[0];
+      expect(contacto).toBeUndefined();
+      expect(fecha).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(component.fechaHoy).toBe(fecha!.split('-').reverse().join('-'));
+      // 19:41 antes que 21:18 (la entrada llega invertida: 9, 8)
+      expect(component.reservas.map((r) => r.reservaId)).toEqual([9, 8]);
+      // no muta el arreglo recibido
+      expect(desordenadas.map((r) => r.reservaId)).toEqual([9, 8]);
+    });
+
+    it('sin reservas (data []) deja la lista vacía y muestra el aviso', () => {
+      reservaService.getReservaByParameter.mockReturnValue(
+        of({ code: 200, message: 'Sin reservas', data: [] }),
+      );
+      fixture.detectChanges();
+      expect(component.reservas).toEqual([]);
+      expect(fixture.nativeElement.textContent).toContain('No hay reservas');
+    });
+
+    it('renderiza nombre y teléfono desde el contacto embebido en cada reserva', () => {
+      reservaService.getReservaByParameter.mockReturnValue(of(mockReservasDelDiaResponse));
+      fixture.detectChanges();
+      const texto: string = fixture.nativeElement.textContent;
+      expect(texto).toContain('Carlos Perez');
+      expect(texto).toContain('3216549870');
+      expect(texto).toContain('Edwin Torres');
+    });
+
+    it('muestra un error si la consulta falla', () => {
+      reservaService.getReservaByParameter.mockReturnValue(throwError(() => new Error('x')));
+      fixture.detectChanges();
       expect(toastr.error).toHaveBeenCalledWith(
         'Ocurrió un error al consultar las reservas del día',
         'Error',
@@ -103,528 +87,62 @@ describe('ReservasDelDiaComponent', () => {
     });
   });
 
-  describe('actualizarReserva and state update methods', () => {
-    let reserva: Reserva;
+  describe('cambios de estado', () => {
+    const actualizada: ReservaBase = { ...mockReserva, estadoReserva: estadoReserva.CONFIRMADA };
+
     beforeEach(() => {
-      reserva = { ...mockReservaResponse.data, reservaId: 1 };
-      reserva.fechaReserva = '06-02-2025';
+      reservaService.getReservaByParameter.mockReturnValue(of(mockReservasDelDiaResponse));
+      fixture.detectChanges();
+      reservaService.actualizarReserva.mockReturnValue(
+        of({ code: 200, message: 'ok', data: actualizada }),
+      );
     });
 
-    it('should update reservation and show success for confirmarReserva', () => {
-      reservaService.actualizarReserva.mockReturnValue(
-        of({ code: 200, message: 'Actualización exitosa', data: reserva }),
-      );
+    it('confirmar envía solo el estado y reemplaza la reserva con la respuesta', async () => {
+      const original = component.reservas.find((r) => r.reservaId === 8)!;
+      component.reservas = [original, mockReserva];
 
-      component.confirmarReserva(reserva);
+      component.confirmarReserva(mockReserva);
+      await fixture.whenStable();
 
-      expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
-        1,
-        expect.objectContaining({ estadoReserva: 'CONFIRMADA', fechaReserva: '2025-02-06' }),
-      );
+      expect(reservaService.actualizarReserva).toHaveBeenCalledWith(1, {
+        estadoReserva: estadoReserva.CONFIRMADA,
+      });
       expect(toastr.success).toHaveBeenCalledWith(
         'Reserva marcada como CONFIRMADA',
         'Actualización Exitosa',
       );
+      expect(component.reservas).toEqual([original, actualizada]);
     });
 
-    it('should update reservation and show success for cancelarReserva', () => {
-      reservaService.actualizarReserva.mockReturnValue(
-        of({ code: 200, message: 'Actualización exitosa', data: reserva }),
-      );
-
-      component.cancelarReserva(reserva);
-
-      expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
-        1,
-        expect.objectContaining({ estadoReserva: 'CANCELADA', fechaReserva: '2025-02-06' }),
-      );
-      expect(toastr.success).toHaveBeenCalledWith(
-        'Reserva marcada como CANCELADA',
-        'Actualización Exitosa',
-      );
+    it('cancelar y cumplir usan el estado correspondiente', async () => {
+      component.cancelarReserva(mockReserva);
+      component.cumplirReserva(mockReserva);
+      await fixture.whenStable();
+      expect(reservaService.actualizarReserva).toHaveBeenNthCalledWith(1, 1, {
+        estadoReserva: estadoReserva.CANCELADA,
+      });
+      expect(reservaService.actualizarReserva).toHaveBeenNthCalledWith(2, 1, {
+        estadoReserva: estadoReserva.CUMPLIDA,
+      });
     });
 
-    it('should update reservation and show success for cumplirReserva', () => {
-      reservaService.actualizarReserva.mockReturnValue(
-        of({ code: 200, message: 'Actualización exitosa', data: reserva }),
-      );
-
-      component.cumplirReserva(reserva);
-
-      expect(reservaService.actualizarReserva).toHaveBeenCalledWith(
-        1,
-        expect.objectContaining({ estadoReserva: 'CUMPLIDA', fechaReserva: '2025-02-06' }),
-      );
-      expect(toastr.success).toHaveBeenCalledWith(
-        'Reserva marcada como CUMPLIDA',
-        'Actualización Exitosa',
-      );
-    });
-
-    it('should show error if reservaId is invalid in actualizarReserva', () => {
-      const invalidReserva = { ...reserva, reservaId: NaN };
-
-      component['actualizarReserva'](invalidReserva);
-
+    it('rechaza un id de reserva no válido', () => {
+      component.confirmarReserva({ ...mockReserva, reservaId: NaN });
+      component.confirmarReserva({ ...mockReserva, reservaId: 0 });
       expect(toastr.error).toHaveBeenCalledWith('Error: ID de reserva no válido', 'Error');
       expect(reservaService.actualizarReserva).not.toHaveBeenCalled();
     });
 
-    it('should show error when actualizarReserva fails', () => {
-      const errorResponse = new Error('Update failed');
-      reservaService.actualizarReserva.mockReturnValue(throwError(() => errorResponse));
-      component['actualizarReserva'](reserva);
-
-      expect(loggingService.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error:', errorResponse);
+    it('registra el error y avisa si el backend rechaza el cambio', () => {
+      const error = { code: 404, message: 'Reserva no encontrada' };
+      reservaService.actualizarReserva.mockReturnValue(throwError(() => error));
+      component.confirmarReserva(mockReserva);
+      expect(logger.log).toHaveBeenCalledWith(LogLevel.ERROR, 'Error:', error);
       expect(toastr.error).toHaveBeenCalledWith(
         'Ocurrió un error al actualizar la reserva',
         'Error',
       );
-    });
-
-    it('should update reserva in local list after successful update', async () => {
-      const reservaInicial = { ...mockReserva, estadoReserva: estadoReserva.PENDIENTE };
-      component.reservas = [reservaInicial];
-
-      reservaService.actualizarReserva.mockReturnValue(
-        of({ code: 200, message: 'Actualización exitosa', data: reserva }),
-      );
-
-      component.confirmarReserva(reservaInicial);
-
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      expect(component.reservas[0].estadoReserva).toBe(estadoReserva.CONFIRMADA);
-    });
-
-    it('should handle null documentoCliente when notifying estado cambio', async () => {
-      const reservaSinDoc = { ...reserva, documentoCliente: null };
-      reservaService.actualizarReserva.mockReturnValue(
-        of({ code: 200, message: 'Actualización exitosa', data: reservaSinDoc }),
-      );
-
-      component.confirmarReserva(reservaSinDoc);
-
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      expect(reservaNotificationsService.notifyEstadoCambio).toHaveBeenCalled();
-    });
-
-    it('should swallow errors from notifyEstadoCambio (catch path)', async () => {
-      const reservaSinDoc = { ...reserva, documentoCliente: null };
-      reservaService.actualizarReserva.mockReturnValue(
-        of({ code: 200, message: 'Actualización exitosa', data: reservaSinDoc }),
-      );
-      // provoke rejection inside notify
-      jest
-        .spyOn(reservaNotificationsService, 'notifyEstadoCambio')
-        .mockRejectedValueOnce(new Error('notify fail'));
-
-      await component['actualizarReserva'](reservaSinDoc);
-
-      // Should still update list without throwing
-      expect(toastr.success).toHaveBeenCalled();
-    });
-
-    it('should not update local list if reserva not found (idx -1)', async () => {
-      component.reservas = [];
-      reservaService.actualizarReserva.mockReturnValue(
-        of({ code: 200, message: 'ok', data: reserva }),
-      );
-      await component['actualizarReserva'](reserva);
-      expect(component.reservas).toEqual([]);
-    });
-  });
-
-  describe('Data normalization and enrichment', () => {
-    it('should normalize data from contactoId object', () => {
-      const mockWithContactoObject = {
-        code: 200,
-        message: 'OK',
-        data: [
-          {
-            ...mockReserva,
-            nombreCompleto: '',
-            telefono: '',
-            documentoCliente: null,
-            contactoId: {
-              contactoId: 1,
-              nombreCompleto: 'Nombre Desde Contacto',
-              telefono: '3001234567',
-              documentoCliente: 987654321,
-            },
-          },
-        ],
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(of(mockWithContactoObject));
-      component.consultarReservasDelDia();
-
-      expect(component.reservas[0].nombreCompleto).toBe('Nombre Desde Contacto');
-      expect(component.reservas[0].telefono).toBe('3001234567');
-      expect(component.reservas[0].documentoCliente).toBe(987654321);
-    });
-
-    it('should prefer top-level data over contactoId object data', () => {
-      const mockWithBothData = {
-        code: 200,
-        message: 'OK',
-        data: [
-          {
-            ...mockReserva,
-            nombreCompleto: 'Nombre Top Level',
-            telefono: '3119876543',
-            documentoCliente: 123456789,
-            contactoId: {
-              contactoId: 1,
-              nombreCompleto: 'Nombre Desde Contacto',
-              telefono: '3001234567',
-              documentoCliente: 987654321,
-            },
-          },
-        ],
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(of(mockWithBothData));
-      component.consultarReservasDelDia();
-
-      expect(component.reservas[0].nombreCompleto).toBe('Nombre Top Level');
-      expect(component.reservas[0].telefono).toBe('3119876543');
-      expect(component.reservas[0].documentoCliente).toBe(123456789);
-    });
-
-    it('should handle empty strings in top-level data and use contactoId data', () => {
-      const mockWithEmptyStrings = {
-        code: 200,
-        message: 'OK',
-        data: [
-          {
-            ...mockReserva,
-            nombreCompleto: '   ',
-            telefono: '   ',
-            contactoId: {
-              contactoId: 1,
-              nombreCompleto: 'Nombre Contacto',
-              telefono: '3001234567',
-            },
-          },
-        ],
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(of(mockWithEmptyStrings));
-      component.consultarReservasDelDia();
-
-      expect(component.reservas[0].nombreCompleto).toBe('Nombre Contacto');
-      expect(component.reservas[0].telefono).toBe('3001234567');
-    });
-
-    it('should handle null response data gracefully', () => {
-      reservaService.getReservaByParameter.mockReturnValue(
-        of({ code: 200, message: 'OK', data: null } as any),
-      );
-
-      component.consultarReservasDelDia();
-
-      expect(component.reservas).toEqual([]);
-    });
-
-    it('should enrich reservas with missing contact info from API', async () => {
-      const mockReservaIncompleta = {
-        ...mockReserva,
-        nombreCompleto: '',
-        telefono: '',
-        contactoId: 1,
-      };
-
-      const mockContactoInfo = {
-        code: 200,
-        message: 'Contacto obtenido',
-        data: {
-          contactoId: 1,
-          nombreCompleto: 'Juan Pérez Enriquecido',
-          telefono: '3009876543',
-          documentoCliente: 1122334455,
-        },
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(
-        of({ code: 200, message: 'OK', data: [mockReservaIncompleta] }),
-      );
-      reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-      component.consultarReservasDelDia();
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(reservaContactoService.getById).toHaveBeenCalledWith(1);
-      expect(component.reservas[0].nombreCompleto).toBe('Juan Pérez Enriquecido');
-      expect(component.reservas[0].telefono).toBe('3009876543');
-    });
-
-    it('should handle error when enriching contact info', async () => {
-      const mockReservaIncompleta = {
-        ...mockReserva,
-        nombreCompleto: '',
-        telefono: '',
-        contactoId: 1,
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(
-        of({ code: 200, message: 'OK', data: [mockReservaIncompleta] }),
-      );
-      reservaContactoService.getById.mockReturnValue(throwError(() => new Error('API Error')));
-
-      component.consultarReservasDelDia();
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(component.reservas).toHaveLength(1);
-    });
-
-    it('should handle contactoId as object when enriching', async () => {
-      const mockReservaConObjetoContacto = {
-        ...mockReserva,
-        nombreCompleto: '',
-        telefono: '',
-        contactoId: { contactoId: 2 },
-      };
-
-      const mockContactoInfo = {
-        code: 200,
-        message: 'Contacto obtenido',
-        data: {
-          contactoId: 2,
-          nombreCompleto: 'Pedro López',
-          telefono: '3112223333',
-          documentoCliente: 9988776655,
-        },
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(
-        of({ code: 200, message: 'OK', data: [mockReservaConObjetoContacto] }),
-      );
-      reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-      component.consultarReservasDelDia();
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(reservaContactoService.getById).toHaveBeenCalledWith(2);
-      expect(component.reservas[0].nombreCompleto).toBe('Pedro López');
-    });
-
-    it('should not enrich when contactoId is null', async () => {
-      const mockReservaSinContacto = {
-        ...mockReserva,
-        nombreCompleto: '',
-        telefono: '',
-        contactoId: null,
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(
-        of({ code: 200, message: 'OK', data: [mockReservaSinContacto] }),
-      );
-
-      component.consultarReservasDelDia();
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(reservaContactoService.getById).not.toHaveBeenCalled();
-      expect(component.reservas).toHaveLength(1);
-    });
-
-    it('should preserve existing nombreCompleto when enriching', async () => {
-      const mockReservaConNombre = {
-        ...mockReserva,
-        nombreCompleto: 'Nombre Existente',
-        telefono: '',
-        contactoId: 1,
-      };
-
-      const mockContactoInfo = {
-        code: 200,
-        message: 'Contacto obtenido',
-        data: {
-          contactoId: 1,
-          nombreCompleto: 'Nombre API',
-          telefono: '3001234567',
-          documentoCliente: 1234567890,
-        },
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(
-        of({ code: 200, message: 'OK', data: [mockReservaConNombre] }),
-      );
-      reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-      component.consultarReservasDelDia();
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(component.reservas[0].nombreCompleto).toBe('Nombre Existente');
-    });
-
-    it('should preserve existing telefono when enriching', async () => {
-      const mockReservaConTelefono = {
-        ...mockReserva,
-        nombreCompleto: '',
-        telefono: '3119998877',
-        contactoId: 1,
-      };
-
-      const mockContactoInfo = {
-        code: 200,
-        message: 'Contacto obtenido',
-        data: {
-          contactoId: 1,
-          nombreCompleto: 'Nombre API',
-          telefono: '3001234567',
-          documentoCliente: 1234567890,
-        },
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(
-        of({ code: 200, message: 'OK', data: [mockReservaConTelefono] }),
-      );
-      reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-      component.consultarReservasDelDia();
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(component.reservas[0].telefono).toBe('3119998877');
-    });
-
-    it('should use documentoCliente from API when reserva value is null', async () => {
-      const mockReservaIncompleta = {
-        ...mockReserva,
-        nombreCompleto: '',
-        telefono: '',
-        contactoId: 1,
-        documentoCliente: null,
-      };
-
-      const mockContactoInfo = {
-        code: 200,
-        message: 'Contacto obtenido',
-        data: {
-          contactoId: 1,
-          nombreCompleto: 'Nombre',
-          telefono: '3001234567',
-          documentoCliente: 555666777,
-        },
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(
-        of({ code: 200, message: 'OK', data: [mockReservaIncompleta] }),
-      );
-      reservaContactoService.getById.mockReturnValue(of(mockContactoInfo));
-
-      component.consultarReservasDelDia();
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(component.reservas[0].documentoCliente).toBe(555666777);
-    });
-
-    it('should handle undefined documentoCliente from contactoId', () => {
-      const mockWithUndefinedDoc = {
-        code: 200,
-        message: 'OK',
-        data: [
-          {
-            ...mockReserva,
-            documentoCliente: undefined,
-            contactoId: {
-              contactoId: 1,
-              nombreCompleto: 'Nombre',
-              telefono: '3001234567',
-              documentoCliente: undefined,
-            },
-          },
-        ],
-      };
-
-      reservaService.getReservaByParameter.mockReturnValue(of(mockWithUndefinedDoc));
-      component.consultarReservasDelDia();
-
-      expect(component.reservas[0].documentoCliente).toBeNull();
-    });
-  });
-
-  describe('ramas adicionales de enriquecimiento', () => {
-    const flushAsync = () => new Promise((resolve) => setTimeout(resolve, 20));
-    const consultarCon = async (reserva: any, info: any) => {
-      reservaService.getReservaByParameter.mockReturnValue(
-        of({ code: 200, message: 'OK', data: [reserva] }) as any,
-      );
-      reservaContactoService.getById.mockReturnValue(of(info));
-      component.consultarReservasDelDia();
-      await flushAsync();
-      return component.reservas[0] as any;
-    };
-
-    it('no modifica la reserva si getById devuelve vacío', async () => {
-      const r = await consultarCon(
-        { ...mockReserva, nombreCompleto: '', telefono: '', contactoId: 1 },
-        undefined,
-      );
-      expect(reservaContactoService.getById).toHaveBeenCalledWith(1);
-      expect(r.nombreCompleto).toBe('');
-      expect(r.telefono).toBe('');
-    });
-
-    it('conserva el nombre existente y completa el teléfono desde la API', async () => {
-      const r = await consultarCon(
-        { ...mockReserva, nombreCompleto: 'Existente', telefono: '', contactoId: 1 },
-        { code: 200, message: 'ok', data: { nombreCompleto: 'API', telefono: '300' } },
-      );
-      expect(r.nombreCompleto).toBe('Existente');
-      expect(r.telefono).toBe('300');
-    });
-
-    it('usa vacío si el teléfono de la API es null', async () => {
-      const r = await consultarCon(
-        { ...mockReserva, nombreCompleto: 'Existente', telefono: '', contactoId: 1 },
-        { code: 200, message: 'ok', data: { nombreCompleto: 'API', telefono: null } },
-      );
-      expect(r.telefono).toBe('');
-    });
-
-    it('conserva el teléfono existente y usa vacío si el nombre de la API es null', async () => {
-      const r = await consultarCon(
-        { ...mockReserva, nombreCompleto: '', telefono: '311', contactoId: 1 },
-        { code: 200, message: 'ok', data: { nombreCompleto: null, telefono: '300' } },
-      );
-      expect(r.telefono).toBe('311');
-      expect(r.nombreCompleto).toBe('');
-    });
-
-    it('reemplaza un nombre compuesto sólo por espacios (proveniente del contacto)', async () => {
-      const r = await consultarCon(
-        {
-          ...mockReserva,
-          nombreCompleto: '',
-          telefono: '311',
-          contactoId: { contactoId: 4, nombreCompleto: '   ' },
-        },
-        { code: 200, message: 'ok', data: { nombreCompleto: 'API', telefono: '300' } },
-      );
-      expect(r.nombreCompleto).toBe('API');
-    });
-
-    it('documentoCliente queda null si ni la reserva ni la API lo traen', async () => {
-      const r = await consultarCon(
-        {
-          ...mockReserva,
-          nombreCompleto: '',
-          telefono: '',
-          contactoId: 1,
-          documentoCliente: undefined,
-        },
-        { code: 200, message: 'ok', data: { nombreCompleto: 'A', telefono: '1' } },
-      );
-      expect(r.documentoCliente).toBeNull();
     });
   });
 });
