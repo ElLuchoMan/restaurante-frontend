@@ -11,10 +11,6 @@ export const mockPushDispositivoWeb: ApiResponse<PushDispositivo> = {
   data: {
     pushDispositivoId: 1,
     plataforma: 'WEB',
-    endpoint: 'https://push.example.com/subscription/cliente_1015466495',
-    p256dh: 'test_p256dh_1',
-    auth: 'test_auth_1',
-    fcmToken: null,
     enabled: true,
     locale: 'es-CO',
     timeZone: 'America/Bogota',
@@ -34,10 +30,6 @@ export const mockPushDispositivoAndroid: ApiResponse<PushDispositivo> = {
   data: {
     pushDispositivoId: 2,
     plataforma: 'ANDROID',
-    endpoint: null,
-    p256dh: null,
-    auth: null,
-    fcmToken: 'fcm_token_trabajador_1000000000',
     enabled: true,
     locale: 'es-CO',
     timeZone: 'America/Bogota',

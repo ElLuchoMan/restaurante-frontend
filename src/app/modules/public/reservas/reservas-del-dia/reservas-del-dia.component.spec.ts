@@ -6,12 +6,10 @@ import { of, throwError } from 'rxjs';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
-import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { mockReserva, mockReservasDelDiaResponse } from '../../../../shared/mocks/reserva.mocks';
 import {
   createLoggingServiceMock,
-  createReservaNotificationsServiceMock,
   createReservaServiceMock,
   createToastrMock,
 } from '../../../../shared/mocks/test-doubles';
@@ -22,7 +20,6 @@ describe('ReservasDelDiaComponent', () => {
   let component: ReservasDelDiaComponent;
   let fixture: ComponentFixture<ReservasDelDiaComponent>;
   let reservaService: jest.Mocked<ReservaService>;
-  let reservaNoti: jest.Mocked<ReservaNotificationsService>;
   let toastr: jest.Mocked<ToastrService>;
   let logger: jest.Mocked<LoggingService>;
 
@@ -31,7 +28,6 @@ describe('ReservasDelDiaComponent', () => {
       imports: [ReservasDelDiaComponent, CommonModule, HttpClientTestingModule],
       providers: [
         { provide: ReservaService, useValue: createReservaServiceMock() },
-        { provide: ReservaNotificationsService, useValue: createReservaNotificationsServiceMock() },
         { provide: ToastrService, useValue: createToastrMock() },
         { provide: LoggingService, useValue: createLoggingServiceMock() },
       ],
@@ -40,9 +36,6 @@ describe('ReservasDelDiaComponent', () => {
     fixture = TestBed.createComponent(ReservasDelDiaComponent);
     component = fixture.componentInstance;
     reservaService = TestBed.inject(ReservaService) as jest.Mocked<ReservaService>;
-    reservaNoti = TestBed.inject(
-      ReservaNotificationsService,
-    ) as jest.Mocked<ReservaNotificationsService>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     logger = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
   });
@@ -103,10 +96,9 @@ describe('ReservasDelDiaComponent', () => {
       reservaService.actualizarReserva.mockReturnValue(
         of({ code: 200, message: 'ok', data: actualizada }),
       );
-      reservaNoti.notifyEstadoCambio.mockResolvedValue(null);
     });
 
-    it('confirmar envía solo el estado, notifica y reemplaza la reserva con la respuesta', async () => {
+    it('confirmar envía solo el estado y reemplaza la reserva con la respuesta', async () => {
       const original = component.reservas.find((r) => r.reservaId === 8)!;
       component.reservas = [original, mockReserva];
 
@@ -119,15 +111,6 @@ describe('ReservasDelDiaComponent', () => {
       expect(toastr.success).toHaveBeenCalledWith(
         'Reserva marcada como CONFIRMADA',
         'Actualización Exitosa',
-      );
-      expect(reservaNoti.notifyEstadoCambio).toHaveBeenCalledWith(
-        {
-          fechaReserva: '01-01-2025',
-          horaReserva: '18:00:00',
-          documentoCliente: 1015466495,
-          reservaId: 1,
-        },
-        estadoReserva.CONFIRMADA,
       );
       expect(component.reservas).toEqual([original, actualizada]);
     });
@@ -142,23 +125,6 @@ describe('ReservasDelDiaComponent', () => {
       expect(reservaService.actualizarReserva).toHaveBeenNthCalledWith(2, 1, {
         estadoReserva: estadoReserva.CUMPLIDA,
       });
-    });
-
-    it('un invitado se notifica con documento null', async () => {
-      const invitada = mockReservasDelDiaResponse.data[1];
-      component.cancelarReserva(invitada);
-      await fixture.whenStable();
-      expect(reservaNoti.notifyEstadoCambio).toHaveBeenCalledWith(
-        expect.objectContaining({ documentoCliente: null, reservaId: 9 }),
-        estadoReserva.CANCELADA,
-      );
-    });
-
-    it('ignora un fallo al notificar', async () => {
-      reservaNoti.notifyEstadoCambio.mockRejectedValue(new Error('push'));
-      component.confirmarReserva(mockReserva);
-      await fixture.whenStable();
-      expect(toastr.success).toHaveBeenCalled();
     });
 
     it('rechaza un id de reserva no válido', () => {

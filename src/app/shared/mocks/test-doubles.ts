@@ -409,12 +409,6 @@ export function createReservaContactoServiceMock() {
   } as any;
 }
 
-export function createReservaNotificationsServiceMock() {
-  return {
-    notifyEstadoCambio: jest.fn().mockResolvedValue(undefined),
-  } as any;
-}
-
 export function createLocationReloadMock() {
   // jsdom 26 no permite redefinir window.location: se espía el wrapper browserLocation.
   return jest.spyOn(browserLocation, 'reload').mockImplementation(() => {});
@@ -657,20 +651,6 @@ export function createSwPushMock() {
     isEnabled: true,
     requestSubscription: jest.fn(),
     unsubscribe: jest.fn(),
-  } as any;
-}
-
-export function createReservaNotificationsServiceMock() {
-  return {
-    notifyEstadoCambio: jest.fn(),
-    notifyCreacion: jest.fn(),
-  } as any;
-}
-
-export function createPedidoNotificationsServiceMock() {
-  return {
-    notifyCreacion: jest.fn().mockResolvedValue(null),
-    notifyAdminDomicilio: jest.fn().mockResolvedValue(null),
   } as any;
 }
 

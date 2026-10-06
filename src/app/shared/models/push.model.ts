@@ -16,15 +16,12 @@ export interface PushPaginatedData<T> {
 /**
  * Dispositivo push tal como lo expone el backend: `documentoCliente`/`documentoTrabajador` son el
  * número de documento (no el struct), `subscribedTopics` siempre es una lista y las fechas llegan como
- * `DD-MM-YYYY HH:MM:SS` en hora de Bogotá.
+ * `DD-MM-YYYY HH:MM:SS` en hora de Bogotá. El backend nunca devuelve las credenciales del dispositivo
+ * (`endpoint`, `p256dh`, `auth`, `fcmToken`): solo se envían al registrarlo.
  */
 export interface PushDispositivo {
   pushDispositivoId: number;
   plataforma: PlataformaNotificacion;
-  endpoint?: string | null;
-  p256dh?: string | null;
-  auth?: string | null;
-  fcmToken?: string | null;
   enabled: boolean;
   locale?: string | null;
   timeZone?: string | null;
@@ -41,8 +38,8 @@ export interface PushDispositivo {
 
 /**
  * POST /push/dispositivos: upsert por `fcmToken`/`endpoint`. Responde 201 si el dispositivo es nuevo y
- * 200 si ya existía (se reactiva y se reasigna el dueño). Indicar exactamente uno de
- * `documentoCliente`/`documentoTrabajador`.
+ * 200 si ya existía (se reactiva y se reasigna al usuario de la sesión). El dueño (cliente o trabajador)
+ * lo fija el backend a partir del token: no se envía documento en el cuerpo (403 si no coincide con el token).
  */
 export interface RegistrarDispositivoRequest {
   plataforma: PlataformaNotificacion;
@@ -55,8 +52,6 @@ export interface RegistrarDispositivoRequest {
   appVersion?: string;
   userAgent?: string;
   subscribedTopics?: string[];
-  documentoCliente?: number;
-  documentoTrabajador?: number;
 }
 
 export interface RemitenteNotificacion {

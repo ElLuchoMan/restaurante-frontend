@@ -7,7 +7,6 @@ import { of, throwError } from 'rxjs';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
-import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import {
@@ -18,7 +17,6 @@ import {
 } from '../../../../shared/mocks/reserva.mocks';
 import {
   createLoggingServiceMock,
-  createReservaNotificationsServiceMock,
   createReservaServiceMock,
   createToastrMock,
   createUserServiceMock,
@@ -37,7 +35,6 @@ describe('ConsultarReservaComponent', () => {
   let component: ConsultarReservaComponent;
   let fixture: ComponentFixture<ConsultarReservaComponent>;
   let reservaService: jest.Mocked<ReservaService>;
-  let reservaNoti: jest.Mocked<ReservaNotificationsService>;
   let toastr: jest.Mocked<ToastrService>;
   let userService: jest.Mocked<UserService>;
   let logger: jest.Mocked<LoggingService>;
@@ -55,7 +52,6 @@ describe('ConsultarReservaComponent', () => {
       imports: [ConsultarReservaComponent, FormsModule, CommonModule, HttpClientTestingModule],
       providers: [
         { provide: ReservaService, useValue: createReservaServiceMock() },
-        { provide: ReservaNotificationsService, useValue: createReservaNotificationsServiceMock() },
         { provide: ToastrService, useValue: createToastrMock() },
         { provide: UserService, useValue: createUserServiceMock() },
         { provide: LoggingService, useValue: createLoggingServiceMock() },
@@ -63,9 +59,6 @@ describe('ConsultarReservaComponent', () => {
     }).compileComponents();
 
     reservaService = TestBed.inject(ReservaService) as jest.Mocked<ReservaService>;
-    reservaNoti = TestBed.inject(
-      ReservaNotificationsService,
-    ) as jest.Mocked<ReservaNotificationsService>;
     toastr = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
     userService = TestBed.inject(UserService) as jest.Mocked<UserService>;
     logger = TestBed.inject(LoggingService) as jest.Mocked<LoggingService>;
@@ -198,10 +191,9 @@ describe('ConsultarReservaComponent', () => {
         reservaService.actualizarReserva.mockReturnValue(
           of({ code: 200, message: 'ok', data: actualizada }),
         );
-        reservaNoti.notifyEstadoCambio.mockResolvedValue(null);
       });
 
-      it('confirmar envía solo el estado, notifica y reemplaza la reserva con la respuesta', async () => {
+      it('confirmar envía solo el estado y reemplaza la reserva con la respuesta', async () => {
         component.confirmarReserva(mockReserva);
         await fixture.whenStable();
 
@@ -211,15 +203,6 @@ describe('ConsultarReservaComponent', () => {
         expect(toastr.success).toHaveBeenCalledWith(
           'Reserva marcada como CONFIRMADA',
           'Actualización Exitosa',
-        );
-        expect(reservaNoti.notifyEstadoCambio).toHaveBeenCalledWith(
-          {
-            fechaReserva: '01-01-2025',
-            horaReserva: '18:00:00',
-            documentoCliente: 1015466495,
-            reservaId: 1,
-          },
-          estadoReserva.CONFIRMADA,
         );
         expect(component.reservas[0]).toBe(actualizada);
         expect(component.reservas[1].reservaId).toBe(2);
@@ -235,24 +218,6 @@ describe('ConsultarReservaComponent', () => {
         expect(reservaService.actualizarReserva).toHaveBeenNthCalledWith(2, 1, {
           estadoReserva: estadoReserva.CUMPLIDA,
         });
-      });
-
-      it('un invitado (sin cliente registrado) se notifica con documento null', async () => {
-        const invitada = mockReservasDelDiaResponse.data[1];
-        component.cumplirReserva(invitada);
-        await fixture.whenStable();
-        expect(reservaNoti.notifyEstadoCambio).toHaveBeenCalledWith(
-          expect.objectContaining({ documentoCliente: null, reservaId: 9 }),
-          estadoReserva.CUMPLIDA,
-        );
-      });
-
-      it('ignora un fallo al notificar', async () => {
-        reservaNoti.notifyEstadoCambio.mockRejectedValue(new Error('push'));
-        component.confirmarReserva(mockReserva);
-        await fixture.whenStable();
-        expect(toastr.success).toHaveBeenCalled();
-        expect(component.reservas[0]).toBe(actualizada);
       });
 
       it('rechaza un id de reserva no válido', () => {

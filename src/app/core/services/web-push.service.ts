@@ -8,6 +8,12 @@ import { browserLocation } from '../../shared/utils/browser-location';
 import { PushService } from './push.service';
 import { UserService } from './user.service';
 
+/** El backend rechazó el registro: 403 (dueño distinto al del token) o 404 (la cuenta ya no existe). */
+function rechazoDeSesion(error: unknown): boolean {
+  const code = (error as { code?: unknown } | null)?.code;
+  return code === 403 || code === 404;
+}
+
 @Injectable({ providedIn: 'root' })
 export class WebPushService {
   constructor(
@@ -129,13 +135,11 @@ export class WebPushService {
 
       console.log('[WebPush] Credenciales obtenidas, registrando en backend...');
 
-      // Registrar el dispositivo en el backend
-      const role = this.userService.getUserRole?.();
+      // Registrar el dispositivo en el backend: el dueño lo fija el servidor a partir del token
       const doc = this.userService.getUserId?.();
-      const isCliente = role === 'Cliente';
 
       if (typeof doc !== 'number' || doc <= 0) {
-        // El backend exige exactamente un cliente o un trabajador: sin sesión no se registra.
+        // El backend asigna el dispositivo al usuario del token: sin sesión no se registra.
         console.warn(
           '[WebPush] Sin sesión: registro del dispositivo diferido hasta iniciar sesión',
         );
@@ -152,7 +156,6 @@ export class WebPushService {
         appVersion: '1.0.0',
         userAgent: (typeof navigator !== 'undefined' && navigator.userAgent) || '',
         subscribedTopics: ['promos', 'novedades'],
-        ...(isCliente ? { documentoCliente: doc } : { documentoTrabajador: doc }),
       };
 
       await firstValueFrom(this.pushService.registrarDispositivo(payload));
@@ -169,8 +172,13 @@ export class WebPushService {
     } catch (error) {
       console.error('[WebPush] Error al suscribirse:', error);
 
-      // Error específico de VAPID
-      if (error instanceof Error && error.message.includes('VAPID')) {
+      if (rechazoDeSesion(error)) {
+        // 403/404 del registro: el servidor no acepta el dispositivo con la sesión actual
+        alert(
+          '❌ No se pudo registrar este dispositivo con tu sesión actual.\nCierra sesión, vuelve a ingresar e intenta de nuevo.',
+        );
+      } else if (error instanceof Error && error.message.includes('VAPID')) {
+        // Error específico de VAPID
         alert(
           '❌ Error de configuración VAPID.\n\nLa clave pública VAPID no es válida.\nContacta al administrador del sistema.',
         );

@@ -6,7 +6,6 @@ import { ToastrService } from 'ngx-toastr';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
-import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { TrabajadorService } from '../../../../core/services/trabajador.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
@@ -52,7 +51,6 @@ export class CrearReservaComponent implements OnInit {
     private toastr: ToastrService,
     private router: Router,
     private logger: LoggingService,
-    private reservaNoti: ReservaNotificationsService,
   ) {}
 
   ngOnInit(): void {
@@ -157,7 +155,7 @@ export class CrearReservaComponent implements OnInit {
     }
 
     this.reservaService.crearReserva(base).subscribe({
-      next: async (response) => {
+      next: (response) => {
         const rolActual = this.rol || this.userService.getUserRole() || '';
         // Un invitado recibe solo la vista mínima: el código de la reserva es lo que necesita
         // (junto con su teléfono o documento) para consultarla después.
@@ -165,22 +163,6 @@ export class CrearReservaComponent implements OnInit {
           ? ''
           : `. Guarda tu código #${response.data.reservaId}: con él y tu teléfono o documento podrás consultarla`;
         this.toastr.success(`Reserva creada exitosamente${codigo}`, 'Éxito');
-        try {
-          // Solo clientes loggeados: notificar creación
-          if (rolActual === 'Cliente') {
-            const creada = response.data;
-            await this.reservaNoti.notifyCreacion({
-              fechaReserva: creada.fechaReserva,
-              horaReserva: creada.horaReserva,
-              // El dueño recibe la reserva completa; con la vista mínima se usa el documento enviado
-              documentoCliente:
-                ('contactoId' in creada
-                  ? creada.contactoId.documentoCliente?.documentoCliente
-                  : undefined) ?? base.documentoCliente,
-              reservaId: creada.reservaId,
-            });
-          }
-        } catch {}
         // Redirección según rol
         if (rolActual === 'Administrador') {
           this.router.navigate(['/admin/reservas']);

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { NativePushService } from './native-push.service';
 import { PushService } from './push.service';
@@ -335,10 +335,7 @@ describe('NativePushService', () => {
 
       expect(mockFirebaseMessaging.getToken).toHaveBeenCalled();
       expect(pushService.registrarDispositivo).toHaveBeenCalledWith(
-        expect.objectContaining({
-          fcmToken: 'fcm-token-123',
-          documentoCliente: 999,
-        }),
+        expect.objectContaining({ fcmToken: 'fcm-token-123' }),
       );
     });
 
@@ -729,42 +726,61 @@ describe('NativePushService', () => {
       mockFirebaseMessaging.getToken.mockResolvedValue({ token: 'test-token' });
     });
 
-    it('should register device with Cliente document', async () => {
-      userService.getUserRole.mockReturnValue('Cliente');
+    it.each([
+      ['Cliente', 12345],
+      ['Mesero', 67890],
+    ])(
+      'should register device without owner document (the server uses the token) as %s',
+      async (role, id) => {
+        userService.getUserRole.mockReturnValue(role);
+        userService.getUserId.mockReturnValue(id);
+
+        await service.init();
+
+        expect(pushService.registrarDispositivo).toHaveBeenCalledWith({
+          plataforma: 'ANDROID',
+          fcmToken: 'test-token',
+          locale: expect.any(String),
+          timeZone: expect.any(String),
+          appVersion: '1.0.0',
+          subscribedTopics: ['promos', 'novedades'],
+        });
+      },
+    );
+
+    it.each([403, 404])(
+      'should warn and not fail when the server rejects the device (%s)',
+      async (code) => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+        userService.getUserId.mockReturnValue(12345);
+        pushService.registrarDispositivo.mockReturnValue(
+          throwError(() => ({ code, message: 'no' })),
+        );
+
+        await service.init();
+
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('rechazó el registro'));
+        expect(warnSpy).not.toHaveBeenCalledWith(
+          '[NativePushService] init error',
+          expect.anything(),
+        );
+        warnSpy.mockRestore();
+      },
+    );
+
+    it('should report other registration errors through the generic handler', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
       userService.getUserId.mockReturnValue(12345);
+      pushService.registrarDispositivo.mockReturnValue(throwError(() => ({ code: 500 })));
 
       await service.init();
 
-      expect(pushService.registrarDispositivo).toHaveBeenCalledWith({
-        plataforma: 'ANDROID',
-        fcmToken: 'test-token',
-        locale: expect.any(String),
-        timeZone: expect.any(String),
-        appVersion: '1.0.0',
-        subscribedTopics: ['promos', 'novedades'],
-        documentoCliente: 12345,
-      });
-    });
-
-    it('should register device with Trabajador document', async () => {
-      userService.getUserRole.mockReturnValue('Mesero');
-      userService.getUserId.mockReturnValue(67890);
-
-      await service.init();
-
-      expect(pushService.registrarDispositivo).toHaveBeenCalledWith({
-        plataforma: 'ANDROID',
-        fcmToken: 'test-token',
-        locale: expect.any(String),
-        timeZone: expect.any(String),
-        appVersion: '1.0.0',
-        subscribedTopics: ['promos', 'novedades'],
-        documentoTrabajador: 67890,
-      });
+      expect(warnSpy).toHaveBeenCalledWith('[NativePushService] init error', { code: 500 });
+      warnSpy.mockRestore();
     });
 
     it('should skip registration if user is not logged in (no document)', async () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined); // eslint-disable-line no-restricted-syntax
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
       userService.getUserRole.mockReturnValue(null);
       userService.getUserId.mockReturnValue(0);
 

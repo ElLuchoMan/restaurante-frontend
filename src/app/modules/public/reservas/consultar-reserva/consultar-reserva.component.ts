@@ -6,7 +6,6 @@ import { Observable } from 'rxjs';
 
 import { LoggingService, LogLevel } from '../../../../core/services/logging.service';
 import { ReservaService } from '../../../../core/services/reserva.service';
-import { ReservaNotificationsService } from '../../../../core/services/reserva-notifications.service';
 import { UserService } from '../../../../core/services/user.service';
 import { estadoReserva } from '../../../../shared/constants';
 import { ApiResponse } from '../../../../shared/models/api-response.model';
@@ -51,7 +50,6 @@ export class ConsultarReservaComponent implements OnInit {
     private toastr: ToastrService,
     private userService: UserService,
     private logger: LoggingService,
-    private reservaNoti: ReservaNotificationsService,
   ) {}
 
   ngOnInit(): void {
@@ -209,19 +207,8 @@ export class ConsultarReservaComponent implements OnInit {
     const payload: ReservaUpdate = { estadoReserva: nuevoEstado };
 
     this.reservaService.actualizarReserva(reserva.reservaId, payload).subscribe({
-      next: async (response) => {
+      next: (response) => {
         this.toastr.success(`Reserva marcada como ${nuevoEstado}`, 'Actualización Exitosa');
-        try {
-          await this.reservaNoti.notifyEstadoCambio(
-            {
-              fechaReserva: reserva.fechaReserva,
-              horaReserva: reserva.horaReserva,
-              documentoCliente: reserva.contactoId.documentoCliente?.documentoCliente ?? null,
-              reservaId: reserva.reservaId,
-            },
-            nuevoEstado,
-          );
-        } catch {}
         // El backend devuelve la reserva actualizada con su contacto y restaurante
         this.reservas = this.reservas.map((r) =>
           r.reservaId === reserva.reservaId ? response.data : r,

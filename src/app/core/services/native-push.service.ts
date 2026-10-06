@@ -164,8 +164,7 @@ export class NativePushService {
         return;
       }
 
-      // Resolver identidad actual (cliente o trabajador). El backend exige exactamente uno de los dos.
-      const role = this.userService.getUserRole?.();
+      // El dueño (cliente o trabajador) lo fija el backend a partir del token: solo se exige sesión.
       const doc = this.userService.getUserId?.();
       if (typeof doc !== 'number' || doc <= 0) {
         // Sin sesión: no se registra (el backend rechazaría el dispositivo). AppComponent
@@ -173,7 +172,6 @@ export class NativePushService {
         console.warn('[Push] Sin sesión: registro del dispositivo diferido hasta iniciar sesión');
         return;
       }
-      const isCliente = role === 'Cliente';
 
       const payload: RegistrarDispositivoRequest = {
         plataforma: this.nativePlatform(),
@@ -182,10 +180,16 @@ export class NativePushService {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         appVersion: '1.0.0',
         subscribedTopics: ['promos', 'novedades'],
-        ...(isCliente ? { documentoCliente: doc } : { documentoTrabajador: doc }),
       };
 
-      await firstValueFrom(this.pushService.registrarDispositivo(payload));
+      try {
+        await firstValueFrom(this.pushService.registrarDispositivo(payload));
+      } catch (e) {
+        const code = (e as { code?: unknown } | null)?.code;
+        if (code !== 403 && code !== 404) throw e;
+        // El servidor no acepta el dispositivo con esta sesión (dueño distinto o cuenta inexistente)
+        console.warn('[Push] El servidor rechazó el registro del dispositivo con la sesión actual');
+      }
     } catch (e) {
       // Silencioso en web o si faltan plugins; logging mínimo en consola para debug manual
       try {
